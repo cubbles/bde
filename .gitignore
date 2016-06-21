@@ -16,6 +16,18 @@ results
 npm-debug.log
 node_modules/
 
+
+webpackages/bde/bde/vendor
+
+
+webpackages/bde/bde/test-results
+webpackages/bde/bde/test/vendor/*
+webpackages/bde/bde/test/vendor/mocha-config.js
+webpackages/bde/bde/test/vendor/test.html
+
+**/manifest_webapp_backup
+**/manifest_json_backup
+
 webpackages/*_build/
 webpackages/*_pack/
 webpackages/*_dist/
