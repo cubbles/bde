@@ -17,7 +17,7 @@ npm-debug.log
 node_modules/
 
 
-webpackages/bde/bde/vendor
+webpackages/bde/bde/vendor/
 
 
 webpackages/bde/bde/test-results
