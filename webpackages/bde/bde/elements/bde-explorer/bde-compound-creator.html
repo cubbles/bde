@@ -1,0 +1,126 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-form/iron-form.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-input/paper-textarea.html">
+<link rel="import" href="../../vendor/paper-button/paper-button.html">
+<!--
+`bde-explorer` is the management component for handling cubble packages
+
+Example:
+
+    <bde-explorer></bde-explorer>
+
+-->
+<dom-module id="bde-compound-creator">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="{{opened}}">
+            <h2>Add Compound Cubble</h2>
+            <div>
+                <span class="description">
+                    A compound cubble is composed of one or more elementary or compound cubbles. <br>
+                    It can be used to reuse and recompose existing cubbles in a new context.
+                </span>
+                <form is="iron-form" id="form">
+                    <paper-input id="artifactId"
+                        name="artifactId"
+                        label="artifact-id"
+                        pattern="^[a-z0-9]+(-[a-z0-9]+)+$"
+                        error-message="must contain a dash and no spaces"
+                        tabindex="0"
+                        value=""
+                        required></paper-input>
+                    <paper-textarea id="description"
+                        name="description"
+                        label="description"
+                        rows="2"
+                        tabindex="1"
+                        value=""></paper-textarea>
+                </form>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button disabled="[[!_valid]]" dialog-confirm>Add</paper-button>
+            </div>
+        </paper-dialog>
+
+    </template>
+    <script>
+    Polymer({
+        is: 'bde-compound-creator',
+
+        properties: {
+
+            opened: {
+                type: Boolean,
+                notify: true
+            },
+
+            lastArtifact: {
+                type: Object,
+                notify: true
+            },
+
+            _valid: {
+                type: Boolean,
+                value: false
+            }
+        },
+
+        listeners: {
+            'iron-form-presubmit': 'handleFormPresubmit',
+            'input': 'handleInput',
+            'dialog.iron-overlay-closed': 'handleDialogClosed'
+        },
+
+        close: function() {
+            this.opened = false;
+        },
+
+        handleDialogClosed: function(e, reason) {
+            this.$.form.reset();
+        },
+
+        handleFormPresubmit: function(event) {
+            event.preventDefault();
+            this.set('lastArtifact', this._compoundFrom(this.$.form.serialize()));
+            this.close();
+        },
+
+        handleInput: function(e) {
+            this._valid = this.$.form.validate();
+        },
+
+        open: function() {
+            this.opened = true;
+        },
+
+        _compoundFrom: function(obj) {
+            var compound = {
+                artifactId: null,
+                description: null,
+                endpoints: [{
+                    endpointId: 'main',
+                    resources: [],
+                    dependencies: []
+                }],
+                slots: [],
+                members: [],
+                connections: [],
+                inits: []
+            };
+
+            Object.keys(obj).forEach(k => compound[k] = obj[k]);
+
+            return compound;
+        }
+
+    });
+    </script>
+</dom-module>

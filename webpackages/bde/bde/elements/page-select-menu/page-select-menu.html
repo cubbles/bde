@@ -1,0 +1,87 @@
+<!-- libraries -->
+<link rel="import" href="../../vendor/polymer/polymer.html">
+
+<!-- iron elements -->
+<link rel="import" href="../../vendor/iron-selector/iron-selector.html">
+
+<!--
+A BDE custom element, which uses an iron-selector element to notify a selected property.
+In conjunction with an iron-pages element the routing can be controlled via data binding.
+The selected attribute is bound to the attribute 'page' of the child items.
+
+
+Example:
+
+    <page-select-menu selected="{{selected}}">
+      <paper-icon-button title="First page" page="first"></paper-icon-button>
+      <paper-icon-button title="Second page" page="second" selected></paper-icon-button>
+      <paper-icon-button title="Third page" page="third"></paper-icon-button>
+    </page-select-menu>
+
+    <iron-pages id="pages" attr-for-selected="id" selected="{{selected}}">
+      <div id="first" >
+        First
+      </div>
+      <div id="second">
+        Second
+      </div>
+      <div id="third">
+        Third
+      </div>
+    </iron-pages>
+
+@group BDE Custom Elements
+@element page-select-menu
+@demo ../elements/page-select-menu/demo/index.html
+-->
+
+
+<dom-module id="page-select-menu">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <iron-selector id="selector"
+        attr-for-selected="page"
+        selected-attribute="active"
+        selected="{{selected}}">
+      <content id="selectors" select="*"></content>
+    </iron-selector>
+
+  </template>
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'page-select-menu',
+
+      properties: {
+
+        /**
+         * Selected property, notifies value for data binding, bound for children attribute 'page'.
+         * @type {String}
+         */
+        selected: {
+          type: String,
+          notify: true
+        }
+
+      },
+
+      /**
+       * Polymer attached function, for initializing the element on page load.
+       */
+      attached: function() {
+        var distributedNodes = Polymer.dom(this.$.selectors).getDistributedNodes();
+        var selectedNode = [].find.call(distributedNodes, node => node.hasAttribute('selected'));
+
+        this.selected = (selectedNode) ? selectedNode.getAttribute('page') : distributedNodes[0].getAttribute('page');
+      }
+    });
+  })();
+  </script>
+</dom-module>

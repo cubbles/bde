@@ -1,0 +1,215 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-form/iron-form.html">
+<link rel="import" href="../../vendor/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../../vendor/iron-pages/iron-pages.html">
+<link rel="import" href="../../vendor/paper-toast/paper-toast.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../vendor/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-button/paper-button.html">
+<link rel="import" href="../../vendor/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../app-data/app-data.html">
+
+<dom-module id="bde-application-settings">
+    <template>
+        <style>
+        :host {
+            display: block;
+        }
+
+        #dialog {
+            min-width: 500px;
+        }
+
+        .content {
+            padding-bottom: 20px;
+        }
+
+        fieldset {
+            border: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        paper-tabs {
+            background-color: var(--light-theme-background-color);
+            --paper-tabs-selection-bar-color: var(--accent-color);
+
+        }
+        </style>
+
+        <app-data key="settings" data="{{settings}}"></app-data>
+
+        <paper-toast id="toast" text="Settings saved." no-auto-focus></paper-toast>
+
+        <paper-dialog id="dialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
+
+            <h2>Settings</h2>
+
+            <paper-dialog-scrollable>
+
+                <paper-tabs selected="{{_tabSelected}}">
+
+                    <paper-tab>Base Settings</paper-tab>
+                    <paper-tab>User Settings</paper-tab>
+                    <paper-tab>View Settings</paper-tab>
+
+                </paper-tabs>
+
+                <iron-pages selected="{{_tabSelected}}">
+
+                    <section id="base">
+
+                        <p class="description">This sets the base you will deploy to.<br> You will need a valid account for deployment.</p>
+
+                        <div class="content">
+
+                            <paper-input id="baseUrl"
+                                type="text"
+                                name="baseUrl"
+                                label="Base URL"
+                                pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
+                                value="[[_intermediate.baseUrl]]"
+                                auto-validate></paper-input>
+
+                            <paper-input id="baseName"
+                                type="text"
+                                name="baseName"
+                                label="Base Name"
+                                pattern="[a-zA-Z0-9-._~]+"
+                                value="[[_intermediate.baseName]]"
+                                auto-validate></paper-input>
+
+                            <paper-input id="username"
+                                name="username"
+                                label="Username"
+                                pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"
+                                value="[[_intermediate.username]]"
+                                auto-validate></paper-input>
+
+                            <paper-input id="password"
+                                name="password"
+                                type="password"
+                                label="Password"
+                                value="[[_intermediate.password]]"></paper-input>
+
+                            <paper-button raised on-tap="baseConnect">
+                                [[_connectButtonText(_connected)]]
+                            </paper-button>
+
+                        </div>
+                    </section>
+
+                    <section id="user">
+
+                        <div class="content">
+                            <paper-input id="authorName"
+                                type="text"
+                                name="name"
+                                label="Full Name"
+                                pattern="^(([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?[\.]?\s)+([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?$"
+                                auto-validate
+                                ></paper-input>
+
+                            <paper-input id="authorEmail"
+                                type="email"
+                                name="email"
+                                label="E-Mail Adress"
+                                pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"
+                                auto-validate></paper-input>
+
+                            <paper-input id="groupId"
+                                type="text"
+                                name="groupId"
+                                label="Group ID"
+                                pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*$"
+                                auto-validate></paper-input>
+
+                            <paper-input id="authorUrl"
+                                type="url"
+                                name="url"
+                                label="URL (e.g. the personal or company homepage)"
+                                pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
+                                auto-validate></paper-input>
+
+                        </div>
+                    </section>
+
+                    <section id="view">
+                        <p>Here be view Settings...</p>
+                    </section>
+
+                </iron-pages>
+
+            </paper-dialog-scrollable>
+            <div class="buttons">
+                <paper-button dialog-confirm>Close</paper-button>
+            </div>
+        </paper-dialog>
+
+    </template>
+    <script>
+    Polymer({
+        is: 'bde-application-settings',
+
+        properties: {
+
+            opened: {
+                type: Boolean,
+                value: false
+            },
+
+            webpackage: {
+                type: Object,
+                notify: true
+            },
+
+            settings: {
+                type: Object,
+                notify: true
+            },
+
+            _connected: {
+                type: Boolean,
+                value: false
+            },
+
+            _intermediate: {
+                type: Object
+            },
+
+            _tabSelected: {
+                type: Number,
+                value: 0
+            }
+        },
+
+        listeners: {
+            'change': 'handleChanged',
+            'iron-overlay-opened': 'handleOpened'
+        },
+
+        baseConnect: function() {
+            // TODO (fdu): Check credentials against the base here...
+        },
+
+        handleOpened: function() {
+            this.set('_intermediate', JSON.parse(JSON.stringify(this.settings)));
+        },
+
+        handleChanged: function(event) {
+            if (event.target.validate() && event.target.name !== 'password') {
+                this.set('settings.' + event.target.name, event.target.value);
+                this.$.toast.open();
+            }
+        },
+
+        _connectButtonText: function(_connected) {
+            return (_connected)
+                ? 'Disconnect from Base'
+                : 'Connect with Base';
+        }
+    });
+    </script>
+</dom-module>

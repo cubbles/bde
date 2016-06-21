@@ -9,35 +9,24 @@
     "email": "edwin.gamboa@incowia.com"
   },
   "license": "MIT",
-  "keywords": [ ],
-  "man": [ ],
+  "keywords": [],
+  "man": [],
   "artifacts": {
     "apps": [
       {
-        "artifactId": "app",
-        "description": "This is a simple pre-generated app.",
+        "artifactId": "bde",
+        "description": "Application for the bde",
         "runnables": [
           {
-            "name": "app",
+            "name": "BDE",
             "path": "/index.html",
-            "description": "Call this app as a simple demo."
-          }
-        ]
-      },
-      {
-        "artifactId": "docs",
-        "description": "Generated webpackage documentation.",
-        "runnables": [
-          {
-            "name": "docs",
-            "path": "/index.html",
-            "description": "Show the interface of this component."
+            "description": "BDE app"
           }
         ]
       }
     ],
-    "elementaryComponents": [ ],
-    "compoundComponents": [ ],
-    "utilities": [ ]
+    "elementaryComponents": [],
+    "compoundComponents": [],
+    "utilities": []
   }
 }

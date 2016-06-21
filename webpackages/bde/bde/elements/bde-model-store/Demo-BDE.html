@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BDE  Internal Schema </title>
+
+    <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
+    <script src="../bower_components/react/react-with-addons.js"></script>
+    <script src="../bower_components/klayjs-noflo/klay-noflo.js"></script>
+    <script src="../bower_components/hammerjs/hammer.min.js"></script>
+    <script src="../bower_components/ease-djdeath/index.js"></script>
+    <script src="../bower_components/react.animate-djdeath/react.animate.js"></script>
+
+    <!-- Browserify Libraries -->
+    <script src="../build/noflo.js"></script>
+
+    <!-- Custom Elements -->
+    <link rel="import" href="../bower_components/polymer/polymer.html">
+    <link rel="import" href="../the-graph/bde-graph.html">
+    <link rel="import" href="./bde-model-store.html">
+    <!-- CSS -->
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="../bower_components/font-awesome/css/font-awesome.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400' rel='stylesheet' type='text/css'>
+
+    <!-- Fonts -->
+    <style>
+        @font-face {
+            /* we want the svg version */
+            font-family: 'FontAwesomeSVG';
+            src: url('../bower_components/font-awesome/fonts/fontawesome-webfont.svg?v=4.4.0#fontawesomeregular') format('svg'),
+            url('../bower_components/font-awesome/fonts/fontawesome-webfont.eot?#iefix&v=4.4.0') format('embedded-opentype'),
+            url('../bower_components/font-awesome/fonts/fontawesome-webfont.woff?v=4.4.0') format('woff'),
+            url('../bower_components/font-awesome/fonts/fontawesome-webfont.ttf?v=4.4.0') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+        body {
+            background-color: hsl(189, 47%, 6%);
+            font-family: "SourceCodePro",Helvetica,Arial,sans-serif;
+            overflow: hidden;
+        }
+        #editor {
+            background-color: transparent;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #nav {
+            position: absolute;
+            right: 0px;
+            bottom: 0px;
+        }
+        #testing {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+<bde-graph id="editor"></bde-graph>
+<bde-model-store id="modelStore"></bde-model-store>
+
+<script>
+
+
+    (function (context) {
+        'use strict';
+        // this address in klay-noflo is line 45 : webcomponent/klay.js
+      ;
+        var dataModel =
+
+        {
+            "compoundId":  "cubx.demo.demo-compound-example1",
+            "memberId":"demo-cpmpound",
+            "type": "compound",
+            "displayName": "Demo-internal-schema",
+            "inslots": {
+                "state" :{
+                    "name":"state",
+                    "type": "integer",
+                    "metadata" : {
+                        "value": 0
+                    }
+                }
+            },
+            "outslots": {
+                "statedmessage" :
+                {
+                    "name":"statedmessage",
+                    "type": "integer",
+                    "metadata" :
+                    {
+                        "value": 0
+                    }
+                }
+
+            },
+            "members": {
+                "demo-keyvalue-input":{
+                    "compoundId":"cubx.demo.demo-keyvalue-input-0.2-SNAPSHOT",
+                    "displayName" :"SchlÃ¼ssel Wert Eingabe",
+                    "inslots": [
+                        {
+                            "name": "keyvalueobject",
+                            "type": "object",
+                            "metadata" :
+                            {
+                                "value": ""
+                            }
+
+                        }
+
+                    ],
+                    "outslots":[
+                        {
+                            "name": "keyvalueobject",
+                            "type": "object",
+                            "metadata" :
+                            {
+                                "value": ""
+                            }
+
+                        }
+                    ],
+                    "metadata":{
+                        "label": "key-value-input",
+                        "x":300,
+                        "y":200
+                    }
+                },
+                "demo-barchart":{
+                    "compoundId":"cubx.demo.demo-barchart-0.1-SNAPSHOT",
+                    "displayName" :"Bar-Chart",
+
+                    "inslots":[
+                        {"name": "chartpalette",
+                            "type": "integer",
+                            "metadata" :
+                            {
+                                "value": "blue"
+                            }
+                        },
+                        {"name": "chartdata",
+                            "type": "array",
+                            "metadata" :
+                            {
+                                "value": []
+                            }
+                        }
+                    ],
+                    "outslots":[],
+                    "metadata":{
+                        "label": "bar-chart",
+                        "x":400,
+                        "y":200
+                    }
+
+                },
+                "demo-slider-number":{
+                    "compoundId": "cubx.demo.demo-slider-number-0.1",
+                    "displayName": "Demo Schieber Nummer",
+
+                    "inslots": [
+                        {
+                            "name": "label",
+                            "type": "string",
+                            "metadata" :
+                            {
+                                "value": "Slider number"
+                            }
+                        },
+                        {
+                            "name": "minvalue",
+                            "type": "integer",
+                            "metadata" :
+                            {
+                                "value": 0
+                            }
+                        },
+                        {
+                            "name": "maxvalue",
+                            "type": "integer",
+                            "metadata" :
+                            {
+                                "value": 100
+                            }
+                        }
+                    ],
+                    "outslots":[],
+                    "metadata":{
+                        "label": "Slider ",
+                        "x":300,
+                        "y":400
+                    }
+                },
+                "demo-input-number":{
+                    "compoundId": "cubx.demo.demo-input-number-0.1-SNAPSHOT",
+                    "displayName": "Nummer Eingabe",
+
+                    "inslots": [
+                        { "name": "label","type": "string","metadata" :{"value":"Eingabe"}},
+                        { "name": "numbervalue","type": "integer","metadata" :{"value":0}}
+
+                    ],
+                    "outslots":[
+                        { "name": "numbervalue","type": "integer","metadata" :{"value":0}}
+                    ],
+                    "metadata":{
+                        "label": "input-number",
+                        "x":200,
+                        "y":200
+                    }
+                },
+                "demo-keyvalue-aggregator":{
+                    "compoundId": "cubx.demo.demo-keyvalue-aggregator-0.2-SNAPSHOT",
+                    "displayName": "Smmler",
+
+                    "inslots": [
+                        { "name": "keyvalue","type": "object","metadata" :{"value":""}}
+
+
+                    ],
+                    "outslots":[
+                        { "name": "aggregatedjson","type": "array","metadata" :{"value":0}}
+                    ],
+                    "metadata":{
+                        "label": "key-value-aggregator",
+                        "x":200,
+                        "y":500
+                    }
+                }
+
+            },
+            "connections":
+                    [
+                        {
+                            "source": {
+                                "memberIndex": "demo-input-number",
+                                "slot": "numbervalue"
+                            },
+                            "target": {
+
+                                "slot": "statedmessage"
+                            }
+                        },
+                        {
+                            "source": {
+                                "memberIndex": "demo-input-number",
+                                "slot": "numbervalue"
+                            },
+                            "target": {
+                                "memberIndex":"demo-barchart",
+                                "slot": "chartdata"
+                            }
+                        },
+                        {
+                            "source": {
+                                "memberIndex": "demo-input-number",
+                                "slot": "numbervalue"
+                            },
+                            "target": {
+                                "memberIndex":"demo-slider-number",
+                                "slot": "minvalue"
+                            }
+                        },
+                        {
+                            "source": {
+
+                                "slot": "state"
+                            },
+                            "target": {
+                                "memberIndex": "demo-input-number",
+                                "slot": "numbervalue"
+                            }
+                        },
+                        {
+                            "source": {
+                                "memberIndex": "demo-keyvalue-input",
+                                "slot": "keyvalueobject"
+                            },
+                            "target": {
+                                "memberIndex": "demo-keyvalue-aggregator",
+                                "slot": "keyvalue"
+                            }
+                        },
+                        {
+                            "source": {
+                                "memberIndex": "demo-keyvalue-aggregator",
+                                "slot" : "aggregatedjson"
+                            },
+                            "target": {
+                                "memberIndex":"demo-barchart",
+                                "slot" : "chartdata"
+                            }
+                        }
+
+                    ],
+            "metadata":{}
+
+        }
+
+        /*var nav = document.getElementById('nav');
+         nav.editor = document.getElementById('editor');*/
+        /*
+         context.addEventListener('DOMContentLoaded', function () {
+         var editor = document.querySelector('#editor');
+         editor.width = editor.parentNode.offsetWidth;
+         editor.height = editor.parentNode.offsetHeight;
+         });*/
+        var editor = document.querySelector('#editor');
+        editor.width = editor.parentNode.offsetWidth;
+        editor.height = editor.parentNode.offsetHeight;
+        //editor.dataModel = dataModel;
+
+         var modelStore= document.querySelector('#modelStore');
+        modelStore.compoundId = dataModel.compoundId;
+        modelStore.memberId = dataModel.memberId;
+        modelStore.displayName = dataModel.displayName;
+        modelStore.inslots=dataModel.inslots;
+        modelStore.outslots=dataModel.outslots;
+        modelStore.members=dataModel.members;
+        modelStore.connections=dataModel.connections;
+        editor.dataModel = dataModel;
+
+
+
+        context.addEventListener('WebComponentsReady', function () {
+            'use strict';
+            /*     var nav = document.getElementById('nav');
+             nav.editor = editor;*/
+            // Autolayout button
+            /* document.getElementById("autolayout").addEventListener("click", function () {
+             editor.triggerAutolayout();
+             });*/
+
+
+            editor.addEventListener('edges',function(e){console.log(e.detail)});
+            editor.addEventListener('nodes',function(e){});
+
+
+            editor.graph.on("removeEdge",function(e){
+                console.log('remove after fire')
+                modelStore.removeConnection(e.from.node, e.from.port, e.to.node, e.to.port);
+            });
+            //if duplicate Node
+            editor.addEventListener('duplicate-nodes', function(e){
+                console.log(e);
+                //modelStore.addMember()
+
+                /*console.log(e.detail)*/});
+
+            editor.graph.on('removeNode', function(e){
+                console.log('removenodde')
+                modelStore.removeMember(e.id)
+
+            });
+            // this event fire by bde-graph
+            editor.addEventListener('add-inslot', function(e){
+
+                modelStore.addInslot(e.detail.port,'all',e.detail.node,null)
+            });
+
+
+            editor.graph.on('removeInport',function(e){
+                console.log('remove from demo after removeInport')
+                modelStore.removeInslot(e);
+
+            });
+
+            editor.addEventListener('add-outslot', function(e){ modelStore.addOutslot(e.detail.port,'all',e.detail.node,null)});
+
+            editor.graph.on('removeOutport', function(e){
+                modelStore.removeOutslot(e);
+            });
+            console.log(editor.graph);
+            document.querySelector('#editor').nofloGraph.on('addEdge', function(e){
+
+                modelStore.addConnection(e.from.node, e.from.port, e.to.node, e.to.port);
+            });
+
+            //find new x ,y if node is dragged
+
+            // editor.nofloGraph.on('changeNode',function(e,before){
+            //console.log(e);
+            // });
+            //change in the-graph-node : this.props.graph.endTransaction('movenode',{nodeID:this.props.nodeID,x:this.props.node.metadata.x,y:this.props.node.metadata.y});
+            document.querySelector('#editor').addEventListener('movenode',function(e){console.log(e.detail)});
+        });
+        //});
+
+    }(this));
+</script>
+
+</body>
+</html>

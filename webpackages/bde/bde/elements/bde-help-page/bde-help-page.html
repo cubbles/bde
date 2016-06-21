@@ -1,0 +1,206 @@
+<!-- (ene) TODO: i18n  -> app-localize-behavior -->
+<!-- (ene) TODO: use iron-localstorage on property instead of using it directly -->
+
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-pages/iron-pages.html">
+<link rel="import" href="../../vendor/iron-selector/iron-selector.html">
+<link rel="import" href="../../vendor/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../vendor/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../vendor/neon-animation/animations/fade-out-animation.html">
+
+<!--
+A page dialog component used for documentation and tutorials.
+
+On first start of the app, the dialog is shown, to inform the user about the features of the BDE.
+
+On localstorage a value is set, to indicate, that the app was already opened, so the dialog would be prevented from opening on every start-up.
+
+Example:
+
+    <bde-help-page></bde-help-page>
+
+@group BDE Custom Elements
+@hero hero.svg
+@element bde-help-page
+-->
+
+<dom-module id="bde-help-page">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      #paginator {
+        @apply(--layout-horizontal);
+        justify-content: center;
+      }
+
+      .dot {
+        background-color: var(--paper-cyan-600);
+        width: 12px;
+        height: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 5px;
+        z-index: 100;
+      }
+
+      .dot.iron-selected {
+        background-color: var(--accent-color);
+      }
+
+      paper-dialog {
+        /*min-width: 200px;*/
+        /*min-height: 150px;*/
+        @apply(--layout-vertical);
+      }
+
+    </style>
+
+    <paper-dialog id="dialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
+      <!-- <paper-dialog-scrollable> -->
+
+      <h2>Starthilfe</h2>
+
+          <iron-pages selected="{{_selectedHelpPage}}">
+            <div>
+              <p>
+                Ein neues Projekt mit der BDE beginnen:
+              </p>
+                <li><b>"Add Compound Cubble"</b> eine artifact-id eingeben (diese muss einen Bindestrich enthalten), ENTER drücken, Beschreibung ist optional, aber sinnvoll</li>
+                <li>Allgemeine <b>"application-settings"</b> sind einzustellen mit einem Klick auf <paper-icon-button icon="settings"></paper-icon-button> in der Werkzeugleiste oben links, insbesondere der Tab <b>"User Settings"</b></li>
+                <li><b>Hinzufügen von Cubble Komponenten</b> von der Base per <paper-icon-button icon="add"></paper-icon-button> in der unteren rechten Ecke.</li>
+                <li>Nun können die Komponenten über die Oberfläche grafisch miteinander verbunden werden, um neue komplexe Cubble Komponenten zu erstellen.</li>
+            </div>
+            <div>
+              <p>
+                Grafische Manipulation von Cubble Komponenten:
+              </p>
+                <li>Die Komponenten können per Maus angeordnet werden (drag-and-drop).</li>
+                <li>Per <b>Mausrad</b> kann die Zoomstufe verändert werden.</li>
+                <li>Zum Erstellen von Verbindungen zwischen Komponenten kann per <b>Klick-und-Halten</b> auf ein Slot eine Verbindung "gezogen" werden.</li>
+                <li>Alternativ kann ein Kontextmenü per <b>rechter Maustaste</b> aufgerufen werden.</li>
+              <p>Ansicht verändern:</p>
+                <li>Die Aktion <paper-icon-button icon="icons:aspect-ratio"></paper-icon-button> verändert das Fenster so, dass alle Komponenten zentriert angezeigt werden.</li>
+                <li>Ein Klick auf <paper-icon-button icon="bde:magic-wand"></paper-icon-button> ordnet die Komponenten automatisch im Fenster an.</li>
+            </div>
+            <div>
+              <p>
+                Verschiedene Sichten in der BDE:
+              </p>
+                <li>Oben rechts in der Werkzeugleiste finden Sie die Schaltflächen für die verschiedenen Sichten in der BDE zwischen denen gewechselt werden kann.</li>
+              <p>
+                Die Schaltfächen:
+              </p>
+                <li><paper-icon-button icon="icons:gesture"></paper-icon-button> (Standartmäßig eingestellt beim Starten der BDE): <b>Datenfluss-Sicht</b> (data-flow-view) zur Manipulation der Komponenten, Verbindungen, Startwerte, etc.</li>
+                <li><paper-icon-button icon="icons:open-with"></paper-icon-button><b>: Design-Sicht</b> (bde-design-view) zum Anordnen der Anwendungsansicht der Komponenten.</li>
+                <li><paper-icon-button icon="icons:apps"></paper-icon-button><b>: Anwendungs-Sicht</b> (application-view) zur Darstellung einer lauffähigen Version des erstellten Webpackages in der BDE.</li>
+            </div>
+            <div>
+              <p>
+                Webpackage-Explorer:
+              </p>
+                <li>Das <b>Webpackage</b> bildet das aktuelle Projekt ab. Es kann <i>Applications</i>, <i>Compounds</i>, <i>Elementaries</i>, <i>Utilities</i> enthalten.</li>
+                <li><b>Compounds</b> enthalten <i>Member</i>. Dies sind ebenfalls weitere Cubble Komponenten.</li>
+                <li>Member werden dem aktuellen Compound auch hinzugefügt, wenn Cubble Komponenten von der Base mit dem <paper-icon-button icon="icons:add"></paper-icon-button> unten rechts im Fenster hinzugefügt werden.</li>
+                <li>Über die Schaltfläche <b>Import Cubble</b> lassen sich weitere Komponenten aus der Base dem Webpackage hinzufügen.</li>
+            </div>
+            <div>
+              <p>
+                Entwicklerdokumentation
+              </p>
+                <div>
+                  Die Entwicklerdokumentation der BDE Elemente ist zu finden unter:
+                </div>
+                  <li><a href="/test/documentation.html"> Dokumentation</a></li>
+                  <li>Die Dokumentation ist in englischer Sprache. </li>
+            </div>
+          </iron-pages>
+
+      <!-- </paper-dialog-scrollable> -->
+
+      <iron-selector id="paginator" selected = "{{_selectedHelpPage}}">
+        <div class = "dot"></div>
+        <div class = "dot"></div>
+        <div class = "dot"></div>
+        <div class = "dot"></div>
+        <div class = "dot"></div>
+      </iron-selector>
+
+      <div class="buttons">
+        <paper-button dialog-confirm>Close</paper-button>
+      </div>
+      <!-- (ene) TODO: find a suitable place for this -->
+      <!-- <section id="docs">
+      <p>You find the API reference for the BDE elements on the <a href="/test/documentation.html"> documentation page</a>.</p>
+      </section> -->
+    </paper-dialog>
+
+    <!-- <iron-local-storage name = "start-up-Tutorial"
+                        value = "{{startupTutorial}}"
+                        on-iron-localstorage-load-empty="initStartupTutorial">
+    </iron-local-storage> -->
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'bde-help-page',
+
+      properties: {
+
+        /**
+         * Opened Binding, to be accessed from the app
+         * @type {Boolean}
+         * @property {opened}
+         */
+        opened: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * Init value for the selected help page
+         * @type {Number}
+         * @property {_selectedHelpPage}
+         */
+        _selectedHelpPage: {
+          type: Number,
+          value: 0
+        },
+
+        // startupTutorial : {
+        //   type: String
+        // }
+
+
+      // initStartupTutorial : function () {
+      //     this.startupTutorial = 'done';
+      // },
+
+    },
+      /**
+       * Polymer attached function. Sets the 'startupTutorial' value on app-start, otherwise checks if the value is set.
+       */
+      attached: function() {
+
+        // if (this.startupTutorial == 'done') {
+        //   return;
+        // }
+        // else {
+        //   this.opened = true;
+        // }
+
+        if (localStorage.getItem('startupTutorial') == 'done') {
+          return;
+        } else {
+          this.opened = true;
+          localStorage.setItem('startupTutorial', 'done')
+        }
+      },
+    });
+  </script>
+</dom-module>

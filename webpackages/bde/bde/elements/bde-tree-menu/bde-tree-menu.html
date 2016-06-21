@@ -1,0 +1,129 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+<link rel="import" href="../../vendor/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../vendor/paper-material/paper-material.html">
+<link rel="import" href="../../vendor/paper-material/paper-material-shared-styles.html">
+
+<!--
+`bde-tree-menu` displays a hierarchical menu structure as a tree.
+
+Example:
+
+    <bde-tree-menu items="[[items]]"></bde-tree-menu>
+
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--paper-fab-background` | The background color of the button | `--accent-color`
+`--paper-fab-keyboard-focus-background` | The background color of the button when focused | `--paper-pink-900`
+`--paper-fab-disabled-background` | The background color of the button when it's disabled | `--paper-grey-300`
+`--paper-fab-disabled-text` | The text color of the button when it's disabled | `--paper-grey-500`
+`--paper-fab` | Mixin applied to the button | `{}`
+`--paper-fab-mini` | Mixin applied to a mini button | `{}`
+`--paper-fab-disabled` | Mixin applied to a disabled button | `{}`
+`--paper-fab-iron-icon` | Mixin applied to the iron-icon within the button | `{}`
+
+@demo demo/index.html
+-->
+
+<dom-module id="bde-tree-menu">
+    <template strip-whitespace>
+
+        <style>
+        :host {
+            display: block;
+        }
+
+        paper-material {
+            min-height: 48px;
+            line-height: 24px;
+            padding: 0px 16px;
+
+            @apply(--layout-vertical);
+        }
+
+        .wrap {
+            @apply(--paper-font-subhead);
+            width: 100%;
+
+            @apply(--layout-horizontal);
+        }
+
+        [primary] {
+            @apply(--layout-flex-auto);
+        }
+
+        iron-collapse {
+            width: 100%;
+            padding-left: 20px;
+        }
+        </style>
+
+        <template id="level" is="dom-repeat" items="[[items]]">
+
+            <div>
+                <div class="wrap">
+                    <iron-icon icon="[[_computeIcon(showChildren, item.children)]]" item-icon></iron-icon>
+                    <div class$=[[_computeChildClass(items)]] on-tap="toggleChildren" primary>[[item.name]]</div>
+                </div>
+                <template is="dom-if" if="[[item.children]]">
+                    <iron-collapse opened="{{showChildren}}">
+                        <bde-tree-menu items="[[item.children]]" level="[[_computeLevel(level)]]"></bde-tree-menu>
+                    </iron-collapse>
+                </template>
+            </div>
+
+        </template>
+
+    </template>
+
+    <script>
+    Polymer({
+        is: 'bde-tree-menu',
+
+        properties: {
+
+            items: {
+                type: Array,
+                value: function() {
+                    return [];
+                }
+            },
+
+            level: {
+                type: Number,
+                value: 0,
+                reflectToAttribute: true
+            },
+
+            showChildren: {
+                type: Boolean,
+                value: false
+            }
+        },
+
+        toggleChildren: function(event) {
+            this.showChildren = !this.showChildren;
+        },
+
+        _computeChildClass: function(items) {
+            return (items && items.length > 0) ? 'parent expanded' : 'expanded';
+        },
+
+        _computeIcon: function(showChildren, items) {
+            console.log(showChildren, items.length);
+            return (items.length > 0) ? (showChildren) ? 'icons:expand-more' : 'icons:expand-less' : '';
+        },
+
+        _computeLevel: function(level) {
+            return ++level;
+        }
+
+    });
+    </script>
+</dom-module>

@@ -1,0 +1,28 @@
+{
+  "name": "bde-repository-browser",
+  "version": "0.1.0",
+  "authors": [
+    "Erik Neute <erik.neute@hm-ag.de>"
+  ],
+  "description": "BDE custom element, item list from Base via AJAX.",
+  "keywords": [
+    "web-component",
+    "polymer"
+  ],
+  "main": "bde-repository-browser.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "iron-elements": "PolymerElements/iron-elements#~1.0.4",
+    "paper-elements": "PolymerElements/paper-elements#~1.0.5",
+    "polymer": "Polymer/polymer#^1.1.0",
+    "roboto-fontface": "~0.4.3"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "*"
+  }
+}

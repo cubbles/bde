@@ -1,0 +1,156 @@
+<!-- libraries -->
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/font-roboto/roboto.html"/>
+
+<!-- paper elements -->
+<link rel="import" href="../../vendor/paper-item/paper-item.html">
+<link rel="import" href="../../vendor/paper-fab/paper-fab.html">
+
+<!-- iron elements -->
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+<link rel="import" href="../../vendor/iron-ajax/iron-ajax.html">
+<script src="../../vendor/inflection/inflection.min.js"></script>
+<!--
+A BDE custom-element providing an item containing a name and a description, and a button, which fires an event containing a data-object.
+
+Example:
+
+    <bde-repository-item
+        item="{{item}}"
+        last-item-selected="{{addedItem}}"
+        webpackage="{{webpackage}}">
+    </bde-repository-item>
+
+@group BDE Custom Elements
+@element bde-repository-item
+
+-->
+<dom-module id="bde-repository-item">
+
+  <style>
+      :host {
+          display: block;
+      }
+
+  </style>
+
+  <template>
+
+    <iron-ajax
+      id="itemRequest"
+      url="[[getItemUrl(item)]]"
+      handle-as="json"
+      on-response="handleResponse">
+    </iron-ajax>
+
+    <paper-icon-item class="layout horizontal">
+      <iron-icon icon="image:remove-red-eye" item-icon></iron-icon>
+
+      <paper-item-body three-line>
+
+        <div>[[item.artifactId]]</div>
+
+        <div secondary>[[item.name]]</div>
+
+        <div secondary>[[item.artifactDescription]]</div>
+
+      </paper-item-body>
+
+      <paper-fab icon="add" on-tap="addComponent" mini></paper-fab>
+
+    </paper-icon-item>
+
+  </template>
+
+  <script>
+  Polymer({
+    'is': 'bde-repository-item',
+
+    properties: {
+
+      /**
+       * Object containing the couchDB data retrieved by the initial request to the Base via bde-repository-browser.
+       *
+       * @type Object
+       * @property item
+       */
+      item: {
+        type: Object,
+        value: function () {
+          return {};
+        }
+      },
+
+      /**
+       * Object containing couchDB data for the given component. Used for databinding the component data to the other bde-elements.
+       *
+       * @type Object
+       * @property lastItemSelected
+       */
+      lastItemSelected: {
+        type: Object,
+        notify: true
+      },
+
+      /**
+       * Object to store the couchDB data for the given component. For later use in the bde-creator.
+       *
+       * @type Object
+       * @property webpackage
+       */
+      webpackage: {
+        type: Object,
+        notify: true
+      }
+
+    },
+
+    /**
+     * Method invoked on click for the given component. Generates new AJAX request to retrieve the data for component from the couchDB.
+     *
+     * @method addComponent
+     */
+    addComponent: function () {
+      this.$.itemRequest.generateRequest();
+    },
+
+    /**
+     * Method gets the URL for the given component based on the retrieved metadata from initail search request.
+     *
+     * @method getItemUrl
+     * @param  {Object} item metadata of initail request
+     * @return {String} url URL ind Base for the given component
+     */
+    getItemUrl: function (item) {
+      // url = https://www.cubbles.world/ + store/ + name + @version (name + @version = webpackageId)
+      var url = "https://www.cubbles.world/" + "sandbox/" + item.webpackageId;
+      return url;
+    },
+
+    /**
+     * Handles the AJAX response of the iron-ajax element. Sets the data for the given component for data-binding with other bde elements.
+     *
+     * @method handleResponse
+     * @param  {Event} event The iron-ajax respons event.
+     */
+    handleResponse: function (event) {
+        var webpackage = this.$.itemRequest.lastResponse
+        var path = inflection.pluralize(this.item.artifactType);
+        var artifact = webpackage.artifacts[path]
+            .find(artifact => artifact.artifactId === this.item.artifactId);
+
+        if (!artifact) {
+            throw new Error("Something went wrong finding our artifact in the webpackage");
+        }
+
+        artifact.artifactType = this.item.artifactType;
+        artifact.url = this.getItemUrl(this.item);
+        artifact.webpackageId = webpackage._id;
+
+        this.set('lastItemSelected', artifact);
+    }
+
+  });
+  </script>
+
+</dom-module>

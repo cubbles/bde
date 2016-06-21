@@ -1,0 +1,123 @@
+<style>
+    body {
+        background: #fff;
+        height: 100vh;
+    }
+
+    .draggable {
+        cursor: move;
+    }
+
+    [cubx-core-crc] {
+        @apply(--layout-horizontal);
+    }
+</style>
+
+<div id="crcRoot" cubx-core-crc></div>
+
+<script>
+(function () {
+    'use strict';
+
+    var crcRoot = document.querySelector('#crcRoot');
+    var crcLoaderUrl = 'https://webblebase.net/cubx.core.crc-loader-%s/js/main.js';
+
+    // const DEBUG = false;
+    // window.__console__ = window.console;
+    // window.console = {
+    //     'log': function () {
+    //         if (DEBUG) window.__console__.log.apply(window.__console__, arguments);
+    //     }
+    // };
+
+    function _getLoaderVersion (modelVersion) {
+
+        switch (modelVersion.substring(0,2)) {
+
+            case '4.':
+                return '0.5';
+
+            case '5.':
+                return '0.6.1';
+
+            case '6.':
+                return '1.1';
+
+            case '7.':
+                return '1.4-SNAPSHOT';
+
+            default:
+                console.error("Unsupported Model Version", modelVersion);
+                return;
+
+        }
+    };
+
+    function _handleMessage (event) {
+        var data = event.data || {};
+        console.log(data.message, data);
+        if (!data || !data.message) {
+            return;
+        }
+
+        switch (data.message) {
+
+            case 'debug':
+                console.log("got", data);
+            break;
+
+            case 'manifest':
+                if (data.data) {
+                    _handleManifest.call(this, data.data);
+                }
+            break;
+
+        }
+    };
+
+    function _handleManifest (manifest) {
+
+        // Cannot handle resetting CIF container, yet
+        if (window.cif) {
+            document.location.reload();
+            return;
+        }
+
+        crcRoot.appendChild(document.createElement(manifest.name));
+        window.cubx = { CRCConfig: manifest };
+        var url = crcLoaderUrl.replace(/%s/, _getLoaderVersion(manifest.modelVersion));
+        _injectScript(url, () => {
+            console.log("CRCLoader injected...");
+        });
+    };
+
+    function _injectScript (src, cb) {
+        var head = document.querySelector('head');
+        var script = document.createElement('script');
+
+        script.onload = function () {
+            cb.call(this);
+        }.bind(this);
+
+        script.src = src;
+        head.appendChild(script);
+    };
+
+    function _postMessage (message, data) {
+        var message = { message: message };
+
+        if (data) { message.data = data; }
+
+        window.parent.postMessage(
+            JSON.parse(JSON.stringify(message)),
+            document.location.origin
+        );
+    };
+
+    window.addEventListener('message', _handleMessage, false);
+    window.addEventListener('DOMContentLoaded', e => {
+        _postMessage('loaded');
+    }, false);
+
+}());
+</script>

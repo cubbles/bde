@@ -1,0 +1,187 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-toast/paper-toast.html">
+<link rel="import" href="../../vendor/paper-spinner/paper-spinner.html">
+
+<!-- -->
+<dom-module id="bde-application-view">
+
+    <style is="custom-style">
+
+        host {
+            display: block;
+            height: 100%;
+        }
+
+        iframe {
+            display: block;
+
+            width: 100vw;
+            height: 100vh;
+        }
+
+            iframe.hidden {
+                visibility: hidden;
+                display: none;
+            }
+
+        .spinner-wrapper {
+            @apply(--layout-fit);
+            @apply(--layout-vertical);
+            @apply(--layout-center-center);
+        }
+
+        paper-button{
+          color: #1DB1CC;
+        }
+
+        .hint {
+            padding: .5em 0;
+            color: var(--secondary-text-color);
+
+            @apply(--paper-font-subhead);
+        }
+
+            .hint a {
+                text-decoration: none;
+                color: var(--accent-color);
+            }
+
+    </style>
+
+    <template>
+
+        <div class="spinner-wrapper" hidden="[[manifestComplete]]">
+            <paper-spinner id="spinner" active></paper-spinner>
+            <span class="hint">Complete <a href="javascript:void(0)" on-tap="openProjectProperties">project settings</a> and add some cubbles</span>
+        </div>
+
+        <iframe
+            id="iframe"
+            class$="[[_computeIFrameClasses(loaded)]]"
+            src="cif-iframe/cif-iframe.html"
+            frameborder="0"
+            seamless
+            hidden="[[!manifestComplete]]">
+        </iframe>
+
+        <paper-toast
+            id="noProjPropToast"
+            text="Manifest incomplete!"
+            duration="5000">
+          <paper-button on-click="openProjectProperties">Edit Project Properties</paper-button>
+        </paper-toast>
+
+        <paper-toast
+            id="noMembersToast"
+            text="Manifest incomplete! Add Members first."
+            duration="5000">
+        </paper-toast>
+
+    </template>
+
+    <script>
+    (function () {
+        'use strict';
+
+        // window.addEventListener('message', console.log.bind(console));
+
+        Polymer({
+
+            is: 'bde-application-view',
+
+            properties: {
+
+                loaded: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                },
+
+                manifest: {
+                    type: Object,
+                    observer: 'manifestChanged'
+                },
+
+                manifestComplete: {
+                    type: Boolean
+                }
+
+            },
+
+            created: function () {
+
+                // Polymer does not let me bind to window in `listeners`
+                window.addEventListener('message', this.handleMessage.bind(this), false);
+
+            },
+
+            handleMessage: function (event) {
+                var data = event.data || {};
+
+                if (!data || !data.message) {
+                    return;
+                }
+
+                switch (data.message) {
+
+                    case 'loaded':
+                        this.loaded = true;
+                        console.log("`loaded` event from iframe");
+                    break;
+
+                }
+
+            },
+
+
+            manifestChanged: function () {
+
+                // Manifest not set, yet
+                if (!Object.keys(this.manifest).length > 0) return;
+
+                this.reloadIframe(() => {
+                    this._postMessage('manifest', this.manifest);
+                });
+
+            },
+
+            reloadIframe: function (cb) {
+
+                this.loaded = false;
+
+                this.$.iframe.onload = cb.bind(this);
+                this.$.iframe.contentWindow.location.reload();
+
+            },
+
+            openProjectProperties: function () {
+                document.querySelector('bde-application-settings').open = true;
+            },
+
+            _computeIFrameClasses: function (loaded) {
+                return (!loaded) ? 'hidden': 'visible';
+            },
+
+            _postMessage: function (message, data) {
+
+                this.debounce('postMessage', () => {
+                    var payload = { 'message': message };
+
+                    if (data) { payload.data = data; }
+
+                    this.$.iframe.contentWindow.postMessage(
+                        JSON.parse(JSON.stringify(payload)),
+                        document.location.origin
+                    );
+                }, 250);
+
+            }
+
+
+        });
+    }());
+    </script>
+
+</dom-module>

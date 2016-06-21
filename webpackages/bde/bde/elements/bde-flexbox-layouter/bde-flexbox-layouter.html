@@ -1,0 +1,427 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel='import' href='../../vendor/paper-button/paper-button.html'/>
+<link rel='import' href='../../vendor/paper-radio-group/paper-radio-group.html'/>
+<link rel='import' href='../../vendor/paper-radio-button/paper-radio-button.html'/>
+<link rel='import' href='../../vendor/paper-input/paper-input.html'/>
+<link rel="import" href="../../vendor/Sortable/Sortable.html">
+
+<!--
+
+`bde-flexbox-layouter` is the flexbox editor for compound templates
+
+@author Christian Saul <saul@idmt.fraunhofer.de>
+
+-->
+
+<dom-module id="bde-flexbox-layouter">
+    <template>
+        <style is="custom-style">
+            :host {
+                display: block;
+            }
+
+            #flex-container {
+                margin: 20px;
+            }
+
+            #flex-container > * {
+                margin: 0;
+                display: inherit;
+                cursor: pointer;
+                padding: 10px;
+                border: 1px solid black;
+            }
+
+            #flex-container > * i {
+                transition: opacity .2s;
+                opacity: 0;
+                color: white;
+                background-color: #1db1cc;
+                font-style: normal;
+                position: relative;
+                top: -19px;
+                right: -19px;
+                min-width: 20px;
+                height: 20px;
+                border-radius: 10px;
+                font-size: 16px;
+                line-height: 21px;
+                text-align: center;
+            }
+
+            #flex-container > *:hover i {
+                opacity: 1;
+            }
+
+            .container {
+                margin-top: 15px;
+                cursor: pointer;
+            }
+
+            .container:focus {
+                outline: 0;
+            }
+
+            .container > span {
+                color: var(--bde-explorer-heading-text-color, --primary-text-color);
+
+                @apply(--paper-font-body2);
+            }
+
+            .container > .count {
+                color: var(--secondary-text-color);
+
+                @apply(--paper-font-caption);
+            }
+
+            small {
+                font-weight: normal;
+            }
+
+            .hidden {
+                display: none;
+            }
+
+            .selected {
+                background-color: var(--paper-grey-100);
+            }
+        </style>
+
+        <paper-drawer-panel
+                right-drawer
+                drawer-width="460px"
+                disable-swipe
+                disable-edge-swipe>
+
+            <div drawer>
+
+                <h2>Flexbox Layouter</h2>
+                <p>This tool allows you to lay out, align and distribute space among members (i.e., elementaries
+                    or utilities) in a compound, even when their size is unknown and/or dynamic.</p>
+                <strong hidden$="{{selectedCompound}}">Please select a compound in the webpackage explorer</strong>
+                <div hidden$="{{!selectedCompound}}" class="container" tabindex="0" on-tap="toggleCompoundMembers">
+                    <iron-icon icon="[[calculateToggleIcon(compoundMembersOpen)]]"></iron-icon>
+                    <span>Compound Members</span>
+                    <span class="count">([[selectedCompound.members.length]])</span>
+                </div>
+                <iron-collapse opened="[[compoundMembersOpen]]" hidden$="{{!selectedCompound}}">
+                    <template is="dom-repeat" items="[[selectedCompound.members]]">
+                        <paper-icon-item>
+                            <iron-icon icon="[[calculateMemberIcon(item.componentId)]]" item-icon>
+                            </iron-icon>
+                            <paper-item-body>
+                                <div>[[trimMemberName(item.componentId)]]</div>
+                            </paper-item-body>
+                            <paper-icon-button icon="icons:add" alt="Add member to template"
+                                               data-args="[[trimMemberName(item.componentId)]],[[item.memberId]]"
+                                               on-tap="addMember">
+                            </paper-icon-button>
+                        </paper-icon-item>
+                    </template>
+                </iron-collapse>
+
+                <div class="container" tabindex="0" on-tap="toggleLayoutSettings" hidden$="{{!selectedCompound}}">
+                    <iron-icon icon="[[calculateToggleIcon(layoutSettingsOpen)]]"></iron-icon>
+                    <span>Layout Settings</span>
+                </div>
+                <iron-collapse opened="[[layoutSettingsOpen]]" hidden$="{{!selectedCompound}}">
+                    <div class="controls-wrapper">
+                        <div class="controls-wrapper-buttons">
+                            <div>
+                                <h3>
+                                    Direction
+                                    <small>Specifies the direction of the members</small>
+                                </h3>
+                                <paper-radio-group selected="{{flexDirection}}">
+                                    <paper-radio-button name="row">Row</paper-radio-button>
+                                    <paper-radio-button name="row-reverse">Row Reverse</paper-radio-button>
+                                    <paper-radio-button name="column">Column</paper-radio-button>
+                                    <paper-radio-button name="column-reverse">Column Reverse</paper-radio-button>
+                                </paper-radio-group>
+                            </div>
+                            <div id="justify-content">
+                                <h3>
+                                    Justify Content
+                                    <small>Aligns the members when they do not use all available space horizontally
+                                    </small>
+                                </h3>
+                                <paper-radio-group selected="{{justifyContent}}">
+                                    <paper-radio-button name="flex-start">Start</paper-radio-button>
+                                    <paper-radio-button name="flex-end">End</paper-radio-button>
+                                    <paper-radio-button name="center">Center</paper-radio-button>
+                                    <paper-radio-button name="space-between">Space Between</paper-radio-button>
+                                    <paper-radio-button name="space-around">Space Around</paper-radio-button>
+                                </paper-radio-group>
+                            </div>
+                            <div id="wrap">
+                                <h3>
+                                    Wrap
+                                    <small>Specifies whether the members should wrap or not</small>
+                                </h3>
+                                <paper-radio-group selected="{{flexWrap}}">
+                                    <paper-radio-button name="nowrap">No Wrap</paper-radio-button>
+                                    <paper-radio-button name="wrap">Wrap</paper-radio-button>
+                                    <paper-radio-button name="wrap-reverse">Wrap Reverse</paper-radio-button>
+                                </paper-radio-group>
+                            </div>
+                            <div id="align-items">
+                                <h3>
+                                    Align Items
+                                    <small>Specifies the default alignment for members</small>
+                                </h3>
+                                <paper-radio-group selected="{{alignItems}}">
+                                    <paper-radio-button name="flex-start">Start</paper-radio-button>
+                                    <paper-radio-button name="flex-end">End</paper-radio-button>
+                                    <paper-radio-button name="center">Center</paper-radio-button>
+                                    <paper-radio-button name="baseline">Baseline</paper-radio-button>
+                                    <paper-radio-button name="stretch">Stretch</paper-radio-button>
+                                </paper-radio-group>
+                            </div>
+                            <!--<div>-->
+                            <!--<h3>-->
+                            <!--Align Content-->
+                            <!--<small>Modifies the behavior of the flex-wrap property</small>-->
+                            <!--</h3>-->
+                            <!--<paper-radio-group selected="{{alignContent}}">-->
+                            <!--<paper-radio-button name="flex-start">Start</paper-radio-button>-->
+                            <!--<paper-radio-button name="flex-end">End</paper-radio-button>-->
+                            <!--<paper-radio-button name="center">Center</paper-radio-button>-->
+                            <!--<paper-radio-button name="space-between">Space Between</paper-radio-button>-->
+                            <!--<paper-radio-button name="space-around">Space Around</paper-radio-button>-->
+                            <!--<paper-radio-button name="stretch">Stretch</paper-radio-button>-->
+                            <!--</paper-radio-group>-->
+                            <!--</div>-->
+                            <div id="item-settings" class="hidden">
+                                <h3>Selected Member Settings</h3>
+                                <div id="flex-grow">
+                                    <paper-input label="Grow" type="number" value="{{flexGrow}}" min="0"
+                                                 always-float-label></paper-input>
+                                    <small>Specifies how much the member will grow relative to the others (e.g., 2)</small>
+                                </div>
+                                <div id="flex-shrink">
+                                    <paper-input label="Shrink" type="number" value="{{flexShrink}}" min="1"
+                                                 always-float-label></paper-input>
+                                    <small>Specifies how the member will shrink relative to the others (e.g., 2)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </iron-collapse>
+            </div>
+
+            <div main>
+                <sortable-js id="flex-container" on-update="templateChanged"></sortable-js>
+            </div>
+
+        </paper-drawer-panel>
+    </template>
+    <script>
+        Polymer({
+            is: 'bde-flexbox-layouter',
+            properties: {
+                webpackage: {
+                    type: Object,
+                    observer: 'webpackageChanged'
+                },
+                selectedCompound: {
+                    type: Object,
+                    observer: 'selectedCompoundChanged'
+                },
+                compoundMembersOpen: {
+                    type: Boolean,
+                    value: true
+                },
+                layoutSettingsOpen: {
+                    type: Boolean,
+                    value: false
+                },
+                flexDirection: {
+                    type: String,
+                    value: 'row',
+                    observer: 'flexDirectionChanged'
+                },
+                flexWrap: {
+                    type: String,
+                    value: 'wrap',
+                    observer: 'flexWrapChanged'
+                },
+                justifyContent: {
+                    type: String,
+                    value: 'flex-start',
+                    observer: 'justifyContentChanged'
+                },
+                alignItems: {
+                    type: String,
+                    value: 'flex-start',
+                    observer: 'alignItemsChanged'
+                },
+                /*alignContent: {
+                    type: String,
+                    value: 'flex-start',
+                    observer: 'alignContentChanged'
+                },*/
+                flexGrow: {
+                    type: String,
+                    observer: 'flexGrowChanged'
+                },
+                flexShrink: {
+                    type: String,
+                    observer: 'flexShrinkChanged'
+                }
+            },
+            ready: function () {
+                var container = this.$$('#flex-container');
+                Polymer.dom(container).observeNodes(this.templateChanged.bind(this));
+            },
+            webpackageChanged: function (value) {
+                this.clearContainer();
+            },
+            selectedCompoundChanged: function (value) {
+                this.clearContainer();
+            },
+            clearContainer: function () {
+                var container = this.$$('#flex-container'),
+                        nodes = Polymer.dom(container).childNodes;
+                for (let n = 0; n < nodes.length; n++) {
+                    Polymer.dom(container).removeChild(nodes[n]);
+                }
+            },
+            flexDirectionChanged: function (value) {
+                var container = this.$$('#flex-container');
+                container.style.display = 'flex';
+                container.style.flexDirection = value;
+
+                if (value == 'row' || value == 'row-reverse') {
+                    this.$$('#justify-content').classList.remove('hidden');
+                    this.$$('#align-items').classList.add('hidden');
+                    this.$$('#wrap').classList.remove('hidden');
+                } else {
+                    this.$$('#justify-content').classList.add('hidden');
+                    this.$$('#align-items').classList.remove('hidden');
+                    this.$$('#wrap').classList.add('hidden');
+                }
+            },
+            flexWrapChanged: function (value) {
+                var container = this.$$('#flex-container');
+                container.style.display = 'flex';
+                container.style.flexWrap = value;
+
+                if (value == 'nowrap') {
+                    this.$$('#flex-shrink').classList.remove('hidden');
+                } else {
+                    this.$$('#flex-shrink').classList.add('hidden');
+                }
+            },
+            justifyContentChanged: function (value) {
+                var container = this.$$('#flex-container');
+                container.style.display = 'flex';
+                container.style.justifyContent = value;
+            },
+            alignItemsChanged: function (value) {
+                var container = this.$$('#flex-container');
+                container.style.display = 'flex';
+                container.style.alignItems = value;
+            },
+            /* Requires to set the height of the container
+            this.$$('#flex-container').offsetHeight;
+            alignContentChanged: function (value) {
+                var container = this.$$('#flex-container');
+                container.style.display = 'flex';
+                container.style.alignContent = value;
+            },*/
+            flexGrowChanged: function (value) {
+                var item = this.$$('.selected');
+                if (item) item.style.flexGrow = value;
+            },
+            flexShrinkChanged: function (value) {
+                var item = this.$$('.selected');
+                if (item) item.style.flexShrink = value;
+            },
+            toggleCompoundMembers: function () {
+                this.layoutSettingsOpen = false;
+                this.compoundMembersOpen = !this.compoundMembersOpen;
+            },
+            toggleLayoutSettings: function () {
+                this.compoundMembersOpen = false;
+                this.layoutSettingsOpen = !this.layoutSettingsOpen;
+            },
+            calculateToggleIcon: function (state) {
+                return state ? 'icons:arrow-drop-down' : 'icons:arrow-drop-up';
+            },
+            calculateMemberIcon: function (member) {
+                var memberName = this.trimMemberName(member);
+                for (var key in this.webpackage.artifacts.compoundComponents) {
+                    if (this.webpackage.artifacts.compoundComponents[key]['artifactId'] == memberName) {
+                        return 'icons:donut-small';
+                    }
+                }
+                for (var key in this.webpackage.artifacts.elementaryComponents) {
+                    if (this.webpackage.artifacts.elementaryComponents[key]['artifactId'] == memberName) {
+                        return 'icons:donut-large';
+                    }
+                }
+                for (var key in this.webpackage.artifacts.utilities) {
+                    if (this.webpackage.artifacts.utilities[key]['artifactId'] == memberName) {
+                        return 'icons:extension';
+                    }
+                }
+                return 'icons:cloud';
+            },
+            trimMemberName: function (member) {
+                return (member.substring(0, 4) == 'this') ? member.substring(5) : member; // Removing 'this/'
+            },
+            addMember: function (event) {
+                var args = Polymer.dom(event).localTarget.dataArgs.split(','),
+                        componentId = args[0],
+                        memberId = args[1],
+                        container = this.$$('#flex-container'),
+                        component = document.createElement(componentId),
+                        removeButton = document.createElement('i');
+
+                Polymer.dom(container).appendChild(component);
+                component.setAttribute('class', 'style-scope bde-flexbox-layouter');
+                component.setAttribute('member-id-ref', memberId);
+                component.innerHTML = componentId;
+                component.addEventListener('tap', this.selectMember.bind(this));
+                Polymer.dom(component).appendChild(removeButton);
+                removeButton.setAttribute('class', 'style-scope bde-flexbox-layouter');
+                removeButton.innerHTML = '✖';
+                removeButton.addEventListener('tap', this.removeMember.bind(this));
+            },
+            selectMember: function (event) {
+                var selectedElements = Polymer.dom(event).localTarget.parentNode.querySelectorAll('.selected');
+                for (let i = 0; i < selectedElements.length; i++) {
+                    selectedElements[i].classList.remove('selected');
+                }
+                Polymer.dom(event).localTarget.classList.add('selected');
+                this.$$('#item-settings').classList.remove('hidden');
+                this.flexGrow = Polymer.dom(event).localTarget.style.flexGrow;
+                this.flexShrink = Polymer.dom(event).localTarget.style.flexShrink;
+            },
+            removeMember: function (event) {
+                var container = this.$$('#flex-container');
+                Polymer.dom(container).removeChild(Polymer.dom(event).localTarget.parentNode)
+            },
+            isValidHTMLTag: function (tagName) {
+                return tagName.match(/[^a-zA-Z0-9-]/) ? false : true;
+            },
+            templateChanged: function (info) {
+                console.log('<bde-flexbox-layouter>::templateChanged', this.getTemplate());
+            },
+            getTemplate: function () {
+                var container = this.$$('#flex-container').cloneNode(true),
+                        template = document.createElement('template');
+
+                template.style.cssText = container.style.cssText;
+                while (container.hasChildNodes()) {
+                    template.appendChild(container.removeChild(container.firstChild))
+                }
+                for (let i = 0; i < template.children.length; i++) {
+                    template.children[i].removeAttribute('class');
+                    template.children[i].innerHTML = '';
+                }
+                return template;
+            }
+        });
+    </script>
+</dom-module>

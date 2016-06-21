@@ -1,0 +1,72 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../vendor/paper-button/paper-button.html">
+<link rel="import" href="bde-base-browser.html">
+<script src="../../vendor/inflection/inflection.min.js"></script>
+
+<dom-module id="bde-base-import">
+    <template>
+        <style>
+        :host {
+            display: block;
+        }
+
+        #dialog {
+            min-width: 500px;
+        }
+        </style>
+
+        <paper-dialog id="dialog"
+            opened="{{opened}}"
+            exit-animation="fade-out-animation">
+            <h2>Import Cubble</h2>
+            <paper-dialog-scrollable id="scroll">
+                <bde-base-browser id="browser"
+                    selected="{{_lastItemAdded}}"></bde-base-browser>
+            </paper-dialog-scrollable>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Close</paper-button>
+            </div>
+        </paper-dialog>
+
+
+    </template>
+    <script>
+    Polymer({
+        is: 'bde-base-import',
+
+        properties: {
+            opened: {
+                type: Boolean,
+                value: false
+            },
+
+            artifacts: {
+                type: Object,
+                notify: true
+            },
+
+            _lastItemAdded: {
+                type: Object,
+                observer: '_lastItemAddedChanged'
+            }
+        },
+
+        close: function() {
+            this.opened = false;
+        },
+
+        open: function() {
+            this.opened = true;
+        },
+
+        _lastItemAddedChanged: function() {
+            var artifact = this._lastItemAdded;
+            var path = inflection.pluralize(artifact.artifactType);
+            this.push('artifacts.' + path, artifact);
+            this.close();
+        }
+    });
+    </script>
+</dom-module>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BDE Properties Editor Demo</title>
+
+    <link rel="import" href="../../vendor/iron-flex-layout/iron-flex-layout.html">
+
+    <link rel="import" href="../bde-model-store/bde-model-store.html">
+
+    <link rel="import" href="bde-properties-editor.html">
+
+</head>
+<body unresolved layout horizontal>
+
+    <template id="demo" is="dom-bind">
+
+        <bde-model-store id="store"></bde-model-store>
+
+        <bde-properties-editor id="editor"></bde-properties-editor>
+
+    </template>
+
+    <script>
+    'use strict';
+
+    const MEMBERS = [ { "id": "com.incowia.emob.dummy-dataset-0.5.0", "memberIndex": 1, "displayName": "DummyDataset" }, { "id": "com.incowia.emob.selector-provider-0.4.0", "memberIndex": 2, "displayName": "SelectorProvider" }, { "id": "com.incowia.emob.selector-panel-0.6.0", "memberIndex": 3, "displayName": "SelectorPanel" }, { "id": "com.incowia.emob.indicator-provider-0.6.0", "memberIndex": 4, "displayName": "IndicatorProvider" }, { "id": "com.incowia.emob.board-panel-1.2.0", "memberIndex": 5, "displayName": "BoardPanel" }, { "id": "com.incowia.emob.data-panel-1.1.1", "memberIndex": 6, "displayName": "DataPanel" }, { "id": "com.incowia.emob.content-panel-0.2.0", "memberIndex": 7, "displayName": "ContentPanel" }, { "id": "com.incowia.emob.correlation-provider-0.1.0", "memberIndex": 8, "displayName": "CorrelationProvider" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 101, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 102, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 103, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 104, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 105, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 106, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 107, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 108, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 109, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 110, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 111, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 112, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 113, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 114, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 115, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 116, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 117, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 118, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 119, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 120, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 121, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 122, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 123, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 124, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 125, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 126, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 127, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 128, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 129, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 130, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 131, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 132, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 133, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 134, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 135, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 136, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 137, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 138, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 139, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 140, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 141, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 142, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 143, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 144, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 145, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 146, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 147, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 148, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 149, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 150, "displayName": "GenericCorrelator" }, { "id": "com.incowia.emob.generic-correlator-1.0.0", "memberIndex": 151, "displayName": "GenericCorrelator" } ];
+
+    const NAME_CAPTURE_REGEX = /\S+\.(\S+-\S+)-\d\.\d\.\d(?:-SNAPSHOT)?$/;
+
+
+    var demo = document.querySelector('#demo');
+
+    demo.addEventListener('dom-change', function() {
+        let store = document.querySelector('#store');
+        let editor = document.querySelector('#editor');
+
+        store.addEventListener('addMember', (m) => console.log(m) );
+
+        store.load(
+            JSON.stringify({
+                id: 'com.incowia.emob.e-mobility-0.4.0-SNAPSHOT',
+                name: 'e-mobility'
+            })
+        );
+
+        MEMBERS.forEach(function (member) {
+            store.addMember(
+                member.id.replace(NAME_CAPTURE_REGEX, "$1"), // id
+                [], // inslots
+                [], // outslots
+                {   // metadata
+                    displayName: member.displayName,
+                    memberIndex: member.memberIndex
+                }
+            );
+        });
+
+    });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>bde-webpackdoc-input Demo</title>
+    <script src="/vendor/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../bde-webpackdoc-input.html">
+    <link rel="import" href="/vendor/paper-button/paper-button.html"/>
+</head>
+<body unresolved>
+
+<bde-webpackdoc-input></bde-webpackdoc-input>
+
+<paper-button raised id="toggleForm" label="openDialog" on-tap="openDialog">open Dialog</paper-button>
+
+<div id="showSubmit" style="padding-top:15px;">
+
+</div>
+
+<script>
+    document.addEventListener('WebComponentsReady', function(){
+
+        document.querySelector('bde-webpackdoc-input').groupid = 'de.test';
+        document.querySelector('bde-webpackdoc-input').name = 'test-component';
+        document.querySelector('bde-webpackdoc-input').version = '0.0.0';
+        document.querySelector('bde-webpackdoc-input').description = 'This is a test description';
+        document.querySelector('bde-webpackdoc-input').author = 'Tester von Test';
+        document.querySelector('bde-webpackdoc-input').email = 'test@tester.de';
+
+        document.querySelector('bde-webpackdoc-input').open = true;
+
+        var toggle = document.querySelector('#toggleForm');
+
+        toggle.addEventListener('tap', function(){
+            document.querySelector('bde-webpackdoc-input').open = !document.querySelector('bde-webpackdoc-input').open
+        })
+    });
+
+    this.addEventListener('webpackdocFormSubmit', function(evt){
+      document.getElementById('showSubmit').innerHTML = JSON.stringify(evt.detail)
+      console.log(evt.detail.data)
+    })
+</script>
+
+</body>
+</html>

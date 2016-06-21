@@ -1,0 +1,229 @@
+{
+    "compoundId":  "cubx.demo.demo-compound-example1",
+    "memberId":"demo-cpmpound",
+    "type": "compound",
+    "displayName": "Demo-internal-schema",
+    "inslots": {
+        "state" :{
+            "name":"state",
+            "type": "integer",
+            "metadata" : {
+                "value": 0
+            }
+        }
+    },
+    "outslots": {
+        "statedmessage" :
+        {
+            "name":"statedmessage",
+            "type": "integer",
+            "metadata" :
+            {
+                "value": 0
+            }
+        }
+
+    },
+    "members": {
+        "demo-keyvalue-input":{
+            "compoundId":"cubx.demo.demo-keyvalue-input-0.2-SNAPSHOT",
+            "displayName" :"SchlÃ¼ssel Wert Eingabe",
+            "inslots": [
+                {
+                    "name": "keyvalueobject",
+                    "type": "object",
+                    "metadata" :
+                    {
+                        "value": ""
+                    }
+
+                }
+
+            ],
+            "outslots":[
+                {
+                    "name": "keyvalueobject",
+                    "type": "object",
+                    "metadata" :
+                    {
+                        "value": ""
+                    }
+
+                }
+            ],
+            "metadata":{
+                "label": "key-value-input",
+                "x":300,
+                "y":200
+            }
+        },
+        "demo-barchart":{
+            "compoundId":"cubx.demo.demo-barchart-0.1-SNAPSHOT",
+            "displayName" :"Bar-Chart",
+
+            "inslots":[
+                {"name": "chartpalette",
+                    "type": "integer",
+                    "metadata" :
+                    {
+                        "value": "blue"
+                    }
+                },
+                {"name": "chartdata",
+                    "type": "array",
+                    "metadata" :
+                    {
+                        "value": []
+                    }
+                }
+            ],
+            "outslots":[],
+            "metadata":{
+                "label": "bar-chart",
+                "x":400,
+                "y":200
+            }
+
+        },
+        "demo-slider-number":{
+            "compoundId": "cubx.demo.demo-slider-number-0.1",
+            "displayName": "Demo Schieber Nummer",
+
+            "inslots": [
+                {
+                    "name": "label",
+                    "type": "string",
+                    "metadata" :
+                    {
+                        "value": "Slider number"
+                    }
+                },
+                {
+                    "name": "minvalue",
+                    "type": "integer",
+                    "metadata" :
+                    {
+                        "value": 0
+                    }
+                },
+                {
+                    "name": "maxvalue",
+                    "type": "integer",
+                    "metadata" :
+                    {
+                        "value": 100
+                    }
+                }
+            ],
+            "outslots":[],
+            "metadata":{
+                "label": "Slider ",
+                "x":300,
+                "y":400
+            }
+        },
+        "demo-input-number":{
+            "compoundId": "cubx.demo.demo-input-number-0.1-SNAPSHOT",
+            "displayName": "Nummer Eingabe",
+
+            "inslots": [
+                { "name": "label","type": "string","metadata" :{"value":"Eingabe"}},
+                { "name": "numbervalue","type": "integer","metadata" :{"value":0}}
+
+            ],
+            "outslots":[
+                { "name": "numbervalue","type": "integer","metadata" :{"value":0}}
+            ],
+            "metadata":{
+                "label": "input-number",
+                "x":200,
+                "y":200
+            }
+        },
+        "demo-keyvalue-aggregator":{
+            "compoundId": "cubx.demo.demo-keyvalue-aggregator-0.2-SNAPSHOT",
+            "displayName": "Smmler",
+
+            "inslots": [
+                { "name": "keyvalue","type": "object","metadata" :{"value":""}}
+
+
+            ],
+            "outslots":[
+                { "name": "aggregatedjson","type": "array","metadata" :{"value":0}}
+            ],
+            "metadata":{
+                "label": "key-value-aggregator",
+                "x":200,
+                "y":500
+            }
+        }
+
+    },
+    "connections":
+        [
+            {
+                "source": {
+                    "memberIndex": "demo-input-number",
+                    "slot": "numbervalue"
+                },
+                "target": {
+
+                    "slot": "statedmessage"
+                }
+            },
+            {
+                "source": {
+                    "memberIndex": "demo-input-number",
+                    "slot": "numbervalue"
+                },
+                "target": {
+                    "memberIndex":"demo-barchart",
+                    "slot": "chartdata"
+                }
+            },
+            {
+                "source": {
+                    "memberIndex": "demo-input-number",
+                    "slot": "numbervalue"
+                },
+                "target": {
+                    "memberIndex":"demo-slider-number",
+                    "slot": "minvalue"
+                }
+            },
+            {
+                "source": {
+
+                    "slot": "state"
+                },
+                "target": {
+                    "memberIndex": "demo-input-number",
+                    "slot": "numbervalue"
+                }
+            },
+            {
+                "source": {
+                    "memberIndex": "demo-keyvalue-input",
+                    "slot": "keyvalueobject"
+                },
+                "target": {
+                    "memberIndex": "demo-keyvalue-aggregator",
+                    "slot": "keyvalue"
+                }
+            },
+            {
+                "source": {
+                    "memberIndex": "demo-keyvalue-aggregator",
+                    "slot" : "aggregatedjson"
+                },
+                "target": {
+                    "memberIndex":"demo-barchart",
+                    "slot" : "chartdata"
+                }
+            }
+
+        ],
+    "metadata":{}
+
+}

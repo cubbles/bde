@@ -1,0 +1,230 @@
+<!-- libraries -->
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-ajax/iron-ajax.html">
+<script src="../../vendor/jsonpath-plus/lib/jsonpath-min.js" type="text/javascript"></script>
+
+
+<dom-module id="bde-artifact-parser">
+    <template>
+      <iron-ajax
+           id="ajax"
+           handle-as="json"
+           url=  {{webpackageurl}}
+           on-response="handleResponse">
+      </iron-ajax>
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+      is : 'bde-artifact-parser',
+
+      properties : {
+
+        metadata : {
+          type : Object
+        },
+
+        inslots : {
+          type : Object
+        },
+
+        outslots : {
+          type : Object
+        },
+
+        id : {
+          type : String
+        },
+
+        memberurl:{
+            type : String
+        },
+
+        members: {},
+
+        connections: {},
+
+        membersWithId:{
+            type: Array,
+            notify: true,
+            value : []
+        },
+
+        generalData: {
+            type: Object,
+            notify: true
+        },
+
+        showCompoundMembers:
+        {
+            type: Boolean,
+            value : false
+        },
+
+        lastItemAdded: {
+            type: Object,
+            notify: true
+        },
+
+        webpackage: {
+          type: Object
+        }
+
+      },
+
+      /**
+       * Polymer ready function, adds event listener for addBaseObject event and starts parsing.
+       */
+      attached: function() {
+
+        addEventListener('repository-item.addObject', function(evt){
+          this.metadata = evt.detail.baseObject;
+
+          // add all artifacts/members a compound consists of
+          if(this.metadata.artifactType == "compoundComponent" && this.showCompoundMembers){
+            var compoundMetadata = this.metadata;
+            this.addArtifactMembers();
+            this.addConnections(compoundMetadata);
+            document.querySelector('bde-graph').triggerAutolayout(true);
+          }
+          // add compound as one artifact
+          else if(this.metadata.artifactType == "compoundComponent" || this.metadata.artifactType == "elementaryComponent"){
+            this.getSlots();
+            this.addArtifact();
+          }
+
+        }.bind(this))
+      },
+
+      /**
+       * Extracts slots from the webpackage of the current artifact.
+       * Separates them into inslots & outslots and assigns them
+       * to the properties inslots & outslots of the artifact parser.
+       */
+      getSlots: function(){
+        var slots = jsonPath.eval(this.metadata, '$..slots.*')
+        var slotIds = jsonPath.eval(this.metadata, '$..slots.*.slotId')
+
+        // convert slotIds to lowercase
+        slotIds.forEach(function(id, index){
+          slots[index].originalId = id;
+          id = id.toLowerCase();
+          slots[index].slotId = id;
+        })
+
+        // get all Inslots
+        this.inslots =  slots.filter(slot =>
+            slot.direction.indexOf('input') != -1
+        );
+
+        // get all Outslots
+        this.outslots =  slots.filter(slot =>
+            slot.direction.indexOf('output') != -1
+        );
+      },
+
+      /**
+       * Function to add an artifact to the modelstore.
+       * It returns the added member.
+       */
+      addArtifact: function(){
+        var modelStore = document.querySelector('bde-model-store');
+        return modelStore.addMember(this.metadata.artifactId, this.metadata.artifactId, this.inslots, this.outslots, this.metadata);
+      },
+
+      /**
+       * Function to add all the members of a compound/artifact to the modelstore.
+       * The metadata of each member is loaded into the property metadata of the artifact parser.
+       * It also updates the properties inslots & outslots of the artifact parser with the ones of the current member.
+       * In the end each member gets added to the modelstore.
+       */
+      addArtifactMembers: function(){
+        this.membersWithId=[];
+        this.members=[];
+
+        this.members = jsonPath.eval(this.metadata, '$..members.*');
+
+        this.members.forEach( function(member){
+            // get URL for webpackage
+            var str = member.componentId.split("/");
+            var webpackageId = str[0];
+            var artifactId = str[1];
+            var newMember;
+
+            if(webpackageId == "this"){
+              // artifact im aktuellen webpackage suchen
+              this.getArtifactMetadata(artifactId);
+              this.getSlots();
+              newMember = this.addArtifact();
+              newMember['memberId'] = member.memberId;
+              this.membersWithId.push(newMember);
+            }
+            else{
+              // TODO
+              // neues webpackage laden und artifact suchen
+              memberurl = "https://www.cubbles.world/" + "sandbox/" + webpackageId;
+            }
+
+        }.bind(this));
+      },
+
+      /**
+       * Function to get the Metadata of the actual artifact.
+       * It replaces the property "metadata" of the artifact-parser.
+       */
+      getArtifactMetadata: function(artifactId){
+        var elementaryComponents = this.webpackage.artifacts.elementaryComponents;
+        var compoundComponents = this.webpackage.artifacts.compoundComponents;
+        for(var key in elementaryComponents){
+          // member is an elementaryComponent
+          if(elementaryComponents[key].artifactId == artifactId){
+            this.metadata = elementaryComponents[key];
+            this.metadata['artifactType'] = "elementaryComponent";
+            this.metadata['webpackageId'] = this.webpackage['_id'];
+            return;
+          }
+        }
+        for(var key in compoundComponents){
+          // member is an compoundComponent
+          if(compoundComponents[key].artifactId == artifactId){
+            this.metadata = compoundComponents[key];
+            this.metadata['artifactType'] = "compoundComponent";
+            this.metadata['webpackageId'] = this.webpackage['_id'];
+            return;
+          }
+        }
+      },
+
+      /**
+       * Function to add the connections of a compound to the modelstore.
+       */
+      addConnections: function(metadata){
+        if(metadata.connections != undefined){
+          var modelStore = document.querySelector('bde-model-store')
+          metadata.connections.forEach(function (connection){
+            // inslot, no source member
+            if(connection.source.memberIdRef === undefined){
+
+            }
+            // outslot, no destination member
+            else if(connection.destination.memberIdRef === undefined){
+
+            }
+            // connection between two members
+            else{
+              var sourceId = this.getMemberId(connection.source.memberIdRef).id;
+              var destinationId = this.getMemberId(connection.destination.memberIdRef).id;
+              modelStore.addConnection(sourceId,connection.source.slot.toLowerCase(),destinationId,connection.destination.slot.toLowerCase());
+            }
+          }.bind(this))
+        }
+      },
+
+      // find memberId according to memberIndex
+      getMemberId: function(memberId){
+        return _.find(this.membersWithId, function(m) { return m.memberId == memberId; })
+      }
+
+    });
+</script>

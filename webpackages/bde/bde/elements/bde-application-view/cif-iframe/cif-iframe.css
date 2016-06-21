@@ -1,0 +1,27 @@
+body {
+    background: #ffffee;
+    height: 100vh;
+}
+
+.draggable {
+    cursor: move;
+}
+
+#loaddiv {
+    height: 50vh;
+    width: 50vw ;
+    position: absolute;
+    left: 20vw;
+    top: 20vh;
+    margin: auto; /* presto! */
+    background-color: whitesmoke; /* for demonstration */
+    box-shadow: 0px 0px 67px 100px whitesmoke;
+}
+.ajax-loader {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto; /* presto! */
+}

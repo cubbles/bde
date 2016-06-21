@@ -1,0 +1,282 @@
+<link rel="import" href="../../vendor/polymer/polymer.html"/>
+
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+<link rel="import" href="../../vendor/iron-icons/editor-icons.html">
+<link rel="import" href="../../vendor/iron-icons/social-icons.html">
+<link rel="import" href="../../vendor/iron-icons/hardware-icons.html">
+
+<link rel="import" href="../../vendor/paper-styles/default-theme.html">
+<link rel="import" href="../../vendor/paper-material/paper-material.html">
+<link rel="import" href="../../vendor/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../vendor/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../vendor/paper-menu/paper-menu.html">
+<link rel="import" href="../../vendor/paper-item/paper-item.html">
+<link rel="import" href="../../vendor/paper-item/paper-icon-item.html">
+<link rel="import" href="../../vendor/paper-item/paper-item-body.html">
+<link rel="import" href="../../vendor/paper-toggle-button/paper-toggle-button.html">
+
+<link rel="import" href="../bde-style/bde-custom-icons.html">
+
+<dom-module id="bde-node-inspector">
+
+    <style>
+
+    paper-material {
+        background-color: var(--primary-background-color);
+    }
+
+    h4 {
+        padding: 0 16px;
+
+        color: var(--accent-color);
+    }
+
+    paper-toolbar {
+        --paper-toolbar-background: var(--paper-cyan-600);
+    };
+
+
+    paper-toolbar .title {
+        margin-left: 0;
+        color: var(--dark-theme-text-color);
+    }
+
+    paper-toolbar .title paper-input {
+        --paper-input-container-input-color: var(--dark-theme-text-color);
+        --paper-input-container-focus-color: var(--dark-theme-base-color);
+    }
+
+    paper-toolbar .compound-id {
+        @apply(--paper-font-body2);
+    }
+
+    .slot-description {
+        padding: 16px;
+
+        @apply(--paper-font-body1);
+    }
+    /*
+    .slot .slot-body {
+        border-style: solid;
+        border-color: var(--divider-color);
+        border-width: 0 0 1px 0;
+    }
+
+        .slot:last-of-type .slot-body {
+            border: 0;
+        }
+    */
+    paper-icon-item iron-icon,
+    paper-icon-item paper-icon-button {
+        color: var(--secondary-text-color);
+    }
+
+    </style>
+
+    <template>
+
+        <paper-material>
+
+            <paper-toolbar class="medium-tall">
+
+                <div class="top title id">
+                    <span hidden="[[editLabel]]">[[metadata.label]]</span>
+                    <paper-input
+                        id="labelInput"
+                        tabindex="1"
+                        label="Label"
+                        value="{{metadata.label}}"
+                        hidden="[[!editLabel]]"
+                        on-change="handleLabelChange"
+                        focussed>
+                    </paper-input>
+                </div>
+
+                <paper-icon-button icon="icons:label" title="Change Label" on-tap="toggleChangeLabel"></paper-icon-button>
+
+                <paper-icon-button icon="icons:info-outline" title="About"></paper-icon-button>
+
+                <div class="bottom compound-id">[[compoundId]]</div>
+
+            </paper-toolbar>
+
+            <template is="dom-if" if="[[metadata.couchDbDoc.description]]">
+
+                <paper-item class="slot-description">[[metadata.couchDbDoc.description]]</paper-item>
+
+            </template>
+
+            <template is="dom-if" if="[[inslots.length]]">
+
+                <h4>Inslots</h4>
+
+                <div class="listbox">
+
+                    <template is="dom-repeat" items="{{inslots}}" as="slot">
+
+                        <paper-icon-item class="slot inslot">
+
+                            <iron-icon icon="bde:inslot" item-icon></iron-icon>
+
+                            <paper-item-body class="slot-body" two-line>
+
+                                <div>[[slot.name]]</div>
+                                <div secondary>[[slot.type]]</div>
+
+                            </paper-item-body>
+
+                            <template is="dom-if" if="[[_slotIsNumber(slot)]]">
+                                <paper-input
+                                    label="Value"
+                                    type="number"
+                                    value="{{slot.value}}"
+                                    placeholder="Slot default value">
+                                </paper-input>
+                            </template>
+
+                            <template is="dom-if" if="[[_slotIsText(slot)]]">
+                                <paper-input
+                                    label="Value"
+                                    type="text"
+                                    value="{{slot.value}}"
+                                    placeholder="Slot default value">
+                                </paper-input>
+                            </template>
+
+                            <template is="dom-if" if="[[_slotIsBoolean(slot)]]">
+                                <paper-toggle-button
+                                    class="flex left"
+                                    checked="{{slot.value}}">
+                                </paper-toggle-button>
+                            </template>
+
+                            <template is="dom-if" if="[[_slotIsOther(slot)]]">
+                                <paper-input
+                                    label="Value"
+                                    type="text"
+                                    value="[[_getValue(slot)]]"
+                                    disabled>
+                                </paper-input>
+                            </template>
+
+
+                        </paper-icon-item>
+
+                    </template>
+
+                </div>
+
+            </template>
+
+            <template is="dom-if" if="[[outslots.length]]">
+
+                <h4>Outslots</h4>
+
+                <div class="listbox">
+
+                    <template is="dom-repeat" items="[[outslots]]" as="slot">
+
+                        <paper-icon-item class="slot outslot">
+
+                            <iron-icon icon="bde:outslot" item-icon></iron-icon>
+
+                            <paper-item-body class="slot-body" two-line>
+
+                                <div>[[slot.name]]</div>
+
+                                <div secondary>[[slot.type]]</div>
+
+                            </paper-item-body>
+                        </paper-icon-item>
+
+                    </template>
+
+                </div>
+
+            </template>
+
+        </paper-material>
+
+    </template>
+
+    <script>
+    (function() {
+        'use strict';
+
+        Polymer({
+
+            is: 'bde-node-inspector',
+
+            properties: {
+
+                id: String,
+
+                compoundId: String,
+
+                editLabel: {
+                    type: Boolean,
+                    value: false,
+                    notify: false
+                },
+
+                memberIndex: Number,
+
+                inslots: {
+                    type: Array,
+                    notify: true
+                },
+
+                outslots: Array,
+
+                metadata: Object
+
+            },
+
+            listeners: {
+                'keydown': 'handleKeydown',
+            },
+
+            handleKeydown: function (event) {
+                event.stopPropagation();
+            },
+
+            handleLabelChange: function () {
+                this.editLabel = false;
+                this.fire('graph-needs-update');
+            },
+
+            toggleChangeLabel: function () {
+                this.editLabel = true;
+                this.$.labelInput.focus();
+            },
+
+            _getValue: function (slot) {
+                try {
+                    return JSON.stringify(slot.value);
+                } catch (e) {
+                    return 'data cannot be displayed';
+                }
+            },
+
+            _slotIsBoolean: function (slot) {
+                return slot.type == 'boolean';
+            },
+
+            _slotIsNumber: function (slot) {
+                return slot.type == 'number';
+            },
+
+            _slotIsOther: function (slot) {
+                return slot.type !== 'boolean' &&
+                       slot.type !== 'number' &&
+                       slot.type !== 'string';
+            },
+
+            _slotIsText: function (slot) {
+                return slot.type == 'string';
+            }
+
+        });
+    }());
+    </script>
+</dom-module>

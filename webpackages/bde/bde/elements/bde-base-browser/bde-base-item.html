@@ -1,0 +1,92 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+<link rel="import" href="../../vendor/iron-icons/image-icons.html">
+<link rel="import" href="../../vendor/paper-item/paper-icon-item.html">
+<link rel="import" href="../../vendor/paper-item/paper-item-body.html">
+<link rel="import" href="../../vendor/paper-fab/paper-fab.html">
+<link rel="import" href="../app-data/app-data.html">
+<script src="../../vendor/inflection/inflection.min.js"></script>
+
+<dom-module id="bde-base-item">
+    <template>
+        <style is="custom-style">
+        :host {
+            display: block;
+        }
+
+        paper-icon-item {
+            @apply(--layout-horizontal);
+        }
+        </style>
+
+        <app-data key="settings" data="{{_settings}}"></app-data>
+
+        <iron-ajax id="ajax"
+            url="[[_getItemUrl(item)]]"
+            handle-as="json"
+            on-response="handleResponse"></iron-ajax>
+
+        <paper-icon-item>
+            <iron-icon icon="image:remove-red-eye" item-icon></iron-icon>
+            <paper-item-body three-line>
+                <div>[[item.artifactId]]</div>
+                <div secondary>[[item.name]]</div>
+                <div secondary>[[item.artifactDescription]]</div>
+            </paper-item-body>
+            <paper-fab icon="icons:add" on-tap="addComponent" mini></paper-fab>
+        </paper-icon-item>
+
+    </template>
+    <script>
+    Polymer({
+        is: 'bde-base-item',
+
+        properties: {
+
+            /**
+             * Object containing the couchDB data retrieved by the initial
+             * request to the Base via bde-repository-browser.
+             *
+             * @type Object
+             * @property item
+             */
+            item: {
+                type: Object
+            },
+
+            _settings: {
+                type: Object
+            }
+        },
+
+        addComponent: function() {
+            this.$.ajax.generateRequest();
+        },
+
+        handleResponse: function() {
+            var webpackage = this.$.ajax.lastResponse;
+            var artifact = webpackage
+                .artifacts[inflection.pluralize(this.item.artifactType)]
+                .find(artifact => artifact.artifactId === this.item.artifactId);
+
+            if (!artifact) {
+                throw new Error("Something went wrong finding our artifact in the webpackage");
+            }
+
+            artifact.artifactType = this.item.artifactType;
+            artifact.url = this._getItemUrl(this.item);
+            artifact.webpackageId = webpackage._id;
+
+            this.fire('iron-select', artifact);
+        },
+
+        _getItemUrl: function(item) {
+            return this._settings.baseUrl.replace(/[/]?$/, '/') +
+                   this._settings.baseName + '/' + item.webpackageId;
+        }
+
+
+    });
+    </script>
+</dom-module>

@@ -1,0 +1,248 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../vendor/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../bde-graph/bde-graph.html">
+
+<dom-module id="bde-dataflow-view">
+    <template>
+        <style>
+            :host {
+                position: relative;
+                display: block;
+            }
+
+            #graph {
+                @apply(--layout);
+                @apply(--layout-vertical);
+
+                width: 100%;
+                height: 100%;
+            }
+
+            #toolbar {
+                position: absolute;
+                bottom: 1em;
+                width: 100%;
+
+                @apply(--layout-horizontal);
+            }
+
+            paper-fab {
+                margin: 0 1em;
+            }
+
+            #zoomToFit,
+            #triggerAutolayout {
+                --paper-fab-background: var(--light-primary-color);
+            }
+
+            .flex {
+                @apply(--layout-flex);
+            }
+
+            #addCubble {
+                z-index: 10;
+                transition: transform ease-in-out 0.3s;
+            }
+
+            #addCubble.moveRight {
+                transform: translate3d(calc(28px + 1em),0,0);
+
+                @apply(--shadow-elevation-3dp);
+            }
+
+            #drawerPanel {
+                --paper-drawer-panel-right-drawer-container: {
+                    background-color: var(--paper-grey-100);
+                    padding: 20px;
+                    overflow-y: auto;
+                    z-index: 1;
+
+                    @apply(--shadow-elevation-2dp);
+                };
+            }
+
+            #dialog {
+                width: 50%;
+                min-width: 500px;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="{{dialogOpened}}" with-backdrop>
+
+            <h2>Add Cubble</h2>
+
+            <paper-dialog-scrollable>
+
+                <bde-base-browser id="browser" on-iron-selected="_addCubble">
+                </bde-base-browser>
+
+            </paper-dialog-scrollable>
+
+            <div class="buttons">
+                <paper-button dialog-dismiss>Close</paper-button>
+            </div>
+
+        </paper-dialog>
+
+        <paper-drawer-panel id="drawerPanel"
+            force-narrow="[[!_sidepanel]]"
+            right-drawer drawer-width="400px"
+            disable-swipe disable-edge-swipe>
+
+            <div id="mainPanel" main>
+
+                <bde-graph id="graph"
+                    artifact="{{artifact}}"
+                    width="[[_graphWidth]]"
+                    height="[[_graphHeight]]"
+                    selected-nodes="{{selectedNodes}}"
+                    selected-edges="{{selectedEdges}}"
+                    last-selected-node="{{lastSelectedNode}}"
+                    last-selected-edge="{{lastSelectedEdge}}">
+                </bde-graph>
+
+                <div id="toolbar">
+                    <paper-fab id="zoomToFit"
+                        icon="icons:aspect-ratio"
+                        on-tap="zoomToFit">
+                    </paper-fab>
+
+                    <paper-fab id="triggerAutolayout"
+                        icon="bde:magic-wand"
+                        on-tap="triggerAutolayout">
+                    </paper-fab>
+
+                    <div class="flex"></div>
+
+                    <paper-fab id="addCubble"
+                        class$="[[_addCubbleClass(_sidepanel)]]"
+                        icon="icons:add"
+                        active="{{dialogOpened}}"
+                        toggles>
+                    </paper-fab>
+                </div>
+
+            </div>
+
+            <div id="drawerPanel" drawer>
+
+                <bde-properties-editor id="propertyEditor"
+                    selected-nodes="[[selectedNodes]]"
+                    selected-edges="[[selectedEdges]]">
+                </bde-properties-editor>
+
+            </div>
+
+        </paper-drawer-panel>
+
+    </template>
+    <script>
+    Polymer({
+        is: 'bde-dataflow-view',
+
+        properties: {
+
+            artifact: {
+                type: Object,
+                notify: true,
+                observer: '_artifactChanged'
+            },
+
+            selectedNodes: {
+                type: Array,
+                notify: true
+            },
+
+            selectedEdges: {
+                type: Array,
+                notify: true
+            },
+
+            lastSelectedNode: {
+                type: Object,
+                notify: true
+            },
+
+            lastSelectedEdge: {
+                type: Object,
+                notify: true
+            },
+
+            _graphWidth: {
+                type: Number
+            },
+
+            _graphHeight: {
+               type: Number
+            },
+
+            _sidepanel: {
+                type: Boolean,
+                value: false
+            }
+        },
+
+        observers: [
+            '_handleSelectedNodesChanged(selectedNodes.splices)',
+            '_handleSelectedEdgesChanged(selectedEdges.splices)'
+        ],
+
+        attached: function() {
+            // Set initial graph size
+            this.async(this._handleResize);
+
+            // Resize cannot be bound using `listeners`
+            window.addEventListener('resize', this._handleResize.bind(this));
+            this._handleResize();
+        },
+
+        triggerAutolayout: function() {
+            this.$.graph.triggerAutolayout(true);
+        },
+
+        zoomToFit: function() {
+            this.$.graph.triggerFit();
+        },
+
+        _addCubble: function(event) {
+            var item = event.detail.item;
+
+            this.push('artifact.members', item);
+        },
+
+        _addCubbleClass: function(_sidepanel) {
+            return (_sidepanel) ? 'moveRight' : '';
+        },
+
+        _artifactChanged: function() {
+            console.log('<bde-dataflow-view>::_artifactChanged', this.artifact);
+
+            this.set('selectedNodes', Array());
+            this.set('selectedEdges', Array());
+            this.set('lastSelectedNode', void(0));
+            this.set('lastSelectedEdge', void(0));
+
+            this.$.graph.rerender();
+        },
+
+        _handleResize: function() {
+            this._graphWidth = this.clientWidth;
+            this._graphheight = this.clientheight;
+        },
+
+        _handleSelectedNodesChanged: function() {
+            this.fire('iron-selected', { item: this.lastSelectedNode, type: 'node' });
+        },
+
+        _handleSelectedEdgesChanged: function() {
+            this.fire('iron-selected', { item: this.lastSelectedEdge, type: 'edge' });
+        },
+
+        _forceNarrow: function(selectedNodes, selectedEdges) {
+            console.log(selectedNodes.length, selectedEdges.length, !(selectedNodes.length && selectedEdges.length));
+            return !(selectedNodes.length && selectedEdges.length);
+        }
+    });
+    </script>
+</dom-module>

@@ -1,0 +1,112 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <title>bde-explorer demo</title>
+
+  <script src="../../../vendor/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../../vendor/highlightjs/highlight.pack.js"></script>
+
+  <link rel="import" href="../bde-explorer.html">
+  <link rel="import" href="../../../vendor/iron-ajax/iron-ajax.html">
+  <link rel="import" href="../../../vendor/paper-toast/paper-toast.html">
+  <link rel="import" href="../../../vendor/paper-styles/demo-pages.html">
+
+  <link rel="stylesheet" href="../../../vendor/highlightjs/styles/default.css">
+
+  <style is="custom-style">
+    *,
+    *:before,
+    *:after {
+        box-sizing: border-box;
+    }
+
+    body {
+        @apply(--layout-fullbleed);
+    }
+
+    code {
+        white-space: pre-wrap;
+    }
+
+    .wrapper {
+        height: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+  </style>
+</head>
+<body unresolved>
+
+    <div class="wrapper">
+        <h3>BDE Explorer is the management component for handling cubble packages</h3>
+
+        <demo-snippet>
+            <template is="dom-bind" id="app">
+                <iron-ajax auto url="../test/test.json"
+                    handle-as="json" last-response="{{manifest}}"></iron-ajax>
+
+                <paper-toast id="toast"></paper-toast>
+
+                <bde-explorer id="explorer"
+                    artifacts="{{manifest.artifacts}}"
+                    selected-artifact="{{selectedArtifact}}"></bde-explorer>
+
+                <h4>Selected Artifact</h4>
+                <code id="code" class="json"></code>
+
+            </template>
+        </demo-snippet>
+    </div>
+
+    <script>
+    var app = document.querySelector('#app');
+
+    app._json = function (artifact) {
+        return JSON.stringify(artifact, null, '\t');
+    }
+
+    app.addEventListener('dom-change', function() {
+
+        this.$.toast.fitInto = document.querySelector('.wrapper');
+
+        this.$.explorer.addEventListener('iron-select', (e) => {
+            var is = e.detail.is;
+            var item = e.detail.item;
+
+            this.$.toast.text = is + ' `' + item.artifactId + '` selected';
+            this.$.toast.open();
+
+            this.$.code.textContent = this._json(item);
+            hljs.highlightBlock(this.$.code);
+        });
+
+        this.$.explorer.addEventListener('bde-explorer-open-settings', function(e) {
+            var allArtifacts = [].concat(
+                app.manifest.artifacts.apps,
+                app.manifest.artifacts.compoundComponents,
+                app.manifest.artifacts.elementaryComponents,
+                app.manifest.artifacts.utilities
+            );
+
+            console.log(allArtifacts.find(a => a == e.detail.item));
+        });
+
+    });
+    </script>
+
+</body>
+</html>

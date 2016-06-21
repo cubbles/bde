@@ -1,0 +1,79 @@
+<!--
+Property Editor for the BDE application.
+
+bde-properties-editor gets the currently selected element in the bde and
+shows information about it.
+
+Furthermore certain properties of an element can be altered and certain
+actions can be performed on said element.
+
+### Usage in BDE
+@todo Create example usage
+
+@package Webble TAG BDE
+@author Felx Dürrwald <felix.duerrwald@hm-ag.de>
+-->
+
+<link rel="import" href="../../vendor/polymer/polymer.html"/>
+
+<link rel="import" href="bde-node-inspector.html"/>
+
+<dom-module id="bde-properties-editor">
+
+    <style>
+    :host {
+        display: block;
+    }
+
+    bde-node-inspector {
+        width: 100%;
+    }
+    </style>
+
+    <template>
+
+        <template is="dom-repeat" items="{{members}}" filter="_filterSelectedMembers" observe="selected members.selected" as="member">
+
+            <bde-node-inspector
+                id="[[member.id]]"
+                compound-id="[[member.compoundId]]"
+                member-index="[[member.memberIndex]]"
+                inslots="{{member.inslots}}"
+                outslots="[[member.outslots]]"
+                metadata="{{member.metadata}}">
+            </bde-node-inspector>
+
+        </template>
+
+    </template>
+
+</dom-module>
+
+<script>
+'use strict';
+
+Polymer({
+    is: 'bde-properties-editor',
+
+    properties: {
+
+        members: {
+            type: Array
+        },
+
+        connections: {
+            type: Array
+        }
+
+    },
+
+    _filterSelectedMembers: function (member) {
+        return member.selected;
+    },
+
+    _filterSelectedConnections: function (connection) {
+        return connection.selected;
+    }
+
+});
+</script>
