@@ -414,11 +414,11 @@
 
                 template.style.cssText = container.style.cssText;
                 while (container.hasChildNodes()) {
-                    template.appendChild(container.removeChild(container.firstChild))
+                    template.content.appendChild(container.removeChild(container.firstChild))
                 }
                 for (let i = 0; i < template.children.length; i++) {
-                    template.children[i].removeAttribute('class');
-                    template.children[i].innerHTML = '';
+                    template.content.children[i].removeAttribute('class');
+                    template.content.children[i].innerHTML = '';
                 }
                 return template;
             }
