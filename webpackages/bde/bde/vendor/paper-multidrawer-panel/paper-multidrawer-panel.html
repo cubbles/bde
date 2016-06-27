@@ -1,0 +1,1154 @@
+<!--
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+<link rel="import" href="../iron-selector/iron-selector.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+
+<!--
+Material design: [Navigation drawer](https://www.google.com/design/spec/patterns/navigation-drawer.html)
+
+`paper-multidrawer-panel` contains a one or two drawer panels and a main panel.  The drawer panels
+and the main panel are side-by-side with drawers on the sides specified.  When the browser
+window size is smaller than the `responsiveWidth`, `paper-multidrawer-panel`
+changes to narrow layout.  In narrow layout, both drawers will be stacked on top
+of the main panel.  The drawers will slide in/out to hide/reveal the main
+panel.  When the window is smaller than the `responsiveWidthLeft`, the left drawer
+will stack and slide in/out and so forth for the right drawer using `responsiveWidthRight`.
+
+Use the attribute `left-drawer` to indicate that the element is a drawer panel to be
+placed on the left, `right-drawer` to indicate that the element is a drawer panel on the right
+and `main` to indicate that the element is the main panel.
+
+Example:
+
+    <paper-multidrawer-panel>
+      <div left-drawer> Left drawer panel... </div>
+      <div right-drawer> Right drawer panel... </div>
+      <div main> Main panel... </div>
+    </paper-multidrawer-panel>
+
+The drawer and the main panels are not scrollable.  You can set CSS overflow
+property on the elements to make them scrollable or use `paper-header-panel`.
+
+Example:
+
+    <paper-multidrawer-panel>
+      <paper-header-panel left-drawer>
+        <paper-toolbar></paper-toolbar>
+        <div> Drawer content... </div>
+      </paper-header-panel>
+      <paper-header-panel main>
+        <paper-toolbar></paper-toolbar>
+        <div> Main content... </div>
+      </paper-header-panel>
+    </paper-multidrawer-panel>
+
+An element that should toggle the left drawer or the right drawer will automatically
+do so if it's given the `paper-multidrawer-toggle-left` or `paper-multidrawer-toggle-right` attribute respectively.
+Also this element will automatically be hidden in wide layout (if the drawers have not stacked).
+
+Example:
+
+    <paper-multidrawer-panel>
+      <paper-header-panel left-drawer>
+        <paper-toolbar>
+          <div>Application</div>
+        </paper-toolbar>
+        <div> Drawer content... </div>
+      </paper-header-panel>
+      <paper-header-panel main>
+        <paper-toolbar>
+          <paper-icon-button icon="menu" paper-multidrawer-toggle-left></paper-icon-button>
+          <div>Title</div>
+        </paper-toolbar>
+        <div> Main content... </div>
+      </paper-header-panel>
+    </paper-multidrawer-panel>
+
+### Styling
+
+To change the main container:
+
+    paper-multidrawer-panel {
+      --paper-multidrawer-panel-main-container: {
+        background-color: gray;
+      };
+    }
+
+To change the drawer container on the left:
+
+    paper-multidrawer-panel {
+      --paper-multidrawer-panel-left-drawer-container: {
+        background-color: white;
+      };
+    }
+
+To change the drawer container on the right:
+
+    paper-multidrawer-panel {
+      --paper-multidrawer-panel-right-drawer-container: {
+        background-color: white;
+      };
+    }
+
+To customize the scrim:
+
+    paper-multidrawer-panel {
+      --paper-multidrawer-panel-scrim: {
+        background-color: red;
+      };
+    }
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--paper-multidrawer-panel-drawer-container` | Mixin applied to drawer container | {}
+`--paper-multidrawer-panel-left-drawer-container` | Mixin applied to container when it's in the left side | {}
+`--paper-multidrawer-panel-right-drawer-container` | Mixin applied to container when it's in the right side | {}
+`--paper-multidrawer-panel-main-container` | Mixin applied to main container | {}
+`--paper-multidrawer-panel-scrims-opacity` | Scrims opacity | 1
+`--paper-multidrawer-panel-scrims` | Mixin applied to both scrims | {}
+`--paper-multidrawer-panel-left-scrim` | Mixin applied to scrim behind left panel | {}
+`--paper-multidrawer-panel-right-scrim` | Mixin applied to scrim behind right panel | {}
+
+@group Paper elements
+@element paper-multidrawer-panel
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="paper-multidrawer-panel">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      iron-selector > .drawer {
+        z-index: 2;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background-color: white;
+
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+
+        @apply(--paper-multidrawer-panel-drawer-container);
+      }
+
+      .transition > .drawer {
+        transition: -webkit-transform ease-in-out 0.3s, width ease-in-out 0.3s, visibility 0.3s;
+        transition: transform ease-in-out 0.3s, width ease-in-out 0.3s, visibility 0.3s;
+      }
+
+      .left-drawer > #leftDrawer {
+        @apply(--paper-multidrawer-panel-left-drawer-container);
+      }
+
+      .right-drawer > #rightDrawer {
+        left: auto;
+        right: 0;
+
+        @apply(--paper-multidrawer-panel-right-drawer-container);
+      }
+
+      iron-selector > #main {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+
+        @apply(--paper-multidrawer-panel-main-container);
+      }
+
+      .transition > #main {
+        transition: left ease-in-out 0.3s, right ease-in-out 0.3s, padding ease-in-out 0.3s;
+      }
+
+      #main > ::content > [main] {
+        height: 100%;
+      }
+
+      .drawer > ::content > [left-drawer],
+      .drawer > ::content > [right-drawer] {
+        height: 100%;
+      }
+
+      .scrim {
+        position: absolute;
+        top: 0;
+        right: auto;
+        bottom: auto;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        visibility: hidden;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity ease-in-out 0.38s, visibility ease-in-out 0.38s;
+        background-color: rgba(0, 0, 0, 0.3);
+
+        @apply(--paper-multidrawer-panel-scrims);
+      }
+
+      #leftScrim {
+        @apply(--paper-multidrawer-panel-left-scrim);
+      }
+
+      #rightScrim {
+        @apply(--paper-multidrawer-panel-right-scrim);
+      }
+
+      .narrow-layout > .drawer,
+      .left-drawer-temporary > #leftDrawer,
+      .right-drawer-temporary > #rightDrawer {
+        will-change: transform;
+      }
+
+      .narrow-layout > #leftDrawer.iron-selected,
+      .left-drawer-temporary > #leftDrawer.iron-selected,
+      iron-selector[last-interacted-drawer="left"].peeking > #leftDrawer,
+      iron-selector[last-interacted-drawer="left"].dragging > #leftDrawer {
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+      }
+
+      .narrow-layout > #rightDrawer.iron-selected,
+      .right-drawer-temporary > #rightDrawer.iron-selected,
+      iron-selector[last-interacted-drawer="right"].peeking > #rightDrawer,
+      iron-selector[last-interacted-drawer="right"].dragging > #rightDrawer {
+        box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.15);
+      }
+
+      .narrow-layout > .drawer > ::content > [left-drawer],
+      .narrow-layout > .drawer > ::content > [right-drawer],
+      .left-drawer-temporary > #leftDrawer > ::content > [left-drawer],
+      .right-drawer-temporary > #rightDrawer > ::content > [right-drawer] {
+        border: 0;
+      }
+
+      .narrow-layout > #leftDrawer:not(.iron-selected),
+      .left-drawer-temporary > #leftDrawer:not(.iron-selected) {
+        -webkit-transform: translateX(-100%);
+        transform: translateX(-100%);
+      }
+
+      .narrow-layout > #rightDrawer:not(.iron-selected),
+      .right-drawer-temporary > #rightDrawer:not(.iron-selected) {
+        left: auto;
+        visibility: hidden;
+
+        -webkit-transform: translateX(100%);
+        transform: translateX(100%);
+      }
+
+      .left-drawer-temporary.dragging > #leftDrawer:not(.iron-selected),
+      .left-drawer-temporary.peeking > #leftDrawer:not(.iron-selected),
+      .right-drawer-temporary.dragging > #rightDrawer:not(.iron-selected),
+      .right-drawer-temporary.peeking > #rightDrawer:not(.iron-selected) {
+        visibility: visible;
+      }
+
+      .narrow-layout > #main {
+        padding: 0;
+      }
+
+      .narrow-layout > #leftDrawer.iron-selected ~ #leftScrim,
+      .narrow-layout > #rightDrawer.iron-selected ~ #rightScrim,
+      .left-drawer-temporary > #leftDrawer.iron-selected ~ #leftScrim,
+      .right-drawer-temporary > #rightDrawer.iron-selected ~ #rightScrim,
+      iron-selector[last-interacted-drawer="left"].peeking > #leftScrim,
+      iron-selector[last-interacted-drawer="right"].peeking > #rightScrim,
+      iron-selector[last-interacted-drawer="left"].dragging > #leftScrim,
+      iron-selector[last-interacted-drawer="right"].dragging > #rightScrim {
+        visibility: visible;
+        opacity: var(--paper-multidrawer-panel-scrims-opacity, 1);
+      }
+
+      iron-selector[last-interacted-drawer="left"] > #leftDrawer,
+      iron-selector[last-interacted-drawer="right"] > #rightDrawer {
+        z-index: 4;
+      }
+
+      iron-selector[last-interacted-drawer="left"] > #leftScrim,
+      iron-selector[last-interacted-drawer="right"] > #rightScrim {
+        z-index: 3;
+      }
+
+      .narrow-layout > #main > * ,
+      .left-drawer-temporary > #main > *,
+      .right-drawer-temporary > #main > * {
+        margin: 0;
+        min-height: 100%;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+
+      .narrow-layout > #main > * {
+        left: 0;
+        right: 0;
+      }
+
+      .left-drawer-temporary > #main > * {
+        left: 0;
+      }
+
+      .right-drawer-temporary > #main > * {
+        right: 0;
+      }
+
+      iron-selector:not(.narrow-layout) > #main ::content [paper-multidrawer-toggle],
+      iron-selector:not(.left-drawer-temporary) > #main ::content [paper-multidrawer-toggle-left],
+      iron-selector:not(.right-drawer-temporary) > #main ::content [paper-multidrawer-toggle-right] {
+        display: none;
+      }
+    </style>
+
+    <iron-media-query
+        id="mqResponsiveWidth"
+        on-query-matches-changed="_onQueryMatchesChanged"
+        query="[[_computeMediaQuery(forceNarrow, responsiveWidth)]]">
+    </iron-media-query>
+
+    <iron-media-query
+        id="mqResponsiveWidthLeft"
+        on-query-matches-changed="_onQueryMatchesChanged"
+        query="[[_computeSideMediaQuery(forceNarrow, forceLeftDrawerTemporary, responsiveWidthLeft)]]">
+    </iron-media-query>
+
+    <iron-media-query
+        id="mqResponsiveWidthRight"
+        on-query-matches-changed="_onQueryMatchesChanged"
+        query="[[_computeSideMediaQuery(forceNarrow, forceRightDrawerTemporary, responsiveWidthRight)]]">
+    </iron-media-query>
+
+    <iron-selector
+        attr-for-selected="id"
+        class$="[[_computeIronSelectorClass(narrow, _transition, _leftDrawer, _rightDrawer, dragging, peeking, leftDrawerTemporary, rightDrawerTemporary)]]"
+        activate-event=""
+        selected="[[selected]]"
+        last-interacted-drawer$="[[_lastInteractedDrawer]]">
+
+      <div id="leftDrawer" class="drawer"
+          hidden$="[[!_leftDrawer]]"
+          style$="[[_computeDrawerStyle(drawerWidth, leftDrawerWidth)]]">
+        <content id="leftDrawerContent" select="[left-drawer]"></content>
+      </div>
+      <div id="leftScrim" class="scrim" on-tap="closeDrawer"></div>
+
+      <div id="rightDrawer" class="drawer"
+          hidden$="[[!_rightDrawer]]"
+          style$="[[_computeDrawerStyle(drawerWidth, rightDrawerWidth)]]">
+        <content id="rightDrawerContent" select="[right-drawer]"></content>
+      </div>
+      <div id="rightScrim" class="scrim" on-tap="closeDrawer"></div>
+
+      <div id="main"
+          style$="[[_computeMainStyle(narrow, _leftDrawer, _rightDrawer, leftDrawerTemporary, rightDrawerTemporary, drawerWidth, leftDrawerWidth, rightDrawerWidth)]]"
+          on-transitionend="_onMainTransitionEnd">
+        <content select="[main]"></content>
+      </div>
+
+    </iron-selector>
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // This would be the only `paper-multidrawer-panel` in
+      // the whole app that can be in `dragging` state
+      var sharedPanel = null;
+
+      function classNames(obj) {
+        var classes = [];
+        for (var key in obj) {
+          if (obj.hasOwnProperty(key) && obj[key]) {
+            classes.push(key);
+          }
+        }
+
+        return classes.join(' ');
+      }
+
+      Polymer({
+
+        is: 'paper-multidrawer-panel',
+
+        behaviors: [Polymer.IronResizableBehavior],
+
+        /**
+         * Fired when the narrow layout changes.
+         *
+         * @event paper-responsive-change {{item: boolean}} detail -
+         *     narrow: true if the panel is in narrow layout.
+         *     leftDrawerTemporary: true if the left drawer is temporary.
+         *     rightDrawerTemporary: true if the right drawer is temporary.
+         */
+
+        /**
+         * Fired when the a panel is selected.
+         *
+         * Listening for this event is an alternative to observing changes in the `selected` attribute.
+         * This event is fired both when a panel is selected.
+         *
+         * @event iron-select {{item: Object}} detail -
+         *     item: The panel that the event refers to.
+         */
+
+        /**
+         * Fired when a panel is deselected.
+         *
+         * Listening for this event is an alternative to observing changes in the `selected` attribute.
+         * This event is fired both when a panel is deselected.
+         *
+         * @event iron-deselect {{item: Object}} detail -
+         *     item: The panel that the event refers to.
+         */
+        properties: {
+
+          /**
+           * The panel to be selected when `paper-multidrawer-panel` changes to narrow
+           * layout.
+           */
+          defaultSelected: {
+            type: String,
+            value: 'main'
+          },
+
+          /**
+           * If true, swipe from the left edge is disabled.
+           */
+          disableLeftEdgeSwipe: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * If true, swipe from the right edge is disabled.
+           */
+          disableRightEdgeSwipe: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * If true, swipe to open/close the drawer is disabled.
+           */
+          disableSwipe: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * Whether the user is dragging a drawer interactively.
+           */
+          dragging: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+
+          /**
+           * Width of the drawer panel. Applicable to left or right drawer
+           * if `leftDrawerWidth` or `rightDrawerWidth` is not specified respectively.
+           */
+          drawerWidth: {
+            type: String,
+            value: '256px'
+          },
+
+          /**
+           * Width of the left drawer panel, if specified
+           */
+          leftDrawerWidth: {
+            type: String,
+            value: null
+          },
+
+          /**
+           * Width of the right drawer panel, if specified
+           */
+          rightDrawerWidth: {
+            type: String,
+            value: null
+          },
+
+          /**
+           * How many pixels on the side of the screen are sensitive to edge
+           * swipes and peek.
+           */
+          edgeSwipeSensitivity: {
+            type: Number,
+            value: 30
+          },
+
+          /**
+           * If true, ignore `responsiveWidth` setting and force the narrow layout.
+           */
+          forceNarrow: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * If true, the left drawer will be stacked on top of the main panel
+           */
+          forceLeftDrawerTemporary: {
+            type: Boolean,
+            value: false,
+            observer: '_forceLeftDrawerTemporaryChanged'
+          },
+
+          /**
+           * If true, the right drawer will be stacked on top of the main panel
+           * @type {Object}
+           */
+          forceRightDrawerTemporary: {
+            type: Boolean,
+            value: false,
+            observer: '_forceRightDrawerTemporaryChanged'
+          },
+
+          /**
+           * Whether the browser has support for the transform CSS property.
+           */
+          hasTransform: {
+            type: Boolean,
+            value: function() {
+              return 'transform' in this.style;
+            }
+          },
+
+          /**
+           * Whether the browser has support for the will-change CSS property.
+           */
+          hasWillChange: {
+            type: Boolean,
+            value: function() {
+              return 'willChange' in this.style;
+            }
+          },
+
+          /**
+           * Returns true if the panel is in narrow layout.  This is useful if you
+           * need to show/hide elements based on the layout.
+           */
+          narrow: {
+            reflectToAttribute: true,
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+
+          /**
+           * Returns true if the left drawer is temporary.  This is useful if you
+           * need to show/hide elements based on the layout.
+           */
+          leftDrawerTemporary: {
+            reflectToAttribute: true,
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+
+          /**
+           * Returns true if the right drawer is temporary.  This is useful if you
+           * need to show/hide elements based on the layout.
+           */
+          rightDrawerTemporary: {
+            reflectToAttribute: true,
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+
+          /**
+           * Whether the drawer is peeking out from the edge.
+           */
+          peeking: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+
+          /**
+           * Max-width when the panel changes to narrow layout.
+           */
+          responsiveWidth: {
+            type: String,
+            value: '600px'
+          },
+
+          /**
+           * Max-width when the left drawer is made temporary
+           */
+          responsiveWidthLeft: {
+            type: String,
+            value: null
+          },
+
+          /**
+           * Max-width when the right drawer is made temporary
+           */
+          responsiveWidthRight: {
+            type: String,
+            value: null
+          },
+
+          /**
+           * The panel that is being selected. `leftDrawer` for the left drawer,
+           * `rightDrawer` for the right drawer and `main` for the main panel
+           */
+          selected: {
+            reflectToAttribute: true,
+            notify: true,
+            type: String,
+            value: null
+          },
+
+          /**
+           * The attribute on elements that should toggle the left drawer on tap, also elements will
+           * automatically be hidden in wide layout, or if the particular drawer is permanent.
+           */
+          leftDrawerToggleAttribute: {
+            type: String,
+            value: 'paper-multidrawer-toggle-left'
+          },
+
+          /**
+           * The attribute on elements that should toggle the right drawer on tap, also elements will
+           * automatically be hidden in wide layout, or if the particular drawer is permanent.
+           */
+          rightDrawerToggleAttribute: {
+            type: String,
+            value: 'paper-multidrawer-toggle-right'
+          },
+
+          /**
+           * Whether the transition is enabled.
+           */
+          _transition: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * If true, there exists a left drawer.
+           */
+          _leftDrawer: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+
+          /**
+           * If true, there exists a right drawer.
+           */
+          _rightDrawer: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+
+          /**
+           * The drawer object that can be dragged, closed or is being moved
+           */
+          _movingDrawer: {
+            type: Object,
+            value: null
+          },
+
+          /**
+           * The drawer that was interacted with last
+           */
+          _lastInteractedDrawer: {
+            type: String,
+            value: null,
+            readOnly: true
+          }
+        },
+
+        listeners: {
+          tap: '_onTap',
+          track: '_onTrack',
+          down: '_downHandler',
+          up: '_upHandler'
+        },
+
+        observers: [
+          '_forceNarrowChanged(forceNarrow, defaultSelected)'
+        ],
+
+        //
+        // Element lifecycle
+        //
+        ready: function() {
+          // Avoid transition at the beginning e.g. page loads and enable
+          // transitions only after the element is rendered and ready.
+          this._transition = true;
+
+          // Check to see if drawers exist & recompute mq
+          this._set_leftDrawer(!!Polymer.dom(this.$.leftDrawerContent).getDistributedNodes().length);
+          this._responsiveChange(this.$.mqResponsiveWidthLeft.queryMatches || this.forceLeftDrawerTemporary, 'leftDrawerTemporary');
+
+          this._set_rightDrawer(!!Polymer.dom(this.$.rightDrawerContent).getDistributedNodes().length);
+          this._responsiveChange(this.$.mqResponsiveWidthRight.queryMatches || this.forceRightDrawerTemporary, 'rightDrawerTemporary');
+        },
+
+        /**
+         * Toggles the left panel open and closed.
+         *
+         * @method toggleLeftPanel
+         */
+        toggleLeftPanel: function() {
+          if (this.leftDrawerTemporary) {
+            if (this._isMainSelected() || this._isRightDrawerSelected()) {
+              this.openLeftDrawer();
+            } else {
+              this.closeDrawer();
+            }
+          }
+        },
+
+        /**
+         * Toggles the right panel open and closed.
+         *
+         * @method toggleRightPanel
+         */
+        toggleRightPanel: function() {
+          if (this.rightDrawerTemporary) {
+            if (this._isMainSelected() || this._isLeftDrawerSelected()) {
+              this.openRightDrawer();
+            } else {
+              this.closeDrawer();
+            }
+          }
+        },
+
+        /**
+         * Opens the left drawer if it exists.
+         *
+         * @method openLeftDrawer
+         */
+        openLeftDrawer: function() {
+          if (this._leftDrawer) {
+            this._set_lastInteractedDrawer('left');
+            this.selected = 'leftDrawer';
+            this._movingDrawer = this.$.leftDrawer;
+          }
+        },
+
+        /**
+         * Opens the right drawer if it exists.
+         *
+         * @method openRightDrawer
+         */
+        openRightDrawer: function() {
+          if (this._rightDrawer) {
+            this._set_lastInteractedDrawer('right');
+            this.selected = 'rightDrawer';
+            this._movingDrawer = this.$.rightDrawer;
+          }
+        },
+
+        /**
+         * Closes the currently open drawer. Note that no two drawers may be
+         * open at the same time, so individual `closeDrawer` methods are not required.
+         *
+         * @method closeDrawer
+         */
+        closeDrawer: function() {
+          this.selected = 'main';
+          this._movingDrawer = null;
+        },
+
+        //
+        // Private methods
+        //
+        _onMainTransitionEnd: function (e) {
+          if (e.currentTarget === this.$.main && (e.propertyName === 'left' || e.propertyName === 'right')) {
+            this.notifyResize();
+          }
+        },
+
+        _computeIronSelectorClass: function(narrow, transition, leftDrawer, rightDrawer, dragging, peeking, leftDrawerTemporary, rightDrawerTemporary) {
+          return classNames({
+            'dragging': dragging,
+            'narrow-layout': narrow,
+            'left-drawer': leftDrawer,
+            'right-drawer': rightDrawer,
+            transition: transition,
+            peeking: peeking,
+            'left-drawer-temporary': leftDrawerTemporary || (narrow && leftDrawer),
+            'right-drawer-temporary': rightDrawerTemporary || (narrow && rightDrawer)
+          });
+        },
+
+        _computeDrawerStyle: function(drawerWidth, drawerWidthBySide) {
+          return 'width:' + ((drawerWidthBySide) ? drawerWidthBySide : drawerWidth) + ';';
+        },
+
+        _computeMainStyle: function(narrow, leftDrawer, rightDrawer, forceLeftDrawerTemporary, forceRightDrawerTemporary, drawerWidth, leftDrawerWidth, rightDrawerWidth) {
+          var style = '';
+
+          if (narrow || forceLeftDrawerTemporary || !leftDrawer) {
+            style += 'left:0;';
+          } else {
+            style += 'left:0' + ((leftDrawerWidth) ? leftDrawerWidth : drawerWidth) + ';';
+          }
+
+          if (narrow || forceRightDrawerTemporary || !rightDrawer) {
+            style += 'right:0;';
+          } else {
+            style += 'right:' + ((rightDrawerWidth) ? rightDrawerWidth : drawerWidth) + ';';
+          }
+
+          return style;
+        },
+
+        _computeMediaQuery: function(forceNarrow, queryWidth) {
+          return forceNarrow ? '' : '(max-width: ' + queryWidth + ')';
+        },
+
+        _computeSideMediaQuery: function(forceNarrow, forceTemporary, queryWidth) {
+          return (forceNarrow || forceTemporary) ? '' : '(max-width: ' + queryWidth + ')';
+        },
+
+        // _computeSwipeOverlayHidden: function(narrow, disableEdgeSwipe) {
+        //   return !narrow || disableEdgeSwipe;
+        // },
+
+        _responsiveChange: function(value, source) {
+          switch (source) {
+            case 'narrow':
+              this._setNarrow(value);
+
+              if (this.narrow) {
+                this.selected = this.defaultSelected;
+              }
+
+              this.setScrollDirection(this._swipeAllowed() ? 'y' : 'all');
+              this.fire('paper-responsive-change', {narrow: this.narrow});
+              break;
+
+            case 'leftDrawerTemporary':
+              if (this._leftDrawer) {
+                if (this.narrow) {
+                  this._setLeftDrawerTemporary(true);
+                } else {
+                  this._setLeftDrawerTemporary(value);
+                }
+
+                this.selected = this.defaultSelected;
+
+                this.setScrollDirection(this._swipeAllowed() ? 'y' : 'all');
+                this.fire('paper-responsive-change', {leftDrawerTemporary: this.leftDrawerTemporary});
+              }
+              break;
+
+            case 'rightDrawerTemporary':
+              if (this._rightDrawer) {
+                if (this.narrow) {
+                  this._setRightDrawerTemporary(true);
+                } else {
+                  this._setRightDrawerTemporary(value);
+                }
+
+                this.selected = this.defaultSelected;
+
+                this.setScrollDirection(this._swipeAllowed() ? 'y' : 'all');
+                this.fire('paper-responsive-change', {rightDrawerTemporary: this.rightDrawerTemporary});
+              }
+              break;
+
+            default:
+            break;
+
+          }
+        },
+
+        _onQueryMatchesChanged: function(event) {
+          switch (event.srcElement.id) {
+            case 'mqResponsiveWidth':
+              this._responsiveChange(event.detail.value, 'narrow');
+              break;
+
+            case 'mqResponsiveWidthLeft':
+              this._responsiveChange(event.detail.value, 'leftDrawerTemporary');
+              break;
+
+            case 'mqResponsiveWidthRight':
+              this._responsiveChange(event.detail.value, 'rightDrawerTemporary');
+              break;
+
+            default:
+              break;
+          }
+        },
+
+        _forceNarrowChanged: function() {
+          // set the narrow mode only if we reached the `responsiveWidth`
+          this._responsiveChange(this.forceNarrow || this.$.mqResponsiveWidth.queryMatches, 'narrow');
+        },
+
+        _forceLeftDrawerTemporaryChanged: function() {
+          // set the left drawer temporary only if we reached the `responsiveWidth`
+          this._responsiveChange(this.forceLeftDrawerTemporary || this.$.mqResponsiveWidthLeft.queryMatches, 'leftDrawerTemporary');
+        },
+
+        _forceRightDrawerTemporaryChanged: function() {
+          // set the right drawer temporary only if we reached the `responsiveWidth`
+          this._responsiveChange(this.forceRightDrawerTemporary || this.$.mqResponsiveWidthRight.queryMatches, 'rightDrawerTemporary');
+        },
+
+        _swipeAllowed: function() {
+          return (this.narrow || this.leftDrawerTemporary || this.rightDrawerTemporary) && !this.disableSwipe;
+        },
+
+        _isMainSelected: function() {
+          return this.selected === 'main';
+        },
+
+        _isLeftDrawerSelected: function() {
+          return this.selected === 'leftDrawer';
+        },
+
+        _isRightDrawerSelected: function() {
+          return this.selected === 'rightDrawer';
+        },
+
+        _onTap: function(event) {
+          var targetElement = Polymer.dom(event).localTarget;
+
+          // Toggle #leftDrawer
+          var isTargetLeftToggleElement = targetElement &&
+          this.leftDrawerToggleAttribute &&
+          targetElement.hasAttribute(this.leftDrawerToggleAttribute);
+
+          if (isTargetLeftToggleElement) {
+            this.toggleLeftPanel();
+          }
+
+          // Toggle #rightDrawer
+          var isTargetRightToggleElement = targetElement &&
+          this.rightDrawerToggleAttribute &&
+          targetElement.hasAttribute(this.rightDrawerToggleAttribute);
+
+          if (isTargetRightToggleElement) {
+            this.toggleRightPanel();
+          }
+        },
+
+        _downHandler: function(event) {
+          var edge = this._isEdgeTouch(event);
+
+          if (!(this.dragging) && this._isMainSelected() && !!edge && !sharedPanel) {
+            this._startEdgePeek(edge);
+
+            // Cancel selection
+            event.preventDefault();
+
+            // Grab this panel
+            sharedPanel = this;
+          }
+        },
+
+        _upHandler: function() {
+          this._stopEdgePeek();
+
+          // Release the panel
+          sharedPanel = null;
+        },
+
+        _onTrack: function(event) {
+          if (sharedPanel && this !== sharedPanel) {
+            return;
+          }
+          switch (event.detail.state) {
+            case 'start':
+              this._trackStart(event);
+              break;
+            case 'track':
+              this._trackX(event);
+              break;
+            case 'end':
+              this._trackEnd(event);
+              break;
+          }
+
+        },
+
+        _isEdgeTouch: function(event) {
+          var x = event.detail.x;
+
+          if (this._swipeAllowed()) {
+            // Decide which side is being touched
+            if ((x <= this.edgeSwipeSensitivity) && this.leftDrawerTemporary && !this.disableLeftEdgeSwipe) {
+              this._set_lastInteractedDrawer('left');
+              return 'left';
+            } else if ((x >= this.offsetWidth - this.edgeSwipeSensitivity) && this.rightDrawerTemporary && !this.disableRightEdgeSwipe) {
+              this._set_lastInteractedDrawer('right');
+              return 'right';
+            }
+          }
+
+          return false;
+        },
+
+        // TODO: Find a way of preventing edge peek if drawer button is being pressed
+        _startEdgePeek: function(edge) {
+          var x;
+
+          switch (edge) {
+            case 'left':
+              this._movingDrawer = this.$.leftDrawer;
+              x = this.edgeSwipeSensitivity;
+              break;
+            case 'right':
+              this._movingDrawer = this.$.rightDrawer;
+              x = -this.edgeSwipeSensitivity;
+              break;
+            default:
+            return;
+          }
+
+          this.width = this._movingDrawer.offsetWidth;
+          this._moveDrawer(this._movingDrawer, this._translateXForDeltaX(x));
+          this._setPeeking(true);
+        },
+
+        _stopEdgePeek: function() {
+          if (this.peeking) {
+            this._setPeeking(false);
+            this._moveDrawer(this._movingDrawer, null);
+          }
+        },
+
+        _trackStart: function(event) {
+          var edge;
+
+          if (this._swipeAllowed()) {
+            sharedPanel = this;
+            this._setDragging(true);
+
+            if (this._isMainSelected()) {
+              edge = this._isEdgeTouch(event);
+              this._setDragging(this.peeking || !!edge);
+            }
+
+            if (this.dragging) {
+              if (!this._movingDrawer) {
+                switch (edge) {
+                  case 'left':
+                    this._movingDrawer = this.$.leftDrawer;
+                    break;
+                  case 'right':
+                    this._movingDrawer = this.$.rightDrawer;
+                    break;
+                  default:
+                    return;
+                }
+              }
+
+              this.width = this._movingDrawer.offsetWidth;
+              this._transition = false;
+            }
+          }
+        },
+
+        _trackEnd: function(event) {
+          if (this.dragging) {
+            var xDirection = event.detail.dx > 0;
+
+            this._setDragging(false);
+
+            this._transition = true;
+            sharedPanel = null;
+            this._moveDrawer(this._movingDrawer, null);
+
+            if (this._movingDrawer.id === 'rightDrawer') {
+              if (xDirection) {
+                this.closeDrawer();
+                this._movingDrawer = null;
+              } else {
+                this.openRightDrawer();
+              }
+            } else {
+              if (!xDirection) {
+                this.closeDrawer();
+                this._movingDrawer = null;
+              } else {
+                this.openLeftDrawer();
+              }
+            }
+          }
+        },
+
+        _trackX: function(event) {
+          if (this.dragging) {
+            var dx = event.detail.dx;
+
+            if (this.peeking) {
+              if (Math.abs(dx) <= this.edgeSwipeSensitivity) {
+                // Ignore trackx until we move past the edge peek.
+                return;
+              }
+              this._setPeeking(false);
+            }
+
+            this._moveDrawer(this._movingDrawer, this._translateXForDeltaX(dx));
+          }
+        },
+
+        _translateXForDeltaX: function(deltaX) {
+          var isMain = this._isMainSelected();
+
+          if (this._movingDrawer.id === 'rightDrawer') {
+            return Math.max(0, isMain ? this.width + deltaX : deltaX);
+          } else {
+            return Math.min(0, isMain ? deltaX - this.width : deltaX);
+          }
+        },
+
+        _transformForTranslateX: function(translateX) {
+          if (translateX === null) {
+            return '';
+          }
+
+          return this.hasWillChange ? 'translateX(' + translateX + 'px)' :
+              'translate3d(' + translateX + 'px, 0, 0)';
+        },
+
+        _moveDrawer: function(drawer, translateX) {
+          this.transform(this._transformForTranslateX(translateX), drawer);
+        }
+
+      });
+    }());
+  </script>
+</dom-module>

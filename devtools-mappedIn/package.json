@@ -10,6 +10,7 @@
   "dependencies": {
     "noflo": "^0.5.14",
     "chalk": "~1.1.0",
+    "del": "~2.2.1",
     "cubx-grunt-http-server": "^0.1.0",
     "cubx-grunt-wct-scaffolder": "^1.0.0",
     "cubx-grunt-webpackage-chooser": "^1.0.0",

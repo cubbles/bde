@@ -19,7 +19,7 @@ module.exports.tasks = {
 
   uglify: {
     options: {
-        banner: '/* NoFlo - Flow-Based Programming environment. See http://noflojs.org for more information. */',
+      banner: '/* NoFlo - Flow-Based Programming environment. See http://noflojs.org for more information. */',
       report: 'min'
     },
     noflo: {
@@ -27,6 +27,10 @@ module.exports.tasks = {
         '<%= workspacePath%>/bde/bde/build/noflo.min.js': ['<%= workspacePath%>/bde/bde/build/noflo.js']
       }
     }
+  },
+
+  bdeBowerInstall: {
+    vendorPath: 'vendor'
   }
 
 };
