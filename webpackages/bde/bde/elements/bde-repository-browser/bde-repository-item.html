@@ -147,6 +147,7 @@ Example:
         artifact.url = this.getItemUrl(this.item);
         artifact.webpackageId = webpackage._id;
 
+        this.set('webpackage', webpackage);
         this.set('lastItemSelected', artifact);
     }
 
