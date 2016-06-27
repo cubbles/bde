@@ -20,7 +20,10 @@
     'use strict';
 
     var crcRoot = document.querySelector('#crcRoot');
-    var crcLoaderUrl = 'https://webblebase.net/cubx.core.crc-loader-%s/js/main.js';
+    var baseUrl = 'https://cubbles.world/sandbox/';
+    var rteUrl = 'cubx.core.rte@1.10.0-SNAPSHOT';
+    var crcLoaderUrl = baseUrl + rteUrl + '/crc-loader/js/main.js';
+    var webComponentsUrl = baseUrl + rteUrl + '/webcomponents/webcomponents-lite.js';
 
     // const DEBUG = false;
     // window.__console__ = window.console;
@@ -29,29 +32,6 @@
     //         if (DEBUG) window.__console__.log.apply(window.__console__, arguments);
     //     }
     // };
-
-    function _getLoaderVersion (modelVersion) {
-
-        switch (modelVersion.substring(0,2)) {
-
-            case '4.':
-                return '0.5';
-
-            case '5.':
-                return '0.6.1';
-
-            case '6.':
-                return '1.1';
-
-            case '7.':
-                return '1.4-SNAPSHOT';
-
-            default:
-                console.error("Unsupported Model Version", modelVersion);
-                return;
-
-        }
-    };
 
     function _handleMessage (event) {
         var data = event.data || {};
@@ -68,14 +48,14 @@
 
             case 'manifest':
                 if (data.data) {
-                    _handleManifest.call(this, data.data);
+                    _handleCurrentComponentMetadata.call(this, data.data);
                 }
             break;
 
         }
     };
 
-    function _handleManifest (manifest) {
+    function _handleCurrentComponentMetadata (currentComponentMetadata) {
 
         // Cannot handle resetting CIF container, yet
         if (window.cif) {
@@ -83,15 +63,43 @@
             return;
         }
 
-        crcRoot.appendChild(document.createElement(manifest.name));
-        window.cubx = { CRCConfig: manifest };
-        var url = crcLoaderUrl.replace(/%s/, _getLoaderVersion(manifest.modelVersion));
-        _injectScript(url, () => {
-            console.log("CRCLoader injected...");
+        _injectScript(webComponentsUrl, () => {
+                console.log("Webcomponents injected...");
         });
+
+        if (currentComponentMetadata.endpoint.indexOf('this') === 0) {
+            currentComponentMetadata.endpoint = (currentComponentMetadata.manifest.groupId + '.' || '') +
+                    currentComponentMetadata.manifest.name + '@' +
+                    currentComponentMetadata.manifest.version +
+                    currentComponentMetadata.endpoint.substr('this'.length)
+        }
+
+        // Create rootDependencies object
+        window.cubx = {
+            CRCInit: {
+                rootDependencies: [
+                    {
+                        endpoint: currentComponentMetadata.endpoint,
+                        manifest: currentComponentMetadata.manifest
+                    }
+                ]
+            }
+        };
+
+        var component = document.createElement(currentComponentMetadata.artifactId);
+        crcRoot.appendChild(component);
+
+        _injectScript(crcLoaderUrl, () => {
+            console.log("CRCLoader injected...");
+            var event = document.createEvent('CustomEvent');
+                event.initCustomEvent('iframeReady', true, true, {});
+                // Dispatch this 'iframeReady' event so that the CRC starts working
+                document.dispatchEvent(event);
+        },
+        {'data-crcinit-loadcif': 'true', 'data-cubx-startevent': 'iframeReady'});
     };
 
-    function _injectScript (src, cb) {
+    function _injectScript (src, cb, additionalAttrs) {
         var head = document.querySelector('head');
         var script = document.createElement('script');
 
@@ -100,6 +108,12 @@
         }.bind(this);
 
         script.src = src;
+        if (additionalAttrs) {
+            for (var attr in additionalAttrs) {
+                script.setAttribute(attr, additionalAttrs[attr]);
+            }
+
+        }
         head.appendChild(script);
     };
 
