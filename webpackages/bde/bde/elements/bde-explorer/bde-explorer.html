@@ -12,7 +12,6 @@
 <link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-styles/default-theme.html">
 <link rel="import" href="bde-compound-creator.html">
-<link rel="import" href="../bde-base-browser/bde-base-import.html">
 <!--
 `bde-explorer` is the management component for handling cubble packages
 
@@ -61,9 +60,6 @@ Example:
         </style>
 
         <h2>Webpackage Explorer</h2>
-
-        <bde-base-import id="import"
-            artifacts="{{artifacts}}"></bde-base-import>
 
         <bde-compound-creator id="compoundCreator"
             on-last-artifact-changed="handleNewCompound"></bde-compound-creator>
@@ -201,11 +197,6 @@ Example:
             </array-selector>
         </iron-collapse>
 
-        <paper-button on-tap="openImportDialog" raised>
-            <iron-icon icon="icons:get-app"></iron-icon>
-            Import Cubble
-        </paper-button>
-
     </template>
     <script>
     Polymer({
@@ -307,10 +298,6 @@ Example:
         handleNewCompound: function(e) {
             this.push('artifacts.compoundComponents', e.detail.value);
             this.$.compoundSelector.select(e.detail.value);
-        },
-
-        openImportDialog: function() {
-            this.$.import.open();
         },
 
         openSettings: function(e) {
