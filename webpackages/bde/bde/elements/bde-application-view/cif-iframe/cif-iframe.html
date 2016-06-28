@@ -63,7 +63,7 @@
             return;
         }
 
-        _injectScript(webComponentsUrl, () => {
+        _injectScript(webComponentsUrl, function () {
                 console.log("Webcomponents injected...");
         });
 
@@ -89,7 +89,7 @@
         var component = document.createElement(currentComponentMetadata.artifactId);
         crcRoot.appendChild(component);
 
-        _injectScript(crcLoaderUrl, () => {
+        _injectScript(crcLoaderUrl, function() {
             console.log("CRCLoader injected...");
             var event = document.createEvent('CustomEvent');
                 event.initCustomEvent('iframeReady', true, true, {});
@@ -129,7 +129,7 @@
     };
 
     window.addEventListener('message', _handleMessage, false);
-    window.addEventListener('DOMContentLoaded', e => {
+    window.addEventListener('DOMContentLoaded', function(e) {
         _postMessage('loaded');
     }, false);
 
