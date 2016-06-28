@@ -57,6 +57,15 @@ Example:
                 margin: 2em 5% 0;
                 background-color: var(--primary-background-color);
             }
+
+            .endpoint-item {
+                margin-left: 24px;
+            }
+
+            .endpoint-list-header {
+                margin-left: 40px;
+                font-weight: 500;
+            }
         </style>
 
         <h2>Webpackage Explorer</h2>
@@ -116,6 +125,16 @@ Example:
                     <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
                     </paper-icon-button>
                 </paper-icon-item>
+                <div class="endpoint-list-header">Enpoints</div>
+                <template is="dom-repeat" items="{{compound.endpoints}}" as="endpoint">
+                    <paper-icon-item toggles class="endpoint-item">
+                        <iron-icon icon="icons:launch" item-icon></iron-icon>
+                        <paper-item-body two-line>
+                            <div>[[endpoint.endpointId]]</div>
+                            <div secondary>[[endpoint.description]]</div>
+                        </paper-item-body>
+                    </paper-icon-item>
+                </template>
             </template>
 
             <paper-icon-item class="addItem" on-tap="addCompound">
