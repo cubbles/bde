@@ -183,10 +183,12 @@
                         </bde-flexbox-layouter>
                     </bde-design-view>
 
-                    <bde-application-view id="applicationView"
-                        loaded="{{applicationViewLoaded}}"
-                        manifest="[[manifest]]"
-                        manifest-complete="[[manifestComplete]]">
+                    <bde-application-view
+                            id="applicationView"
+                            loaded="{{applicationViewLoaded}}"
+                            currentComponentMetadata = "[[currentComponentMetadata]]"
+                            manifest="[[manifest]]"
+                            manifest-complete="[[manifestComplete]]">
                     </bde-application-view>
 
                 </iron-pages>
