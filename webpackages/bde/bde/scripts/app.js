@@ -34,8 +34,9 @@
             }
         });
     };
-    app.initializeDefaultSettings();
-
+    window.addEventListener('WebComponentsReady', function(e) {
+      app.initializeDefaultSettings();
+    });
     app.computeBaseUrl = function computeBaseUrl(settings, partial) {
         if (!partial || typeof partial !== 'string') {
             throw new TypeError("`partial` must be a string");
