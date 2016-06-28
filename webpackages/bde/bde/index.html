@@ -1,214 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>BDE</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <title>BDE</title>
 
-    <link rel="manifest" href="manifest.webapp">
+  <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-    <meta name="theme-color" content="#ffffff">
+  <link rel="manifest" href="manifest.webapp">
 
-    <script src="vendor/webcomponentsjs/webcomponents-lite.min.js" type="text/javascript"></script>
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
 
-    <link rel="import" href="elements/elements.html">
+  <script src="/vendor/webcomponentsjs/webcomponents-lite.min.js"></script>
 
+  <link rel="import" href="/elements/bde-app/bde-app.html">
+
+  <style is="custom-style">
+    *,
+    *:before,
+    *:after {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      height: 100vh;
+    }
+  </style>
 </head>
-
 <body unresolved>
-
-<template is="dom-bind" id="app">
-    <!-- App-wide components belong here -->
-    <iron-localstorage id="appSettings"
-        name="app-settings"
-        value="{{settings}}"
-        on-iron-localstorage-load-empty="initializeDefaultSettings">
-    </iron-localstorage>
-
-    <paper-dialog id="about"
-        exit-animation="fade-out-animation"
-        with-backdrop>
-        <h2>About</h2>
-        <div>
-            <p>This is the Cubbles Browser Development Environment (BDE)</p>
-            <!-- TODO (fdu): Automate version replacement from package.json -->
-            <p>Version: 1.1.0-SNAPSHOT</p>
-            <p><a href="http://www.hm-ag.de/" target="_blank" alt="HM - Informatik AG">&copy; 2016 HM - Informatik AG</a></p>
-        </div>
-        <div class="buttons">
-            <paper-button dialog-confirm>Close</paper-button>
-        </div>
-    </paper-dialog>
-
-    <bde-help-page id="help"></bde-help-page>
-
-    <bde-application-settings id="settings"
-        webpackage="{{webpackage}}"
-        settings="{{settings}}">
-    </bde-application-settings>
-
-    <bde-repository-browser id="browser"
-        url="[[computeBaseUrl(settings, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
-        onlyCompundDisable="false"
-        webpackage="{{webpackage}}">
-    </bde-repository-browser>
-
-    <bde-artifact-parser id="parser"
-        general-data="{{generalData}}"
-        webpackage="{{webpackage}}">
-    </bde-artifact-parser>
-
-    <bde-webpackdoc-creator id="creator"
-        type="[[type]]"
-        slots="[[_concatArray(inslots, outslots)]]"
-        members="[[members]]"
-        connections="[[connections]]"
-        initializers="[[initializers]]"
-        manifest="{{manifest}}"
-        general-data="[[generalData]]"
-        manifest-complete="{{manifestComplete}}">
-    </bde-webpackdoc-creator>
-
-     <paper-header-panel mode="seamed">
-
-        <paper-toolbar id="bde-header">
-
-            <a href="#" class="brand"><iron-icon icon="bde:cubbles"></iron-icon> BDE</a>
-
-            <paper-icon-button id="settingsBtn"
-                title="Application Settings..."
-                aria-label="applicationSettings"
-                icon="settings">
-            </paper-icon-button>
-
-            <paper-icon-button id="compoundBtn"
-                title="Load from base..."
-                aria-label="compounds"
-                icon="icons:cloud-download">
-            </paper-icon-button>
-
-            <paper-icon-button id="deployBtn"
-                title="Deploy..."
-                aria-label="compounds"
-                icon="icons:cloud-upload">
-            </paper-icon-button>
-
-            <paper-icon-button id="aboutBtn"
-                title="About..."
-                aria-label="about"
-                icon="icons:copyright">
-            </paper-icon-button>
-
-            <paper-icon-button id="helpBtn"
-                title="Help Page"
-                aria-label="help"
-                icon="icons:help-outline">
-            </paper-icon-button>
-
-            <span class="flex"></span>
-
-            <page-select-menu selected="{{selectedPage}}">
-
-                <paper-icon-button id="flowIcon"
-                    page="dataflowView"
-                    title="change to dataflow-view"
-                    icon="gesture"
-                    class="route-buttons"
-                    selected>
-                </paper-icon-button>
-
-                <paper-icon-button id="designIcon"
-                    page="designView"
-                    title="change to design-view"
-                    icon="open-with"
-                    class="route-buttons">
-                </paper-icon-button>
-
-                <paper-icon-button id="appIcon"
-                    page="applicationView"
-                    title="change to application-view"
-                    icon="apps"
-                    class="route-buttons">
-                </paper-icon-button>
-
-            </page-select-menu>
-
-        </paper-toolbar>
-
-        <paper-drawer-panel id="drawerPanel"
-            drawer-width="300px"
-            force-narrow="[[!showExplorer]]"
-            disable-swipe
-            disable-edge-swipe>
-
-            <div drawer>
-
-                <bde-explorer id="explorer"
-                    artifacts="{{webpackage.artifacts}}"
-                    selected-artifact="{{selectedArtifact}}"
-                    selected-compound="{{selectedCompound}}"
-                    current-compound-meta-data="{{currentCompoundMetaData}}">
-                </bde-explorer>
-
-            </div>
-
-            <div main>
-
-                <iron-pages id="pages"
-                    attr-for-selected="id"
-                    selected="{{selectedPage}}">
-
-                    <bde-dataflow-view id="dataflowView"
-                        artifact="{{selectedCompound}}"></bde-dataflow-view>
-
-                    <bde-design-view id="designView">
-                        <bde-flexbox-layouter
-                                webpackage="{{webpackage}}"
-                                selected-compound="{{selectedCompound}}">
-                        </bde-flexbox-layouter>
-                    </bde-design-view>
-
-                    <bde-application-view
-                            id="applicationView"
-                            loaded="{{applicationViewLoaded}}"
-                            currentComponentMetadata = "[[currentComponentMetadata]]"
-                            manifest="[[manifest]]"
-                            manifest-complete="[[manifestComplete]]">
-                    </bde-application-view>
-
-                </iron-pages>
-
-            </div>
-
-        </paper-drawer-panel>
-
-    </paper-header-panel>
-
-  </template><!-- /[is=dom-bind] -->
-
-    <!-- build:js src/app.min.js -->
-    <script src="vendor/observe-js/src/observe.js"></script>
-    <script src="scripts/utils.js"></script>
-    <script src="scripts/lib/Webpackage.js"></script>
-    <script src="scripts/app.js"></script>
-    <!-- endbuild -->
-
+  <bde-app id="app"></bde-app>
 </body>
-
 </html>

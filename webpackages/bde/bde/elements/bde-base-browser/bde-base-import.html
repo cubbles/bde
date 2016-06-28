@@ -3,7 +3,6 @@
 <link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
 <link rel="import" href="bde-base-browser.html">
-<script src="../../vendor/inflection/inflection.min.js"></script>
 
 <dom-module id="bde-base-import">
     <template>
@@ -32,6 +31,7 @@
 
 
     </template>
+    <script src="../../vendor/inflection/inflection.min.js"></script>
     <script>
     Polymer({
         is: 'bde-base-import',
@@ -39,7 +39,8 @@
         properties: {
             opened: {
                 type: Boolean,
-                value: false
+                value: false,
+                notify: true
             },
 
             artifacts: {

@@ -83,8 +83,25 @@ Example:
             this.opened = false;
         },
 
-        handleDialogClosed: function(e, reason) {
-            this.$.form.reset();
+        handleDialogClosed: function(event) {
+            var reason = event.detail;
+
+            // User clicked 'add'
+            if (reason.confirmed) {
+                if (this.$.form.validate()) {
+                    this.$.form.submit();
+                } else {
+                    // This should never happen
+                    event.preventDefault();
+                    return;
+                }
+            }
+
+            // Reset the form only if the user clicked 'cancel'
+            if (!reason.canceled && !reason.confirmed) {
+                this.$.form.reset();
+            }
+
         },
 
         handleFormPresubmit: function(event) {

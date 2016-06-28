@@ -106,11 +106,6 @@
 
                 manifestComplete: {
                     type: Boolean
-                },
-
-                currentComponentMetadata: {
-                    type: Object,
-                    observer: 'currentComponentMetadataChanged'
                 }
 
             },
@@ -140,25 +135,12 @@
 
             },
 
-            currentComponentMetadataChanged: function () {
-                if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest
-                        || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpoint){
-                    return;
-                }
-                if(this.currentComponentMetadata.manifest.name !== '' &&
-                        this.currentComponentMetadata.manifest.groupId  !== '') {  //TODO: component should have members
-                    this.manifestComplete = true;
-                    this.reloadIframe(() => {
-                        this._postMessage('currentComponentMetadata', this.currentComponentMetadata);
-                });
-                }
-            },
 
             manifestChanged: function () {
 
                 // Manifest not set, yet
                 if (!Object.keys(this.manifest).length > 0) return;
-                this.manifestComplete = true;
+
                 this.reloadIframe(() => {
                     this._postMessage('manifest', this.manifest);
                 });

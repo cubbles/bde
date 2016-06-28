@@ -1,1348 +1,678 @@
 <link rel="import" href="../../vendor/polymer/polymer.html">
-<link rel="import" href="../../vendor/polymer-gestures/polymer-gestures.html">
-<link rel="import" href="../bde-style/bde-graph-styles.html">
+<link rel="import" href="../../vendor/the-graph/the-graph.html">
+<!--
+`the-graph` is the visual editor component of the Cubbles BDE
 
-<!-- build:inlinejs -->
-<script src="../../build/noflo.min.js"></script>
-<script src="../../vendor/react/react-with-addons.js"></script>
-<script src="../../vendor/klayjs-noflo/klay-noflo.js"></script>
-<script src="../../vendor/hammerjs/hammer.min.js"></script>
-<script src="../../vendor/ease-djdeath/index.js"></script>
-<script src="../../vendor/react.animate-djdeath/react.animate.js"></script>
-<script src="../../vendor/lodash/lodash.min.js"></script>
-<script src="../../scripts/lib/NofloGraph.js"></script>
-<script src="./bde-graph.js"></script>
-<script src="./bde-graph-clipboard.js"></script>
-<script src="./bde-graph-menu.js"></script>
-<script src="./bde-graph-tooltip.js"></script>
-<script src="./bde-graph-group.js"></script>
-<script src="./bde-graph-iip.js"></script>
-<script src="./bde-graph-edge.js"></script>
-<script src="./bde-graph-port.js"></script>
-<script src="./bde-graph-node-menu-ports.js"></script>
-<script src="./bde-graph-node-menu-port.js"></script>
-<script src="./bde-graph-node-menu.js"></script>
-<script src="./bde-graph-node.js"></script>
-<script src="./bde-graph-graph.js"></script>
-<script src="./bde-graph-app.js"></script>
-<script src="./font-awesome-unicode-map.js"></script>
-<!-- endbuild -->
-
+@demo demo/index.html
+-->
 <dom-module id="bde-graph">
+  <template>
+    <style>
+      :host {
+        position: relative;
+        display: block;
+      }
 
-    <template>
+      #backdrop {
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        z-index: 0;
 
-        <style is="custom-style" include="bde-graph-styles"></style>
+        -webkit-box-sizing: content-box;
+           -moz-box-sizing: content-box;
+                box-sizing: content-box;
+        -o-text-overflow: clip;
+           text-overflow: clip;
+        background: -webkit-linear-gradient(45deg, rgba(0,0,0,0.0980392) 25%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.0980392) 75%, rgba(0,0,0,0.0980392) 0),
+                    -webkit-linear-gradient(45deg, rgba(0,0,0,0.0980392) 25%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.0980392) 75%, rgba(0,0,0,0.0980392) 0),
+                    rgb(255, 255, 255);
+        background: -moz-linear-gradient(45deg, rgba(0,0,0,0.0980392) 25%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.0980392) 75%, rgba(0,0,0,0.0980392) 0),
+                    -moz-linear-gradient(45deg, rgba(0,0,0,0.0980392) 25%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.0980392) 75%, rgba(0,0,0,0.0980392) 0),
+                    rgb(255, 255, 255);
+        background: linear-gradient(45deg, rgba(0,0,0,0.0980392) 25%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.0980392) 75%, rgba(0,0,0,0.0980392) 0),
+                    linear-gradient(45deg, rgba(0,0,0,0.0980392) 25%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.0980392) 75%, rgba(0,0,0,0.0980392) 0),
+                    rgb(255, 255, 255);
+        background-position: 0 0, 40px 40px;
+        -webkit-background-origin: padding-box;
+                background-origin: padding-box;
+        -webkit-background-clip: border-box;
+                background-clip: border-box;
+        -webkit-background-size: 80px 80px;
+                background-size: 80px 80px;
 
-        <!-- build:inlinecss -->
-        <!--<style include="graph-styles"></style>-->
-        <!-- endbuild -->
+        @apply(--paper-font-display1);
+        @apply(--layout-vertical);
+        @apply(--layout-center-center)
+      }
+    </style>
 
-        <div id="svgcontainer" class$="{{_svgClassName(theme)}}"></div>
+    <div id="backdrop" hidden="[[ready]]">
+      <p>Create a new compound component or load an existing one from the base.</p>
+    </div>
 
-    </template>
+    <the-graph id="graph"
+      name="[[artifact.artifactId]]"
+      graph="[[nofloGraph]]"
+      menus="[[_menus]]"
+      width="[[width]]" height="[[height]]"
+      offset-x="[[offsetX]]" offset-y=[[offsetY]]
+      pan="{{pan}}" scale="{{scale}}"
+      autolayout="{{autolayout}}"
+      theme="{{theme}}"
+      selected-nodes="{{_selectedNodes}}"
+      selected-edges="{{_selectedEdges}}"
+      hidden="[[!ready]]"
+      display-selection-group
+      force-selection>
+    </the-graph>
 
+  </template>
+  <script src="../../vendor/the-graph/build/noflo.js"></script>
+  <script>
+  (function() {
+    "use strict";
 
-
-    <script>
     Polymer({
-        is: 'bde-graph',
+      is: 'bde-graph',
 
-        properties: {
+      hostAttributes: {
+        'touch-action': 'none'
+      },
 
-            artifact: {
-                type: Object,
-                notify: true,
-                observer: '_artifactChanged'
-            },
+      properties: {
 
-            animatedEdges: {
-                type: Array,
-                value: function() {
-                    return [];
-                },
-                notify: true,
-                observer: 'animatedEdgesChanged'
-            },
-            appView: {
-                value: null
-            },
-            autolayout: {
-                type: Boolean,
-                value: false,
-                notify: true,
-                observer: 'autolayoutChanged'
-            },
-            autolayouter: {
-                value: null
-            },
-            debounceLibraryRefeshTimer: {
-                value: null
-            },
-            displaySelectionGroup: {
-                type: Boolean,
-                value: true,
-                notify: true,
-                observer: 'displaySelectionGroupChanged'
-            },
-            editable: {
-                type: Boolean,
-                value: true
-            },
-            errorNodes: {
-                type: Object,
-                value: function() {
-                    return {};
-                },
-                notify: true,
-                observer: 'errorNodesChanged'
-            },
-            forceSelection: {
-                type: Boolean,
-                value: false,
-                notify: true,
-                observer: 'forceSelectionChanged'
-            },
-            getmenudef: {
-                notify: true
-            },
-            graph: {
-                value: null,
-                notify: true,
-                observer: 'graphChanged'
-            },
-            dataModel: {
-                value: null,
-                notify: true,
-                observer: 'dataModelChanged'
-            },
-            graphView: {
-                value: null
-            },
-            grid: {
-                type: Number,
-                value: 72
-            },
-            height: {
-                type: Number,
-                value: 600,
-                notify: true,
-                observer: 'heightChanged'
-            },
-
-            lastSelectedEdge: {
-                type: Object,
-                notify: true
-            },
-
-            lastSelectedNode: {
-                type: Object,
-                notify: true
-            },
-
-            library: {
-                value: null,
-                notify: true
-            },
-            maxZoom: {
-                type: Number,
-                value: 15,
-                notify: true
-            },
-            menus: {
-                value: null,
-                notify: true,
-                observer: 'menusChanged'
-            },
-            minZoom: {
-                type: Number,
-                value: 0.15,
-                notify: true
-            },
-            offsetX: {
-                value: null,
-                notify: true
-            },
-            offsetY: {
-                value: 64,
-                notify: true
-            },
-            pan: {
-                notify: true,
-                observer: 'panChanged'
-            },
-
-            scale: {
-                type: Number,
-                value: 1,
-                notify: true
-            },
-
-            selectedEdges: {
-                type: Array,
-                value: function() {
-                    return [];
-                },
-                observer: 'selectedEdgesChanged',
-                notify: true
-
-            },
-
-            selectedNodes: {
-                type: Array,
-                value: function() {
-                    return [];
-                },
-                notify: true,
-                observer: 'selectedNodesChanged'
-            },
-
-            selectedNodesHash: {
-                type: Object,
-                value: function() {
-                    return {};
-                },
-                observer: 'selectedNodesHashChanged'
-            },
-            snap: {
-                type: Number,
-                value: 36
-            },
-            theme: {
-                type: String,
-                value: 'light',
-                notify: true
-            },
-            width: {
-                type: Number,
-                value: 1920,
-                notify: true,
-                observer: 'widthChanged'
-
-            }
-
+        grid: {
+          type: Number,
+          value: 72
         },
 
-        hostAttributes: {
-            'touch-action': 'none'
+        snap: {
+          type: Number,
+          value: 36
         },
 
-        listeners: {
-            'track': 'handleTrack'
+        width: {
+          type: Number,
+          value: 800,
+          notify: true,
+          reflectToAttribute: true
         },
 
-        created: function() {
-
-            this.properties.library = {};
-
-            // Default pan
-            this.properties.pan = [0, 0];
-
-            // Initializes the autolayouter
-            this.autolayouter = klayNoflo.init({
-                onSuccess: this.applyAutolayout.bind(this),
-                workerScript: 'vendor/klayjs/klay.js'
-            });
-
-            var pasteAction = function(graph, itemKey, item) {
-                var pasted = TheGraph.Clipboard.paste(graph);
-                this.set('selectedNodes', pasted.nodes);
-                this.set('selectedEdges', []);
-            }.bind(this);
-
-            var pasteMenu = {
-                icon: 'paste',
-                iconLabel: 'paste',
-                action: pasteAction
-            };
-
-            // Default context menu defs
-            this.properties.menus = {
-                main: {
-                    icon: 'sitemap',
-                    e4: pasteMenu
-                },
-                edge: {
-                    icon: 'long-arrow-right',
-                    s4: {
-                        icon: 'trash-o',
-                        iconLabel: 'delete',
-                        action: function(graph, itemKey, item) {
-                            graph.removeEdge(item.from.node, item.from.port, item.to.node, item.to.port); // Remove selection
-                            // Remove selection
-                            var newSelection = [];
-                            for (var i = 0, len = this.selectedEdges.length; i < len; i++) {
-                                var selected = this.selectedEdges[i];
-                                if (selected !== item) {
-                                    newSelection.push(selected);
-                                }
-                            }
-                            this.selectedEdges = newSelection;
-                        }.bind(this)
-                    }
-                },
-                node: {
-                    s4: {
-                        icon: 'trash-o',
-                        iconLabel: 'delete',
-                        action: function(graph, itemKey, item) {
-                            graph.removeNode(itemKey);
-
-                            // Remove selection
-                            this.set('selectedNodes', this.selectedNodes.map( n => n !== item ));
-                            this.appView.unselectAll();
-                            // var newSelection = this.selectedNodes.map( n => n !== item );
-                            // var newSelection = [];
-                            // for (var i = 0, len = this.selectedNodes.length; i < len; i++) {
-                            //     var selected = this.selectedNodes[i];
-                            //     if (selected !== item) {
-                            //         newSelection.push(selected);
-                            //     }
-                            // }
-                            // this.selectedNodes = newSelection;
-                        }.bind(this)
-                    },
-                    w4: {
-                        icon: 'copy',
-                        iconLabel: 'copy',
-                        action: function(graph, itemKey, item) {
-                            TheGraph.Clipboard.copy(graph, [itemKey]);
-                        }
-                    }
-                },
-                nodeInport: {
-                    w4: {
-                        icon: 'sign-in',
-                        iconLabel: 'inport',
-                        action: function(graph, itemKey, item) {
-                            var pub = item.port;
-                            if (pub === 'start') {
-                                pub = 'start1';
-                            }
-                            if (pub === 'graph') {
-                                pub = 'graph1';
-                            }
-                            var count = 0; // Make sure public is unique
-                            // Make sure public is unique
-                            while (graph.inports[pub]) {
-                                count++;
-                                pub = item.port + count;
-                            }
-                            var priNode = graph.getNode(item.process);
-                            var metadata = {
-                                x: priNode.metadata.x - 144,
-                                y: priNode.metadata.y
-                            };
-                            console.log('>> nodeInport:',pub)
-                            graph.addInport(pub, item.process, item.port, metadata);
-                           /* document.querySelector('bde-graph').fire('graph.add-inslot', {
-                                port: item.port,
-                                node: priNode
-                            });*/
-                        }
-                    }
-                },
-                nodeOutport: {
-                    e4: {
-                        icon: 'sign-out',
-                        iconLabel: 'export',
-                        action: function(graph, itemKey, item) {
-                            var pub = item.port;
-                            var count = 0; // Make sure public is unique
-                            // Make sure public is unique
-                            while (graph.outports[pub]) {
-                                count++;
-                                pub = item.port + count;
-                            }
-                            var priNode = graph.getNode(item.process);
-                            var metadata = {
-                                x: priNode.metadata.x + 144,
-                                y: priNode.metadata.y
-                            };
-                            console.log('>> nodeOutport:',itemKey)
-                            graph.addOutport(pub, item.process, item.port, metadata);
-                           /* document.querySelector('bde-graph').fire('graph.add-outslot', {
-                                port: item.port,
-                                node: priNode
-                            });*/
-                        }
-                    }
-                },
-                graphInport: {
-                    icon: 'sign-in',
-                    iconColor: 2,
-                    n4: {
-                        label: 'inport'
-                    },
-                    s4: {
-                        icon: 'trash-o',
-                        iconLabel: 'delete',
-                        action: function(graph, itemKey, item) {
-                            graph.removeInport(itemKey);
-                        }
-                    }
-                },
-                graphOutport: {
-                    icon: 'sign-out',
-                    iconColor: 5,
-                    n4: {
-                        label: 'outport'
-                    },
-                    s4: {
-                        icon: 'trash-o',
-                        iconLabel: 'delete',
-                        action: function(graph, itemKey, item) {
-                            graph.removeOutport(itemKey);
-                        }
-                    }
-                },
-                group: {
-                    icon: 'th',
-                    s4: {
-                        icon: 'trash-o',
-                        iconLabel: 'ungroup',
-                        action: function(graph, itemKey, item) {
-                            graph.removeGroup(itemKey);
-                        }
-                    },
-                    // TODO copy group?
-                    e4: pasteMenu
-                },
-                selection: {
-                    icon: 'th',
-                    w4: {
-                        icon: 'copy',
-                        iconLabel: 'copy',
-                        action: function(graph, itemKey, item) {
-                            TheGraph.Clipboard.copy(graph, item.nodes);
-                        }
-                    },
-                    e4: pasteMenu
-                }
-            };
-
+        height: {
+          type: Number,
+          value: 600,
+          notify: true,
+          reflectToAttribute: true
         },
 
-        ready: function() {
-
-            // ==============listen the event from bde-Model-Store============
-            document.addEventListener('store.addMember', function(e) {
-                this.addNewNode(e.detail.member);
-            }.bind(this));
-
-
-            document.addEventListener('store.removeMember', function(e) {
-                this.graph.removeNode(e.detail.id)
-            }.bind(this));
-
-
-            document.addEventListener('store.addConnection', function(e) {
-                var source = e.detail.connection.source;
-                var target = e.detail.connection.target;
-                var metadata = e.detail.connection.metadata;
-
-                if (source.memberIndex && target.memberIndex) {
-                    var result = this.graph.addEdge(source.memberIndex, source.slot, target.memberIndex, target.slot, metadata);
-                          }
-            }.bind(this));
-
-            document.addEventListener('store.removeConnection', function(e) {
-                var source = e.detail.connection.source;
-                var target = e.detail.connection.target;
-                if (source.memberIndex && target.memberIndex)
-                    this.graph.removeEdge(source.memberIndex, source.slot, target.memberIndex, target.slot);
-            }.bind(this));
-
-            document.addEventListener('store.addOutslot', function(e) {
-                if (!this.graph.outports[e.detail.slot.name])
-                    this.graph.addOutport(e.detail.slot.name, e.detail.member, e.detail.port, e.detail.metadata);
-            }.bind(this));
-
-            document.addEventListener('store.addInslot', function(e) {
-                // prevent to loop between events
-                if (!this.graph.inports[e.detail.slot.name])
-                    this.graph.addInport(e.detail.slot.name, e.detail.member, e.detail.port, e.detail.metadata);
-            }.bind(this));
-
-            document.addEventListener('store.removeInslot', function(e) {
-                if (this.graph.inports[e.detail.slot.name])
-                    this.graph.removeInport(e.detail.slot.name);
-            }.bind(this));
-
-            document.addEventListener('store.removeOutslot', function(e) {
-                if (this.graph.outports[e.detail.slot.name])
-                    this.graph.removeOutport(e.detail.slot.name);
-            }.bind(this));
-            //======================================================
-
-            // listen to key events
-            document.addEventListener('keydown', function(evt) {
-                // listen to delete key press and remove selected members or connections
-                if (evt.keyCode === 46) {
-                    _.forEach(this.selectedEdges, function(edge) {
-                        this.graph.removeEdge(edge.from.node, edge.from.port, edge.to.node, edge.to.port);
-                    }.bind(this));
-
-                    _.forEach(this.selectedNodes, function(node) {
-                        this.graph.removeNode(node.id);
-                    }.bind(this));
-                    //unselect all nodes
-                    this.appView.unselectAll();
-                }
-                // listen to left arrow key, move member(s) left
-                if (evt.keyCode === 37){
-                  _.forEach(this.selectedNodes, function(node){
-                      node.metadata['x'] = node.metadata['x'] - 72.0;
-                      this.graphView.triggerRender();
-                  }.bind(this));
-                }
-                // listen to up arrow key, move member(s) up
-                if (evt.keyCode === 38){
-                  _.forEach(this.selectedNodes, function(node){
-                      node.metadata['y'] = node.metadata['y'] - 72.0;
-                      this.graphView.triggerRender();
-                  }.bind(this));
-                }
-                // listen to right arrow key, move member(s) right
-                if (evt.keyCode === 39){
-                  _.forEach(this.selectedNodes, function(node){
-                      node.metadata['x'] = node.metadata['x'] + 72.0;
-                      this.graphView.triggerRender();
-                  }.bind(this));
-                }
-                // listen to down arrow key, move member(s) down
-                if (evt.keyCode === 40){
-                  _.forEach(this.selectedNodes, function(node){
-                      node.metadata['y'] = node.metadata['y'] + 72.0;
-                      this.graphView.triggerRender();
-                  }.bind(this));
-                }
-            }.bind(this));
-
-            this.dataModelChanged();
-
-            // Apply modified css classes
-            this.scopeSubtree(this.$.svgcontainer, true);
-
+        pan: {
+          type: Array,
+          value: function() {
+            return [0,0];
+          },
+          notify: true
         },
 
-        _artifactChanged: function() {
-            if (this.artifact) {
-                this.set('graph', new NofloGraph(this.artifact));
-            }
+        scale: {
+          type: Number,
+          value: 1,
+          notify: true
         },
 
-        addNewNode: function(newmember) {
-            // don't add, if the node already exists
-            if(this.graph.nodes.length > 0 && this.graph.nodes.filter( node => node.id == newmember.id).length > 0){
-              return;
-            }
-            var component = {
-                name: newmember.metadata.couchDbDoc.name,
-                description: 'basic demo component',
-                icon: 'eye',
-                inports: newmember.inslots,
-                outports: newmember.outslots
-            };
-
-            // add to library of 'the-graph'
-            this.readyComponent(component.name, component.description, component.inports, component.outports, component.icon);
-            var id = newmember.id;
-            newmember.metadata['x'] = (this.graphView.props.app.bgCanvas.clientWidth/2 - this.graphView.props.app.state['x'])/this.graphView.props['scale'];
-            newmember.metadata['y'] = (this.graphView.props.app.bgCanvas.clientHeight/2 - this.graphView.props.app.state['y'])/this.graphView.props['scale'];
-            for(var k in this.graph.nodes){
-                if(this.graph.nodes[k].metadata.x == newmember.metadata['x'] && this.graph.nodes[k].metadata.y == newmember.metadata['y']){
-                  newmember.metadata['x'] += 60;
-                  newmember.metadata['y'] += 20;
-                }
-            }
-            if(this.graph.nodes.filter(node => node.id == id).length == 0){
-              this.graph.addNode(id, component.name, newmember.metadata);
-              /*this.graph.processes[newmember.metadata.couchDbDoc.name] =
-              {
-                  component: id,
-                  metadata: newmember.metadata
-              };*/
-            }
+        offsetX: {
+          type: Number,
+          value: 0
         },
 
-        handleTrack: function (event) {
-            event.stopPropagation();
+        offsetY: {
+          type: Number,
+          value: 0
         },
 
-        _svgClassName: function (theme) {
-            return 'the-graph-' + theme;
+        autolayout: {
+          type: Boolean,
+          value: false
         },
 
-        getMenuDef: function(options) {
-            // Options: type, graph, itemKey, item
-            if (options.type && this.properties.menus[options.type]) {
-                var defaultMenu = this.properties.menus[options.type];
-                if (defaultMenu.callback) {
-                    return defaultMenu.callback(defaultMenu, options);
-                }
-                return defaultMenu;
-            }
-            return null;
+        nofloGraph: {
+          type: Object,
+          notify: true
         },
 
-        dataModelChanged: function() {
-            if (this.dataModel) {
-                //to adjustment bde-model-store(internal schema) to dataModel of bde-graph
-                // definition according to noflo.js
-                var theGraph = {
-                    project: '',
-                    properties: {
-                        name: ''
-                    },
-                    inports: {},
-                    outports: {},
-                    groups: [],
-                    processes: {},
-                    connections: []
-                };
-                theGraph.properties.name = this.dataModel.compoundId;
-                // Components
-                for (var mem in this.dataModel.members) {
-                    if (this.dataModel.members.hasOwnProperty(mem)) {
-                        var member = this.dataModel.members[mem];
-                        //  every member(elementary members) is registered in the graph
-                        this.readyComponent(member.compoundId, null, member.inslots, member.outslots, 'eye');
-                        // a process with a certain name in noflo 'structure includes  componentand metadata(x,y)
-                        theGraph.processes[mem] = {
-                            component: member.compoundId,
-                            metadata: member.metadata
-                        };
-                    }
-                }
-
-                // Connections
-                //ToDo : InSlots und outSlots of Compound-Component, which have no connection to members, are not defined.
-                _.forEach(this.dataModel.connections, function(connection) {
-                    var isExtInslot = undefined === connection.source.memberIndex;
-                    var isExtOutslot = undefined === connection.target.memberIndex;
-                    // the format of Connection in noflo
-                    var newConnection = {
-                        src: {},
-                        tgt: {},
-                        metadata: {}
-                    };
-                    var inPort = {
-                        port: '',
-                        process: '',
-                        metadata: {}
-                    };
-                    var outPort = {
-                        port: '',
-                        process: '',
-                        metadata: {}
-                    };
-                    if (isExtInslot) {
-                        // noFloGraph.inports[connection.source.slot];
-                        newConnection.src.process = 'EXT-IN';
-                        newConnection.src.port = connection.source.slot;
-                        inPort.port = connection.target.slot;
-                        inPort.process = connection.target.memberIndex;
-                        //response.members[connection.target.memberIndex].metadata;
-                        var metadata = {
-                            x: Math.round(Math.random() * 800),
-                            y: Math.round(Math.random() * 600)
-                        };
-                        inPort.metadata = metadata;
-                        theGraph.inports[connection.source.slot] = inPort;
-                    } else {
-                        //(OutPort)
-                        newConnection.src.process = connection.source.memberIndex;
-                        newConnection.src.port = connection.source.slot;
-                    }
-                    if (isExtOutslot) {
-                        //noFloGraph.outports[connection.destination.slot];
-                        newConnection.tgt.process = 'EXT-OUT';
-                        newConnection.tgt.port = connection.target.slot;
-                        outPort.port = connection.source.slot;
-                        outPort.process = connection.source.memberIndex;
-                        var metadata = {
-                            x: Math.round(Math.random() * 800),
-                            y: Math.round(Math.random() * 600)
-                        };
-                        outPort.metadata = metadata;
-                        theGraph.outports[connection.target.slot] = outPort;
-                    } else {
-                        newConnection.tgt.process = connection.target.memberIndex;
-                        newConnection.tgt.port = connection.target.slot;
-                    }
-                    //console.log(newConnection.tgt.process)
-                    theGraph.connections.push(newConnection);
-                });
-                //assign the prepared dataModel to graph
-                this.graph = theGraph;
-                /**
-                 * if DEL key is pressed
-                 */
-                //ToDo: delete InSlot and OutSlot without contextMenu
-
-                //change data Model Store
-                // Add a Member from bde-Model-store
-
-            }
+        theme: {
+          type: String,
+          value: 'dark'
         },
 
-        readyComponent: function(name, description, inports, outports, icon) {
-            var definition = {
-                name: '',
-                description: '',
-                icon: 'eye',
-                inports: [],
-                outports: []
-            };
-            if (definition.icon)
-                definition.icon = icon;
-            definition.name = name;
-            definition.description = description || '';
-            definition.inports = inports;
-            definition.outports = outports;
-            this.registerComponent(definition, true);
+        ready: {
+          type: Boolean,
+          value: false,
+          notify: true
         },
 
-        graphChanged: function(newGraph, oldGraph) {
-            console.log('<bde-graph>::graphChanged', newGraph, oldGraph);
-
-            if (!this.graph) return;
-
-            if (typeof this.graph.addNode === 'function') {
-                this.buildInitialLibrary(this.graph);
-                return;
-            }
-            var noflo;
-            if ('noflo' in window) {
-                noflo = window.noflo;
-            }
-            if (!noflo && 'require' in window) {
-                noflo = require('noflo');
-            }
-            if (!noflo) {
-                console.warn('Missing noflo dependency! Should be built with Component.io or Browserify to require it.');
-                return;
-            }
-
-            // map the graph with no flo graph
-            noflo.graph.loadJSON(this.graph, function(nofloGraph) {
-                this.buildInitialLibrary(nofloGraph);
-                this.graph = nofloGraph;
-                this.fire('graph.graphInitialised', this);
-            }.bind(this));
-
-            if (oldGraph && oldGraph.removeListener) {
-                oldGraph.removeListener('endTransaction', this.fireChanged);
-            }
-
-            // Listen for graph changes
-            this.graph.on('endTransaction', this.fireChanged.bind(this));
-
-            // ==========fire the events emit....> fire to be listen by window==========
-            this.graph.on('addNode', function(e) {
-                this.fire('graph.addNode', {
-                    node: e
-                });
-            }.bind(this));
-            this.graph.on('removeNode', function(e) {
-                this.fire('graph.removeNode', {
-                    node: e
-                });
-            }.bind(this));
-            this.graph.on('addInport', function(e) {
-                newInport = {};
-                newInport.name = e;
-                newInport.member = this.graph.inports[e].process;
-                newInport.inslot = this.graph.inports[e].port;
-                newInport.metadata = this.graph.inports[e].metadata;
-                newInport.name = e;
-
-                this.fire('graph.addInport', {
-                    Inport: newInport
-                });
-            }.bind(this));
-            this.graph.on('removeInport', function(e) {
-                this.fire('graph.removeInport', {
-                    Inport: e
-                });
-            }.bind(this));
-            this.graph.on('addOutport', function(e) {
-                newOutport = {};
-                newOutport.name = e;
-                newOutport.member = this.graph.outports[e].process;
-                newOutport.outslot = this.graph.outports[e].port;
-                newOutport.metadata = this.graph.outports[e].metadata;
-                newOutport.name = e;
-                this.fire('graph.addOutport', {
-                    Outport: newOutport
-                });
-            }.bind(this));
-            this.graph.on('removeOutport', function(e) {
-                this.fire('graph.removeOutport', {
-                    Outport: e
-                });
-            }.bind(this));
-            this.graph.on('addEdge', function(e) {
-                this.fire('graph.addEdge', {
-                    connection: e
-                });
-            }.bind(this));
-            this.graph.on('removeEdge', function(e) {
-                this.fire('graph.removeEdge', {
-                    connection: e
-                });
-            }.bind(this));
-            //==============================================================
-
-            // Listen for autolayout changes
-            if (this.autolayout) {
-                this.graph.on('addNode', this.triggerAutolayout.bind(this));
-                this.graph.on('removeNode', this.triggerAutolayout.bind(this));
-                this.graph.on('addInport', this.triggerAutolayout.bind(this));
-                this.graph.on('removeInport', this.triggerAutolayout.bind(this));
-                this.graph.on('addOutport', this.triggerAutolayout.bind(this));
-                this.graph.on('removeOutport', this.triggerAutolayout.bind(this));
-                this.graph.on('addEdge', this.triggerAutolayout.bind(this));
-                this.graph.on('removeEdge', this.triggerAutolayout.bind(this));
-            }
-            if (this.appView) {
-                // Remove previous instance
-                React.unmountComponentAtNode(this.$$('#svgcontainer'));
-            }
-            // Setup app
-            this.$.svgcontainer.innerHTML = '';
-            this.appView = React.render(window.TheGraph.App({
-                graph: this.graph,
-                width: this.width,
-                height: this.height,
-                minZoom: this.minZoom,
-                maxZoom: this.maxZoom,
-                library: this.properties.library,
-                editable: this.editable,
-                onEdgeSelection: this.onEdgeSelection.bind(this),
-                onNodeSelection: this.onNodeSelection.bind(this),
-                onPanScale: this.onPanScale.bind(this),
-                getmenudef: this.getMenuDef.bind(this),
-                displaySelectionGroup: this.displaySelectionGroup,
-                forceSelection: this.forceSelection,
-                offsetY: +this.offsetY,
-                offsetX: +this.offsetX
-            }), this.$.svgcontainer);
-            this.graphView = this.appView.refs.graph;
+        selectedMembers: {
+          type: Array,
+          notify: true
         },
 
-        buildInitialLibrary: function(nofloGraph) {
-            /*if (Object.keys(this.$.graph.library).length !== 0) {
-             // We already have a library, skip
-             // TODO what about loading a new graph? Are we making a new editor?
-             return;
-             }*/
-            _.forEach(nofloGraph.nodes, function(node) {
-                var component = {
-                    name: node.component,
-                    icon: 'cog',
-                    description: '',
-                    inports: [],
-                    outports: []
-                };
-                _.forEach(Object.keys(nofloGraph.inports), function(pub) {
-                    var exported = nofloGraph.inports[pub];
-                    if (exported.process === node.id) {
-                        for (var i = 0; i < component.inports.length; i++) {
-                            if (component.inports[i].name === exported.port) {
-                                return;
-                            }
-                        }
-                        component.inports.push({
-                            name: exported.port,
-                            type: 'all'
-                        });
-                    }
-                });
-                _.forEach(Object.keys(nofloGraph.outports), function(pub) {
-                    var exported = nofloGraph.outports[pub];
-                    if (exported.process === node.id) {
-                        for (var i = 0; i < component.outports.length; i++) {
-                            if (component.outports[i].name === exported.port) {
-                                return;
-                            }
-                        }
-                        component.outports.push({
-                            name: exported.port,
-                            type: 'all'
-                        });
-                    }
-                });
-                _.forEach(nofloGraph.initializers, function(iip) {
-                    if (iip.to.node === node.id) {
-                        for (var i = 0; i < component.inports.length; i++) {
-                            if (component.inports[i].name === iip.to.port) {
-                                return;
-                            }
-                        }
-                        component.inports.push({
-                            name: iip.to.port,
-                            type: 'all'
-                        });
-                    }
-                });
-                _.forEach(nofloGraph.edges, function(edge) {
-                    var i;
-                    if (edge.from.node === node.id) {
-                        for (i = 0; i < component.outports.length; i++) {
-                            if (component.outports[i].name === edge.from.port) {
-                                return;
-                            }
-                        }
-                        component.outports.push({
-                            name: edge.from.port,
-                            type: 'all'
-                        });
-                    }
-                    if (edge.to.node === node.id) {
-                        for (i = 0; i < component.inports.length; i++) {
-                            if (component.inports[i].name === edge.to.port) {
-                                return;
-                            }
-                        }
-                        component.inports.push({
-                            name: edge.to.port,
-                            type: 'all'
-                        });
-                    }
-                });
-                this.registerComponent(component, true);
-            }.bind(this));
+        selectedConnections: {
+          type: Array,
+          notify: true
         },
 
-        onPanScale: function(x, y, scale) {
-            this.properties.pan[0] = x;
-            this.properties.pan[1] = y;
-            this.scale = scale;
+        displaySelectionGroup: {
+          type: Boolean,
+          value: true
         },
 
-        onEdgeSelection: function(itemKey, item, toggle) {
-            // Set last-selected-edge
-            this.set('lastSelectedEdge', item);
-            if (itemKey === undefined) {
-                if (this.selectedEdges.length > 0) {
-                    this.selectedEdges = [];
-                }
-                return;
-            }
-            if (toggle) {
-                var index = this.selectedEdges.indexOf(item);
-                var isSelected = index !== -1;
-                var shallowClone = this.selectedEdges.slice();
-                if (isSelected) {
-                    shallowClone.splice(index, 1);
-                    this.selectedEdges = shallowClone;
-                } else {
-                    shallowClone.push(item);
-                    this.selectedEdges = shallowClone;
-                }
-            } else {
-                this.selectedEdges = [item];
-            }
-            this.fire('graph.edges', this.selectedEdges);
+        forceSelection: {
+          type: Boolean,
+          value: false
         },
 
-        onNodeSelection: function(itemKey, item, toggle) {
-            var index;
-            // Set last-selected-node
-            this.set('lastSelectedNode', item);
-
-            // Cancel selection
-            if (undefined === itemKey) {
-                this.set('selectedNodes', []);
-                this.selectedNodesChanged();
-                return;
-            }
-            // Toggle selection
-            if (toggle) {
-                index = this.selectedNodes.indexOf(item);
-                if (-1 !== index) {
-                    this.splice('selectedNodes', index, 1);
-                } else {
-                    this.push('selectedNodes', item);
-                }
-                this.selectedNodesChanged();
-                return;
-            }
-
-            // New Selection
-            this.set('selectedNodes', [item]);
-            this.fire('graph.nodes', { node: item });
-            this.selectedNodesChanged();
-
-
-            // if (itemKey === undefined) {
-            //     this.selectedNodes.splice(0, this.selectedNodes.length);
-            //     this.selectedNodesChanged();
-            // } else if (toggle) {
-
-            //     var index = this.selectedNodes.indexOf(item);
-            //     var isSelected = index !== -1;
-            //     if (isSelected) {
-            //         this.selectedNodes.splice(index, 1);
-            //         this.selectedNodesChanged();
-            //     } else {
-
-            //         this.selectedNodes.push(item);
-            //         this.selectedNodesChanged();
-            //     }
-            // } else {
-            //     //this.selectedNodes.splice(0,   this.selectedNodes.length);
-            //     _.remove(this.selectedNodes);
-            //     this.selectedNodes.push(item);
-            //     this.selectedNodesChanged();
-            //     this.fire('graph.nodes', {
-            //         node: item
-            //     });
-
+        _graphHeight: {
+          type: Number,
+          value: 0
         },
 
-        selectedNodesChanged: function() {
-            var hash = {};
-            this.selectedNodes.forEach( n => hash[n.id] = true );
-            this.set('selectedNodesHash', hash);
-
-            // for (var i = 0, len = this.selectedNodes.length; i < len; i++) {
-            //     selectedNodesHash[this.selectedNodes[i].id] = true;
-            // }
-            // this.selectedNodesHash = selectedNodesHash;
-
-            //this.fire('nodes', this.selectedNodes);
+        _graphWidth: {
+          type: Number,
+          value: 0
         },
 
-        selectedNodesHashChanged: function() {
-            if (!this.graphView) {
-                return;
-            }
-            this.graphView.setSelectedNodes(this.selectedNodesHash);
+        _plugins: {
+          type: Object
         },
 
-        errorNodesChanged: function() {
-            if (!this.graphView) {
-                return;
-            }
-            this.graphView.setErrorNodes(this.errorNodes);
+        _menus: {
+          type: Object
         },
 
-        selectedEdgesChanged: function() {
-            if (!this.graphView) {
-                return;
-            }
-            this.graphView.setSelectedEdges(this.selectedEdges);
-            this.fire('graph.edges', this.selectedEdges);
+        _copyNodes: {
+          type: Array
         },
 
-        animatedEdgesChanged: function() {
-            if (!this.graphView) {
-                return;
-            }
-            this.graphView.setAnimatedEdges(this.animatedEdges);
+        _selectedNodes: {
+          type: Array
         },
 
-        fireChanged: function(_, event) {
+        _selectedEdges: {
+          type: Array
+        }
+      },
 
-            this.fire('graph.changed', this);
-        },
+      observers: [
+        '_selectedNodesChanged(_selectedNodes.splices)',
+        '_selectedEdgesChanged(_selectedEdges.splices)',
+        '_dimensionsChanged(width, height)',
+        '_graphChanged(graph)',
+        '_edgesChanged(nofloGraph.edges.splices)',
+        '_inportsChanged(nofloGraph.inports)',
+        '_outportsChanged(nofloGraph.outports)',
+        '_nodesChanged(nofloGraph.nodes.splices)'
+      ],
 
-        autolayoutChanged: function() {
-            if (!this.graph) {
-                return;
-            } // Only listen to changes that affect layout
-            // Only listen to changes that affect layout
-            if (this.autolayout) {
-                this.graph.on('addNode', this.triggerAutolayout.bind(this));
-                this.graph.on('removeNode', this.triggerAutolayout.bind(this));
-                this.graph.on('addInport', this.triggerAutolayout.bind(this));
-                this.graph.on('removeInport', this.triggerAutolayout.bind(this));
-                this.graph.on('addOutport', this.triggerAutolayout.bind(this));
-                this.graph.on('removeOutport', this.triggerAutolayout.bind(this));
-                this.graph.on('addEdge', this.triggerAutolayout.bind(this));
-                this.graph.on('removeEdge', this.triggerAutolayout.bind(this));
-            } else {
-                this.graph.removeListener('addNode', this.triggerAutolayout);
-                this.graph.removeListener('removeNode', this.triggerAutolayout);
-                this.graph.removeListener('addInport', this.triggerAutolayout);
-                this.graph.removeListener('removeInport', this.triggerAutolayout);
-                this.graph.removeListener('addOutport', this.triggerAutolayout);
-                this.graph.removeListener('removeOutport', this.triggerAutolayout);
-                this.graph.removeListener('addEdge', this.triggerAutolayout);
-                this.graph.removeListener('removeEdge', this.triggerAutolayout);
-            }
-        },
+      listeners: {
+        'graph.edges': 'handleEdges',
+        'graph.nodes': 'handleNodes'
+      },
 
-        triggerAutolayout: function(event) {
-          if(event == undefined){
-            return;
+      attached: function() {
+        
+        // Refer _getMenuDef to the graph
+        this.$.graph.getMenuDef = this._getMenuDef.bind(this);
+
+        var pasteAction = function(graph, itemKey, item) {
+          var pasted = TheGraph.Clipboard.paste(graph);
+          this.set('_selectedNodes', pasted.nodes);
+          this.set('_selectedEdges', []);
+        }.bind(this);
+
+        var pasteMenu = {
+          icon: 'paste',
+          iconLabel: 'paste',
+          action: pasteAction
+        };
+
+        // Default context menu defs
+        var nodeActions = {
+
+          delete: function(graph, itemKey, item) {
+            graph.removeNode(itemKey);
+            // Remove selection
+            var newSelection = this._selectedNodes
+              .filter(function(selected) { return (selected !== item) });
+            this.set('_selectedNodes', newSelection);
+          }.bind(this),
+
+          copy: function(graph, itemKey, item) {
+            TheGraph.Clipboard.copy(graph, [itemKey]);
           }
-            this.graphView.triggerRender();
-            var graph = this.graph;
-            var portInfo = this.graphView ? this.graphView.portInfo : null; // Calls the autolayouter
-            // Calls the autolayouter
-            this.autolayouter.layout({
-                'graph': graph,
-                'portInfo': portInfo,
-                'direction': 'RIGHT',
-                'options': {
-                    'intCoordinates': true,
-                    'algorithm': 'de.cau.cs.kieler.klay.layered',
-                    'layoutHierarchy': true,
-                    'spacing': 36,
-                    'borderSpacing': 20,
-                    'edgeSpacingFactor': 0.2,
-                    'inLayerSpacingFactor': 2,
-                    'nodePlace': 'BRANDES_KOEPF',
-                    'nodeLayering': 'NETWORK_SIMPLEX',
-                    'edgeRouting': 'POLYLINE',
-                    'crossMin': 'LAYER_SWEEP',
-                    'direction': 'RIGHT'
+        }, edgeActions = {
+
+          delete: function(graph, itemKey, item) {
+            graph.removeEdge(item.from.node, item.from.port, item.to.node, item.to.port);
+            // Remove selection
+            var newSelection = this._selectedEdges
+              .filter(function(selected) { return (selected !== item) });
+            this.set('_selectedEdges', newSelection);
+          }.bind(this)
+        };
+
+        this.set('_menus', {
+
+          main: {
+            icon: 'sitemap',
+            e4: pasteMenu
+          },
+
+          edge: {
+            actions: edgeActions,
+            icon: 'long-arrow-right',
+            s4: {
+              icon: 'trash-o',
+              iconLabel: 'delete',
+              action: edgeActions.delete
+            }
+          },
+
+          node: {
+            actions: nodeActions,
+            s4: {
+              icon: 'trash-o',
+              iconLabel: 'delete',
+              action: nodeActions.delete
+            },
+            w4: {
+              icon: 'copy',
+              iconLabel: 'copy',
+              action: nodeActions.copy
+            }
+          },
+
+          nodeInport: {
+            w4: {
+              icon: 'sign-in',
+              iconLabel: 'export',
+              action: function(graph, itemKey, item) {
+                var pub = item.port;
+
+                if (pub === 'start') {
+                  pub = 'start1';
                 }
-            });
-        },
 
-        applyAutolayout: function(layoutedKGraph) {
-            this.graph.startTransaction('autolayout'); // Update original graph nodes with the new coordinates from KIELER graph
-            // Update original graph nodes with the new coordinates from KIELER graph
-            var children = layoutedKGraph.children.slice();
-            var i, len;
-            for (i = 0, len = children.length; i < len; i++) {
-                var klayNode = children[i];
-                var nofloNode = this.graph.getNode(klayNode.id); // Encode nodes inside groups
-                // Encode nodes inside groups
-                if (klayNode.children) {
-                    var klayChildren = klayNode.children;
-                    var idx;
-                    for (idx in klayChildren) {
-                        var klayChild = klayChildren[idx];
-                        if (klayChild.id) {
-                            this.graph.setNodeMetadata(klayChild.id, {
-                                x: Math.round((klayNode.x + klayChild.x) / this.snap) * this.snap,
-                                y: Math.round((klayNode.y + klayChild.y) / this.snap) * this.snap
-                            });
-                        }
-                    }
-                } // Encode nodes outside groups
-                // Encode nodes outside groups
-                if (nofloNode) {
-                    this.graph.setNodeMetadata(klayNode.id, {
-                        x: Math.round(klayNode.x / this.snap) * this.snap,
-                        y: Math.round(klayNode.y / this.snap) * this.snap
-                    });
-                } else {
-                    // Find inport or outport
-                    var idSplit = klayNode.id.split(':::');
-                    var expDirection = idSplit[0];
-                    var expKey = idSplit[1];
-                    if (expDirection === 'inport' && this.graph.inports[expKey]) {
-                        this.graph.setInportMetadata(expKey, {
-                            x: Math.round(klayNode.x / this.snap) * this.snap,
-                            y: Math.round(klayNode.y / this.snap) * this.snap
-                        });
-                    } else if (expDirection === 'outport' && this.graph.outports[expKey]) {
-                        this.graph.setOutportMetadata(expKey, {
-                            x: Math.round(klayNode.x / this.snap) * this.snap,
-                            y: Math.round(klayNode.y / this.snap) * this.snap
-                        });
-                    }
+                if (pub === 'graph') {
+                  pub = 'graph1';
                 }
-            }
-            this.graph.endTransaction('autolayout'); // Fit to window
-            // Fit to window
-            this.triggerFit();
-        },
 
-        triggerFit: function() {
-            if (this.appView) {
-                this.appView.triggerFit();
-            }
-        },
-
-        widthChanged: function() {
-            if (!this.appView) {
-                return;
-            }
-            this.appView.setState({
-                width: this.width
-            });
-        },
-
-        heightChanged: function() {
-            if (!this.appView) {
-                return;
-            }
-            this.appView.setState({
-                height: this.height
-            });
-        },
-
-        updateIcon: function(nodeId, icon) {
-            if (!this.graphView) {
-                return;
-            }
-            this.graphView.updateIcon(nodeId, icon);
-        },
-        rerender: function(options) {
-            // This is throttled with rAF internally
-            if (!this.graphView) {
-                return;
-            }
-            this.graphView.markDirty(options);
-        },
-        addNode: function(id, component, metadata) {
-            if (!this.graph) {
-                return;
-            }
-            this.graph.addNode(id, component, metadata);
-        },
-        getPan: function() {
-            if (!this.appView) {
-                return [0, 0];
-            }
-            return [
-                this.appView.state.x,
-                this.appView.state.y
-            ];
-        },
-        panChanged: function() {
-            // Send pan back to React
-            if (!this.appView) {
-                return;
-            }
-            this.appView.setState({
-                x: this.properties.pan[0],
-                y: this.properties.pan[1]
-            });
-        },
-        getScale: function() {
-            if (!this.appView) {
-                return 1;
-            }
-            return this.appView.state.scale;
-        },
-        displaySelectionGroupChanged: function() {
-            if (!this.graphView) {
-                return;
-            }
-            this.graphView.setState({
-                displaySelectionGroup: this.displaySelectionGroup
-            });
-        },
-        forceSelectionChanged: function() {
-            if (!this.graphView) {
-                return;
-            }
-            this.graphView.setState({
-                forceSelection: this.forceSelection
-            });
-        },
-        focusNode: function(node) {
-            this.appView.focusNode(node);
-        },
-        menusChanged: function() {
-            // Only if the object itself changes,
-            // otherwise builds menu from reference every time menu shown
-            if (!this.appView) {
-                return;
-            }
-            this.appView.setProps({
-                menus: this.properties.menus
-            });
-        },
-        debounceLibraryRefesh: function() {
-            // Breaking the "no debounce" rule, this fixes #76 for subgraphs
-            if (this.debounceLibraryRefeshTimer) {
-                clearTimeout(this.debounceLibraryRefeshTimer);
-            }
-            this.debounceLibraryRefeshTimer = setTimeout(function() {
-                this.rerender({
-                    libraryDirty: true
-                });
-            }.bind(this), 200);
-        },
-        mergeComponentDefinition: function(component, definition) {
-            // In cases where a component / subgraph ports change,
-            // we don't want the connections hanging in middle of node
-            // TODO visually indicate that port is a ghost
-            if (component === definition) {
-                return definition;
-            }
-            var _i, _j, _len, _len1, exists;
-            var cInports = component.inports;
-            var dInports = definition.inports;
-            if (cInports !== dInports) {
-                for (_i = 0, _len = cInports.length; _i < _len; _i++) {
-                    var cInport = cInports[_i];
-                    exists = false;
-                    for (_j = 0, _len1 = dInports.length; _j < _len1; _j++) {
-                        var dInport = dInports[_j];
-                        if (cInport.name === dInport.name) {
-                            exists = true;
-                        }
-                    }
-                    if (!exists) {
-                        dInports.push(cInport);
-                    }
+                var count = 0;
+                // Make sure public is unique
+                while (graph.inports[pub]) {
+                  count++;
+                  pub = item.port + count;
                 }
+                var priNode = graph.getNode(item.process);
+                var metadata = {x:priNode.metadata.x-144, y:priNode.metadata.y};
+                graph.addInport(pub, item.process, item.port, metadata);
+              }
             }
-            var cOutports = component.outports;
-            var dOutports = definition.outports;
-            if (cOutports !== dOutports) {
-                for (_i = 0, _len = cOutports.length; _i < _len; _i++) {
-                    var cOutport = cOutports[_i];
-                    exists = false;
-                    for (_j = 0, _len1 = dOutports.length; _j < _len1; _j++) {
-                        var dOutport = dOutports[_j];
-                        if (cOutport.name === dOutport.name) {
-                            exists = true;
-                        }
-                    }
-                    if (!exists) {
-                        dOutports.push(cOutport);
-                    }
+          },
+
+          nodeOutport: {
+            e4: {
+              icon: 'sign-out',
+              iconLabel: 'export',
+              action: function (graph, itemKey, item) {
+                var pub = item.port;
+                var count = 0;
+                // Make sure public is unique
+                while (graph.outports[pub]) {
+                  count++;
+                  pub = item.port + count;
                 }
+                var priNode = graph.getNode(item.process);
+                var metadata = {x:priNode.metadata.x+144, y:priNode.metadata.y};
+                graph.addOutport(pub, item.process, item.port, metadata);
+              }
             }
-            if (definition.icon !== 'cog') {
-                // Use the latest icon given
-                component.icon = definition.icon;
-            } else {
-                // we should use the icon from the library
-                definition.icon = component.icon;
-            } // a component could also define a svg icon
-            // a component could also define a svg icon
-            definition.iconsvg = component.iconsvg;
-            return definition;
-        },
+          },
 
-        registerComponent: function(definition, generated) {
-            var component = this.properties.library[definition.name];
-            var def = definition;
-            if (component) {
-                if (generated) {
-                    // Don't override real one with generated dummy
-                    return;
-                }
-                def = this.mergeComponentDefinition(component, definition);
+          graphInport: {
+            icon: 'sign-in',
+            iconColor: 2,
+            n4: {
+              label: 'inport'
+            },
+            s4: {
+              icon: 'trash-o',
+              iconLabel: 'delete',
+              action: function (graph, itemKey, item) {
+                graph.removeInport(itemKey);
+              }
             }
-            this.properties.library[definition.name] = def; // So changes are rendered
-            // So changes are rendered
-            this.debounceLibraryRefesh();
-        },
+          },
 
-        getComponent: function(name) {
-            return this.properties.library[name];
-        },
+          graphOutport: {
+            icon: 'sign-out',
+            iconColor: 5,
+            n4: {
+              label: 'outport'
+            },
+            s4: {
+              icon: 'trash-o',
+              iconLabel: 'delete',
+              action: function (graph, itemKey, item) {
+                graph.removeOutport(itemKey);
+              }
+            }
+          },
 
-        toJSON: function() {
+          group: {
+            icon: 'th',
+            s4: {
+              icon: 'trash-o',
+              iconLabel: 'ungroup',
+              action: function (graph, itemKey, item) {
+                graph.removeGroup(itemKey);
+              }
+            },
+            // TODO copy group?
+            e4: pasteMenu
+          },
 
-            return (this.graph) ? this.graph.toJSON() : {};
+          selection: {
+            icon: 'th',
+            w4: {
+              icon: 'copy',
+              iconLabel: 'copy',
+              action: function (graph, itemKey, item) {
+                TheGraph.Clipboard.copy(graph, item.nodes);
+              }
+            },
+            e4: pasteMenu
+          }
+        });
+      },
 
+      detached: function() {
+        Object.keys(this._plugins).forEach(function(name) {
+          this._plugins[name].unregister(this);
+          delete this._plugins[name];
+        }, this);
+      },
+
+      addPlugin: function(name, plugin) {
+        this.set('_plugins.' + name, plugin);
+        plugin.register(this);
+      },
+
+      addMember: function(member) {
+        this.$.graph.addNode(
+          member.memberId,
+          member.componentId,
+          { x: 0, y: 0, label: member.displayName || member.memberId }
+        );
+      },
+
+      addMenu: function(type, options) {
+        // options: icon, label
+        this.set('_menus.' + type, options);
+      },
+
+      addMenuCallback: function(type, callback) {
+        if (!this._menus[type]) { return; }
+
+        this.set('_menus.' + type + '.callback', callback);
+      },
+
+      addMenuAction: function(type, direction, options) {
+        if (!this._menus[type]) {
+          this.set('_menus.' + type, {});
         }
 
+        this.set('_menus.' + type + '.' + direction, options);
+      },
+
+      handleEdges: function() {
+        // @TODO (fdu): handle selection here...
+      },
+
+      handleNodes: function() {
+        // @TODO (fdu): handle selection here...
+      },
+
+      focusMember: function(member) {
+        var node = this._nodeForMember(member);
+        this.$.graph.focusNode(node);
+      },
+
+      updateIcon: function(nodeId, icon) {
+        this.$.graph.updateIcon(nodeId, icon);
+      },
+
+      registerComponent: function(definition, generated) {
+        this.$.graph.registerComponent(definition, generated);
+      },
+
+      rerender: function() {
+        this.$.graph.rerender();
+      },
+
+      triggerAutolayout: function() {
+        this.$.graph.triggerAutolayout();
+      },
+
+      triggerFit: function() {
+        this.$.graph.triggerFit();
+      },
+
+      _buildInitialLibrary: function(nofloGraph) {
+        nofloGraph.nodes.forEach(function(node) {
+          var component = {
+            name: node.component,
+            icon: 'cog',
+            description: '',
+            inports: [],
+            outports: []
+          };
+
+          Object.keys(nofloGraph.inports).forEach(function(pub) {
+            var exported = nofloGraph.inports[pub];
+            if (exported.process === node.id) {
+              for (var i = 0; i < component.inports.length; i++) {
+                if (component.inports[i].name === exported.port) {
+                  return;
+                }
+              }
+              component.inports.push({
+                name: exported.port,
+                type: 'all'
+              });
+            }
+          });
+
+          Object.keys(nofloGraph.outports).forEach(function(pub) {
+            var exported = nofloGraph.outports[pub];
+            if (exported.process === node.id) {
+              for (var i = 0; i < component.outports.length; i++) {
+                if (component.outports[i].name === exported.port) {
+                  return;
+                }
+              }
+              component.outports.push({
+                name: exported.port,
+                type: 'all'
+              });
+            }
+          });
+
+          nofloGraph.initializers.forEach(function(iip) {
+            if (iip.to.node === node.id) {
+              for (var i = 0; i < component.inports.length; i++) {
+                if (component.inports[i].name === iip.to.port) {
+                  return;
+                }
+              }
+              component.inports.push({
+                name: iip.to.port,
+                type: 'all'
+              });
+            }
+          });
+
+          nofloGraph.edges.forEach(function(edge) {
+            var i;
+            if (edge.from.node === node.id) {
+              for (i = 0; i < component.outports.length; i++) {
+                if (component.outports[i].name === edge.from.port) {
+                  return;
+                }
+              }
+              component.outports.push({
+                name: edge.from.port,
+                type: 'all'
+              });
+            }
+            if (edge.to.node === node.id) {
+              for (i = 0; i < component.inports.length; i++) {
+                if (component.inports[i].name === edge.to.port) {
+                  return;
+                }
+              }
+              component.inports.push({
+                name: edge.to.port,
+                type: 'all'
+              });
+            }
+          });
+          this.registerComponent(component, true);
+        }.bind(this));
+      },
+
+      _edgesChanged: function(changeRecord) {
+        if (!changeRecord) { return; }
+
+        changeRecord.indexSplices.forEach(function(s) {
+          s.removed.forEach(function(edge) {
+            this.fire('bde-graph-edge-removed', edge);
+          }, this);
+          for (var i = 0; i < s.addedCount; i++) {
+            var index = s.index + i;
+            var edge = s.object[index];
+            this.fire('bde-graph-edge-added', edge);
+          }
+        }, this);
+      },
+
+      _inportsChanged: function(newInports, oldInports) {
+        if (!newInports) { return; }
+
+        Object.keys(newInports).forEach(function(key) {
+          if (!oldInports[key]) {
+            this.fire('bde-graph-inport-added', { key: key, port: newInports[key] });
+          }
+        }, this);
+        Object.keys(oldInports || {}).forEach(function(key) {
+          if (!newInports[key]) {
+            this.fire('bde-graph-inport-removed', { key: key, port: oldInports[key] });
+          }
+        }, this);
+      },
+
+      _outportsChanged: function(newOutports, oldOutports) {
+        if (!newOutports) { return; }
+
+        Object.keys(newOutports).forEach(function(key) {
+          if (!oldOutports[key]) {
+            this.fire('bde-graph-outport-added', { key: key, port: newOutports[key] });
+          }
+        }, this);
+        Object.keys(oldOutports || {}).forEach(function(key) {
+          if (!newOutports[key]) {
+            this.fire('bde-graph-outport-removed', { key: key, port: oldOutports[key] });
+          }
+        }, this);
+      },
+
+      _nodesChanged: function(changeRecord) {
+        if (!changeRecord) { return; }
+
+        changeRecord.indexSplices.forEach(function(s) {
+          s.removed.forEach(function(node) {
+            this.fire('bde-graph-node-removed', node);
+          }, this);
+          for (var i = 0; i < s.addedCount; i++) {
+            var index = s.index + i;
+            var node = s.object[index];
+            this.fire('bde-graph-node-added', node);
+          }
+        }, this);
+      },
+
+
+      _dimensionsChanged: function(width, height) {
+        this.style.width = width + 'px';
+        this.style.height = height + 'px';
+      },
+
+      _getMenuDef: function(options) {
+        // Options: type, graph, itemKey, item
+        if (options.type && this._menus[options.type]) {
+          var defaultMenu = this._menus[options.type];
+          if (defaultMenu.callback) {
+            return defaultMenu.callback(defaultMenu, options);
+          }
+          return defaultMenu;
+        }
+      },
+
+      _graphChanged: function() {
+        if (typeof this.graph.addNode === 'function') {
+          this._buildInitialLibrary(this.graph);
+          this.set('nofloGraph', this.graph);
+          return;
+        }
+
+        var noflo;
+        if ('noflo' in window) {
+          noflo = window.noflo;
+        }
+        if (!noflo && 'require' in window) {
+          noflo = require('noflo');
+        }
+        if (!noflo) {
+          throw Error("Missing noflo dependency! Should be built with Component.io or Browserify to require it.");
+        }
+
+        noflo.graph.loadJSON(this.graph, function(ignore, nofloGraph) {
+          this._buildInitialLibrary(nofloGraph);
+          this.set('nofloGraph', nofloGraph);
+          this.ready = true;
+          this.fire('bde-graph-initialized', this);
+        }.bind(this));
+      },
+
+      _libraryRefresh: function() {
+        this.$.graph.debounceLibraryRefresh();
+      },
+
+      _nodeForMember: function(member) {
+        var node;
+        if (this._nodes[member.memberId]) {
+          node = this._nodes[member.memberId];
+        }
+
+        return node;
+      },
+
+      _selectedEdgesChanged: function(changeRecord) {
+
+      },
+
+      _selectedNodesChanged: function(changeRecord) {
+
+      }
     });
-    </script>
+  })();
+  </script>
 </dom-module>

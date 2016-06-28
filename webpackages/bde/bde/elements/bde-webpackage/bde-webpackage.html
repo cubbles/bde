@@ -1,0 +1,244 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+
+<script>
+(function() {
+  "use strict";
+
+  Polymer({
+    is: 'bde-webpackage',
+
+    _template: null,
+
+    properties: {
+      
+      name: {
+        type: String,
+        notify: true
+      },
+
+      groupId: {
+        type: String,
+        notify: true
+      },
+
+      version: {
+        type: String,
+        value: '1.0-SNAPSHOT',
+        notify: true
+      },
+
+      modelVersion: {
+        type: String,
+        value: '8.3.0'
+      },
+
+      docType: {
+        type: String,
+        value: 'webpackage'
+      },
+
+      description: {
+        type: String,
+        notify: true
+      },
+
+      author: {
+        type: Object,
+        notify: true
+      },
+
+      contributers: {
+        type: Array,
+        notify: true
+      },
+
+      license: {
+        type: String,
+        value: 'MIT',
+        notify: true
+      },
+
+      homepage: {
+        type: String,
+        notify: true
+      },
+
+      keywords: {
+        type: Array,
+        value: function() {
+          return [];
+        },
+        notify: true
+      },
+
+      man: {
+        type: Array,
+        value: function() {
+          return [];
+        },
+        notify: true
+      },
+
+      runnables: {
+        type: Array,
+        value: function() {
+          return [];
+        },
+        notify: true
+      },
+
+      artifacts: {
+        type: Array,
+        value: function() {
+          return [];
+        },
+        notify: true
+      },
+
+      baseContext: {
+        type: Object,
+        notify: true
+      },
+
+      resolutions: {
+        type: Object,
+        notify: true
+      }
+    },
+
+    listeners: {
+      'library-update-required': 'onLibraryUpdate'
+    },
+
+    /**
+     * The webpackageId in the base, generated from `groupId`,
+     * `name`, and `version`.
+     * 
+     * @return {string}
+     */
+    get _id ()  {
+      return this.groupId + '.' + this.name + '@' + this.version;
+    },
+
+    get apps () {
+      return this.artifacts.filter(function(artifact) {
+        return artifact.is === 'app';
+      });
+    },
+
+    get elementaries () {
+      return this.artifacts.filter(function(artifact) {
+        return artifact.is === 'elementary';
+      });
+    },
+
+    get compounds () {
+      return this.artifacts.filter(function(artifact) {
+        return artifact.is === 'compound';
+      });
+    },
+
+    get utilities () {
+      return this.artifacts.filter(function(artifact) {
+        return artifact.is === 'utility';
+      });
+    },
+
+    loadWebpackage: function(webpackage) {
+
+      Object.keys(webpackage)
+        .filter(function(key) {
+          return ((key[0] !== '_') && (key !== 'arguments'));
+        })
+        .forEach(function(key) {
+          this.set(key, webpackage[key]);
+        }, this);
+
+      webpackage.artifacts.apps.forEach(function(app) {
+        var artifact = app;
+        artifact.is = 'app';
+        this.push('artifacts', artifact);
+      }, this);
+
+      webpackage.artifacts.compoundComponents.forEach(function(compound) {
+        var artifact = compound;
+        artifact.is = 'compound';
+        compound.members.forEach(function(member) {
+          
+        }, this);
+        this.push('artifacts', artifact);
+      }, this);
+
+      webpackage.artifacts.elementaryComponents.forEach(function(elementary) {
+        var artifact = elementary;
+        artifact.is = 'elementary';
+        this.push('artifacts', artifact);
+      }, this);
+
+      webpackage.artifacts.utilities.forEach(function(utility) {
+        var artifact = utility;
+        artifact.is = 'utility';
+        this.push('artifacts', artifact);
+      }, this);
+
+      this.fire('bde-webpackage-loaded', { webpackage: this });
+    },
+
+    toJSON: function() {
+      var manifest = {};
+
+      Object.keys(this.__data__)
+        .filter(function(key) {
+          return ((key !== 'artifacts') && (key !== 'baseContext'));
+        })
+        .forEach(function(key) {
+          manifest[key] = this[key];
+        }, this);
+
+      manifest.artifacts = {
+        apps: [],
+        elementaryComponents: [],
+        compoundComponents: [],
+        utilities: []
+      };
+      this.artifacts.forEach(function(artifact) {
+        var copyArtifact = JSON.parse(JSON.stringify(artifact));
+
+        switch (copyArtifact.is) {
+
+          case 'app':
+            delete copyArtifact.is;
+            manifest.artifacts.apps.push(copyArtifact);
+          break;
+
+          case 'elementary':
+            delete copyArtifact.is;
+            manifest.artifacts.elementaryComponents.push(copyArtifact);
+          break;
+
+          case 'compound':
+            delete copyArtifact.is;
+            copyArtifact.members = copyArtifact.members.map(function(member) {
+              member.componentId = [
+                member.metadata.webpackageId,
+                member.metadata.artifactId
+              ].join('/');
+              delete member.metadat;
+
+              return member;
+            });
+            manifest.artifacts.compoundComponents.push(copyArtifact);
+          break;
+
+          case 'utility':
+            delete copyArtifact.is;
+            manifest.artifacts.utilities.push(copyArtifact);
+          break;
+        }
+      });
+      
+      return JSON.stringify.apply(this, [manifest].concat(Array.from(arguments)));
+    }
+  });
+})();
+</script>

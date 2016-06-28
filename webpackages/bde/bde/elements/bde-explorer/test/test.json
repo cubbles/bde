@@ -55,18 +55,6 @@
                             "com.hm.demos.aviator@1.0/component1/htmlimport",
                             "com.hm.demos.aviator@1.0/component2/htmlimport"
                         ]
-                    },
-                    {
-                      "endpointId": "second",
-                      "description": "Another endpoint for this artifact...",
-                      "resources": [
-                        "import.html"
-                      ],
-                      "dependencies": [
-                        "this/bar-chart/main",
-                        "com.hm.demos.aviator@1.0/component1/htmlimport",
-                        "com.hm.demos.aviator@1.0/component2/htmlimport"
-                      ]
                     }
                 ],
                 "slots": [

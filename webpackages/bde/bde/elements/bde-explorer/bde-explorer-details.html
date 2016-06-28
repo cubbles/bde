@@ -1,0 +1,152 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-input/paper-textarea.html">
+<link rel="import" href="../../vendor/paper-button/paper-button.html">
+<link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="bde-explorer-details">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="[[opened]]" with-backdrop>
+
+            <h2>
+                <span hidden="[[_editLabel]]">[[artifact.artifactId]]</span>
+
+                <paper-input
+                    tabindex="-1"
+                    label="Label"
+                    value="{{artifact.arttifactId}}"
+                    hidden="[[!_editLabel]]"
+                    on-change="handleArtifactIdChanged">
+                </paper-input>
+
+                <paper-icon-button
+                    icon="icons:label"
+                    title="Change Label"
+                    on-tap="toggleChangeLabel"></paper-icon-button>
+            </h2>
+
+            <paper-dialog-scrollable>
+
+                <!-- Description -->
+                <p hidden="[[_editDescription]]">[[artifact.description]]</p>
+
+                <paper-textarea
+                    tabindex="-1"
+                    label="description"
+                    value="{{artifact.description}}"
+                    hidden="[[!_editDescription]]"
+                    on-change="handleArtifactDescriptionChanged">
+                </paper-textarea>
+
+                <paper-icon-button
+                    icon="icons:label"
+                    title="Change Description"
+                    on-tap="toggleChangeDescription"></paper-icon-button>
+
+                <iron-list id="runnables" items="[[artifact.runnables]]" as="runnable">
+                    <template>
+                        <div>
+                            <button class="heading" on-tap="toggleRunnable">[[runnable.name]]</button>
+                            <iron-collapse id$="[[_idForCollapse(index, 'runnable_')]]">
+                                <paper-input label="path"></paper-input>
+                                <paper-textarea label="description"></paper-textarea>
+                            </iron-collapse>
+                        </div>
+                    </template>
+                </iron-list>
+
+                <template is="dom-if" if="[[_artifactIsApp(artifact)]]">
+
+                </template>
+
+                <template is="dom-if" if="[[_artifactIsCompound(artifact)]]">
+
+
+
+                </template>
+
+                <template is="dom-if" if="[[_artifactIsElementary(artifact)]]">
+
+                </template>
+
+                <template is="dom-if" if="[[_artifactIsUtility(artifact)]]">
+
+                </template>
+
+            </paper-dialog-scrollable>
+
+            <div class="button">
+                <paper-button dialog-dismiss>Close</paper-button>
+            </div>
+
+        </paper-dialog>
+
+
+    </template>
+    <script>
+    Polymer({
+        is: 'bde-explorer-details',
+        properties: {
+
+            artifact: {
+                type: Object,
+                notify: true
+            },
+
+            opened: {
+                type: Boolean,
+                value: false
+            }
+        },
+
+        open: function() {
+            this.opened = true;
+        },
+
+        close: function() {
+            this.opened = false;
+        },
+
+        handleArtifactIdChanged: function() {
+            this.editLabel = false;
+        },
+
+        toggleChangeLabel: function () {
+            this.editLabel = true;
+            this.$.labelInput.focus();
+        },
+
+        _artifactIsApp: function(artifact) {
+            return artifact.artifactType == 'appComponent';
+        },
+
+        _artifactIsCompound: function() {
+            return artifact.artifactType == 'compoundComponent';
+        },
+
+        _artifactIsElementary: function(artifact) {
+            return artifact.artifactType == 'elementaryComponent';
+        },
+
+        _artifactIsUtility: function(artifact) {
+            return artifact.artifactType == 'utilityComponent';
+        },
+
+        _idForCollapse: function(index, prefix) {
+            prefix = prefix || ''
+            return prefix + 'collapse' + index;
+        }
+
+    });
+    </script>
+</dom-module>
