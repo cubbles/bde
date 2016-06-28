@@ -1,42 +1,23 @@
 <link rel="import" href="../../vendor/polymer/polymer.html">
-<link rel="import" href="../../vendor/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../vendor/paper-spinner/paper-spinner.html">
+
+<!--
+`bde-design-view` is the editor for compound templates
+@author Christian Saul <saul@idmt.fraunhofer.de>
+-->
 
 <dom-module id="bde-design-view">
     <template>
-        <style>
+        <style is="custom-style">
             :host {
                 display: block;
             }
-
-            .center {
-                @apply(--layout-fit);
-                @apply(--layout-vertical);
-                @apply(--layout-center-center);
-            }
-
-            .hint {
-                padding: .5em 0;
-                color: var(--secondary-text-color);
-
-                @apply(--paper-font-subhead);
-            }
-
-            .hint a {
-                text-decoration: none;
-                color: var(--accent-color);
-            }
         </style>
-
-        <div class="center" hidden="[[manifestComplete]]">
-            <paper-spinner id="spinner" active></paper-spinner>
-            <span class="hint">This is a placeholder for <code>&lt;bde-design-view&gt;</code></span>
-        </div>
-
+        <content></content>
     </template>
     <script>
-    Polymer({
-        is: 'bde-design-view'
-    });
+        Polymer({
+            is: 'bde-design-view',
+            properties: {}
+        });
     </script>
 </dom-module>
