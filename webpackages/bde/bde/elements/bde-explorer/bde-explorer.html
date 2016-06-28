@@ -73,23 +73,23 @@ Example:
         <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
             <template is="dom-repeat" id="appList"
                 items="{{artifacts.apps}}" as="app">
-                <paper-icon-item on-tap="selectApp" toggles>
+                <paper-icon-item on-tap="selectApp" toggles disabled>
                     <iron-icon icon="icons:launch" item-icon></iron-icon>
                     <paper-item-body two-line>
                         <div>[[app.artifactId]]</div>
                         <div secondary>[[app.description]]</div>
                     </paper-item-body>
-                    <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
+                    <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">-->
                     </paper-icon-button>
                 </paper-icon-item>
             </template>
 
-            <paper-icon-item class="addItem" on-tap="addApp">
-                <iron-icon icon="icons:add" item-icon></iron-icon>
-                <paper-item-body>
-                    <div>Add Application</div>
-                </paper-item-body>
-            </paper-icon-item>
+            <!--<paper-icon-item class="addItem" on-tap="addApp">-->
+                <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
+                <!--<paper-item-body>-->
+                    <!--<div>Add Application</div>-->
+                <!--</paper-item-body>-->
+            <!--</paper-icon-item>-->
 
             <array-selector id="appSelector"
                 items="{{artifacts.apps}}"
@@ -140,23 +140,22 @@ Example:
         <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
             <template is="dom-repeat" id="elementaryList"
                 items="{{artifacts.elementaryComponents}}" as="elementary">
-                <paper-icon-item on-tap="selectElementary" toggles>
+                <paper-icon-item on-tap="selectElementary" toggles disabled>
                     <iron-icon icon="icons:donut-large" item-icon></iron-icon>
                     <paper-item-body two-line>
                         <div>[[elementary.artifactId]]</div>
                         <div secondary>[[elementary.description]]</div>
                     </paper-item-body>
-                    <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
-                    </paper-icon-button>
+                    <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
                 </paper-icon-item>
             </template>
 
-            <paper-icon-item class="addItem" on-tap="addElementary">
-                <iron-icon icon="icons:add" item-icon></iron-icon>
-                <paper-item-body>
-                    <div>Add Elementary Cubble</div>
-                </paper-item-body>
-            </paper-icon-item>
+            <!--<paper-icon-item class="addItem" on-tap="addElementary">-->
+                <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
+                <!--<paper-item-body>-->
+                    <!--<div>Add Elementary Cubble</div>-->
+                <!--</paper-item-body>-->
+            <!--</paper-icon-item>-->
 
             <array-selector id="elementarySelector"
                 items="{{artifacts.elementaryComponents}}"
@@ -173,23 +172,22 @@ Example:
         <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
             <template is="dom-repeat" id="utilityList"
                 items="{{artifacts.utilities}}" as="utility">
-                <paper-icon-item on-tap="selectUtility" toggles>
+                <paper-icon-item on-tap="selectUtility" toggles disabled>
                     <iron-icon icon="icons:extension" item-icon></iron-icon>
                     <paper-item-body two-line>
                         <div>[[utility.artifactId]]</div>
                         <div secondary>[[utility.description]]</div>
                     </paper-item-body>
-                    <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
-                    </paper-icon-button>
+                    <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
                 </paper-icon-item>
             </template>
 
-            <paper-icon-item class="addItem" on-tap="addUtility">
-                <iron-icon icon="icons:add" item-icon></iron-icon>
-                <paper-item-body>
-                    <div>Add Utility</div>
-                </paper-item-body>
-            </paper-icon-item>
+            <!--<paper-icon-item class="addItem" on-tap="addUtility">-->
+                <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
+                <!--<paper-item-body>-->
+                    <!--<div>Add Utility</div>-->
+                <!--</paper-item-body>-->
+            <!--</paper-icon-item>-->
 
             <array-selector id="utilitySelector"
                 items="{{artifacts.utilities}}"
