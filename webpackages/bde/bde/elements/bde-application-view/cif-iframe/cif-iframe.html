@@ -20,10 +20,7 @@
     'use strict';
 
     var crcRoot = document.querySelector('#crcRoot');
-    var baseUrl = 'https://cubbles.world/sandbox/';
-    var rteUrl = 'cubx.core.rte@1.10.0-SNAPSHOT';
-    var crcLoaderUrl = baseUrl + rteUrl + '/crc-loader/js/main.js';
-    var webComponentsUrl = baseUrl + rteUrl + '/webcomponents/webcomponents-lite.js';
+    var rteWebpackage = 'cubx.core.rte@1.10.0-SNAPSHOT';
 
     // const DEBUG = false;
     // window.__console__ = window.console;
@@ -62,6 +59,9 @@
             document.location.reload();
             return;
         }
+        var baseUrl = currentComponentMetadata.settings.baseUrl + '/' + currentComponentMetadata.settings.baseName + '/';
+        var crcLoaderUrl = baseUrl + rteWebpackage + '/crc-loader/js/main.js';
+        var webComponentsUrl = baseUrl + rteWebpackage + '/webcomponents/webcomponents-lite.js';
 
         _injectScript(webComponentsUrl, function () {
                 console.log("Webcomponents injected...");

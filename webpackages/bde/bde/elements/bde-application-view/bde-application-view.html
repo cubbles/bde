@@ -102,6 +102,9 @@
                 currentComponentMetadata: {
                     type: Object,
                     observer: 'currentComponentMetadataChanged'
+                },
+                settings: {
+                    type: Object
                 }
 
             },
@@ -136,20 +139,10 @@
                         || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpoint){
                     return;
                 }
+                this.currentComponentMetadata.settings = this.settings;
                 this.reloadIframe(() => {
                     this._postMessage('currentComponentMetadata', this.currentComponentMetadata);
                 });
-            },
-
-            manifestChanged: function () {
-
-                // Manifest not set, yet
-                if (!Object.keys(this.manifest).length > 0) return;
-                this.manifestComplete = true;
-                this.reloadIframe(() => {
-                    this._postMessage('manifest', this.manifest);
-                });
-
             },
 
             reloadIframe: function (cb) {
@@ -161,16 +154,11 @@
 
             },
 
-            openProjectProperties: function () {
-                document.querySelector('bde-application-settings').open = true;
-            },
-
             _computeIFrameClasses: function (loaded) {
                 return (!loaded) ? 'hidden': 'visible';
             },
 
             _postMessage: function (message, data) {
-
                 this.debounce('postMessage', () => {
                     var payload = { 'message': message };
 
@@ -181,7 +169,6 @@
                         document.location.origin
                     );
                 }, 250);
-
             }
 
 
