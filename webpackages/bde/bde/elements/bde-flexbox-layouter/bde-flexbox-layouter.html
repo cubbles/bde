@@ -146,11 +146,11 @@
                             <iron-icon icon="[[calculateMemberIcon(item.componentId)]]" item-icon>
                             </iron-icon>
                             <paper-item-body>
-                                <div>[[trimMemberName(item.componentId)]]</div>
+                                <div>[[item.memberId]]</div>
                             </paper-item-body>
-                            <paper-icon-button id="[[trimMemberName(item.componentId)]]-add-button"
+                            <paper-icon-button id="[[trimComponentId(item.componentId)]]-add-button"
                                                icon="icons:add" alt="Add member to template"
-                                               data-args="[[trimMemberName(item.componentId)]],[[item.memberId]]"
+                                               data-args="[[trimComponentId(item.componentId)]],[[item.memberId]]"
                                                on-tap="addMember">
                             </paper-icon-button>
                         </paper-icon-item>
@@ -431,23 +431,23 @@
             calculateToggleIcon: function (state) {
                 return state ? 'icons:arrow-drop-down' : 'icons:arrow-drop-up';
             },
-            calculateMemberIcon: function (member) {
-                var memberName = this.trimMemberName(member);
+            calculateMemberIcon: function (componentId) {
+                var artifactId = this.trimComponentId(componentId);
 
                 for (var key in this.webpackage.artifacts.elementaryComponents) {
-                    if (this.webpackage.artifacts.elementaryComponents[key]['artifactId'] == memberName) {
+                    if (this.webpackage.artifacts.elementaryComponents[key]['artifactId'] == artifactId) {
                         return 'icons:donut-large';
                     }
                 }
                 for (var key in this.webpackage.artifacts.utilities) {
-                    if (this.webpackage.artifacts.utilities[key]['artifactId'] == memberName) {
+                    if (this.webpackage.artifacts.utilities[key]['artifactId'] == artifactId) {
                         return 'icons:extension';
                     }
                 }
                 return 'icons:cloud';
             },
-            trimMemberName: function (member) {
-                return (member.substring(0, 4) == 'this') ? member.substring(5) : member; // Removing 'this/'
+            trimComponentId: function (componentId) {
+                return  componentId.substring(componentId.indexOf('/') + 1)
             },
             addMember: function (event) {
                 var args = Polymer.dom(event).localTarget.dataArgs.split(','),
@@ -460,7 +460,7 @@
                 Polymer.dom(sortable).appendChild(member);
                 member.setAttribute('class', 'member style-scope bde-flexbox-layouter');
                 member.setAttribute('member-id-ref', memberId);
-                member.innerHTML = componentId;
+                member.innerHTML = memberId;
                 member.addEventListener('tap', this.selectMember.bind(this));
                 Polymer.dom(member).appendChild(removeButton);
                 removeButton.setAttribute('class', 'style-scope bde-flexbox-layouter');

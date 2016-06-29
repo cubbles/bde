@@ -1034,7 +1034,8 @@
           "this/main-nav/main",
           "this/category-value-select/main",
           "this/travel-evaluation/main",
-          "this/co2-footprint/main"
+          "this/co2-footprint/main",
+          "com.incowia.cubx-google-map@1.0.0-SNAPSHOT/cubx-google-map/main"
         ]
       }
     ],
@@ -1055,6 +1056,10 @@
       {
         "memberId": "footprint",
         "componentId": "this/co2-footprint"
+      },
+      {
+        "memberId": "map",
+        "componentId": "com.incowia.cubx-google-map@1.0.0-SNAPSHOT/cubx-google-map"
       }
     ],
     "connections": [
