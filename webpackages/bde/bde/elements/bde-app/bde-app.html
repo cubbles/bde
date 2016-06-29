@@ -17,6 +17,7 @@
 <link rel="import" href="../bde-dataflow-view/bde-dataflow-view.html">
 <link rel="import" href="../bde-design-view/bde-design-view.html">
 <link rel="import" href="../bde-application-view/bde-application-view.html">
+<link rel="import" href="../bde-repository-browser/bde-repository-browser.html">
 
 <dom-module id="bde-app">
   <template>
@@ -147,6 +148,12 @@
         opened="{{settingsOpened}}"
         ></bde-application-settings>
 
+    <bde-repository-browser
+        id="browser"
+        url="[[computeBaseUrl(settings.baseUrl, settings.baseName, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
+        webpackage="{{webpackage}}">
+    </bde-repository-browser>
+
     <!-- Application UI -->
     <paper-header-panel mode="seamed">
       <paper-toolbar id="bdeHeader">
@@ -165,6 +172,7 @@
         <paper-icon-button id="compoundBtn"
           title="Load from base..."
           aria-label="compounds"
+          on-tap="getCompoundFromBase"
           icon="icons:cloud-download"
           ></paper-icon-button>
 

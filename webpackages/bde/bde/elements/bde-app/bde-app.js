@@ -63,7 +63,7 @@
     },
 
     computeBaseUrl: function(baseUrl, baseName, partial) {
-      if (!partial || typeof partial !== 'strung') {
+      if (!partial || typeof partial !== 'string') {
         throw new TypeError("`partial` must be a string");
       }
 
@@ -88,6 +88,12 @@
 
     loadWebpackage: function(webpackage) {
       this.$.webpackage.loadWebpackage(webpackage);
+    },
+
+    getCompoundFromBase: function() {
+      this.$.browser.compoundOnly = true;
+      // this.$.parser.showCompoundMembers = true;
+      this.$.browser.toggleDialog();
     },
 
     _computeAddComponent: function(sidebar) {
