@@ -105,7 +105,12 @@ Example:
 
               <iron-list id="list" class="flex" items="[[filtered]]" multi-selection>
                 <template>
-                  <bde-repository-item item="{{item}}" last-item-selected="{{addedItem}}" webpackage="{{webpackage}}"></bde-repository-item>
+                  <bde-repository-item
+                          item="{{item}}"
+                          last-item-selected="{{addedItem}}"
+                          webpackage="{{webpackage}}"
+                          settings="{{settings}}"
+                  ></bde-repository-item>
                 </template>
               </iron-list>
 
@@ -176,6 +181,10 @@ Example:
             searchTerm: {
               type: String,
               value: ''
+            },
+
+            settings: {
+              type: Object
             },
 
             /**

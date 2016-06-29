@@ -12,7 +12,10 @@
 
     <p>An example of <code>&lt;bde-repository-browser&gt;</code>:</p>
 
-    <bde-repository-browser url="https://cubbles.world/sandbox/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts"></bde-repository-browser>
+    <bde-repository-browser
+            settings='{"baseUrl":"http://cubbles.world","baseName":"sandbox"}'
+            url="https://cubbles.world/sandbox/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts">
+    </bde-repository-browser>
 
     <script>
         (function (){

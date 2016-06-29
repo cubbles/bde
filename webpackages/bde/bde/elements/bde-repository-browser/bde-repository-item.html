@@ -103,6 +103,13 @@ Example:
       webpackage: {
         type: Object,
         notify: true
+      },
+
+      /**
+       * Holding the BDE Application settings. (see <bde-app> component)
+       */
+      settings: {
+          type: Object
       }
 
     },
@@ -125,7 +132,7 @@ Example:
      */
     getItemUrl: function (item) {
       // url = https://www.cubbles.world/ + store/ + name + @version (name + @version = webpackageId)
-      var url = "https://www.cubbles.world/" + "sandbox/" + item.webpackageId;
+      var url = this.get('settings.baseUrl') + '/' + this.get('settings.baseName') + '/' + item.webpackageId;
       return url;
     },
 
