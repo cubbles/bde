@@ -1,0 +1,46 @@
+{
+    "manifest": {
+        "name": "my-travel-planner",
+        "groupId": "com.incowia.demo",
+        "version": "0.2.0-SNAPSHOT",
+        "modelVersion": "8.3.0",
+        "docType": "webpackage",
+        "author": {
+            "name": "Edwin Gamboa",
+            "email": "edwin.gamboa@incowia.com"
+        },
+        "license": "MIT",
+        "keywords": [],
+        "man": [],
+        "artifacts": {
+            "elementaryComponents": [],
+            "compoundComponents": [
+                {
+                    "artifactId": "my-travel-planner",
+                    "description": "My Tavel planner cubbles component",
+                    "runnables": [],
+                    "endpoints": [
+                        {
+                            "endpointId": "main",
+                            "resources": [],
+                            "dependencies": [
+                                "com.incowia.demo.travel-planner@0.2.0-SNAPSHOT/travel-planner/main"
+                            ]
+                        }
+                    ],
+                    "slots": [],
+                    "members": [
+                        {
+                            "memberId": "travel-planner",
+                            "componentId": "com.incowia.demo.travel-planner@0.2.0-SNAPSHOT/travel-planner"
+                        }
+                    ],
+                    "connections": [],
+                    "inits": []
+                }
+            ]
+        }
+    },
+    "endpoint": "this/my-travel-planner/main",
+    "artifactId": "my-travel-planner"
+}
