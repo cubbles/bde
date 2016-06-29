@@ -12,7 +12,6 @@
 <link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-styles/default-theme.html">
 <link rel="import" href="bde-compound-creator.html">
-<link rel="import" href="bde-explorer-details.html">
 <!--
 `bde-explorer` is the management component for handling cubble packages
 
@@ -20,115 +19,391 @@ Example:
 
     <bde-explorer></bde-explorer>
 
-@damo demo/index.html
 -->
 <dom-module id="bde-explorer">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-      .container {
-          margin-top: 15px;
-          cursor: pointer;
-      }
-      .container:focus {
-          outline: 0;
-      }
-      .container > span {
-          color: var(--bde-explorer-heading-text-color, --primary-text-color);
+    <template>
+        <style is="custom-style">
+            :host {
+                display: block;
+            }
 
-          @apply(--paper-font-body2);
-      }
-      .container > .count {
-          color: var(--secondary-text-color);
+            .container {
+                margin-top: 15px;
+                cursor: pointer;
+            }
 
-          @apply(--paper-font-caption);
-      }
-      .addItem {
-          cursor: pointer;
-      }
-      paper-button {
-          width: 90%;
-          margin: 2em 5% 0;
-          background-color: var(--primary-background-color);
-      }
-  </style>
+            .container:focus {
+                outline: 0;
+            }
 
-  <bde-compound-creator id="compoundCreator"
-    opened="{{_compoundCreatorOpened}}"
-    on-last-artifact-changed="_handleNewCompound"></bde-compound-creator>
+            .container > span {
+                color: var(--bde-explorer-heading-text-color, --primary-text-color);
 
-    <div class="container" tabindex="0">
-      <span>CompoundComponents</span>
-      <span class="count">([[artifacts.compoundComponents.length]])</span>
-    </div>
+                @apply(--paper-font-body2);
+            }
 
-    <template is="dom-repeat" id="compoundList"
-      items="{{artifacts}}" filter="isCompound" as="compound">
-      <paper-icon-item on-tap="selectCompound" toggles>
-        <iron-icon icon="icons:donut-small" item-icon></iron-icon>
-        <paper-item-body three-line>
-          <div>[[compound.artifactId]]</div>
-          <div secondary>[[compound.description]]</div>
-          <div secondary>[[compound.members.length]] Member(s)</div>
-        </paper-item-body>
-        <paper-icon-button icon="icons:settings" alt="Settings" on-tap="_settingsButton">
-        </paper-icon-button>
-      </paper-icon-item>
+            .container > .count {
+                color: var(--secondary-text-color);
+
+                @apply(--paper-font-caption);
+            }
+
+            .addItem {
+                cursor: pointer;
+            }
+
+            paper-button {
+                width: 90%;
+                margin: 2em 5% 0;
+                background-color: var(--primary-background-color);
+            }
+
+            .endpoint-item {
+                margin-left: 24px;
+            }
+
+            .endpoint-list-header {
+                margin-left: 40px;
+                font-weight: 500;
+            }
+        </style>
+
+        <h2>Webpackage Explorer</h2>
+
+        <bde-compound-creator id="compoundCreator"
+                              on-last-artifact-changed="handleNewCompound"></bde-compound-creator>
+
+        <div class="container" tabindex="0" on-tap="toggleApps">
+            <iron-icon icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
+            <span>Applications</span>
+            <span class="count">([[artifacts.apps.length]])</span>
+        </div>
+
+        <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
+            <template is="dom-repeat" id="appList"
+                      items="{{artifacts.apps}}" as="app">
+                <paper-icon-item on-tap="selectApp" toggles disabled>
+                    <iron-icon icon="icons:launch" item-icon></iron-icon>
+                    <paper-item-body two-line>
+                        <div>[[app.artifactId]]</div>
+                        <div secondary>[[app.description]]</div>
+                    </paper-item-body>
+                    <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">-->
+                    </paper-icon-button>
+                </paper-icon-item>
+            </template>
+
+            <!--<paper-icon-item class="addItem" on-tap="addApp">-->
+            <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
+            <!--<paper-item-body>-->
+            <!--<div>Add Application</div>-->
+            <!--</paper-item-body>-->
+            <!--</paper-icon-item>-->
+
+            <array-selector id="appSelector"
+                            items="{{artifacts.apps}}"
+                            selected="{{selectedApp}}">
+            </array-selector>
+        </iron-collapse>
+
+        <div class="container" tabindex="0" on-tap="toggleCompounds">
+            <iron-icon icon="[[_calculateToggleIcon(_compoundsOpen)]]"></iron-icon>
+            <span>Compounds</span>
+            <span class="count">([[artifacts.compoundComponents.length]])</span>
+        </div>
+
+        <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
+            <template is="dom-repeat" id="compoundList"
+                      items="{{artifacts.compoundComponents}}" as="compound">
+                <paper-icon-item on-tap="selectCompound" toggles>
+                    <iron-icon icon="icons:donut-small" item-icon></iron-icon>
+                    <paper-item-body three-line>
+                        <div>[[compound.artifactId]]</div>
+                        <div secondary>[[compound.description]]</div>
+                        <div secondary>[[compound.members.length]] Members</div>
+                    </paper-item-body>
+                    <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
+                    </paper-icon-button>
+                </paper-icon-item>
+                <div class="endpoint-list-header">Endpoints</div>
+                <template is="dom-repeat" items="{{compound.endpoints}}" as="endpoint">
+                    <paper-icon-item toggles class="endpoint-item">
+                        <iron-icon icon="icons:launch" item-icon></iron-icon>
+                        <paper-item-body two-line>
+                            <div>[[endpoint.endpointId]]</div>
+                            <div secondary>[[endpoint.description]]</div>
+                        </paper-item-body>
+                    </paper-icon-item>
+                </template>
+            </template>
+
+            <paper-icon-item class="addItem" on-tap="addCompound">
+                <iron-icon icon="icons:add" item-icon></iron-icon>
+                <paper-item-body>
+                    <div>Add Compound Cubble</div>
+                </paper-item-body>
+            </paper-icon-item>
+
+            <array-selector id="compoundSelector"
+                            items="{{artifacts.compoundComponents}}"
+                            selected="{{selectedCompound}}">
+            </array-selector>
+        </iron-collapse>
+
+        <div class="container" tabindex="0" on-tap="toggleElementaries">
+            <iron-icon icon="[[_calculateToggleIcon(_elementariesOpen)]]"></iron-icon>
+            <span>Elementaries</span>
+            <span class="count">([[artifacts.elementaryComponents.length]])</span>
+        </div>
+
+        <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
+            <template is="dom-repeat" id="elementaryList"
+                      items="{{artifacts.elementaryComponents}}" as="elementary">
+                <paper-icon-item on-tap="selectElementary" toggles disabled>
+                    <iron-icon icon="icons:donut-large" item-icon></iron-icon>
+                    <paper-item-body two-line>
+                        <div>[[elementary.artifactId]]</div>
+                        <div secondary>[[elementary.description]]</div>
+                    </paper-item-body>
+                    <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
+                </paper-icon-item>
+            </template>
+
+            <!--<paper-icon-item class="addItem" on-tap="addElementary">-->
+            <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
+            <!--<paper-item-body>-->
+            <!--<div>Add Elementary Cubble</div>-->
+            <!--</paper-item-body>-->
+            <!--</paper-icon-item>-->
+
+            <array-selector id="elementarySelector"
+                            items="{{artifacts.elementaryComponents}}"
+                            selected="{{selectedElementary}}">
+            </array-selector>
+        </iron-collapse>
+
+        <div class="container" tabindex="0" on-tap="toggleUtilities">
+            <iron-icon icon="[[_calculateToggleIcon(_utilitiesOpen)]]"></iron-icon>
+            <span>Utilities</span>
+            <span class="count">([[artifacts.utilities.length]])</span>
+        </div>
+
+        <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
+            <template is="dom-repeat" id="utilityList"
+                      items="{{artifacts.utilities}}" as="utility">
+                <paper-icon-item on-tap="selectUtility" toggles disabled>
+                    <iron-icon icon="icons:extension" item-icon></iron-icon>
+                    <paper-item-body two-line>
+                        <div>[[utility.artifactId]]</div>
+                        <div secondary>[[utility.description]]</div>
+                    </paper-item-body>
+                    <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
+                </paper-icon-item>
+            </template>
+
+            <!--<paper-icon-item class="addItem" on-tap="addUtility">-->
+            <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
+            <!--<paper-item-body>-->
+            <!--<div>Add Utility</div>-->
+            <!--</paper-item-body>-->
+            <!--</paper-icon-item>-->
+
+            <array-selector id="utilitySelector"
+                            items="{{artifacts.utilities}}"
+                            selected="{{selectedUtility}}">
+            </array-selector>
+        </iron-collapse>
+
     </template>
+    <script>
+        Polymer({
+            is: 'bde-explorer',
 
-    <paper-button active="{{_compoundCreatorOpened}}" toggles raised>
-      <iron-icon icon="icons:add"></iron-icon>
-      Add new compound...
-    </paper-button>
+            properties: {
 
-    <array-selector id="compoundSelector"
-      items="{{artifacts}}"
-      selected="{{selectedArtifact}}">
-    </array-selector>
+                artifacts: {
+                    type: Object,
+                    observer: 'deselect'
+                },
 
-  </template>
-  <script>
-  Polymer({
-    is: 'bde-explorer',
+                selectedApp: {
+                    type: Object,
+                    notify: true
+                },
 
-    properties: {
+                selectedCompound: {
+                    type: Object,
+                    notify: true
+                },
 
-      webpackage: {
-        type: Object,
-        notify: true
-      },
+                selectedElementary: {
+                    type: Object,
+                    notify: true
+                },
 
-      selectedArtifact: {
-        type: Object,
-        notify: true
-      }
-    },
+                selectedUtility: {
+                    type: Object,
+                    notify: true
+                },
 
-    observers: [
-      '_webpackageChanged(webpackage)'
-    ],
+                toggleMenus: {
+                    type: Boolean,
+                    value: true
+                },
 
-    isCompound: function(artifact) {
-      return artifact.is === 'compound';
-    },
+                _appsOpen: {
+                    type: Boolean,
+                    value: false
+                },
 
-    selectCompound: function(event) {
-      var item = this.$.compoundList.itemForElement(event.target);
-      this.$.compoundSelector.select(item);
-      this.fire('iron-select', { item: item });
-    },
+                _compoundsOpen: {
+                    type: Boolean,
+                    value: true
+                },
 
-    _handleNewCompound: function(event) {
-      var item, artifact = event.detail.value;
-      artifact.is = 'compound';
-      this.push('artifacts', artifact);
-    },
+                _elementariesOpen: {
+                    type: Boolean,
+                    value: false
+                },
 
-    _webpackageChanged: function(newWebpackage, oldWebpackage) {
-      console.log(newWebpackage, oldWebpackage);
-    }
-  });
-  </script>
+                _utilitiesOpen: {
+                    type: Boolean,
+                    value: false
+                },
+
+            },
+
+            listeners: {
+                // 'addCompoundDialog.iron-overlay-closed': 'handleAddCompoundDialogClosed',
+                // 'addCompoundForm.submit': 'handleAddCompoundFormSubmit'
+            },
+
+            addApp: function() {
+                // this.$.addAppDialog.open();
+            },
+
+            addCompound: function() {
+                this.$.compoundCreator.open();
+                // this.$.addCompoundDialog.open();
+                // console.dir(this.$.addCompoundForm[0]);
+                // this.$.addCompoundForm[0].focus();
+            },
+
+            deselect: function() {
+                this.$.appSelector.deselect();
+                this.$.utilitySelector.deselect();
+                this.$.compoundSelector.deselect();
+                this.$.utilitySelector.deselect();
+            },
+
+            handleAddCompoundDialogClosed: function(e, reason) {
+
+                // User clicked outside the dialog
+                if (!reason.canceled && !reason.confirmed) {
+                    this.$.addCompoundForm.reset();
+                }
+            },
+
+            handleAddCompoundFormSubmit: function(e) {
+                if (this.$.addCompoundForm.validate()) {
+                    this.push('artifacts.compounds', this.$.addCompoundForm.serialize());
+                    this.$.addCompoundForm.reset();
+                    this.$.addCompoundDialog.close();
+                }
+            },
+
+            handleNewCompound: function(e) {
+                this.push('artifacts.compoundComponents', e.detail.value);
+                this.$.compoundSelector.select(e.detail.value);
+            },
+
+            openSettings: function(e) {
+                e.stopPropagation();
+                var item = e.model.dataHost.itemForElement(e.target);
+                item.is = e.model.dataHost.id.replace(/List/, '');
+
+                this.fire('bde-explorer-open-settings', {item: item});
+            },
+
+            selectApp: function(e) {
+                this.deselect();
+
+                var item = this.$.appList.itemForElement(e.target);
+                item.is = 'app';
+                this.$.appSelector.select(item);
+
+                this.fire('iron-select', {is: 'app', item: item});
+            },
+
+            selectCompound: function(e) {
+                this.deselect();
+
+                var item = this.$.compoundList.itemForElement(e.target);
+                item.is = 'compound';
+                this.$.compoundSelector.select(item);
+
+                this.fire('iron-select', {is: 'compound', item: item});
+            },
+
+            selectElementary: function(e) {
+                this.deselect();
+
+                var item = this.$.elementaryList.itemForElement(e.target);
+                item.is = 'elementary';
+                this.$.elementarySelector.select(item);
+
+                this.fire('iron-select', {is: 'elementary', item: item});
+            },
+
+            selectUtility: function(e) {
+                this.deselect();
+
+                var item = this.$.utilityList.itemForElement(e.target);
+                item.is = 'utility';
+                this.$.elementarySelector.select(item);
+
+                this.fire('iron-select', {is: 'utility', item: item});
+            },
+
+            toggleApps: function() {
+                if (this.toggleMenus) {
+                    this._compoundsOpen = false;
+                    this._elementariesOpen = false;
+                    this._utilitiesOpen = false;
+                }
+                this._appsOpen = !this._appsOpen;
+            },
+
+            toggleCompounds: function() {
+                if (this.toggleMenus) {
+                    this._appsOpen = false;
+                    this._elementariesOpen = false;
+                    this._utilitiesOpen = false;
+                }
+                this._compoundsOpen = !this._compoundsOpen;
+            },
+
+            toggleElementaries: function() {
+                if (this.toggleMenus) {
+                    this._appsOpen = false;
+                    this._compoundsOpen = false;
+                    this._utilitiesOpen = false;
+                }
+                this._elementariesOpen = !this._elementariesOpen;
+            },
+
+            toggleUtilities: function() {
+                if (this.toggleMenus) {
+                    this._appsOpen = false;
+                    this._compoundsOpen = false;
+                    this._elementariesOpen = false;
+                }
+                this._utilitiesOpen = !this._utilitiesOpen;
+            },
+
+            _calculateToggleIcon: function(state) {
+                return state ? 'icons:arrow-drop-down' : 'icons:arrow-drop-up';
+            }
+        });
+    </script>
 </dom-module>
