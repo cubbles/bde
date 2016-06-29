@@ -52,7 +52,7 @@
 
     <template>
 
-        <div class="spinner-wrapper" hidden="[[manifestComplete]]">
+        <div class="spinner-wrapper" hidden="[[loaded]]">
             <paper-spinner id="spinner" active></paper-spinner>
             <span class="hint">Complete <a href="javascript:void(0)" on-tap="openProjectProperties">project settings</a> and add some cubbles</span>
         </div>
@@ -63,7 +63,7 @@
             src="cif-iframe/cif-iframe.html"
             frameborder="0"
             seamless
-            hidden="[[!manifestComplete]]">
+            hidden="[[!loaded]]">
         </iframe>
 
         <paper-toast
@@ -97,15 +97,6 @@
                     type: Boolean,
                     value: false,
                     notify: true
-                },
-
-                manifest: {
-                    type: Object,
-                    observer: 'manifestChanged'
-                },
-
-                manifestComplete: {
-                    type: Boolean
                 },
 
                 currentComponentMetadata: {
@@ -145,13 +136,9 @@
                         || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpoint){
                     return;
                 }
-                if(this.currentComponentMetadata.manifest.name !== '' &&
-                        this.currentComponentMetadata.manifest.groupId  !== '') {
-                    this.manifestComplete = true;
-                    this.reloadIframe(() => {
-                        this._postMessage('currentComponentMetadata', this.currentComponentMetadata);
+                this.reloadIframe(() => {
+                    this._postMessage('currentComponentMetadata', this.currentComponentMetadata);
                 });
-                }
             },
 
             manifestChanged: function () {
