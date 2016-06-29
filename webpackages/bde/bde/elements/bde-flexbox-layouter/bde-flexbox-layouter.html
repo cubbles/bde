@@ -20,19 +20,29 @@
                 display: block;
             }
 
-            #flex-container {
+            .sortable {
                 margin: 20px;
+                min-height: 40px;
+                background-color: white;
+                border: 1px dashed lightgrey;
             }
 
-            #flex-container > * {
+            .sortable:not(.selected) {
+                cursor: pointer;
+            }
+
+            .sortable > * {
                 margin: 0;
                 display: inherit;
                 cursor: pointer;
                 padding: 10px;
+                background-color: white;
                 border: 1px solid black;
+                float: left;
             }
 
-            #flex-container > * i {
+            .sortable > * i, .flexbox > i {
+                cursor: pointer;
                 transition: opacity .2s;
                 opacity: 0;
                 color: white;
@@ -49,8 +59,21 @@
                 text-align: center;
             }
 
-            #flex-container > *:hover i {
+            .flexbox > i {
+                display: inline-block;
+                padding: 0;
+                border: none;
+                float: right;
+                margin: -53px 30px 0 0;
+            }
+
+            .sortable > *:hover > i, .flexbox:hover > i{
                 opacity: 1;
+            }
+
+            .ghost {
+                color: white !important;
+                background: #1db1cc !important;
             }
 
             .container {
@@ -82,14 +105,18 @@
                 display: none;
             }
 
-            .selected {
-                background-color: var(--paper-grey-100);
+            .selected, .member-selected {
+                background-color: var(--paper-grey-100) !important;
+            }
+
+            .add-flexbox {
+                margin-left: 20px;
             }
         </style>
 
         <paper-drawer-panel
                 right-drawer
-                drawer-width="460px"
+                drawer-width="400px"
                 disable-swipe
                 disable-edge-swipe>
 
@@ -98,13 +125,14 @@
                 <h2>Flexbox Layouter</h2>
                 <p>This tool allows you to lay out, align and distribute space among members (i.e., elementaries
                     or utilities) in a compound, even when their size is unknown and/or dynamic.</p>
-                <strong hidden$="{{selectedCompound}}">Please select a compound in the webpackage explorer</strong>
-                <div hidden$="{{!selectedCompound}}" class="container" tabindex="0" on-tap="toggleCompoundMembers">
+                <strong hidden$="[[selectedCompound]]">Please select a compound in the webpackage explorer</strong>
+                <div hidden$="[[!selectedCompound]]" class="container" tabindex="0" on-tap="toggleCompoundMembers">
                     <iron-icon icon="[[calculateToggleIcon(compoundMembersOpen)]]"></iron-icon>
                     <span>Compound Members</span>
                     <span class="count">([[selectedCompound.members.length]])</span>
                 </div>
-                <iron-collapse opened="[[compoundMembersOpen]]" hidden$="{{!selectedCompound}}">
+                <p hidden$="[[!selectedCompound]]">By clicking the + Button next to the member, it will be added to the box selected (the first box is selected by default).</p>
+                <iron-collapse opened="[[compoundMembersOpen]]" hidden$="[[!selectedCompound]]">
                     <template is="dom-repeat" items="[[selectedCompound.members]]">
                         <paper-icon-item>
                             <iron-icon icon="[[calculateMemberIcon(item.componentId)]]" item-icon>
@@ -112,7 +140,8 @@
                             <paper-item-body>
                                 <div>[[trimMemberName(item.componentId)]]</div>
                             </paper-item-body>
-                            <paper-icon-button icon="icons:add" alt="Add member to template"
+                            <paper-icon-button id="[[trimMemberName(item.componentId)]]-add-button"
+                                               icon="icons:add" alt="Add member to template"
                                                data-args="[[trimMemberName(item.componentId)]],[[item.memberId]]"
                                                on-tap="addMember">
                             </paper-icon-button>
@@ -120,11 +149,11 @@
                     </template>
                 </iron-collapse>
 
-                <div class="container" tabindex="0" on-tap="toggleLayoutSettings" hidden$="{{!selectedCompound}}">
+                <div class="container" tabindex="0" on-tap="toggleLayoutSettings" hidden$="[[!selectedCompound]]">
                     <iron-icon icon="[[calculateToggleIcon(layoutSettingsOpen)]]"></iron-icon>
                     <span>Layout Settings</span>
                 </div>
-                <iron-collapse opened="[[layoutSettingsOpen]]" hidden$="{{!selectedCompound}}">
+                <iron-collapse opened="[[layoutSettingsOpen]]" hidden$="[[!selectedCompound]]">
                     <div class="controls-wrapper">
                         <div class="controls-wrapper-buttons">
                             <div>
@@ -133,10 +162,10 @@
                                     <small>Specifies the direction of the members</small>
                                 </h3>
                                 <paper-radio-group selected="{{flexDirection}}">
-                                    <paper-radio-button name="row">Row</paper-radio-button>
-                                    <paper-radio-button name="row-reverse">Row Reverse</paper-radio-button>
-                                    <paper-radio-button name="column">Column</paper-radio-button>
-                                    <paper-radio-button name="column-reverse">Column Reverse</paper-radio-button>
+                                    <paper-radio-button name="row">Horizonal</paper-radio-button>
+                                    <paper-radio-button name="row-reverse">Horizonal Reverse</paper-radio-button>
+                                    <paper-radio-button name="column">Vertical</paper-radio-button>
+                                    <paper-radio-button name="column-reverse">Vertical Reverse</paper-radio-button>
                                 </paper-radio-group>
                             </div>
                             <div id="justify-content">
@@ -146,8 +175,8 @@
                                     </small>
                                 </h3>
                                 <paper-radio-group selected="{{justifyContent}}">
-                                    <paper-radio-button name="flex-start">Start</paper-radio-button>
-                                    <paper-radio-button name="flex-end">End</paper-radio-button>
+                                    <paper-radio-button name="flex-start">Left</paper-radio-button>
+                                    <paper-radio-button name="flex-end">Right</paper-radio-button>
                                     <paper-radio-button name="center">Center</paper-radio-button>
                                     <paper-radio-button name="space-between">Space Between</paper-radio-button>
                                     <paper-radio-button name="space-around">Space Around</paper-radio-button>
@@ -170,8 +199,8 @@
                                     <small>Specifies the default alignment for members</small>
                                 </h3>
                                 <paper-radio-group selected="{{alignItems}}">
-                                    <paper-radio-button name="flex-start">Start</paper-radio-button>
-                                    <paper-radio-button name="flex-end">End</paper-radio-button>
+                                    <paper-radio-button name="flex-start">Left</paper-radio-button>
+                                    <paper-radio-button name="flex-end">Right</paper-radio-button>
                                     <paper-radio-button name="center">Center</paper-radio-button>
                                     <paper-radio-button name="baseline">Baseline</paper-radio-button>
                                     <paper-radio-button name="stretch">Stretch</paper-radio-button>
@@ -210,7 +239,16 @@
             </div>
 
             <div main>
-                <sortable-js id="flex-container" on-update="templateChanged"></sortable-js>
+                <div id="flexbox-container">
+                    <div class="flexbox">
+                        <sortable-js group="sortable" class="sortable selected"
+                                     on-sort="templateChanged" on-tap="selectFlexbox"
+                                     on-add="moveMember" ghost-class="ghost">
+                        </sortable-js>
+                    </div>
+                </div>
+                <paper-icon-button class="add-flexbox" icon="icons:add" title="Add new flexbox" on-tap="addFlexbox">
+                </paper-icon-button>
             </div>
 
         </paper-drawer-panel>
@@ -222,6 +260,10 @@
                 webpackage: {
                     type: Object,
                     observer: 'webpackageChanged'
+                },
+                artifacts: {
+                    type: Object,
+                    observer: 'artifactsChanged'
                 },
                 selectedCompound: {
                     type: Object,
@@ -256,10 +298,10 @@
                     observer: 'alignItemsChanged'
                 },
                 /*alignContent: {
-                    type: String,
-                    value: 'flex-start',
-                    observer: 'alignContentChanged'
-                },*/
+                 type: String,
+                 value: 'flex-start',
+                 observer: 'alignContentChanged'
+                 },*/
                 flexGrow: {
                     type: String,
                     observer: 'flexGrowChanged'
@@ -270,24 +312,51 @@
                 }
             },
             ready: function () {
-                var container = this.$$('#flex-container');
-                Polymer.dom(container).observeNodes(this.templateChanged.bind(this));
+                var sortable = this.$$('.sortable');
+                Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
             },
-            webpackageChanged: function (value) {
-                this.clearContainer();
+            webpackageChanged: function (webpackage) {
+                //this.clearContainer();
             },
-            selectedCompoundChanged: function (value) {
+            selectedCompoundChanged: function (compound) {
                 this.clearContainer();
             },
             clearContainer: function () {
-                var container = this.$$('#flex-container'),
-                        nodes = Polymer.dom(container).childNodes;
-                for (let n = 0; n < nodes.length; n++) {
-                    Polymer.dom(container).removeChild(nodes[n]);
+                var container = this.$$('#flexbox-container'),
+                        flexboxes = Polymer.dom(container).querySelectorAll('.flexbox');
+
+                for (var i = 0; i < flexboxes.length; i++) {
+                    var sortable = Polymer.dom(flexboxes[i]).querySelector('.sortable'),
+                            nodes = Polymer.dom(flexboxes[i]).querySelectorAll('.member');
+                    // Restore members
+                    for (let i = 0; i < nodes.length; i++) {
+                        let name = nodes[i].nodeName.toString().toLowerCase();
+                        this.$$('#' + name + '-add-button').classList.remove('hidden');
+                    }
+                    // Remove flexbox
+                    if (i > 0) {
+                        Polymer.dom(container).removeChild(flexboxes[i]);
+                    } else {
+                        for (let n = 0; n < nodes.length; n++) {
+                            Polymer.dom(sortable).removeChild(nodes[n]);
+                        }
+                        sortable.style.display = 'flex';
+                        sortable.style.flexDirection = 'row';
+                        this.flexDirection = sortable.style.flexDirection;
+                        sortable.style.flexWrap = 'wrap';
+                        this.flexWrap = sortable.style.flexWrap;
+                        sortable.style.justifyContent = 'flex-start';
+                        this.justifyContent = sortable.style.justifyContent;
+                        sortable.style.alignItems = 'flex-start';
+                        this.alignItems = sortable.style.alignItems;
+                    }
                 }
+                // Select first flexbox
+                this.$$('.sortable').classList.add('selected');
+                this.templateChanged();
             },
             flexDirectionChanged: function (value) {
-                var container = this.$$('#flex-container');
+                var container = this.$$('.sortable.selected');
                 container.style.display = 'flex';
                 container.style.flexDirection = value;
 
@@ -300,9 +369,10 @@
                     this.$$('#align-items').classList.remove('hidden');
                     this.$$('#wrap').classList.add('hidden');
                 }
+                this.templateChanged();
             },
             flexWrapChanged: function (value) {
-                var container = this.$$('#flex-container');
+                var container = this.$$('.sortable.selected');
                 container.style.display = 'flex';
                 container.style.flexWrap = value;
 
@@ -311,31 +381,36 @@
                 } else {
                     this.$$('#flex-shrink').classList.add('hidden');
                 }
+                this.templateChanged();
             },
             justifyContentChanged: function (value) {
-                var container = this.$$('#flex-container');
+                var container = this.$$('.sortable.selected');
                 container.style.display = 'flex';
                 container.style.justifyContent = value;
+                this.templateChanged();
             },
             alignItemsChanged: function (value) {
-                var container = this.$$('#flex-container');
+                var container = this.$$('.sortable.selected');
                 container.style.display = 'flex';
                 container.style.alignItems = value;
+                this.templateChanged();
             },
             /* Requires to set the height of the container
-            this.$$('#flex-container').offsetHeight;
-            alignContentChanged: function (value) {
-                var container = this.$$('#flex-container');
-                container.style.display = 'flex';
-                container.style.alignContent = value;
-            },*/
+             this.$$('#flexbox-container').offsetHeight;
+             alignContentChanged: function (value) {
+             var container = this.$$('#flexbox-container');
+             container.style.display = 'flex';
+             container.style.alignContent = value;
+             },*/
             flexGrowChanged: function (value) {
-                var item = this.$$('.selected');
+                var item = this.$$('.member-selected');
                 if (item) item.style.flexGrow = value;
+                this.templateChanged();
             },
             flexShrinkChanged: function (value) {
-                var item = this.$$('.selected');
+                var item = this.$$('.member-selected');
                 if (item) item.style.flexShrink = value;
+                this.templateChanged();
             },
             toggleCompoundMembers: function () {
                 this.layoutSettingsOpen = false;
@@ -350,11 +425,7 @@
             },
             calculateMemberIcon: function (member) {
                 var memberName = this.trimMemberName(member);
-                for (var key in this.webpackage.artifacts.compoundComponents) {
-                    if (this.webpackage.artifacts.compoundComponents[key]['artifactId'] == memberName) {
-                        return 'icons:donut-small';
-                    }
-                }
+
                 for (var key in this.webpackage.artifacts.elementaryComponents) {
                     if (this.webpackage.artifacts.elementaryComponents[key]['artifactId'] == memberName) {
                         return 'icons:donut-large';
@@ -374,51 +445,134 @@
                 var args = Polymer.dom(event).localTarget.dataArgs.split(','),
                         componentId = args[0],
                         memberId = args[1],
-                        container = this.$$('#flex-container'),
-                        component = document.createElement(componentId),
+                        sortable = this.$$('.sortable.selected'),
+                        member = document.createElement(componentId),
                         removeButton = document.createElement('i');
 
-                Polymer.dom(container).appendChild(component);
-                component.setAttribute('class', 'style-scope bde-flexbox-layouter');
-                component.setAttribute('member-id-ref', memberId);
-                component.innerHTML = componentId;
-                component.addEventListener('tap', this.selectMember.bind(this));
-                Polymer.dom(component).appendChild(removeButton);
+                Polymer.dom(sortable).appendChild(member);
+                member.setAttribute('class', 'member style-scope bde-flexbox-layouter');
+                member.setAttribute('member-id-ref', memberId);
+                member.innerHTML = componentId;
+                member.addEventListener('tap', this.selectMember.bind(this));
+                Polymer.dom(member).appendChild(removeButton);
                 removeButton.setAttribute('class', 'style-scope bde-flexbox-layouter');
                 removeButton.innerHTML = '✖';
                 removeButton.addEventListener('tap', this.removeMember.bind(this));
+                // Hide add button
+                Polymer.dom(event).localTarget.classList.add('hidden');
             },
-            selectMember: function (event) {
-                var selectedElements = Polymer.dom(event).localTarget.parentNode.querySelectorAll('.selected');
+            addFlexbox: function () {
+                var container = this.$$('#flexbox-container'),
+                        flexbox = document.createElement('div'),
+                        sortable = document.createElement('sortable-js'),
+                        removeButton = document.createElement('i');
+
+                Polymer.dom(flexbox).appendChild(sortable);
+                Polymer.dom(flexbox).appendChild(removeButton);
+                Polymer.dom(container).appendChild(flexbox);
+                flexbox.setAttribute('class', 'flexbox style-scope bde-flexbox-layouter');
+                sortable.setAttribute('class', 'sortable style-scope bde-flexbox-layouter');
+                sortable.setAttribute('group', 'sortable');
+                sortable.setAttribute('ghost-class', 'ghost');
+                sortable.style.display = 'flex';
+                sortable.style.flexDirection = 'row';
+                sortable.style.flexWrap = 'wrap';
+                sortable.style.justifyContent = 'flex-start';
+                sortable.style.alignItems = 'flex-start';
+                sortable.addEventListener('tap', this.selectFlexbox.bind(this));
+                sortable.addEventListener('sort', this.templateChanged.bind(this));
+                sortable.addEventListener('add', this.moveMember);
+                Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
+                removeButton.setAttribute('class', 'style-scope bde-flexbox-layouter');
+                removeButton.innerHTML = '✖';
+                removeButton.addEventListener('tap', this.removeFlexbox.bind(this));
+                this.templateChanged();
+            },
+            selectFlexbox: function (event) {
+                var selectedElements = Polymer.dom(event).localTarget.parentNode.parentNode.querySelectorAll('.selected');
                 for (let i = 0; i < selectedElements.length; i++) {
                     selectedElements[i].classList.remove('selected');
                 }
                 Polymer.dom(event).localTarget.classList.add('selected');
+                // Update flexbox settings
+                this.flexDirection = Polymer.dom(event).localTarget.style.flexDirection;
+                this.flexWrap = Polymer.dom(event).localTarget.style.flexWrap;
+                this.justifyContent = Polymer.dom(event).localTarget.style.justifyContent;
+                this.alignItems = Polymer.dom(event).localTarget.style.alignItems;
+                this.$$('#item-settings').classList.add('hidden');
+            },
+            removeFlexbox: function (event) {
+                var container = this.$$('#flexbox-container'),
+                        flexbox = Polymer.dom(event).localTarget.parentNode,
+                        sortable = Polymer.dom(flexbox).querySelector('.sortable'),
+                        nodes = Polymer.dom(flexbox).querySelectorAll('.member');
+                // Restore members
+                for (let i = 0; i < nodes.length; i++) {
+                    let name = nodes[i].nodeName.toString().toLowerCase();
+                    this.$$('#' + name + '-add-button').classList.remove('hidden');
+                }
+                // If the flexbox to be removed is selected, select first by default
+                if (sortable.classList.contains('selected')) {
+                    this.$$('.sortable').classList.add('selected');
+                }
+                // Remove flexbox
+                Polymer.dom(container).removeChild(flexbox);
+                this.templateChanged();
+            },
+            selectMember: function (event) {
+                var selectedElements = Polymer.dom(event).localTarget.parentNode.parentNode.querySelectorAll('.member-selected');
+                for (let i = 0; i < selectedElements.length; i++) {
+                    selectedElements[i].classList.remove('member-selected');
+                }
+                Polymer.dom(event).localTarget.classList.add('member-selected');
                 this.$$('#item-settings').classList.remove('hidden');
                 this.flexGrow = Polymer.dom(event).localTarget.style.flexGrow;
                 this.flexShrink = Polymer.dom(event).localTarget.style.flexShrink;
+                event.stopPropagation();
+            },
+            moveMember: function (event) {
+                var from = Polymer.dom(event).event.from,
+                        to = Polymer.dom(event).event.to,
+                        member = Polymer.dom(event).event.item;
+
+                if (from && to && member) {
+                    Polymer.dom(from).removeChild(member);
+                    Polymer.dom(to).appendChild(member);
+                }
             },
             removeMember: function (event) {
-                var container = this.$$('#flex-container');
-                Polymer.dom(container).removeChild(Polymer.dom(event).localTarget.parentNode)
+                // Restore add button
+                var name = Polymer.dom(event).localTarget.parentNode.nodeName.toString().toLowerCase();
+                this.$$('#' + name + '-add-button').classList.remove('hidden');
+                // Remove member
+                var flexbox = Polymer.dom(event).localTarget.parentNode.parentNode,
+                        member = Polymer.dom(event).localTarget.parentNode;
+                Polymer.dom(flexbox).removeChild(member);
             },
-            isValidHTMLTag: function (tagName) {
-                return tagName.match(/[^a-zA-Z0-9-]/) ? false : true;
-            },
-            templateChanged: function (info) {
+            templateChanged: function () {
                 console.log('<bde-flexbox-layouter>::templateChanged', this.getTemplate());
             },
             getTemplate: function () {
-                var container = this.$$('#flex-container').cloneNode(true),
+                //var container = this.$$('#flexbox-container').cloneNode(true);
+                var flexboxes = Polymer.dom(this.root).querySelectorAll('.sortable'),
                         template = document.createElement('template');
 
-                template.style.cssText = container.style.cssText;
-                while (container.hasChildNodes()) {
-                    template.content.appendChild(container.removeChild(container.firstChild))
-                }
-                for (let i = 0; i < template.children.length; i++) {
-                    template.content.children[i].removeAttribute('class');
-                    template.content.children[i].innerHTML = '';
+                for (let i = 0; i < flexboxes.length; i++) {
+                    let flexbox = flexboxes[i].cloneNode(true),
+                            div = document.createElement('div');
+                    Polymer.dom(template).appendChild(div);
+                    while (flexbox.hasChildNodes()) {
+                        if (flexbox.firstChild.nodeName.toString().toLowerCase() != 'i') {
+                            Polymer.dom(div).appendChild(flexbox.removeChild(flexbox.firstChild));
+                        } else {
+                            flexbox.removeChild(flexbox.firstChild);
+                        }
+                    }
+                    for (let ii = 0; ii < div.children.length; ii++) {
+                        div.children[ii].removeAttribute('class');
+                        div.children[ii].removeAttribute('draggable');
+                        div.children[ii].innerHTML = '';
+                    }
                 }
                 return template;
             }

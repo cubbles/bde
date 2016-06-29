@@ -6,7 +6,8 @@
     "Felix Dürrwald <felix.duerrwald@hm-ag.de>",
     "Sedigheh Keshavarz <sedigheh.keshavarz@hm-ag.de>",
     "Tom Schubert <tom.schubert@hm-ag.de>",
-    "Philipp Wagner <philipp.wagner@incowia.com>"
+    "Philipp Wagner <philipp.wagner@incowia.com>",
+    "Christian Saul <christian.saul@idmt.fraunhofer.de>"
   ],
   "description": "Cubbles Browser Development Environment",
   "license": "MIT",
@@ -28,7 +29,8 @@
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
     "the-graph": "mplabs/the-graph",
     "jsonpath-plus": "^0.13.1",
-    "inflection": "^1.10.0"
+    "inflection": "^1.10.0",
+    "Sortable": "^1.4.2"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^4.3.0",
