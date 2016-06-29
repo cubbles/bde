@@ -127,7 +127,7 @@ Example:
                 </paper-icon-item>
                 <div class="endpoint-list-header">Endpoints</div>
                 <template is="dom-repeat" items="{{compound.endpoints}}" as="endpoint">
-                    <paper-icon-item toggles class="endpoint-item">
+                    <paper-icon-item toggles class="endpoint-item" active="{{_equals(index, 0)}}">
                         <iron-icon icon="icons:launch" item-icon></iron-icon>
                         <paper-item-body two-line>
                             <div>[[endpoint.endpointId]]</div>
@@ -223,6 +223,17 @@ Example:
                 artifacts: {
                     type: Object,
                     observer: 'deselect'
+                },
+
+                currentComponentMetaData: {
+                  type: Object,
+                  value: function() {
+                      return {
+                          endpoint: null,
+                          artifactId: null,
+                          webpackage: null
+                      }
+                  }
                 },
 
                 selectedApp: {
@@ -402,6 +413,10 @@ Example:
 
             _calculateToggleIcon: function(state) {
                 return state ? 'icons:arrow-drop-down' : 'icons:arrow-drop-up';
+            },
+
+            _equals: function(a, b) {
+                return a === b;
             }
         });
     </script>

@@ -30,7 +30,8 @@
     "the-graph": "mplabs/the-graph",
     "jsonpath-plus": "^0.13.1",
     "inflection": "^1.10.0",
-    "Sortable": "^1.4.2"
+    "Sortable": "^1.4.2",
+    "highlightjs": "^9.4.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^4.3.0",
