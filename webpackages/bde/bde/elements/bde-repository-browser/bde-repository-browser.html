@@ -241,14 +241,12 @@ Example:
         },
 
         /**
-         * Closes the '#searchDialog' after selecting a component from the list.
+         * Closes the '#searchDialog'. The webpackage the selected compound belings to is bound to <bde-app> using the
+         * {{webpackage}} binding
          *
          * @method handleAddedItem
          */
         handleAddedItem: function () {
-            var lastItem = this.addedItem;
-            this.push('webpackage.artifacts.' + lastItem.artifactType + 's', lastItem);
-
             this.$.searchDialog.close();
         },
 
