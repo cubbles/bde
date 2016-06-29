@@ -1,0 +1,19 @@
+{
+  "name": "the-graph",
+  "description": "A wpolymer element for viewing and editing flow-based programming graphs",
+  "main": "the-graph.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "react": "^15.1.0",
+    "klayjs-noflo": "~0.3.0",
+    "hammerjs": "^2.0.8",
+    "font-awesome": "^4.6.3",
+    "polymer-gestures": "polymer/polymer-gestures#^0.5.6"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

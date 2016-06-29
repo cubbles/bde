@@ -1,0 +1,38 @@
+{
+  "name": "the-graph",
+  "version": "1.0.0",
+  "description": "A wpolymer element for viewing and editing flow-based programming graphs",
+  "main": "the-graph.html",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mplabs/the-graph.git"
+  },
+  "keywords": [
+    "polymer",
+    "webcomponents",
+    "noflo",
+    "dataflow",
+    "editor",
+    "ui"
+  ],
+  "author": "Felix Dürrwald <felix.duerrwald@hm-ag.de>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mplabs/the-graph/issues"
+  },
+  "homepage": "https://github.com/mplabs/the-graph#readme",
+  "devDependencies": {
+    "coffeeify": "^2.0.1",
+    "gulp": "^3.9.1",
+    "gulp-browserify": "^0.5.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-minify": "0.0.12",
+    "noflo": "^0.7.8"
+  }
+}

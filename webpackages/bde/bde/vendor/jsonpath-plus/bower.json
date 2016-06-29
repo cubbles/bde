@@ -1,0 +1,27 @@
+{
+  "name": "jsonpath-plus",
+  "description": "A JS implementation of JSONPath with some additional operators",
+  "main": "./lib/jsonpath",
+  "authors": [
+    "Stefan Goessner <stefan.goessner@fh-dortmund.de>",
+    "Subbu Allamaraju <subbu@subbu.org>",
+    "Mike Brevoort <mike@brevoort.com>",
+    "Robert Krahn <robert.krahn@gmail.com>",
+    "Brett Zamir <brettz9@yahoo.com>",
+    "Richard Schneider <makaretu@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "json",
+    "jsonpath"
+  ],
+  "moduleType": [],
+  "homepage": "https://github.com/mplabs/JSONPath.git",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
