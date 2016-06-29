@@ -265,6 +265,9 @@
         Polymer({
             is: 'bde-flexbox-layouter',
             properties: {
+                currentComponentMetadata: {
+                    type: Object
+                },
                 webpackage: {
                     type: Object,
                     observer: 'webpackageChanged'
@@ -559,6 +562,33 @@
             },
             templateChanged: function () {
                 console.log('<bde-flexbox-layouter>::templateChanged', this.getTemplate());
+//                if (!this.selectedCompound || !this.webpackage || this.getTemplate().outerHTML === '') {
+//                    return;
+//                }
+//                window.URL = window.URL || window.webkitURL;
+//                var blob = new Blob([this.getTemplate().outerHTML], {type: 'text/html'});
+//                var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
+//                var artifactId = this.selectedCompound.artifactId;
+//                var endpoints = this.webpackage.artifacts.compoundComponents[artifactId].endpoints;
+//
+//                var endpointId = currentComponentMetadata.endpoint.substring(currentComponentMetadata.endpoint.lastIndex('/')+1);
+//                var endpoint;
+//                endpoints.forEach(function(item){
+//                    if(item.endpointId === endpointId){
+//                        endpoint = item;
+//                    }
+//                });
+//                var listToDelete = [];
+//                endpoint.resources.forEach(function(item){
+//                    if (item.indexOf('.html')> -1){
+//                        listToDelete.push(item);
+//                    }
+//                });
+//                listToDelete.forEach(function(item){
+//                    endpoint.resources.splice(endpoint.resources.indexOf(item));
+//                });
+//
+//                endpoint.resources.push(templateBlobUrl);
             },
             getTemplate: function () {
                 //var container = this.$$('#flexbox-container').cloneNode(true);
