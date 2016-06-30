@@ -5,7 +5,8 @@
     is: 'bde-app',
 
     properties: {
-
+      
+      // TODO: use manifest instead
       webpackage: {
         type: Object
       },
