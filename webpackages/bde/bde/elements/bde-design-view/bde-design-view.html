@@ -17,7 +17,16 @@
     <script>
         Polymer({
             is: 'bde-design-view',
-            properties: {},
+            properties: {
+                blobRegistry: {
+                    type: Object,
+                    notify: true
+                },
+                currentComponentMetadata: {
+                    type: Object,
+                    notify: true
+                }
+            },
             ready: function(){
                 this.parentNode.addEventListener('iron-deselect', this.leaveHandler);
             },
@@ -27,21 +36,22 @@
                 if (designView.id !== 'designView'){
                     return;
                 }
-                var comp = designView.querySelector('bde-flexbox-layouter');
-                if (designView.isEmptyTemplate(comp.getTemplate().content)) {
+                var template = designView.querySelector('bde-flexbox-layouter').getTemplate();
+                if (designView.isEmptyTemplate(template.content)) {
                     return;
                 }
                 window.URL = window.URL || window.webkitURL;
-                var blob = new Blob([comp.getTemplate().outerHTML], {type: 'text/html'});
+                var blob = new Blob([template.outerHTML], {type: 'text/html'});
                 var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
-                var artifactId = comp.selectedCompound.artifactId;
+                designView.blobRegistry[templateBlobUrl] = template.outerHTML;
+                var artifactId = designView.currentComponentMetadata.artifactId;
                 var compound;
-                comp.webpackage.artifacts.compoundComponents.forEach(function (item) {
+                designView.currentComponentMetadata.manifest.artifacts.compoundComponents.forEach(function (item) {
                   if (item.artifactId == artifactId) {
                       compound = item;
                   }
                 });
-                var endpointId = comp.currentComponentMetadata.endpoint.substring(comp.currentComponentMetadata.endpoint.lastIndexOf('/')+1);
+                var endpointId = designView.currentComponentMetadata.endpoint.substring(designView.currentComponentMetadata.endpoint.lastIndexOf('/')+1);
                 var endpoint;
                 compound.endpoints.forEach(function(item){
                     if(item.endpointId === endpointId){

@@ -44,6 +44,13 @@
       showExplorer: {
         type: Boolean,
         value: true
+      },
+
+      blobRegistry: {
+        type: Object,
+        value: function () {
+          return {};
+        }
       }
     },
 
