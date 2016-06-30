@@ -266,15 +266,8 @@
             is: 'bde-flexbox-layouter',
             properties: {
                 currentComponentMetadata: {
-                    type: Object
-                },
-                webpackage: {
                     type: Object,
-                    observer: 'webpackageChanged'
-                },
-                artifacts: {
-                    type: Object,
-                    observer: 'artifactsChanged'
+                    observer: 'currentComponentMetadataChanged'
                 },
                 selectedCompound: {
                     type: Object,
@@ -322,15 +315,19 @@
                     observer: 'flexShrinkChanged'
                 }
             },
-            listeners: {
-                'iron-deselect': 'leaveHandler'
-            },
             ready: function () {
                 var sortable = this.$$('.sortable');
                 Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
             },
-            webpackageChanged: function (webpackage) {
-                //this.clearContainer();
+            currentComponentMetadataChanged: function (currentCompoundMetadata) {
+                console.log(currentCompoundMetadata);
+                var compoundComponents = currentCompoundMetadata.manifest.artifacts.compoundComponents;
+                compoundComponents.forEach(function (item) {
+                    if (item.artifactId === currentCompoundMetadata.artifactId ) {
+                        this.selectedCompound = item;
+                    }
+                }.bind(this));
+
             },
             selectedCompoundChanged: function (compound) {
                 this.clearContainer();
@@ -440,13 +437,13 @@
             calculateMemberIcon: function (componentId) {
                 var artifactId = this.trimComponentId(componentId);
 
-                for (var key in this.webpackage.artifacts.elementaryComponents) {
-                    if (this.webpackage.artifacts.elementaryComponents[key]['artifactId'] == artifactId) {
+                for (var key in this.currentComponentMetadata.manifest.artifacts.elementaryComponents) {
+                    if (this.currentComponentMetadata.manifest.artifacts.elementaryComponents[key]['artifactId'] == artifactId) {
                         return 'icons:donut-large';
                     }
                 }
-                for (var key in this.webpackage.artifacts.utilities) {
-                    if (this.webpackage.artifacts.utilities[key]['artifactId'] == artifactId) {
+                for (var key in this.currentComponentMetadata.manifest.artifacts.utilities) {
+                    if (this.currentComponentMetadata.manifest.artifacts.utilities[key]['artifactId'] == artifactId) {
                         return 'icons:extension';
                     }
                 }

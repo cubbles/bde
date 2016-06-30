@@ -246,16 +246,14 @@
 
               <bde-design-view id="designView" >
                   <bde-flexbox-layouter
-                          webpackage="{{webpackage}}"
-                          selected-compound="{{selectedCompound}}"
-                          current-component-metadata = '{"endpoint":"this/travel-planner/main"}'
-                          >
+                          current-component-metadata = "{{currentComponentMetadata}}">
                   </bde-flexbox-layouter>
               </bde-design-view>
 
               <bde-application-view id="applicationView"
                 loaded="{{applicationViewLoaded}}"
-                settigs="{{settings}}"
+                current-component-metadata = "{{currentComponentMetadata}}"
+                settings="{{settings}}"
                 ></bde-application-view>
           </iron-pages>
         </div>
