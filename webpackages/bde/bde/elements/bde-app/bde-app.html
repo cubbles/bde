@@ -244,10 +244,12 @@
                 artifact="{{selectedArtifact}}"
                 ></bde-dataflow-view>
 
-              <bde-design-view id="designView">
+              <bde-design-view id="designView" >
                   <bde-flexbox-layouter
                           webpackage="{{webpackage}}"
-                          selected-compound="{{selectedCompound}}">
+                          selected-compound="{{selectedCompound}}"
+                          current-component-metadata = '{"endpoint":"this/travel-planner/main"}'
+                          >
                   </bde-flexbox-layouter>
               </bde-design-view>
 

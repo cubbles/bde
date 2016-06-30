@@ -322,6 +322,9 @@
                     observer: 'flexShrinkChanged'
                 }
             },
+            listeners: {
+                'iron-deselect': 'leaveHandler'
+            },
             ready: function () {
                 var sortable = this.$$('.sortable');
                 Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
@@ -562,37 +565,6 @@
             },
             templateChanged: function () {
                 console.log('<bde-flexbox-layouter>::templateChanged', this.getTemplate());
-//                if (!this.selectedCompound || !this.webpackage || this.getTemplate().outerHTML === '') {
-//                    return;
-//                }
-//                window.URL = window.URL || window.webkitURL;
-//                var blob = new Blob([this.getTemplate().outerHTML], {type: 'text/html'});
-//                var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
-//                var artifactId = this.selectedCompound.artifactId;
-//                var compound;
-//                this.webpackage.artifacts.compoundComponents.forEach(function (item) {
-//                  if (item.artifactId == artifactId) {
-//                      compound = item;
-//                  }
-//                });
-//                var endpointId = this.currentComponentMetadata.endpoint.substring(this.currentComponentMetadata.endpoint.lastIndexOf('/')+1);
-//                var endpoint;
-//                compound.endpoints.forEach(function(item){
-//                    if(item.endpointId === endpointId){
-//                        endpoint = item;
-//                    }
-//                });
-//                var listToDelete = [];
-//                endpoint.resources.forEach(function(item){
-//                    if (item.indexOf('.html')> -1 || item.indexOf('?type=html')> -1){
-//                        listToDelete.push(item);
-//                    }
-//                });
-//                listToDelete.forEach(function(item){
-//                    endpoint.resources.splice(endpoint.resources.indexOf(item), 1);
-//                });
-//
-//                endpoint.resources.push(templateBlobUrl);
             },
             getTemplate: function () {
                 //var container = this.$$('#flexbox-container').cloneNode(true);
@@ -618,6 +590,7 @@
                 }
                 return template;
             }
+
         });
     </script>
 </dom-module>

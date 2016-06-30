@@ -17,7 +17,62 @@
     <script>
         Polymer({
             is: 'bde-design-view',
-            properties: {}
+            properties: {},
+            ready: function(){
+                this.parentNode.addEventListener('iron-deselect', this.leaveHandler);
+            },
+            leaveHandler: function(e){
+                // TODO mapping für blob URL zu webpackage Generierung erstellen und global verwalten
+                var designView = e.detail.item;
+                if (designView.id !== 'designView'){
+                    return;
+                }
+                var comp = designView.querySelector('bde-flexbox-layouter');
+                if (designView.isEmptyTemplate(comp.getTemplate().content)) {
+                    return;
+                }
+                window.URL = window.URL || window.webkitURL;
+                var blob = new Blob([comp.getTemplate().outerHTML], {type: 'text/html'});
+                var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
+                var artifactId = comp.selectedCompound.artifactId;
+                var compound;
+                comp.webpackage.artifacts.compoundComponents.forEach(function (item) {
+                  if (item.artifactId == artifactId) {
+                      compound = item;
+                  }
+                });
+                var endpointId = comp.currentComponentMetadata.endpoint.substring(comp.currentComponentMetadata.endpoint.lastIndexOf('/')+1);
+                var endpoint;
+                compound.endpoints.forEach(function(item){
+                    if(item.endpointId === endpointId){
+                        endpoint = item;
+                    }
+                });
+                var listToDelete = [];
+                endpoint.resources.forEach(function(item){
+                    if (item.indexOf('.html')> -1 || item.indexOf('?type=html')> -1){
+                        listToDelete.push(item);
+                    }
+                });
+                listToDelete.forEach(function(item){
+                    endpoint.resources.splice(endpoint.resources.indexOf(item), 1);
+                });
+
+                endpoint.resources.push(templateBlobUrl);
+                console.log(endpoint);
+            },
+
+            isEmptyTemplate: function(template){
+                if (template.children.length === 0){
+                    return true;
+                }
+                if (template.children.length === 1 && template.children[0].tagName === 'DIV' && template.children[0].children.length === 0){
+                    return true;
+                }
+                return false;
+            }
+
+
         });
     </script>
 </dom-module>

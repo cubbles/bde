@@ -9,6 +9,10 @@
     "semi": [
       2,
       "always"
+    ],
+    "arrow-parens": [
+      2,
+      "always"
     ]
   },
   "globals": {
