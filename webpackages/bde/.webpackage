@@ -1,17 +1,7 @@
 {
   "uploadConfigs": {
-    "local": {
-      "url": "http://cubbles-base-dev/sandbox",
-      "proxy": "",
-      "debug": false
-    },
-    "dev": {
-      "url": "https://www.cubbles.world/sandbox",
-      "proxy": "",
-      "debug": false
-    },
     "release": {
-      "url": "https://www.cubbles.world/core",
+      "url": "https://www.cubbles.world/bde",
       "proxy": "",
       "debug": false
     }

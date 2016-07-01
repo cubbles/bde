@@ -12,7 +12,8 @@
 <link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-styles/default-theme.html">
 <link rel="import" href="bde-compound-creator.html">
-<!--
+<link rel="import" href="../../vendor/paper-menu/paper-menu.html"/>
+<link rel="import" href="../../vendor/paper-menu/paper-submenu.html"/><!--
 `bde-explorer` is the management component for handling cubble packages
 
 Example:
@@ -113,29 +114,39 @@ Example:
         </div>
 
         <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
-            <template is="dom-repeat" id="compoundList"
-                      items="{{manifest.artifacts.compoundComponents}}" as="compound">
-                <paper-icon-item on-tap="selectCompound" toggles>
-                    <iron-icon icon="icons:donut-small" item-icon></iron-icon>
-                    <paper-item-body three-line>
-                        <div>[[compound.artifactId]]</div>
-                        <div secondary>[[compound.description]]</div>
-                        <div secondary>[[compound.members.length]] Members</div>
-                    </paper-item-body>
-                    <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
-                    </paper-icon-button>
-                </paper-icon-item>
-                <div class="endpoint-list-header">Endpoints</div>
-                <template is="dom-repeat" items="{{compound.endpoints}}" as="endpoint">
-                    <paper-icon-item on-tap="selectEndpoint" toggles class="endpoint-item" active="{{_equals(index, 0)}}">
-                        <iron-icon icon="icons:launch" item-icon></iron-icon>
-                        <paper-item-body two-line>
-                            <div data-endpoint-id="[[endpoint.endpointId]]">[[endpoint.endpointId]]</div>
-                            <div secondary>[[endpoint.description]]</div>
-                        </paper-item-body>
-                    </paper-icon-item>
+            <paper-menu attr-for-selected="data-artifact-id" on-iron-select="onSelectCompound"
+                        selected="{{selectedCompound.artifactId}}"
+                        id="compoundSelector">
+                <template is="dom-repeat" id="compoundList"
+                          items="{{manifest.artifacts.compoundComponents}}" as="compound">
+                    <paper-submenu data-artifact-id="{{compound.artifactId}}">
+                        <paper-icon-item toggles class="menu-trigger">
+                            <iron-icon icon="icons:donut-small" item-icon></iron-icon>
+                            <paper-item-body three-line>
+                                <div>[[compound.artifactId]]</div>
+                                <div secondary>[[compound.description]]</div>
+                                <div secondary>[[compound.members.length]] Members</div>
+                            </paper-item-body>
+                            <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
+                            </paper-icon-button>
+                        </paper-icon-item>
+                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content">
+                            <div class="endpoint-list-header">Endpoints</div>
+                            <template is="dom-repeat" items="{{compound.endpoints}}" as="endpoint">
+                                <paper-icon-item on-tap="selectEndpoint" data-endpoint-id="{{endpoint.endpointId}}"
+                                                 toggles
+                                                 class="endpoint-item" active="{{_equals(index, 0)}}">
+                                    <iron-icon icon="icons:launch" item-icon></iron-icon>
+                                    <paper-item-body two-line>
+                                        <div data-endpoint-id="[[endpoint.endpointId]]">[[endpoint.endpointId]]</div>
+                                        <div secondary>[[endpoint.description]]</div>
+                                    </paper-item-body>
+                                </paper-icon-item>
+                            </template>
+                        </paper-menu>
+                    </paper-submenu>
                 </template>
-            </template>
+            </paper-menu>
 
             <paper-icon-item class="addItem" on-tap="addCompound">
                 <iron-icon icon="icons:add" item-icon></iron-icon>
@@ -143,11 +154,6 @@ Example:
                     <div>Add Compound Cubble</div>
                 </paper-item-body>
             </paper-icon-item>
-
-            <array-selector id="compoundSelector"
-                            items="{{manifest.artifacts.compoundComponents}}"
-                            selected="{{selectedCompound}}">
-            </array-selector>
         </iron-collapse>
 
         <div class="container" tabindex="0" on-tap="toggleElementaries">
@@ -243,7 +249,8 @@ Example:
 
                 selectedCompound: {
                     type: Object,
-                    notify: true
+                    notify: true,
+                    observer: 'selectedCompoundChanged'
                 },
 
                 selectedElementary: {
@@ -283,39 +290,52 @@ Example:
 
             },
 
-
             listeners: {
                 // 'addCompoundDialog.iron-overlay-closed': 'handleAddCompoundDialogClosed',
                 // 'addCompoundForm.submit': 'handleAddCompoundFormSubmit'
             },
 
-            addApp: function() {
+            addApp: function () {
                 // this.$.addAppDialog.open();
             },
 
-            addCompound: function() {
+            addCompound: function () {
                 this.$.compoundCreator.open();
                 // this.$.addCompoundDialog.open();
                 // console.dir(this.$.addCompoundForm[0]);
                 // this.$.addCompoundForm[0].focus();
             },
+            selectedCompoundChanged: function () {
 
-            manifestChanged: function(){
+            },
+            selectCompound: function () {
+                var item;
+                var list = this.$.compoundList.children;
+                for(var elemIndex in  list){
+                    var elem = list[elemIndex];
+                    if (elem.tagName === 'paper-submenu' && elem.dataArtifactId === this.selectedCompound.artifactId){
+                        item = elem;
+                    }
+                    item.$$('paper-menu').select(item.dataEndpointId)
+                }
+
+            },
+            manifestChanged: function () {
                 this.deselect();
 
-                    if (this.manifest) {
-                        this.set('currentComponentMetadata.manifest', this.manifest);
-                    }
-
+                if (this.manifest) {
+                    this.set('currentComponentMetadata.manifest', this.manifest);
+                    //this.selectCompound();
+                }
             },
-            deselect: function() {
+            deselect: function () {
                 this.$.appSelector.deselect();
                 this.$.utilitySelector.deselect();
-                this.$.compoundSelector.deselect();
+                // this.$.compoundSelector.deselect();
                 this.$.utilitySelector.deselect();
             },
 
-            handleAddCompoundDialogClosed: function(e, reason) {
+            handleAddCompoundDialogClosed: function (e, reason) {
 
                 // User clicked outside the dialog
                 if (!reason.canceled && !reason.confirmed) {
@@ -323,7 +343,7 @@ Example:
                 }
             },
 
-            handleAddCompoundFormSubmit: function(e) {
+            handleAddCompoundFormSubmit: function (e) {
                 if (this.$.addCompoundForm.validate()) {
                     this.push('artifacts.compounds', this.$.addCompoundForm.serialize());
                     this.$.addCompoundForm.reset();
@@ -331,65 +351,63 @@ Example:
                 }
             },
 
-            handleNewCompound: function(e) {
+            handleNewCompound: function (e) {
                 this.push('artifacts.compoundComponents', e.detail.value);
                 this.$.compoundSelector.select(e.detail.value);
             },
 
-            openSettings: function(e) {
+            openSettings: function (e) {
                 e.stopPropagation();
                 var item = e.model.dataHost.itemForElement(e.target);
                 item.is = e.model.dataHost.id.replace(/List/, '');
 
-                this.fire('bde-explorer-open-settings', {item: item});
+                this.fire('bde-explorer-open-settings', { item: item });
             },
 
-            selectApp: function(e) {
+            selectApp: function (e) {
                 this.deselect();
 
                 var item = this.$.appList.itemForElement(e.target);
                 item.is = 'app';
                 this.$.appSelector.select(item);
 
-                this.fire('iron-select', {is: 'app', item: item});
+                this.fire('iron-select', { is: 'app', item: item });
             },
 
-            selectCompound: function(e) {
-                this.deselect();
-
-                var item = this.$.compoundList.itemForElement(e.target);
+            onSelectCompound: function (e) {
+                var item = e.detail.item;
                 item.is = 'compound';
-                this.$.compoundSelector.select(item);
+                //this.$.compoundSelector.select(item);
 
-                this.fire('iron-select', {is: 'compound', item: item});
-                this.set('currentComponentMetadata.artifactId', item.artifactId);
+                //this.fire('iron-select', {is: 'compound', item: item});
+                this.set('currentComponentMetadata.artifactId', item.dataArtifactId);
             },
 
             selectEndpoint: function (e) {
                 this.set('currentComponentMetadata.endpointId', e.target.dataEndpointId);
             },
 
-            selectElementary: function(e) {
+            selectElementary: function (e) {
                 this.deselect();
 
                 var item = this.$.elementaryList.itemForElement(e.target);
                 item.is = 'elementary';
                 this.$.elementarySelector.select(item);
 
-                this.fire('iron-select', {is: 'elementary', item: item});
+                this.fire('iron-select', { is: 'elementary', item: item });
             },
 
-            selectUtility: function(e) {
+            selectUtility: function (e) {
                 this.deselect();
 
                 var item = this.$.utilityList.itemForElement(e.target);
                 item.is = 'utility';
                 this.$.elementarySelector.select(item);
 
-                this.fire('iron-select', {is: 'utility', item: item});
+                this.fire('iron-select', { is: 'utility', item: item });
             },
 
-            toggleApps: function() {
+            toggleApps: function () {
                 if (this.toggleMenus) {
                     this._compoundsOpen = false;
                     this._elementariesOpen = false;
@@ -398,7 +416,7 @@ Example:
                 this._appsOpen = !this._appsOpen;
             },
 
-            toggleCompounds: function() {
+            toggleCompounds: function () {
                 if (this.toggleMenus) {
                     this._appsOpen = false;
                     this._elementariesOpen = false;
@@ -407,7 +425,7 @@ Example:
                 this._compoundsOpen = !this._compoundsOpen;
             },
 
-            toggleElementaries: function() {
+            toggleElementaries: function () {
                 if (this.toggleMenus) {
                     this._appsOpen = false;
                     this._compoundsOpen = false;
@@ -416,7 +434,7 @@ Example:
                 this._elementariesOpen = !this._elementariesOpen;
             },
 
-            toggleUtilities: function() {
+            toggleUtilities: function () {
                 if (this.toggleMenus) {
                     this._appsOpen = false;
                     this._compoundsOpen = false;
@@ -425,11 +443,11 @@ Example:
                 this._utilitiesOpen = !this._utilitiesOpen;
             },
 
-            _calculateToggleIcon: function(state) {
+            _calculateToggleIcon: function (state) {
                 return state ? 'icons:arrow-drop-down' : 'icons:arrow-drop-up';
             },
 
-            _equals: function(a, b) {
+            _equals: function (a, b) {
                 return a === b;
             }
         });
