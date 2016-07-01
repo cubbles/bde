@@ -41,6 +41,6 @@
             ]
         }
     },
-    "endpoint": "this/my-travel-planner/main",
+    "endpointId": "main",
     "artifactId": "my-travel-planner"
 }

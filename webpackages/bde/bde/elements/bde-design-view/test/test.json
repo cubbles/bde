@@ -1,5 +1,5 @@
 {
-  "endpoint":"this/travel-planner/main",
+  "endpointId":"main",
   "artifactId": "travel-planner",
   "manifest": {
     "_id": "com.incowia.demo.travel-planner@0.1.0-SNAPSHOT",

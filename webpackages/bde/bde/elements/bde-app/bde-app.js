@@ -1,11 +1,21 @@
-(function() {
-  "use strict";
+(function () {
+  'use strict';
 
   Polymer({
     is: 'bde-app',
 
     properties: {
-      
+      currentComponentMetadata: {
+        type: Object,
+        value: function () {
+          return {
+            manifest: null,
+            endpointId: null,
+            artifactId: null
+          };
+        }
+      },
+
       // TODO: use manifest instead
       webpackage: {
         type: Object
@@ -13,26 +23,26 @@
 
       screenHeight: {
         type: Number,
-        value: function() {
+        value: function () {
           return window.outerHeight;
         }
       },
 
       screenWidth: {
         type: Number,
-        value: function() {
+        value: function () {
           return window.outerWidth;
         }
       },
 
       selectedPage: {
         type: String,
-        value: "dataflowView"
+        value: 'dataflowView'
       },
 
       settings: {
         type: Object,
-        value: function() {
+        value: function () {
           return {
             baseUrl: 'https://cubbles.world',
             baseName: 'sandbox',
@@ -58,7 +68,7 @@
       'graph-needs-update': 'handleGraphUpdate'
     },
 
-    attached: function() {
+    attached: function () {
       // Bind webpackage node to local scope
       this.set('webpackage', this.$.webpackage);
 
@@ -70,9 +80,9 @@
       window.addEventListener('resize', this.handleResize.bind(this));
     },
 
-    computeBaseUrl: function(baseUrl, baseName, partial) {
+    computeBaseUrl: function (baseUrl, baseName, partial) {
       if (!partial || typeof partial !== 'string') {
-        throw new TypeError("`partial` must be a string");
+        throw new TypeError('`partial` must be a string');
       }
 
       // Make sure partial starts with a slash
@@ -85,30 +95,30 @@
       }
     },
 
-    handleGraphUpdate: function() {
+    handleGraphUpdate: function () {
       this.$.dataflowView.rerender();
     },
 
-    handleResize: function(event) {
+    handleResize: function (event) {
       this.set('screenWidth', window.outerWidth);
       this.set('screenHeight', window.outerHeight);
     },
 
-    loadWebpackage: function(webpackage) {
+    loadWebpackage: function (webpackage) {
       this.$.webpackage.loadWebpackage(webpackage);
     },
 
-    getCompoundFromBase: function() {
+    getCompoundFromBase: function () {
       this.$.browser.compoundOnly = true;
       // this.$.parser.showCompoundMembers = true;
       this.$.browser.toggleDialog();
     },
 
-    _computeAddComponent: function(sidebar) {
+    _computeAddComponent: function (sidebar) {
       return (sidebar) ? 'push-right' : '';
     },
 
-    _concatArray: function() {
+    _concatArray: function () {
       return [].concat.apply(this, arguments);
     }
 

@@ -266,8 +266,7 @@
             is: 'bde-flexbox-layouter',
             properties: {
                 currentComponentMetadata: {
-                    type: Object,
-                    observer: 'currentComponentMetadataChanged'
+                    type: Object
                 },
                 selectedCompound: {
                     type: Object,
@@ -315,15 +314,22 @@
                     observer: 'flexShrinkChanged'
                 }
             },
+            observers: [
+                '_currentComponentMetadataChanged(currentComponentMetadata.*)'
+            ],
             ready: function () {
                 var sortable = this.$$('.sortable');
                 Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
             },
-            currentComponentMetadataChanged: function (currentCompoundMetadata) {
-                console.log(currentCompoundMetadata);
-                var compoundComponents = currentCompoundMetadata.manifest.artifacts.compoundComponents;
+            _currentComponentMetadataChanged: function () {
+
+                if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest
+                        || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId){
+                    return;
+                }
+                var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
                 compoundComponents.forEach(function (item) {
-                    if (item.artifactId === currentCompoundMetadata.artifactId ) {
+                    if (item.artifactId === this.currentComponentMetadata.artifactId ) {
                         this.selectedCompound = item;
                     }
                 }.bind(this));

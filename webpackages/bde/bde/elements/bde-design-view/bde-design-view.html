@@ -51,7 +51,7 @@
                       compound = item;
                   }
                 });
-                var endpointId = designView.currentComponentMetadata.endpoint.substring(designView.currentComponentMetadata.endpoint.lastIndexOf('/')+1);
+                var endpointId = designView.currentComponentMetadata.endpointId;
                 var endpoint;
                 compound.endpoints.forEach(function(item){
                     if(item.endpointId === endpointId){

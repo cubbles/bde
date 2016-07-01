@@ -76,12 +76,12 @@ Example:
         <div class="container" tabindex="0" on-tap="toggleApps">
             <iron-icon icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
             <span>Applications</span>
-            <span class="count">([[artifacts.apps.length]])</span>
+            <span class="count">([[manifest.artifacts.apps.length]])</span>
         </div>
 
         <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
             <template is="dom-repeat" id="appList"
-                      items="{{artifacts.apps}}" as="app">
+                      items="{{manifest.artifacts.apps}}" as="app">
                 <paper-icon-item on-tap="selectApp" toggles disabled>
                     <iron-icon icon="icons:launch" item-icon></iron-icon>
                     <paper-item-body two-line>
@@ -101,7 +101,7 @@ Example:
             <!--</paper-icon-item>-->
 
             <array-selector id="appSelector"
-                            items="{{artifacts.apps}}"
+                            items="{{manifest.artifacts.apps}}"
                             selected="{{selectedApp}}">
             </array-selector>
         </iron-collapse>
@@ -109,12 +109,12 @@ Example:
         <div class="container" tabindex="0" on-tap="toggleCompounds">
             <iron-icon icon="[[_calculateToggleIcon(_compoundsOpen)]]"></iron-icon>
             <span>Compounds</span>
-            <span class="count">([[artifacts.compoundComponents.length]])</span>
+            <span class="count">([[manifest.artifacts.compoundComponents.length]])</span>
         </div>
 
         <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
             <template is="dom-repeat" id="compoundList"
-                      items="{{artifacts.compoundComponents}}" as="compound">
+                      items="{{manifest.artifacts.compoundComponents}}" as="compound">
                 <paper-icon-item on-tap="selectCompound" toggles>
                     <iron-icon icon="icons:donut-small" item-icon></iron-icon>
                     <paper-item-body three-line>
@@ -127,10 +127,10 @@ Example:
                 </paper-icon-item>
                 <div class="endpoint-list-header">Endpoints</div>
                 <template is="dom-repeat" items="{{compound.endpoints}}" as="endpoint">
-                    <paper-icon-item toggles class="endpoint-item" active="{{_equals(index, 0)}}">
+                    <paper-icon-item on-tap="selectEndpoint" toggles class="endpoint-item" active="{{_equals(index, 0)}}">
                         <iron-icon icon="icons:launch" item-icon></iron-icon>
                         <paper-item-body two-line>
-                            <div>[[endpoint.endpointId]]</div>
+                            <div data-endpoint-id="[[endpoint.endpointId]]">[[endpoint.endpointId]]</div>
                             <div secondary>[[endpoint.description]]</div>
                         </paper-item-body>
                     </paper-icon-item>
@@ -145,7 +145,7 @@ Example:
             </paper-icon-item>
 
             <array-selector id="compoundSelector"
-                            items="{{artifacts.compoundComponents}}"
+                            items="{{manifest.artifacts.compoundComponents}}"
                             selected="{{selectedCompound}}">
             </array-selector>
         </iron-collapse>
@@ -153,12 +153,12 @@ Example:
         <div class="container" tabindex="0" on-tap="toggleElementaries">
             <iron-icon icon="[[_calculateToggleIcon(_elementariesOpen)]]"></iron-icon>
             <span>Elementaries</span>
-            <span class="count">([[artifacts.elementaryComponents.length]])</span>
+            <span class="count">([[manifest.artifacts.elementaryComponents.length]])</span>
         </div>
 
         <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
             <template is="dom-repeat" id="elementaryList"
-                      items="{{artifacts.elementaryComponents}}" as="elementary">
+                      items="{{manifest.artifacts.elementaryComponents}}" as="elementary">
                 <paper-icon-item on-tap="selectElementary" toggles disabled>
                     <iron-icon icon="icons:donut-large" item-icon></iron-icon>
                     <paper-item-body two-line>
@@ -177,7 +177,7 @@ Example:
             <!--</paper-icon-item>-->
 
             <array-selector id="elementarySelector"
-                            items="{{artifacts.elementaryComponents}}"
+                            items="{{manifest.artifacts.elementaryComponents}}"
                             selected="{{selectedElementary}}">
             </array-selector>
         </iron-collapse>
@@ -185,12 +185,12 @@ Example:
         <div class="container" tabindex="0" on-tap="toggleUtilities">
             <iron-icon icon="[[_calculateToggleIcon(_utilitiesOpen)]]"></iron-icon>
             <span>Utilities</span>
-            <span class="count">([[artifacts.utilities.length]])</span>
+            <span class="count">([[manifest.artifacts.utilities.length]])</span>
         </div>
 
         <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
             <template is="dom-repeat" id="utilityList"
-                      items="{{artifacts.utilities}}" as="utility">
+                      items="{{manifest.artifacts.utilities}}" as="utility">
                 <paper-icon-item on-tap="selectUtility" toggles disabled>
                     <iron-icon icon="icons:extension" item-icon></iron-icon>
                     <paper-item-body two-line>
@@ -209,7 +209,7 @@ Example:
             <!--</paper-icon-item>-->
 
             <array-selector id="utilitySelector"
-                            items="{{artifacts.utilities}}"
+                            items="{{manifest.artifacts.utilities}}"
                             selected="{{selectedUtility}}">
             </array-selector>
         </iron-collapse>
@@ -220,21 +220,20 @@ Example:
 
             properties: {
 
-                // TODO: change to manifest
-                artifacts: {
+                manifest: {
                     type: Object,
-                    observer: 'deselect'
+                    observer: 'manifestChanged'
                 },
-
-                currentComponentMetaData: {
-                  type: Object,
-                  value: function() {
-                      return {
-                          endpoint: null,
-                          artifactId: null,
-                          webpackage: null
-                      }
-                  }
+                currentComponentMetadata: {
+                    type: Object,
+//                    value: function() {
+//                        return {
+//                            endpointId: null,
+//                            artifactId: null,
+//                            manifest: null
+//                        }
+//                    },
+                    notify: true
                 },
 
                 selectedApp: {
@@ -284,6 +283,7 @@ Example:
 
             },
 
+
             listeners: {
                 // 'addCompoundDialog.iron-overlay-closed': 'handleAddCompoundDialogClosed',
                 // 'addCompoundForm.submit': 'handleAddCompoundFormSubmit'
@@ -300,6 +300,14 @@ Example:
                 // this.$.addCompoundForm[0].focus();
             },
 
+            manifestChanged: function(){
+                this.deselect();
+
+                    if (this.manifest) {
+                        this.set('currentComponentMetadata.manifest', this.manifest);
+                    }
+
+            },
             deselect: function() {
                 this.$.appSelector.deselect();
                 this.$.utilitySelector.deselect();
@@ -354,6 +362,11 @@ Example:
                 this.$.compoundSelector.select(item);
 
                 this.fire('iron-select', {is: 'compound', item: item});
+                this.set('currentComponentMetadata.artifactId', item.artifactId);
+            },
+
+            selectEndpoint: function (e) {
+                this.set('currentComponentMetadata.endpointId', e.target.dataEndpointId);
             },
 
             selectElementary: function(e) {

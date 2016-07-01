@@ -219,7 +219,7 @@
             ></paper-icon-button>
 
           <paper-icon-button id="appIcon"
-            page="previewView"
+            page="applicationView"
             title="change to application-view"
             icon="apps"
             class="route-buttons"
@@ -231,9 +231,11 @@
         drawer-width="300px"
         force-narrow>
         <div drawer>
-          <bde-explorer id="explorer"
-            artifacts="{{webpackage.artifacts}}"
-            selected-artifact="{{selectedArtifact}}"
+          <bde-explorer
+                  id="explorer"
+                  manifest="{{webpackage}}"
+                  selected-artifact="{{selectedArtifact}}"
+                  current-component-metadata = "{{currentComponentMetadata}}"
             ></bde-explorer>
         </div>
         <div main>

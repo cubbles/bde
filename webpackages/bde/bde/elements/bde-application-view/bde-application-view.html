@@ -9,7 +9,7 @@
 
     <style is="custom-style">
 
-        host {
+        :host {
             display: block;
             height: 100%;
         }
@@ -100,14 +100,17 @@
                 },
 
                 currentComponentMetadata: {
-                    type: Object,
-                    observer: 'currentComponentMetadataChanged'
+                    type: Object
                 },
                 settings: {
                     type: Object
                 }
 
             },
+
+            observers: [
+                    'currentComponentMetadataChanged(currentComponentMetadata.*)'
+            ],
 
             created: function () {
 
@@ -136,7 +139,7 @@
 
             currentComponentMetadataChanged: function () {
                 if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest
-                        || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpoint){
+                        || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId){
                     return;
                 }
                 this.currentComponentMetadata.settings = this.settings;
