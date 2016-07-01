@@ -114,12 +114,12 @@ Example:
         </div>
 
         <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
-            <paper-menu attr-for-selected="data-artifact-id" on-iron-select="onSelectCompound"
+            <paper-menu attr-for-selected="data-artifact-id" on-iron-select="explorerItemSelected"
                         selected="{{selectedCompound.artifactId}}"
                         id="compoundSelector">
                 <template is="dom-repeat" id="compoundList"
                           items="{{manifest.artifacts.compoundComponents}}" as="compound">
-                    <paper-submenu data-artifact-id="{{compound.artifactId}}">
+                    <paper-submenu data-artifact-id$="{{compound.artifactId}}">
                         <paper-icon-item toggles class="menu-trigger">
                             <iron-icon icon="icons:donut-small" item-icon></iron-icon>
                             <paper-item-body three-line>
@@ -133,7 +133,7 @@ Example:
                         <paper-menu attr-for-selected="data-endpoint-id" class="menu-content">
                             <div class="endpoint-list-header">Endpoints</div>
                             <template is="dom-repeat" items="{{compound.endpoints}}" as="endpoint">
-                                <paper-icon-item on-tap="selectEndpoint" data-endpoint-id="{{endpoint.endpointId}}"
+                                <paper-icon-item on-tap="selectEndpoint" data-endpoint-id$="{{endpoint.endpointId}}"
                                                  toggles
                                                  class="endpoint-item" active="{{_equals(index, 0)}}">
                                     <iron-icon icon="icons:launch" item-icon></iron-icon>
@@ -249,8 +249,7 @@ Example:
 
                 selectedCompound: {
                     type: Object,
-                    notify: true,
-                    observer: 'selectedCompoundChanged'
+                    notify: true
                 },
 
                 selectedElementary: {
@@ -305,27 +304,15 @@ Example:
                 // console.dir(this.$.addCompoundForm[0]);
                 // this.$.addCompoundForm[0].focus();
             },
-            selectedCompoundChanged: function () {
-
-            },
-            selectCompound: function () {
-                var item;
-                var list = this.$.compoundList.children;
-                for(var elemIndex in  list){
-                    var elem = list[elemIndex];
-                    if (elem.tagName === 'paper-submenu' && elem.dataArtifactId === this.selectedCompound.artifactId){
-                        item = elem;
-                    }
-                    item.$$('paper-menu').select(item.dataEndpointId)
-                }
-
-            },
             manifestChanged: function () {
                 this.deselect();
 
                 if (this.manifest) {
                     this.set('currentComponentMetadata.manifest', this.manifest);
-                    //this.selectCompound();
+                    var menu = this.$$('#compoundSelector');
+                    Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
+                        subMenu.close();
+                    });
                 }
             },
             deselect: function () {
@@ -336,7 +323,6 @@ Example:
             },
 
             handleAddCompoundDialogClosed: function (e, reason) {
-
                 // User clicked outside the dialog
                 if (!reason.canceled && !reason.confirmed) {
                     this.$.addCompoundForm.reset();
@@ -374,17 +360,25 @@ Example:
                 this.fire('iron-select', { is: 'app', item: item });
             },
 
-            onSelectCompound: function (e) {
+            explorerItemSelected: function (e) {
                 var item = e.detail.item;
-                item.is = 'compound';
-                //this.$.compoundSelector.select(item);
+                if (item.dataset.artifactId) {
+                    this.selectCompound(item);
+                } else if (item.dataset.endpointId) {
+                    this.selectEndpoint(item);
+                }
 
-                //this.fire('iron-select', {is: 'compound', item: item});
-                this.set('currentComponentMetadata.artifactId', item.dataArtifactId);
             },
 
-            selectEndpoint: function (e) {
-                this.set('currentComponentMetadata.endpointId', e.target.dataEndpointId);
+            selectCompound: function (item) {
+                item.is = 'compound';
+                this.set('currentComponentMetadata.artifactId', item.dataset.artifactId);
+                var subMenu =  this.$$('[data-artifact-id=' + item.dataset.artifactId + ']');
+                subMenu.open();
+                Polymer.dom(subMenu).querySelector('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
+            },
+            selectEndpoint: function (item) {
+                this.set('currentComponentMetadata.endpointId', item.dataset.endpointId);
             },
 
             selectElementary: function (e) {
