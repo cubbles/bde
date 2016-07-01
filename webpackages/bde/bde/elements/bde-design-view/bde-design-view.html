@@ -40,6 +40,7 @@
                 if (designView.isEmptyTemplate(template.content)) {
                     return;
                 }
+                template.setAttribute('id', designView.currentComponentMetadata.artifactId);
                 window.URL = window.URL || window.webkitURL;
                 var blob = new Blob([template.outerHTML], {type: 'text/html'});
                 var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
@@ -69,7 +70,7 @@
                 });
 
                 endpoint.resources.push(templateBlobUrl);
-                console.log(endpoint);
+
             },
 
             isEmptyTemplate: function(template){

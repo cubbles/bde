@@ -315,13 +315,13 @@
                 }
             },
             observers: [
-                '_currentComponentMetadataChanged(currentComponentMetadata.*)'
+                'currentComponentMetadataChanged(currentComponentMetadata.*)'
             ],
             ready: function () {
                 var sortable = this.$$('.sortable');
                 Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
             },
-            _currentComponentMetadataChanged: function () {
+            currentComponentMetadataChanged: function () {
 
                 if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest
                         || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId){
@@ -577,6 +577,10 @@
                 for (let i = 0; i < flexboxes.length; i++) {
                     let flexbox = flexboxes[i].cloneNode(true),
                             div = document.createElement('div');
+
+
+                        div.style.cssText = flexbox.getAttribute('style');
+
                     template.content.appendChild(div);
                     while (flexbox.hasChildNodes()) {
                         if (flexbox.firstChild.nodeName.toString().toLowerCase() != 'i') {
