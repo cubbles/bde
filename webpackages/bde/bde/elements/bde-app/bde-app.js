@@ -61,7 +61,12 @@
         value: function () {
           return {};
         }
+      },
+
+      selectedArtifact: {
+        type: Object
       }
+
     },
 
     listeners: {

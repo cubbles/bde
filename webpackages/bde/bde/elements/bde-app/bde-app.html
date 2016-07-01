@@ -157,7 +157,9 @@
         id="browser"
         settings="{{settings}}"
         url="[[computeBaseUrl(settings.baseUrl, settings.baseName, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
-        webpackage="{{webpackage}}">
+        webpackage="{{webpackage}}"
+        added-item="{{selectedArtifact}}"
+    >
     </bde-repository-browser>
 
     <!-- Application UI -->
