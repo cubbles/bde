@@ -60,13 +60,16 @@ Example:
             }
 
             .endpoint-item {
-                margin-left: 24px;
+                padding-left: 50px;
+                min-height: 0!important;
             }
 
             .endpoint-list-header {
-                margin-left: 40px;
+                padding-left: 30px;
                 font-weight: 500;
             }
+
+
         </style>
 
         <h2>Webpackage Explorer</h2>
@@ -83,15 +86,14 @@ Example:
         <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
             <template is="dom-repeat" id="appList"
                       items="{{manifest.artifacts.apps}}" as="app">
-                <paper-icon-item on-tap="selectApp" toggles disabled>
-                    <iron-icon icon="icons:launch" item-icon></iron-icon>
+                <paper-item on-tap="selectApp" toggles disabled>
                     <paper-item-body two-line>
                         <div>[[app.artifactId]]</div>
                         <div secondary>[[app.description]]</div>
                     </paper-item-body>
                     <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">-->
                     </paper-icon-button>
-                </paper-icon-item>
+                </paper-item>
             </template>
 
             <!--<paper-icon-item class="addItem" on-tap="addApp">-->
@@ -115,13 +117,14 @@ Example:
 
         <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
             <paper-menu attr-for-selected="data-artifact-id" on-iron-select="explorerItemSelected"
-                        selected="{{selectedCompound.artifactId}}"
+                        selected="[[selectedCompound.artifactId]]"
                         id="compoundSelector">
                 <template is="dom-repeat" id="compoundList"
                           items="{{manifest.artifacts.compoundComponents}}" as="compound">
-                    <paper-submenu data-artifact-id$="{{compound.artifactId}}">
-                        <paper-icon-item toggles class="menu-trigger">
-                            <iron-icon icon="icons:donut-small" item-icon></iron-icon>
+                    <paper-submenu data-artifact-id$="[[compound.artifactId]]">
+                        <!--<paper-icon-item class="menu-trigger">-->
+                        <paper-item class="menu-trigger">
+                            <!--<iron-icon icon="icons:donut-small" item-icon></iron-icon>-->
                             <paper-item-body three-line>
                                 <div>[[compound.artifactId]]</div>
                                 <div secondary>[[compound.description]]</div>
@@ -129,19 +132,17 @@ Example:
                             </paper-item-body>
                             <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
                             </paper-icon-button>
-                        </paper-icon-item>
-                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content">
+                        </paper-item>
+                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist" on-iron-select="explorerItemSelected">
                             <div class="endpoint-list-header">Endpoints</div>
-                            <template is="dom-repeat" items="{{compound.endpoints}}" as="endpoint">
-                                <paper-icon-item on-tap="selectEndpoint" data-endpoint-id$="{{endpoint.endpointId}}"
-                                                 toggles
-                                                 class="endpoint-item" active="{{_equals(index, 0)}}">
-                                    <iron-icon icon="icons:launch" item-icon></iron-icon>
-                                    <paper-item-body two-line>
-                                        <div data-endpoint-id="[[endpoint.endpointId]]">[[endpoint.endpointId]]</div>
+                            <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint">
+                                <paper-item data-endpoint-id$="[[endpoint.endpointId]]"
+                                                 class="endpoint-item" >
+                                    <paper-item-body>
+                                        <div data-endpoint-id$="[[endpoint.endpointId]]">[[endpoint.endpointId]]</div>
                                         <div secondary>[[endpoint.description]]</div>
                                     </paper-item-body>
-                                </paper-icon-item>
+                                </paper-item>
                             </template>
                         </paper-menu>
                     </paper-submenu>
@@ -165,14 +166,13 @@ Example:
         <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
             <template is="dom-repeat" id="elementaryList"
                       items="{{manifest.artifacts.elementaryComponents}}" as="elementary">
-                <paper-icon-item on-tap="selectElementary" toggles disabled>
-                    <iron-icon icon="icons:donut-large" item-icon></iron-icon>
+                <paper-item on-tap="selectElementary" toggles disabled>
                     <paper-item-body two-line>
                         <div>[[elementary.artifactId]]</div>
                         <div secondary>[[elementary.description]]</div>
                     </paper-item-body>
                     <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
-                </paper-icon-item>
+                </paper-item>
             </template>
 
             <!--<paper-icon-item class="addItem" on-tap="addElementary">-->
@@ -197,14 +197,13 @@ Example:
         <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
             <template is="dom-repeat" id="utilityList"
                       items="{{manifest.artifacts.utilities}}" as="utility">
-                <paper-icon-item on-tap="selectUtility" toggles disabled>
-                    <iron-icon icon="icons:extension" item-icon></iron-icon>
+                <paper-item on-tap="selectUtility" toggles disabled>
                     <paper-item-body two-line>
                         <div>[[utility.artifactId]]</div>
                         <div secondary>[[utility.description]]</div>
                     </paper-item-body>
                     <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
-                </paper-icon-item>
+                </paper-item>
             </template>
 
             <!--<paper-icon-item class="addItem" on-tap="addUtility">-->
@@ -309,6 +308,8 @@ Example:
 
                 if (this.manifest) {
                     this.set('currentComponentMetadata.manifest', this.manifest);
+                    this.set('currentComponentMetadata.artifactId',null);
+                    this.set('currentComponentMetadata.endpointId',null);
                     var menu = this.$$('#compoundSelector');
                     Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
                         subMenu.close();
@@ -319,7 +320,7 @@ Example:
                 this.$.appSelector.deselect();
                 this.$.utilitySelector.deselect();
                 // this.$.compoundSelector.deselect();
-                this.$.utilitySelector.deselect();
+                // this.$.utilitySelector.deselect();
             },
 
             handleAddCompoundDialogClosed: function (e, reason) {
@@ -362,9 +363,10 @@ Example:
 
             explorerItemSelected: function (e) {
                 var item = e.detail.item;
-                if (item.dataset.artifactId) {
+
+                if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
                     this.selectCompound(item);
-                } else if (item.dataset.endpointId) {
+                } else if (item.dataset.endpointId && item.dataset.endpointId !== this.currentComponentMetadata.endpointId) {
                     this.selectEndpoint(item);
                 }
 
@@ -376,6 +378,13 @@ Example:
                 var subMenu =  this.$$('[data-artifact-id=' + item.dataset.artifactId + ']');
                 subMenu.open();
                 Polymer.dom(subMenu).querySelector('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
+                var compound;
+                this.manifest.artifacts.compoundComponents.forEach(function(comp){
+                   if(comp.artifactId === item.dataset.artifactId){
+                       compound = comp;
+                   }
+                });
+                this.set('selectedCompound', compound);
             },
             selectEndpoint: function (item) {
                 this.set('currentComponentMetadata.endpointId', item.dataset.endpointId);

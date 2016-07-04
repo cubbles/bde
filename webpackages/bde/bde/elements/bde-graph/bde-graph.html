@@ -218,7 +218,7 @@
       },
 
       attached: function() {
-        
+
         // Refer _getMenuDef to the graph
         this.$.graph.getMenuDef = this._getMenuDef.bind(this);
 
@@ -568,7 +568,7 @@
         if (!newInports) { return; }
 
         Object.keys(newInports).forEach(function(key) {
-          if (!oldInports[key]) {
+          if (!oldInports || !oldInports[key]) {
             this.fire('bde-graph-inport-added', { key: key, port: newInports[key] });
           }
         }, this);
