@@ -127,9 +127,15 @@
     _concatArray: function () {
       return [].concat.apply(this, arguments);
     },
-    settingsBtnHandler: function (e) {
+    settingsBtnHandler: function () {
       this.$.settings.opened = !this.$.settings.opened;
-    }
+    },
+    aboutBtnHandler: function () {
+      this.$.about.opened = !this.$.about.opened;
+    },
 
+    helpBtnHandler: function () {
+      this.$.help.opened = !this.$.help.opened;
+    }
   });
 })();
