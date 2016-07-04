@@ -123,7 +123,7 @@ Example:
                           items="{{manifest.artifacts.compoundComponents}}" as="compound">
                     <paper-submenu data-artifact-id$="[[compound.artifactId]]">
                         <!--<paper-icon-item class="menu-trigger">-->
-                        <paper-item class="menu-trigger">
+                        <paper-item class="menu-trigger" title="[[compound.artifactId]]">
                             <!--<iron-icon icon="icons:donut-small" item-icon></iron-icon>-->
                             <paper-item-body three-line>
                                 <div>[[compound.artifactId]]</div>
@@ -137,7 +137,7 @@ Example:
                             <div class="endpoint-list-header">Endpoints</div>
                             <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint">
                                 <paper-item data-endpoint-id$="[[endpoint.endpointId]]"
-                                                 class="endpoint-item" >
+                                                 class="endpoint-item" title="[[endpoint.endpointId]]">
                                     <paper-item-body>
                                         <div data-endpoint-id$="[[endpoint.endpointId]]">[[endpoint.endpointId]]</div>
                                         <div secondary>[[endpoint.description]]</div>
@@ -308,8 +308,8 @@ Example:
 
                 if (this.manifest) {
                     this.set('currentComponentMetadata.manifest', this.manifest);
-                    this.set('currentComponentMetadata.artifactId',null);
-                    this.set('currentComponentMetadata.endpointId',null);
+                    this.set('currentComponentMetadata.artifactId', null);
+                    this.set('currentComponentMetadata.endpointId', null);
                     var menu = this.$$('#compoundSelector');
                     Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
                         subMenu.close();
@@ -365,10 +365,21 @@ Example:
                 var item = e.detail.item;
 
                 if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
+                    this.deselectCompound();
                     this.selectCompound(item);
                 } else if (item.dataset.endpointId && item.dataset.endpointId !== this.currentComponentMetadata.endpointId) {
                     this.selectEndpoint(item);
                 }
+
+            },
+
+            deselectCompound: function () {
+                var menu = this.$$('#compoundSelector');
+                menu.selected  = null;
+                Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
+                    subMenu.close();
+                    Polymer.dom(subMenu).querySelector('paper-menu').selected = null;
+                });
 
             },
 
