@@ -12,6 +12,7 @@
 <link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-styles/default-theme.html">
 <link rel="import" href="bde-compound-creator.html">
+<link rel="import" href="bde-explorer-details.html" />
 <link rel="import" href="../../vendor/paper-menu/paper-menu.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-submenu.html"/><!--
 `bde-explorer` is the management component for handling cubble packages
@@ -76,6 +77,9 @@ Example:
 
         <bde-compound-creator id="compoundCreator"
                               on-last-artifact-changed="handleNewCompound"></bde-compound-creator>
+        <bde-explorer-details id="explorerDetails"
+                              artifact="{{selectedCompound}}"
+                              ></bde-explorer-details>
 
         <div class="container" tabindex="0" on-tap="toggleApps">
             <iron-icon icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
@@ -130,7 +134,7 @@ Example:
                                 <div secondary>[[compound.description]]</div>
                                 <div secondary>[[compound.members.length]] Members</div>
                             </paper-item-body>
-                            <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">
+                            <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openCompoundDetails">
                             </paper-icon-button>
                         </paper-item>
                         <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist" on-iron-select="explorerItemSelected">
@@ -288,13 +292,12 @@ Example:
 
             },
 
-            listeners: {
-                // 'addCompoundDialog.iron-overlay-closed': 'handleAddCompoundDialogClosed',
-                // 'addCompoundForm.submit': 'handleAddCompoundFormSubmit'
-            },
-
             addApp: function () {
                 // this.$.addAppDialog.open();
+            },
+
+            openCompoundDetails: function () {
+              this.$.explorerDetails.open();
             },
 
             addCompound: function () {
@@ -323,23 +326,23 @@ Example:
                 // this.$.utilitySelector.deselect();
             },
 
-            handleAddCompoundDialogClosed: function (e, reason) {
-                // User clicked outside the dialog
-                if (!reason.canceled && !reason.confirmed) {
-                    this.$.addCompoundForm.reset();
-                }
-            },
-
-            handleAddCompoundFormSubmit: function (e) {
-                if (this.$.addCompoundForm.validate()) {
-                    this.push('artifacts.compounds', this.$.addCompoundForm.serialize());
-                    this.$.addCompoundForm.reset();
-                    this.$.addCompoundDialog.close();
-                }
-            },
+//            handleAddCompoundDialogClosed: function (e, reason) {
+//                // User clicked outside the dialog
+//                if (!reason.canceled && !reason.confirmed) {
+//                    this.$.addCompoundForm.reset();
+//                }
+//            },
+//
+//            handleAddCompoundFormSubmit: function (e) {
+//                if (this.$.addCompoundForm.validate()) {
+//                    this.push('artifacts.compounds', this.$.addCompoundForm.serialize());
+//                    this.$.addCompoundForm.reset();
+//                    this.$.addCompoundDialog.close();
+//                }
+//            },
 
             handleNewCompound: function (e) {
-                this.push('artifacts.compoundComponents', e.detail.value);
+                this.push('manifest.artifacts.compoundComponents', e.detail.value);
                 this.$.compoundSelector.select(e.detail.value);
             },
 
