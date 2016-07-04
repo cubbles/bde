@@ -21,255 +21,260 @@
 <link rel="import" href="../bde-repository-browser/bde-repository-browser.html">
 
 <dom-module id="bde-app">
-  <template>
-    <style>
-      :host {
-        display: block;
-        color: #404040;
-        text-rendering: optimizeLegibility;
+    <template>
+        <style>
+            :host {
+                display: block;
+                color: #404040;
+                text-rendering: optimizeLegibility;
 
-        @apply(--paper-font-common-base);
-        @apply(--layout-fullbleed);
-      }
+                @apply(--paper-font-common-base);
+                @apply(--layout-fullbleed);
+            }
 
-      code,
-      pre {
-        @apply(--paper-font-code1);
-      }
+            code,
+            pre {
+                @apply(--paper-font-code1);
+            }
 
-      a,
-      a:link,
-      a:active,
-      a:hover,
-      a:visited {
-        text-decoration: none;
-        color: inherit;
-      }
+            a,
+            a:link,
+            a:active,
+            a:hover,
+            a:visited {
+                text-decoration: none;
+                color: inherit;
+            }
 
-      iron-pages {
-        @apply(--layout-fit)
-      }
+            iron-pages {
+                @apply(--layout-fit)
+            }
 
-        iron-pages > * {
-          width: 100%; height: 100%;
+            iron-pages > * {
+                width: 100%;
+                height: 100%;
 
-          @apply(--layout);
-          @apply(--layout-vertical);
-        }
+                @apply(--layout);
+                @apply(--layout-vertical);
+            }
 
-      paper-toolbar {
-        @apply(--shadow-elevation-3dp);
-      }
+            paper-toolbar {
+                @apply(--shadow-elevation-3dp);
+            }
 
-      .brand {
-        float: left;
-        height: 40px;
-        padding: 10px 20px;
-        font-size: 15px;
-        font-weight: 700;
-        line-height: 20px;
-      }
+            .brand {
+                float: left;
+                height: 40px;
+                padding: 10px 20px;
+                font-size: 15px;
+                font-weight: 700;
+                line-height: 20px;
+            }
 
-        .brand > iron-icon {
-          padding-right: .25em;
-          color: var(--accent-color);
-        }
+            .brand > iron-icon {
+                padding-right: .25em;
+                color: var(--accent-color);
+            }
 
-      #bdeHeader {
-        background-color: var(--paper-cyan-600);
-        z-index: 10;
-      }
+            #bdeHeader {
+                background-color: var(--paper-cyan-600);
+                z-index: 10;
+            }
 
-        #bdeHeader > paper-icon-button {
-          height: 35px;
-        }
+            #bdeHeader > paper-icon-button {
+                height: 35px;
+            }
 
-      #drawerPanel {
-        --paper-drawer-panel-left-drawer-container: {
-          background-color: var(--paper-grey-100);
-          padding: 20px;
-          z-index: 1;
+            #drawerPanel {
+                --paper-drawer-panel-left-drawer-container: {
+                    background-color: var(--paper-grey-100);
+                    padding: 20px;
+                    z-index: 1;
 
-          @apply(--shadow-elevation-2dp);
-        };
-      }
+                    @apply(--shadow-elevation-2dp);
+                };
+            }
 
-      #drawerPanel [drawer] {
-          overflow-y: auto;
-      }
+            #drawerPanel [drawer] {
+                overflow-y: auto;
+            }
 
-      #leftSidebar {
-        height: auto;
-      }
-    </style>
+            #leftSidebar {
+                height: auto;
+            }
+        </style>
 
-    <!-- Global application state -->
-    <bde-webpackage id="webpackage"
-      name="{{webpackage.name}}"
-      group-id="{{webpackage.groupId}}"
-      version="{{webpackage.version}}"
-      model-version="{{webpackage.modelVersion}}"
-      doc-type="{{webpackage.docType}}"
-      description="{{webpackage.description}}"
-      author="{{webpackage.author}}"
-      contributers="{{webpackage.contributers}}"
-      license="{{webpackage.license}}"
-      homepage="{{webpackage.homepage}}"
-      keywords="{{webpackage.keywords}}"
-      man="{{webpackage.man}}"
-      runnables="{{webpackage.runnables}}"
-      artifacts="{{webpackage.artifacts}}"
-      base-context="{{webpackage.baseContext}}"
-      resolutions="{{webpackage.resolutions}}"
-      ></bde-webpackage>
+        <!-- Global application state -->
+        <bde-webpackage id="webpackage"
+                        name="{{webpackage.name}}"
+                        group-id="{{webpackage.groupId}}"
+                        version="{{webpackage.version}}"
+                        model-version="{{webpackage.modelVersion}}"
+                        doc-type="{{webpackage.docType}}"
+                        description="{{webpackage.description}}"
+                        author="{{webpackage.author}}"
+                        contributers="{{webpackage.contributers}}"
+                        license="{{webpackage.license}}"
+                        homepage="{{webpackage.homepage}}"
+                        keywords="{{webpackage.keywords}}"
+                        man="{{webpackage.man}}"
+                        runnables="{{webpackage.runnables}}"
+                        artifacts="{{webpackage.artifacts}}"
+                        base-context="{{webpackage.baseContext}}"
+                        resolutions="{{webpackage.resolutions}}"
+        ></bde-webpackage>
 
-    <!-- App-wide components belong here -->
-    <iron-localstorage id="appSettings"
-      name="app-settings"
-      value="{{settings}}"
-      on-iron-localstorage-load-empty="initializeDefaultSettings"
-      ></iron-localstorage>
+        <!-- App-wide components belong here -->
+        <iron-localstorage id="appSettings"
+                           name="app-settings"
+                           value="{{settings}}"
+                           on-iron-localstorage-load-empty="initializeDefaultSettings"
+        ></iron-localstorage>
 
-    <paper-dialog id="about"
-      exit-animation="fade-out-animation"
-      with-backdrop>
-      <h2>About</h2>
-      <div>
-        <p>This is the Cubbles Browser Development Environment (BDE)</p>
-        <!-- TODO (fdu): Automate version replacement from package.json -->
-        <p>Version: 1.1.0-SNAPSHOT</p>
-        <p><a href="http://www.hm-ag.de/" target="_blank" alt="HM - Informatik AG">&copy; 2016 HM - Informatik AG</a></p>
-      </div>
-      <div class="buttons">
-        <paper-button dialog-confirm>Close</paper-button>
-      </div>
-    </paper-dialog>
+        <paper-dialog id="about"
+                      exit-animation="fade-out-animation"
+                      with-backdrop>
+            <h2>About</h2>
+            <div>
+                <p>This is the Cubbles Browser Development Environment (BDE)</p>
+                <!-- TODO (fdu): Automate version replacement from package.json -->
+                <p>Version: 1.1.0-SNAPSHOT</p>
+                <p><a href="http://www.hm-ag.de/" target="_blank" alt="HM - Informatik AG">&copy; 2016 HM - Informatik
+                    AG</a></p>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-confirm>Close</paper-button>
+            </div>
+        </paper-dialog>
 
-    <bde-help-page id="help"></bde-help-page>
+        <bde-help-page id="help"></bde-help-page>
 
-    <bde-application-settings id="settings"
-        webpackage="{{webpackage}}"
-        settings="{{settings}}"
-        opened="{{settingsOpened}}"
+        <bde-application-settings id="settings"
+                                  webpackage="{{webpackage}}"
+                                  settings="{{settings}}"
+                                  opened="{{settingsOpened}}"
         ></bde-application-settings>
 
-    <bde-repository-browser
-        id="browser"
-        settings="{{settings}}"
-        url="[[computeBaseUrl(settings.baseUrl, settings.baseName, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
-        webpackage="{{webpackage}}"
-        added-item="{{selectedArtifact}}"
-    >
-    </bde-repository-browser>
-
-    <!-- Application UI -->
-    <paper-header-panel mode="seamed">
-      <paper-toolbar id="bdeHeader">
-        <a href="#" class="brand">
-          <iron-icon icon="bde:cubbles"></iron-icon> BDE
-        </a>
-
-        <paper-icon-button id="settingsBtn"
-          title="Application Settings..."
-          aria-label="applicationSettings"
-          icon="settings"
-          active="{{settingsOpened}}"
-          toggles
-          ></paper-icon-button>
-
-        <paper-icon-button id="compoundBtn"
-          title="Load from base..."
-          aria-label="compounds"
-          on-tap="getCompoundFromBase"
-          icon="icons:cloud-download"
-          ></paper-icon-button>
-
-        <paper-icon-button id="deployBtn"
-          title="Deploy..."
-          aria-label="compounds"
-          icon="icons:cloud-upload"
-          ></paper-icon-button>
-
-        <paper-icon-button id="aboutBtn"
-          title="About..."
-          aria-label="about"
-          icon="icons:copyright"
-          ></paper-icon-button>
-
-        <paper-icon-button id="helpBtn"
-          title="Help Page"
-          aria-label="help"
-          icon="icons:help-outline"
-          ></paper-icon-button>
-
-        <span class="flex"></span>
-
-        <page-select-menu selected="{{selectedPage}}">
-          <paper-icon-button id="flowIcon"
-            page="dataflowView"
-            title="change to dataflow-view"
-            icon="gesture"
-            class="route-buttons"
-            selected
-            ></paper-icon-button>
-
-          <paper-icon-button id="designIcon"
-            page="designView"
-            title="change to design-view"
-            icon="open-with"
-            class="route-buttons"
-            ></paper-icon-button>
-
-          <paper-icon-button id="appIcon"
-            page="applicationView"
-            title="change to application-view"
-            icon="apps"
-            class="route-buttons"
-            ></paper-icon-button>
-        </page-select-menu>
-      </paper-toolbar>
-
-      <paper-drawer-panel id="drawerPanel"
-        drawer-width="300px"
-        force-narrow>
-        <div drawer>
-          <bde-explorer
-                  id="explorer"
-                  manifest="{{webpackage}}"
-                  selected-compound="{{selectedArtifact}}"
-                  current-component-metadata = "{{currentComponentMetadata}}"
-            ></bde-explorer>
-        </div>
-        <div main>
-          <iron-pages id="pages"
-            attr-for-selected="id"
-            selected="{{selectedPage}}">
-              <bde-dataflow-view id="dataflowView"
-                artifact="{{selectedArtifact}}"
-                ></bde-dataflow-view>
-
-              <bde-design-view
-                      id="designView"
-                      blob-registry = "{{blobRegistry}}"
-                      current-component-metadata = "{{currentComponentMetadata}}">
-                  <bde-flexbox-layouter
-                          current-component-metadata = "{{currentComponentMetadata}}">
-                  </bde-flexbox-layouter>
-              </bde-design-view>
-
-              <bde-application-view id="applicationView"
-                loaded="{{applicationViewLoaded}}"
-                current-component-metadata = "{{currentComponentMetadata}}"
+        <bde-repository-browser
+                id="browser"
                 settings="{{settings}}"
-                ></bde-application-view>
-          </iron-pages>
-        </div>
-      </paper-drawer-panel>
-    </paper-header-panel>
-  </template>
+                url="[[computeBaseUrl(settings.baseUrl, settings.baseName, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
+                webpackage="{{webpackage}}"
+                added-item="{{selectedArtifact}}"
+        >
+        </bde-repository-browser>
 
-  <!-- build:js src/app.min.js -->
-  <script src="bde-app.js"></script>
-  <!-- endbuild -->
+        <!-- Application UI -->
+        <paper-header-panel mode="seamed">
+            <paper-toolbar id="bdeHeader">
+                <a href="#" class="brand">
+                    <iron-icon icon="bde:cubbles"></iron-icon>
+                    BDE
+                </a>
+
+                <paper-icon-button id="settingsBtn"
+                                   title="Application Settings..."
+                                   aria-label="applicationSettings"
+                                   icon="settings"
+                                   active="{{settingsOpened}}"
+                                   toggles
+                ></paper-icon-button>
+
+                <paper-icon-button id="compoundBtn"
+                                   title="Load from base..."
+                                   aria-label="compounds"
+                                   on-tap="getCompoundFromBase"
+                                   icon="icons:cloud-download"
+                ></paper-icon-button>
+
+                <paper-icon-button id="deployBtn"
+                                   title="Deploy..."
+                                   aria-label="compounds"
+                                   icon="icons:cloud-upload"
+                ></paper-icon-button>
+
+                <paper-icon-button id="aboutBtn"
+                                   title="About..."
+                                   aria-label="about"
+                                   icon="icons:copyright"
+                ></paper-icon-button>
+
+                <paper-icon-button id="helpBtn"
+                                   title="Help Page"
+                                   aria-label="help"
+                                   icon="icons:help-outline"
+                ></paper-icon-button>
+
+                <span class="flex"></span>
+
+                <page-select-menu selected="{{selectedPage}}">
+                    <paper-icon-button id="flowIcon"
+                                       page="dataflowView"
+                                       title="change to dataflow-view"
+                                       icon="gesture"
+                                       class="route-buttons"
+                                       selected
+                    ></paper-icon-button>
+
+                    <paper-icon-button id="designIcon"
+                                       page="designView"
+                                       title="change to design-view"
+                                       icon="open-with"
+                                       class="route-buttons"
+                    ></paper-icon-button>
+
+                    <paper-icon-button id="appIcon"
+                                       page="applicationView"
+                                       title="change to application-view"
+                                       icon="apps"
+                                       class="route-buttons"
+                    ></paper-icon-button>
+                </page-select-menu>
+            </paper-toolbar>
+
+            <paper-drawer-panel id="drawerPanel"
+                                drawer-width="300px"
+                                force-narrow="[[!showExplorer]]"
+                                disable-swipe
+                                disable-edge-swipe>
+                <div drawer>
+                    <bde-explorer
+                            id="explorer"
+                            manifest="{{webpackage}}"
+                            selected-compound="{{selectedArtifact}}"
+                            current-component-metadata="{{currentComponentMetadata}}"
+                    ></bde-explorer>
+                </div>
+                <div main>
+                    <iron-pages id="pages"
+                                attr-for-selected="id"
+                                selected="{{selectedPage}}">
+                        <bde-dataflow-view id="dataflowView"
+                                           artifact="{{selectedArtifact}}"
+                        ></bde-dataflow-view>
+
+                        <bde-design-view
+                                id="designView"
+                                blob-registry="{{blobRegistry}}"
+                                current-component-metadata="{{currentComponentMetadata}}">
+                            <bde-flexbox-layouter
+                                    current-component-metadata="{{currentComponentMetadata}}">
+                            </bde-flexbox-layouter>
+                        </bde-design-view>
+
+                        <bde-application-view id="applicationView"
+                                              loaded="{{applicationViewLoaded}}"
+                                              current-component-metadata="{{currentComponentMetadata}}"
+                                              settings="{{settings}}"
+                        ></bde-application-view>
+                    </iron-pages>
+                </div>
+            </paper-drawer-panel>
+        </paper-header-panel>
+    </template>
+
+    <!-- build:js src/app.min.js -->
+    <script src="bde-app.js"></script>
+    <!-- endbuild -->
 
 </dom-module>
