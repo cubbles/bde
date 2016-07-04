@@ -83,6 +83,7 @@
       // Attach resize listener
       // (cannot use listeners for window events)
       window.addEventListener('resize', this.handleResize.bind(this));
+
     },
 
     computeBaseUrl: function (baseUrl, baseName, partial) {
@@ -125,6 +126,9 @@
 
     _concatArray: function () {
       return [].concat.apply(this, arguments);
+    },
+    settingsBtnHandler: function (e) {
+      this.$.settings.opened = !this.$.settings.opened;
     }
 
   });
