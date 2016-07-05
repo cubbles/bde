@@ -57,15 +57,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <demo-snippet>
             <template is="dom-bind" id="app">
                 <iron-ajax auto url="../test/test.json"
-                    handle-as="json" last-response="{{manifest}}"></iron-ajax>
+                    handle-as="json" last-response="{{testObject}}"></iron-ajax>
 
                 <paper-toast id="toast"></paper-toast>
 
-                <bde-explorer id="explorer"
-                    artifacts="{{manifest.artifacts}}"
-                    selected-artifact="{{selectedArtifact}}"></bde-explorer>
+                <bde-explorer
+                        id="explorer"
+                        manifest="{{testObject.manifest}}"
+                        selected-compound="{{selectedArtifact}}"
+                        current-component-metadata="{{testObject.currentComponentMetadata}}"
+                ></bde-explorer>
 
-                <h4>Selected Artifact</h4>
+                <h4>Selected compound</h4>
                 <code id="code" class="json"></code>
 
             </template>
@@ -84,22 +87,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.toast.fitInto = document.querySelector('.wrapper');
 
         this.$.explorer.addEventListener('iron-select', (e) => {
-            var is = e.detail.is;
-            var item = e.detail.item;
-
-            this.$.toast.text = is + ' `' + item.artifactId + '` selected';
+            if (!this.selectedArtifact) {
+                return;
+            };
+            this.$.toast.text = '`' + this.selectedArtifact.artifactId + '` selected';
             this.$.toast.open();
 
-            this.$.code.textContent = this._json(item);
+            this.$.code.textContent = this._json(this.selectedArtifact);
             hljs.highlightBlock(this.$.code);
         });
 
         this.$.explorer.addEventListener('bde-explorer-open-settings', function(e) {
             var allArtifacts = [].concat(
-                app.manifest.artifacts.apps,
-                app.manifest.artifacts.compoundComponents,
-                app.manifest.artifacts.elementaryComponents,
-                app.manifest.artifacts.utilities
+                app.testObject.manifest.artifacts.apps,
+                app.testObject.manifest.artifacts.compoundComponents,
+                app.testObject.manifest.artifacts.elementaryComponents,
+                app.testObject.manifest.artifacts.utilities
             );
 
             console.log(allArtifacts.find(a => a == e.detail.item));
