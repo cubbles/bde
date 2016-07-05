@@ -6,6 +6,7 @@
 <link rel="import" href="../../vendor/paper-input/paper-input.html">
 <link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
+<link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="bde-explorer-details">
@@ -16,15 +17,14 @@
             }
         </style>
 
-        <paper-dialog id="dialog" opened="[[opened]]" with-backdrop>
+        <paper-dialog id="dialog" opened="{{opened}}">
 
-            <h2>
-                <span hidden="[[_editLabel]]">[[artifact.artifactId]]</span>
+            <h2><span hidden="[[_editLabel]]">[[artifact.artifactId]]</span> </h2>
 
                 <paper-input
                     tabindex="-1"
-                    label="Label"
-                    value="{{artifact.arttifactId}}"
+                    label="Artifact id"
+                    value="{{artifact.artifactId}}"
                     hidden="[[!_editLabel]]"
                     on-change="handleArtifactIdChanged">
                 </paper-input>
@@ -33,13 +33,9 @@
                     icon="icons:label"
                     title="Change Label"
                     on-tap="toggleChangeLabel"></paper-icon-button>
-            </h2>
 
             <paper-dialog-scrollable>
-
                 <!-- Description -->
-                <p hidden="[[_editDescription]]">[[artifact.description]]</p>
-
                 <paper-textarea
                     tabindex="-1"
                     label="description"
@@ -56,7 +52,7 @@
                 <iron-list id="runnables" items="[[artifact.runnables]]" as="runnable">
                     <template>
                         <div>
-                            <button class="heading" on-tap="toggleRunnable">[[runnable.name]]</button>
+                            <button class="heading" on-tap="toggleCollapse" data-collapse-id$="[[_idForCollapse(index, 'runnable_')]]">[[runnable.name]]</button>
                             <iron-collapse id$="[[_idForCollapse(index, 'runnable_')]]">
                                 <paper-input label="path"></paper-input>
                                 <paper-textarea label="description"></paper-textarea>
@@ -70,9 +66,81 @@
                 </template>
 
                 <template is="dom-if" if="[[_artifactIsCompound(artifact)]]">
+                    <h3>Endpoints</h3>
+                    <iron-list id="endpoints" items="[[artifact.endpoints]]" as="endpoint">
+                        <template>
+                            <div>
+                                <button class="heading" on-tap="toggleCollapse" data-collapse-id$="[[_idForCollapse(index, 'endpoint_')]]">[[endpoint.endpointId]]</button>
+                                <iron-collapse id$="[[_idForCollapse(index, 'endpoint_')]]">
+                                    <paper-input label="endpointId"></paper-input>
+                                    <paper-textarea label="description"></paper-textarea>
+                                </iron-collapse>
+                            </div>
+                        </template>
+                    </iron-list>
 
+                    <h3>Slots</h3>
+                    <iron-list id="slots" items="[[artifact.slots]]" as="slot">
+                        <template>
+                            <div>
+                                <button class="heading" on-tap="toggleCollapse" data-collapse-id$="[[_idForCollapse(index, 'slot_')]]">[[slot.slotId]]</button>
+                                <iron-collapse id$="[[_idForCollapse(index, 'slot_')]]">
+                                    <paper-input label="slotId"></paper-input>
+                                    <paper-input label="type"></paper-input>
+                                    <paper-textarea label="description"></paper-textarea>
+                                    <paper-textarea label="direction"></paper-textarea>
+                                </iron-collapse>
+                            </div>
+                        </template>
+                    </iron-list>
 
+                    <h3>Members</h3>
+                    <iron-list id="members" items="[[artifact.members]]" as="member">
+                        <template>
+                            <div>
+                                <button class="heading" on-tap="toggleCollapse" data-collapse-id$="[[_idForCollapse(index, 'member_')]]">[[member.memberId]]</button>
+                                <iron-collapse id$="[[_idForCollapse(index, 'member_')]]">
+                                    <paper-input label="memberId"></paper-input>
+                                    <paper-input label="componentId"></paper-input>
+                                    <paper-input label="type"></paper-input>
+                                    <paper-textarea label="description"></paper-textarea>
+                                    <paper-input label="direction"></paper-input>
+                                    <paper-input label="displayName"></paper-input>
+                                </iron-collapse>
+                            </div>
+                        </template>
+                    </iron-list>
 
+                    <h3>Connections</h3>
+                    <iron-list id="connections" items="[[artifact.connections]]" as="connection">
+                        <template>
+                            <div>
+                                <button class="heading" on-tap="toggleCollapse" data-collapse-id$="[[_idForCollapse(index, 'connection_')]]">[[connection.connectionId]]</button>
+                                <iron-collapse id$="[[_idForCollapse(index, 'connection_')]]">
+                                    <paper-input label="connectionId"></paper-input>
+                                    <paper-textarea label="description"></paper-textarea>
+                                    <paper-input label="hookFunction"></paper-input>
+                                    <paper-checkbox>repeatedValues</paper-checkbox>
+                                    <paper-checkbox>copyValue</paper-checkbox>
+                                </iron-collapse>
+                            </div>
+                        </template>
+                    </iron-list>
+
+                    <h3>Inits</h3>
+                    <iron-list id="inits" items="[[artifact.inits]]" as="init">
+                        <template>
+                            <div>
+                                <button class="heading" on-tap="toggleCollapse" data-collapse-id$="[[_idForCollapse(index, 'init_')]]">[[init.memberIdRef]]</button>
+                                <iron-collapse id$="[[_idForCollapse(index, 'init_')]]">
+                                    <paper-input label="memberIdRef"></paper-input>
+                                    <paper-input label="slot"></paper-input>
+                                    <paper-input label="value"></paper-input>
+                                    <paper-textarea label="description"></paper-textarea>
+                                </iron-collapse>
+                            </div>
+                        </template>
+                    </iron-list>
                 </template>
 
                 <template is="dom-if" if="[[_artifactIsElementary(artifact)]]">
@@ -126,11 +194,15 @@
             this.$.labelInput.focus();
         },
 
+        toggleCollapse: function (e) {
+          this.$$('#' + e.target.dataset.collapseId).toggle();
+        },
+
         _artifactIsApp: function(artifact) {
             return artifact.artifactType == 'appComponent';
         },
 
-        _artifactIsCompound: function() {
+        _artifactIsCompound: function(artifact) {
             return artifact.artifactType == 'compoundComponent';
         },
 
