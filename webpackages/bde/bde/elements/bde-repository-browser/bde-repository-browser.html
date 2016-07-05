@@ -65,62 +65,58 @@ Example:
                 --paper-badge-width: 30px;
                 --paper-badge-height: 30px;
                 --paper-badge-background: #1DB1CC;
-                --paper-badge-text-color : #FFFFFF;
+                --paper-badge-text-color: #FFFFFF;
                 margin-left: -45vw;
                 margin-top: 0;
             }
         </style>
 
         <iron-ajax
-            id="webblebase"
-            url="{{url}}"
-            handle-as="json"
-            on-response="handleResponse"
-            auto>
+                id="webblebase"
+                url="{{url}}"
+                handle-as="json"
+                on-response="handleResponse"
+                auto>
         </iron-ajax>
 
         <paper-dialog id="searchDialog" with-backdrop exit-animation="fade-out-animation">
 
-          <h2>{{computeLabel(compoundOnly)}}</h2>
-          <paper-badge label="{{filtered.length}}"></paper-badge>
+            <h2>{{computeLabel(compoundOnly)}}</h2>
+            <paper-badge label="{{filtered.length}}"></paper-badge>
 
             <paper-input
-                id="baseSearch"
-                class="dialogHeader"
-                label="Search components in Base by name..."
-                value="{{searchTerm}}"
-                on-input="handleInput"
-                autofocus>
+                    id="baseSearch"
+                    class="dialogHeader"
+                    label="Search components in Base by name..."
+                    value="{{searchTerm}}"
+                    on-input="handleInput"
+                    autofocus>
                 <iron-icon icon="search" prefix></iron-icon>
                 <paper-icon-button
-                    suffix
-                    id="clearBtn"
-                    on-click="clearInput"
-                    icon="clear"
-                    title="clear Search">
+                        suffix
+                        id="clearBtn"
+                        on-click="clearInput"
+                        icon="clear"
+                        title="clear Search">
                 </paper-icon-button>
             </paper-input>
 
             <paper-dialog-scrollable id="scroll">
 
-              <iron-list id="list" class="flex" items="[[filtered]]" multi-selection>
-                <template>
-                  <bde-repository-item
-                          item="{{item}}"
-                          last-item-selected="{{addedItem}}"
-                          webpackage="{{webpackage}}"
-                          settings="{{settings}}"
-                  ></bde-repository-item>
-                </template>
-              </iron-list>
+                <iron-list id="list" class="flex" items="[[filtered]]" multi-selection>
+                    <template>
+                        <bde-repository-item item="{{item}}" last-item-selected="{{addedItem}}"
+                                             webpackage="{{webpackage}}" settings="[[settings]]"></bde-repository-item>
+                    </template>
+                </iron-list>
 
             </paper-dialog-scrollable>
 
             <div class="buttons">
-              <paper-button raised on-tap="toggleDialog">Cancel</paper-button>
+                <paper-button raised on-tap="toggleDialog">Cancel</paper-button>
             </div>
 
-          </paper-dialog>
+        </paper-dialog>
 
     </template>
 </dom-module>
@@ -137,9 +133,9 @@ Example:
              * @type Object
              */
             addedItem: {
-              type: Object,
-              notify: true,
-              observer: 'handleAddedItem'
+                type: Object,
+                notify: true,
+                observer: 'handleAddedItem'
             },
 
             /**
@@ -159,10 +155,10 @@ Example:
              * @type array
              */
             filtered: {
-              type: Array,
-              value: function () {
-                return [];
-              }
+                type: Array,
+                value: function () {
+                    return [];
+                }
             },
 
             /**
@@ -179,12 +175,8 @@ Example:
              * @type {Object}
              */
             searchTerm: {
-              type: String,
-              value: ''
-            },
-
-            settings: {
-              type: Object
+                type: String,
+                value: ''
             },
 
             /**
@@ -193,10 +185,10 @@ Example:
              * @type {Object}
              */
             compoundOnly: {
-              type: Boolean,
-              value: false,
-              notify: true,
-              observer: 'compoundOnlyChanged'
+                type: Boolean,
+                value: false,
+                notify: true,
+                observer: 'compoundOnlyChanged'
             },
 
             /**
@@ -205,9 +197,14 @@ Example:
              * @type {Object}
              */
             webpackage: {
-              type: Object,
-              notify: true
+                type: Object,
+                notify: true
+            },
+
+            settings: {
+                type: Object
             }
+
         },
 
         /**
@@ -215,8 +212,8 @@ Example:
          * @method compoundOnlyChanged
          */
         compoundOnlyChanged: function () {
-          this.searchTerm = '';
-          this.filtered = [];
+            this.searchTerm = '';
+            this.filtered = [];
         },
 
         /**
@@ -225,10 +222,10 @@ Example:
          * @param  {[Boolean]} compoundOnly [Parameter for the selection of the return value.]
          * @return {[String]}
          */
-        computeLabel : function (compoundOnly) {
-          return compoundOnly
-            ? 'Open Compound Component From Base'
-            : 'Find Cubble Component';
+        computeLabel: function (compoundOnly) {
+            return compoundOnly
+                    ? 'Open Compound Component From Base'
+                    : 'Find Cubble Component';
         },
 
         /**
@@ -236,17 +233,19 @@ Example:
          *
          * @method toggleDialog
          */
-        toggleDialog: function() {
+        toggleDialog: function () {
             this.$.searchDialog.toggle();
         },
 
         /**
-         * Closes the '#searchDialog'. The webpackage the selected compound belings to is bound to <bde-app> using the
-         * {{webpackage}} binding
+         * Closes the '#searchDialog' after selecting a component from the list.
          *
          * @method handleAddedItem
          */
         handleAddedItem: function () {
+            var lastItem = this.addedItem;
+            this.push('webpackage.artifacts.' + lastItem.artifactType + 's', lastItem);
+
             this.$.searchDialog.close();
         },
 
@@ -307,7 +306,7 @@ Example:
          *
          * @method clearInput
          */
-        clearInput : function(){
+        clearInput: function () {
             this.$.baseSearch.value = '';
             this.filtered = [];
             this.$.baseSearch.focus();

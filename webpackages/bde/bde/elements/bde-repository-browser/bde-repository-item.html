@@ -132,7 +132,7 @@ Example:
      */
     getItemUrl: function (item) {
       // url = https://www.cubbles.world/ + store/ + name + @version (name + @version = webpackageId)
-      var url = this.get('settings.baseUrl') + '/' + this.get('settings.baseName') + '/' + item.webpackageId;
+      var url = this.get('settings.baseUrl') + '/' + this.get('settings.baseName') + '/' + item.webpackageId + '/manifest.webpackage';
       return url;
     },
 
