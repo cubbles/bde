@@ -122,8 +122,8 @@ Polymer({
    * @method handleAddedItem
    */
   handleAddedItem: function () {
-    var lastItem = this.addedItem;
-    this.push('manifest.artifacts.' + lastItem.artifactType + 's', lastItem);
+//    var lastItem = this.addedItem;
+//    this.push('manifest.artifacts.' + lastItem.artifactType + 's', lastItem);
 
     this.$.searchDialog.close();
   },

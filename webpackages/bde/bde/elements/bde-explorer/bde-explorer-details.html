@@ -25,7 +25,7 @@
             paper-checkbox {
                 margin-top: 10px;
                 margin-bottom: 10px;
-                marging-right: 10px;
+                margin-right: 10px;
             }
 
             .collapse-content {
@@ -49,31 +49,38 @@
                 border-color: #dbdbdb;
                 margin-top: 10px;
             }
+
+            .addItem {
+                cursor: pointer;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
 
             <h2><span>[[artifact.artifactId]]</span></h2>
 
-            <paper-input
-                    tabindex="-1"
-                    label="Artifact id"
-                    value="{{artifact.artifactId}}"
-                    on-change="handleArtifactIdChanged">
+            <paper-input tabindex="-1"
+                         label="Artifact id"
+                         pattern="^[a-z0-9]+(-[a-z0-9]+)+"
+                         placeholder="A name for this artifact - unique within the webpackage."
+                         required
+                         auto-validate
+                         value="{{artifact.artifactId}}">
             </paper-input>
 
             <paper-dialog-scrollable>
                 <!-- Description -->
-                <paper-textarea
-                        tabindex="-1"
-                        label="description"
-                        value="{{artifact.description}}"
-                        on-change="handleArtifactDescriptionChanged">
+                <paper-textarea tabindex="-1"
+                                label="description"
+                                placeholder="Description of this artifact: responsibility, usage scenarios."
+                                value="{{artifact.description}}">
                 </paper-textarea>
 
-                <div tabindex="0" on-tap="toggleCollapse" data-collapse-id="runnablesCollapse"
+                <div tabindex="0"
+                     on-tap="toggleCollapse"
+                     data-collapse-id="runnablesCollapse"
                      class="main-collapse-header collapse-header">
-                    <span>Runnables</span>
+                    <span title="Resources that are actually runnable in a user webbrowser.">Runnables</span>
                     <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                 </div>
                 <iron-collapse id="runnablesCollapse">
@@ -81,29 +88,51 @@
                         <iron-list id="runnables" items="{{artifact.runnables}}" as="runnable">
                             <template>
                                 <div>
-                                    <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
+                                    <div tabindex="0"
+                                         on-tap="toggleCollapse"
+                                         class="collapse-header"
                                          data-collapse-id$="[[_idForCollapse(index, 'runnable_')]]">
                                         <span>[[runnable.name]]</span>
                                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                     </div>
                                     <iron-collapse id$="[[_idForCollapse(index, 'runnable_')]]">
                                         <div class="collapse-content">
-                                            <paper-input label="Name" value="{{runnable.name}}"></paper-input>
-                                            <paper-input label="Path" value="{{runnable.path}}"></paper-input>
+                                            <paper-input label="Name"
+                                                         placeholder="A (short) name for the runnable."
+                                                         pattern="^(.)+"
+                                                         required
+                                                         value="{{runnable.name}}">
+                                            </paper-input>
+                                            <paper-input label="Path"
+                                                         placeholder="Path to the 'runnable' resource - relative to the webpackage itself (e.g. '/doc/index.html')."
+                                                         pattern="^/(.)+"
+                                                         required
+                                                         value="{{runnable.path}}">
+                                            </paper-input>
                                             <paper-textarea label="Description"
-                                                            value="{{runnable.label}}"></paper-textarea>
+                                                            placeholder="Short description of the runnable: short content description, target group etc."
+                                                            value="{{runnable.label}}">
+                                            </paper-textarea>
                                         </div>
                                     </iron-collapse>
                                 </div>
                             </template>
                         </iron-list>
+                        <paper-icon-item class="addItem" on-tap="addRunnable">
+                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                            <paper-item-body>
+                                <div>Add Runnable</div>
+                            </paper-item-body>
+                        </paper-icon-item>
                     </div>
                 </iron-collapse>
 
                 <template is="dom-if" if="[[_artifactIsCompound(artifact)]]">
-                    <div tabindex="0" on-tap="toggleCollapse" data-collapse-id="endpointsCollapse"
+                    <div tabindex="0"
+                         on-tap="toggleCollapse"
+                         data-collapse-id="endpointsCollapse"
                          class="main-collapse-header collapse-header">
-                        <span>Endpoints</span>
+                        <span title="1..n endpoints other artifacts can refer to. A 'main' -artifactEndpoint is required.">Endpoints</span>
                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                     </div>
                     <iron-collapse id="endpointsCollapse">
@@ -111,7 +140,9 @@
                             <iron-list id="endpoints" items="[[artifact.endpoints]]" as="endpoint">
                                 <template>
                                     <div>
-                                        <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
+                                        <div tabindex="0"
+                                             on-tap="toggleCollapse"
+                                             class="collapse-header"
                                              data-collapse-id$="[[_idForCollapse(index, 'endpoint_')]]">
                                             <span>[[endpoint.endpointId]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
@@ -119,12 +150,21 @@
                                         <iron-collapse id$="[[_idForCollapse(index, 'endpoint_')]]">
                                             <div class="collapse-content">
                                                 <paper-input label="Endpoint Id"
-                                                             value="{{endpoint.endpointId}}"></paper-input>
+                                                             placeholder="Identifier for this slot item - unique within this component."
+                                                             pattern="^[a-z0-9-]+"
+                                                             required
+                                                             value="{{endpoint.endpointId}}">
+                                                </paper-input>
                                                 <paper-textarea label="Description"
-                                                                value="{{endpoint.description}}"></paper-textarea>
-                                                <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
+                                                                placeholder="Description of this endpoint: What does the endpoint provide? When to use? etc."
+                                                                value="{{endpoint.description}}">
+                                                </paper-textarea>
+
+                                                <div tabindex="0"
+                                                     on-tap="toggleCollapse"
+                                                     class="collapse-header"
                                                      data-collapse-id$="[[_idForCollapse(index, 'endpoint_resources_')]]">
-                                                    <span>Resources</span>
+                                                    <span title="Contains the first-level resources of this endpoint.">Resources</span>
                                                     <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                                 </div>
                                                 <iron-collapse id="[[_idForCollapse(index, 'endpoint_resources_')]]">
@@ -135,19 +175,67 @@
                                                                 <div class="list-item-container">
                                                                     <template is="dom-if" if="[[_isObject(resource)]]">
                                                                         <paper-input label="Prod"
+                                                                                     placeholder="Path to potentially optimized resource."
+                                                                                     required
                                                                                      value="{{resource.prod}}">
                                                                         </paper-input>
                                                                         <paper-input label="Dev"
+                                                                                     placeholder="Path to resource for development."
+                                                                                     required
                                                                                      value="{{resource.dev}}">
                                                                         </paper-input>
                                                                     </template>
                                                                     <template is="dom-if" if="[[!_isObject(resource)]]">
                                                                         <paper-input value="{{resource}}"
-                                                                                     no-label-float></paper-input>
+                                                                                     placeholder="Path to resource. This resource will be used for both runtimeMode 'prod' and 'dev'."
+                                                                                     no-label-float>
+                                                                        </paper-input>
                                                                     </template>
                                                                 </div>
                                                             </template>
                                                         </iron-list>
+                                                        <paper-icon-item class="addItem"
+                                                                         on-tap="addEndpointResource"
+                                                                         data-endpoint-id$="[[endpoint.endpointId]]">
+                                                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                                                            <paper-item-body>
+                                                                <div>Add Resource</div>
+                                                            </paper-item-body>
+                                                        </paper-icon-item>
+                                                    </div>
+                                                </iron-collapse>
+
+                                                <div tabindex="0"
+                                                     on-tap="toggleCollapse"
+                                                     class="collapse-header"
+                                                     data-collapse-id$="[[_idForCollapse(index, 'endpoint_dependencies_')]]">
+                                                    <span title="0..n other artifacts-endpoints this artifact-endpoint needs to work properly. Note: 'webpackage': 'this' refers artifact(s) of the this webpackage.">
+                                                        Dependencies
+                                                    </span>
+                                                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                                </div>
+                                                <iron-collapse id="[[_idForCollapse(index, 'endpoint_dependencies_')]]">
+                                                    <div class="collapse-content">
+                                                        <iron-list id="dependencies" items="[[endpoint.dependencies]]"
+                                                                   as="dependency">
+                                                            <template>
+                                                                <div class="list-item-container">
+                                                                    <paper-input
+                                                                            pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+"
+                                                                            no-label-float
+                                                                            value="{{dependency}}">
+                                                                    </paper-input>
+                                                                </div>
+                                                            </template>
+                                                        </iron-list>
+                                                        <paper-icon-item class="addItem"
+                                                                         on-tap="addEndpointDependency"
+                                                                         data-endpoint-id$="[[endpoint.endpointId]]">
+                                                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                                                            <paper-item-body>
+                                                                <div>Add Dependency</div>
+                                                            </paper-item-body>
+                                                        </paper-icon-item>
                                                     </div>
                                                 </iron-collapse>
                                             </div>
@@ -155,12 +243,20 @@
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addEndpoint">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Endpoint</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
 
-                    <div tabindex="0" on-tap="toggleCollapse" data-collapse-id="slotsCollapse"
+                    <div tabindex="0"
+                         on-tap="toggleCollapse"
+                         data-collapse-id="slotsCollapse"
                          class="main-collapse-header collapse-header">
-                        <span>Slots</span>
+                        <span title="1..n slots to exchange data with other elementaries or compounds.">Slots</span>
                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                     </div>
                     <iron-collapse id="slotsCollapse">
@@ -168,16 +264,26 @@
                             <iron-list id="slots" items="[[artifact.slots]]" as="slot">
                                 <template>
                                     <div>
-                                        <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
+                                        <div tabindex="0"
+                                             on-tap="toggleCollapse"
+                                             class="collapse-header"
                                              data-collapse-id$="[[_idForCollapse(index, 'slot_')]]">
                                             <span>[[slot.slotId]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                         </div>
                                         <iron-collapse id$="[[_idForCollapse(index, 'slot_')]]">
                                             <div class="collapse-content">
-                                                <paper-input label="Slot Id" value="{{slot.slotId}}"/>
+                                                <paper-input label="Slot Id"
+                                                             placeholder="Identifier for this slot item - unique within this component."
+                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             required
+                                                             value="{{slot.slotId}}">
+                                                </paper-input>
                                                 <paper-input label="Type" list="slotTypes"
-                                                             value="{{slot.type}}"></paper-input>
+                                                             placeholder="Data type of the slot."
+                                                             required
+                                                             value="{{slot.type}}">
+                                                </paper-input>
                                                 <datalist id="slotTypes">
                                                     <option value="boolean">Boolean</option>
                                                     <option value="string">String</option>
@@ -185,8 +291,12 @@
                                                     <option value="object">Object</option>
                                                     <option value="array">Array</option>
                                                 </datalist>
-                                                <paper-textarea label="description"></paper-textarea>
-                                                <label>Direction</label>
+                                                <paper-textarea label="description"
+                                                                placeholder="Description of this slot: responsibility, expected data-structure etc.">
+                                                </paper-textarea>
+                                                <label title="A slot can be public accessible as input-slot (receive data), output-slot (propagate data) or both. If this attribute not exist, is the slot bidirectional">
+                                                    Direction
+                                                </label>
                                                 <paper-checkbox checked="[[_isInputSlot(slot)]]">Input
                                                 </paper-checkbox>
                                                 <paper-checkbox checked="[[_isOutputSlot(slot)]]">Output
@@ -196,12 +306,22 @@
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addSlot">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Slot</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
 
-                    <div tabindex="0" on-tap="toggleCollapse" data-collapse-id="membersCollapse"
+                    <div tabindex="0"
+                         on-tap="toggleCollapse"
+                         data-collapse-id="membersCollapse"
                          class="main-collapse-header collapse-header">
-                        <span>Members</span>
+                        <span title="Referenced components (elementaries or compounds) acting as members of this compound component.">
+                            Members
+                        </span>
                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                     </div>
                     <iron-collapse id="membersCollapse">
@@ -209,29 +329,56 @@
                             <iron-list id="members" items="[[artifact.members]]" as="member">
                                 <template>
                                     <div>
-                                        <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
+                                        <div tabindex="0"
+                                             on-tap="toggleCollapse"
+                                             class="collapse-header"
                                              data-collapse-id$="[[_idForCollapse(index, 'member_')]]">
                                             <span>[[member.memberId]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                         </div>
                                         <iron-collapse id$="[[_idForCollapse(index, 'member_')]]">
                                             <div class="collapse-content">
-                                                <paper-input label="Member Id" value="{{member.memberId}}"></paper-input>
-                                                <paper-input label="Component Id" value="{{member.componentId}}"></paper-input>
-                                                <paper-input label="Type" value="{{member.type}}"/>
-                                                <paper-textarea label="Description" value="{{member.description}}"></paper-textarea>
-                                                <paper-input label="DisplayName" value="{{member.displayName}}"></paper-input>
+                                                <paper-input label="Member Id"
+                                                             placeholder="Identifier for this member item - unique within this compound component."
+                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             required
+                                                             value="{{member.memberId}}">
+                                                </paper-input>
+                                                <paper-input label="Component Id"
+                                                             placeholder="Id of the component for this member item (e.g. 'org.example.my-package@1.0/artifact1')"
+                                                             pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*[@](\d+)(\.[\d]+)*(-SNAPSHOT)?||(this)/([a-z0-9-]+)"
+                                                             required
+                                                             value="{{member.componentId}}">
+                                                </paper-input>
+                                                <paper-textarea label="Description"
+                                                                placeholder="Description of this member: responsibility, usage notes etc."
+                                                                value="{{member.description}}">
+                                                </paper-textarea>
+                                                <paper-input label="DisplayName"
+                                                             placeholder="Display name of the referenced member for design view of the BDE"
+                                                             value="{{member.displayName}}">
+                                                </paper-input>
                                             </div>
                                         </iron-collapse>
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addMember">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Member</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
 
-                    <div tabindex="0" on-tap="toggleCollapse" data-collapse-id="connectionsCollapse"
+                    <div tabindex="0"
+                         on-tap="toggleCollapse"
+                         data-collapse-id="connectionsCollapse"
                          class="main-collapse-header collapse-header">
-                        <span>Connections</span>
+                        <span title="List of designed connection between the members and between members and this compound component.">
+                            Connections
+                        </span>
                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                     </div>
                     <iron-collapse id="connectionsCollapse">
@@ -246,30 +393,73 @@
                                         </div>
                                         <iron-collapse id$="[[_idForCollapse(index, 'connection_')]]">
                                             <div class="collapse-content">
-                                                <paper-input label="connectionId" value="{{connection.connectionId}}"></paper-input>
-                                                <paper-textarea label="description" value="{{connection.description}}"></paper-textarea>
-                                                <paper-textarea label="hookFunction" value="{{connection.hookFunction}}"></paper-textarea>
-                                                <paper-checkbox checked="{{connection.repeatedValues}}">Repeated Values</paper-checkbox>
-                                                <paper-checkbox checked="{{connection.copyValue}}">Copy Value</paper-checkbox>
+                                                <paper-input label="Connection Id"
+                                                             placeholder="Identifier for this connection item - unique within this compound component."
+                                                             pattern="^[a-z][a-zA-Z0-9-:]*"
+                                                             required
+                                                             value="{{connection.connectionId}}">
+                                                </paper-input>
+                                                <paper-textarea label="Description"
+                                                                placeholder="A short description of this connection: responsibility etc."
+                                                                value="{{connection.description}}">
+                                                </paper-textarea>
+                                                <paper-textarea label="Hook Function"
+                                                                placeholder="A function declaration as a string or a global function name. This function will called, before a connection destination model variable setted."
+                                                                value="{{connection.hookFunction}}">
+                                                </paper-textarea>
+                                                <paper-checkbox
+                                                        title="If repeatedValues is true, the same value consecutively will propagated, otherwise not. The default value is false."
+                                                        checked="{{connection.repeatedValues}}">
+                                                    Repeated Values
+                                                </paper-checkbox>
+                                                <paper-checkbox
+                                                        title="Indicate to copy or not to copy the payload (inc case the payload is an object). true: make a copy, false: do not make a copy - pass by reference. (default == true)"
+                                                        checked="{{connection.copyValue}}">
+                                                    Copy Value
+                                                </paper-checkbox>
                                                 <div class="list-item-container">
                                                     <strong>Source</strong>
-                                                    <paper-input label="Member Id Reference" value="{{connection.source.memberIdRef}}"></paper-input>
-                                                    <paper-input label="Slot" value="{{connection.source.slot}}"></paper-input>
+                                                    <paper-input label="Member Id Reference"
+                                                                 placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
+                                                                 pattern="^[a-z][a-zA-Z0-9-]*"
+                                                                 value="{{connection.source.memberIdRef}}">
+                                                    </paper-input>
+                                                    <paper-input label="Slot"
+                                                                 placeholder="The name of the slot."
+                                                                 required
+                                                                 value="{{connection.source.slot}}">
+                                                    </paper-input>
                                                     <strong>Destination</strong>
-                                                    <paper-input label="Member Id Reference" value="{{connection.destination.memberIdRef}}"></paper-input>
-                                                    <paper-input label="Slot" value="{{connection.destination.slot}}"></paper-input>
+                                                    <paper-input label="Member Id Reference"
+                                                                 placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
+                                                                 pattern="^[a-z][a-zA-Z0-9-]*"
+                                                                 value="{{connection.destination.memberIdRef}}">
+                                                    </paper-input>
+                                                    <paper-input label="Slot"
+                                                                 placeholder="The name of the slot."
+                                                                 required
+                                                                 value="{{connection.destination.slot}}">
+                                                    </paper-input>
                                                 </div>
                                             </div>
                                         </iron-collapse>
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addConnection">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Connection</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
 
-                    <div tabindex="0" on-tap="toggleCollapse" data-collapse-id="initsCollapse"
+                    <div tabindex="0"
+                         on-tap="toggleCollapse"
+                         data-collapse-id="initsCollapse"
                          class="main-collapse-header collapse-header">
-                        <span>Inits</span>
+                        <span title="List of slot initializations of the compound and member component(s).">Inits</span>
                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                     </div>
                     <iron-collapse id="initsCollapse">
@@ -279,20 +469,40 @@
                                     <div>
                                         <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
                                              data-collapse-id$="[[_idForCollapse(index, 'init_')]]">
-                                            <span>[[init.memberIdRef]]</span>
+                                            <span>[[index]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                         </div>
                                         <iron-collapse id$="[[_idForCollapse(index, 'init_')]]">
                                             <div class="collapse-content">
-                                                <paper-input label="Member Id Reference" value="{{init.memberIdRef}}"></paper-input>
-                                                <paper-input label="Slot" value="{{init.slot}}"></paper-input>
-                                                <paper-textarea label="Value" value="{{init.value}}"></paper-textarea>
-                                                <paper-textarea label="Description" value="{{init.description}}"></paper-textarea>
+                                                <paper-input label="Member Id Reference"
+                                                             placeholder="The 'memberId' value of the member item, the slot belongs to. If the property is missed, it refers to an own slot of the compound component."
+                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             value="{{init.memberIdRef}}">
+                                                </paper-input>
+                                                <paper-input label="Slot"
+                                                             placeholder="Name of the slot to be initialized."
+                                                             required
+                                                             value="{{init.slot}}">
+                                                </paper-input>
+                                                <paper-textarea label="Value"
+                                                                placeholder="The value to init the slot with."
+                                                                value="{{init.value}}">
+                                                </paper-textarea>
+                                                <paper-textarea label="Description"
+                                                                placeholder="A short description of this init item: responsibility etc."
+                                                                value="{{init.description}}">
+                                                </paper-textarea>
                                             </div>
                                         </iron-collapse>
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addInit">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Init</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
                 </template>
@@ -310,8 +520,8 @@
                 </template>
             </paper-dialog-scrollable>
 
-            <div class="button">
-                <paper-button dialog-dismiss>Close</paper-button>
+            <div class="buttons">
+                <paper-button raised dialog-dismiss>Close</paper-button>
             </div>
 
         </paper-dialog>
@@ -340,15 +550,6 @@
 
             close: function () {
                 this.opened = false;
-            },
-
-            handleArtifactIdChanged: function () {
-                this.editLabel = false;
-            },
-
-            toggleChangeLabel: function () {
-                this.editLabel = true;
-                this.$.labelInput.focus();
             },
 
             toggleCollapse: function (e) {
@@ -400,6 +601,56 @@
                     }
                 }
                 return false;
+            },
+            addRunnable:function () {
+                this.push('artifact.runnables', {name: 'newRunnable', path: '', description: ''});
+            },
+            addEndpoint:function () {
+                this.push(
+                        'artifact.endpoints',
+                        {endpointId: 'newEndpoint', description: '', resources: [{prod: '', dev: ''}], dependencies: []}
+                );
+            },
+            addEndpointResource:function (e) {
+                var endpointId = e.currentTarget.dataset.endpointId;
+                var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
+                this.push('artifact.endpoints.' + i + '.resources', {prod: '', dev: ''});
+            },
+            addEndpointDependency:function (e) {
+                var endpointId = e.currentTarget.dataset.endpointId;
+                var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
+                this.push('artifact.endpoints.' + i + '.dependencies', '');
+            },
+            indexOfItemByProperty: function (list, property, value) {
+                for (var i=0; i < list.length; i++) {
+                    if (list[i][property] === value) {
+                        return i;
+                    }
+                }
+                return -1;
+            },
+            addSlot:function () {
+                this.push('artifact.slots', {slotId: 'newSlot', type: '', direction: [], description: ''});
+            },
+            addMember:function () {
+                this.push('artifact.members', {memberId: 'newMember', componentId: '', displayName: '', description: ''});
+            },
+            addConnection:function () {
+                this.push(
+                        'artifact.connections',
+                        {
+                            connectionId: 'newConnection',
+                            source: {memberIdRef: '', slot: ''},
+                            destination: {memberIdRef: '', slot: ''},
+                            copyValue: false,
+                            repeatedValues: false,
+                            hookFunction: '',
+                            description: ''
+                        }
+                );
+            },
+            addInit:function () {
+                this.push('artifact.inits', {memberIdRef: '', slot: '', value: '', description: ''});
             }
         });
     </script>

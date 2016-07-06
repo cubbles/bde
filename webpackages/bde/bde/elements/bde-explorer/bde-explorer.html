@@ -12,7 +12,7 @@
 <link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-styles/default-theme.html">
 <link rel="import" href="bde-compound-creator.html">
-<link rel="import" href="bde-explorer-details.html" />
+<link rel="import" href="bde-explorer-details.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-menu.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-submenu.html"/><!--
 `bde-explorer` is the management component for handling cubble packages
@@ -51,9 +51,7 @@ Example:
                 @apply(--paper-font-caption);
             }
 
-            .addItem {
-                cursor: pointer;
-            }
+            <iron-icon icon="icons:add" item-icon></iron-icon>
 
             paper-button {
                 width: 90%;
@@ -63,7 +61,7 @@ Example:
 
             .endpoint-item {
                 padding-left: 50px;
-                min-height: 0!important;
+                min-height: 0 !important;
             }
 
             .endpoint-list-header {
@@ -73,6 +71,10 @@ Example:
 
             paper-menu {
                 background-color: var(--explorer-background-color);
+            }
+
+            paper-menu  paper-item, .endpoint-list-header{
+                cursor: pointer;
             }
 
 
@@ -124,7 +126,8 @@ Example:
         </div>
 
         <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
-            <paper-menu attr-for-selected="data-artifact-id" on-iron-select="explorerItemSelected"
+            <paper-menu attr-for-selected="data-artifact-id"
+                        on-iron-select="explorerItemSelected"
                         selected="[[selectedCompound.artifactId]]"
                         id="compoundSelector">
                 <template is="dom-repeat" id="compoundList"
@@ -138,14 +141,17 @@ Example:
                                 <div secondary>[[compound.description]]</div>
                                 <div secondary>[[compound.members.length]] Members</div>
                             </paper-item-body>
-                            <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openCompoundDetails">
+                            <paper-icon-button icon="icons:settings" alt="Settings"
+                                               on-tap="openCompoundDetails"
+                                               disabled="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]">
                             </paper-icon-button>
                         </paper-item>
-                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist" on-iron-select="explorerItemSelected">
+                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist"
+                                    on-iron-select="explorerItemSelected">
                             <div class="endpoint-list-header">Endpoints</div>
                             <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint">
                                 <paper-item data-endpoint-id$="[[endpoint.endpointId]]"
-                                                 class="endpoint-item" title="[[endpoint.endpointId]]">
+                                            class="endpoint-item" title="[[endpoint.endpointId]]">
                                     <paper-item-body>
                                         <div data-endpoint-id$="[[endpoint.endpointId]]">[[endpoint.endpointId]]</div>
                                         <div secondary>[[endpoint.description]]</div>
@@ -239,13 +245,6 @@ Example:
                 },
                 currentComponentMetadata: {
                     type: Object,
-//                    value: function() {
-//                        return {
-//                            endpointId: null,
-//                            artifactId: null,
-//                            manifest: null
-//                        }
-//                    },
                     notify: true
                 },
 
@@ -292,7 +291,7 @@ Example:
                 _utilitiesOpen: {
                     type: Boolean,
                     value: false
-                },
+                }
 
             },
 
@@ -300,8 +299,9 @@ Example:
                 // this.$.addAppDialog.open();
             },
 
-            openCompoundDetails: function () {
-              this.$.explorerDetails.open();
+            openCompoundDetails: function (e) {
+                e.stopPropagation();
+                this.$.explorerDetails.open();
             },
 
             addCompound: function () {
@@ -355,7 +355,7 @@ Example:
                 var item = e.model.dataHost.itemForElement(e.target);
                 item.is = e.model.dataHost.id.replace(/List/, '');
 
-                this.fire('bde-explorer-open-settings', { item: item });
+                this.fire('bde-explorer-open-settings', {item: item});
             },
 
             selectApp: function (e) {
@@ -365,7 +365,7 @@ Example:
                 item.is = 'app';
                 this.$.appSelector.select(item);
 
-                this.fire('iron-select', { is: 'app', item: item });
+                this.fire('iron-select', {is: 'app', item: item});
             },
 
             explorerItemSelected: function (e) {
@@ -382,7 +382,7 @@ Example:
 
             deselectCompound: function () {
                 var menu = this.$$('#compoundSelector');
-                menu.selected  = null;
+                menu.selected = null;
                 Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
                     subMenu.close();
                     Polymer.dom(subMenu).querySelector('paper-menu').selected = null;
@@ -393,14 +393,14 @@ Example:
             selectCompound: function (item) {
                 item.is = 'compound';
                 this.set('currentComponentMetadata.artifactId', item.dataset.artifactId);
-                var subMenu =  this.$$('[data-artifact-id=' + item.dataset.artifactId + ']');
+                var subMenu = this.$$('[data-artifact-id=' + item.dataset.artifactId + ']');
                 subMenu.open();
                 Polymer.dom(subMenu).querySelector('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
                 var compound;
-                this.manifest.artifacts.compoundComponents.forEach(function(comp){
-                   if(comp.artifactId === item.dataset.artifactId){
-                       compound = comp;
-                   }
+                this.manifest.artifacts.compoundComponents.forEach(function (comp) {
+                    if (comp.artifactId === item.dataset.artifactId) {
+                        compound = comp;
+                    }
                 });
                 this.set('selectedCompound', compound);
             },
@@ -415,7 +415,7 @@ Example:
                 item.is = 'elementary';
                 this.$.elementarySelector.select(item);
 
-                this.fire('iron-select', { is: 'elementary', item: item });
+                this.fire('iron-select', {is: 'elementary', item: item});
             },
 
             selectUtility: function (e) {
@@ -425,7 +425,7 @@ Example:
                 item.is = 'utility';
                 this.$.elementarySelector.select(item);
 
-                this.fire('iron-select', { is: 'utility', item: item });
+                this.fire('iron-select', {is: 'utility', item: item});
             },
 
             toggleApps: function () {

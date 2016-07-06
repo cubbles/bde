@@ -24,14 +24,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <body>
 
-    <test-fixture id="bde-explorer-fixture">
-        <template>
-            <bde-explorer></bde-explorer>
-        </template>
-    </test-fixture>
+<test-fixture id="bde-explorer-fixture">
+    <template>
+        <bde-explorer></bde-explorer>
+    </template>
+</test-fixture>
 
-    <script>
-      suite('<bde-explorer>', function() {
+<script>
+    suite('<bde-explorer>', function () {
 
         var myEl, testData;
 
@@ -44,17 +44,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             testData = JSON.parse(xhr.responseText);
         }
 
-        setup(function() {
+        setup(function () {
             myEl = fixture('bde-explorer-fixture');
-            myEl.artifacts = testData.artifacts;
+            myEl.manifest = testData.manifest;
+            myEl.currentComponentMetadata = testData.currentComponentMetadata;
         });
 
-        test('sets the "artifacts" property', function() {
-            assert.equal(myEl.artifacts, testData.artifacts);
+        test('sets the "manifest" property', function () {
+            assert.equal(myEl.manifest, testData.manifest);
         });
 
-      });
-    </script>
+        test('sets the "currentComponentMetadata" property', function () {
+            assert.equal(myEl.currentComponentMetadata, testData.currentComponentMetadata);
+        });
 
-  </body>
+    });
+</script>
+
+</body>
 </html>
