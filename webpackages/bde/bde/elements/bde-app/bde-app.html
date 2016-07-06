@@ -8,7 +8,7 @@
 <link rel="import" href="../../vendor/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../vendor/paper-styles/paper-styles.html">
-<link rel="import" href="../bde-webpackage/bde-webpackage.html">
+<link rel="import" href="../bde-manifest/bde-manifest.html">
 <link rel="import" href="../bde-application-settings/bde-application-settings.html">
 <link rel="import" href="../page-select-menu/page-select-menu.html">
 <link rel="import" href="../bde-styles/bde-custom-icons.html">
@@ -105,24 +105,22 @@
         </style>
 
         <!-- Global application state -->
-        <bde-webpackage id="webpackage"
-                        name="{{webpackage.name}}"
-                        group-id="{{webpackage.groupId}}"
-                        version="{{webpackage.version}}"
-                        model-version="{{webpackage.modelVersion}}"
-                        doc-type="{{webpackage.docType}}"
-                        description="{{webpackage.description}}"
-                        author="{{webpackage.author}}"
-                        contributers="{{webpackage.contributers}}"
-                        license="{{webpackage.license}}"
-                        homepage="{{webpackage.homepage}}"
-                        keywords="{{webpackage.keywords}}"
-                        man="{{webpackage.man}}"
-                        runnables="{{webpackage.runnables}}"
-                        artifacts="{{webpackage.artifacts}}"
-                        base-context="{{webpackage.baseContext}}"
-                        resolutions="{{webpackage.resolutions}}"
-        ></bde-webpackage>
+        <bde-manifest id="manifest"
+                        name="{{manifest.name}}"
+                        group-id="{{manifest.groupId}}"
+                        version="{{manifest.version}}"
+                        model-version="{{manifest.modelVersion}}"
+                        doc-type="{{manifest.docType}}"
+                        description="{{manifest.description}}"
+                        author="{{manifest.author}}"
+                        contributers="{{manifest.contributers}}"
+                        license="{{manifest.license}}"
+                        homepage="{{manifest.homepage}}"
+                        keywords="{{manifest.keywords}}"
+                        man="{{manifest.man}}"
+                        runnables="{{manifest.runnables}}"
+                        artifacts="{{manifest.artifacts}}"
+        ></bde-manifest>
 
         <!-- App-wide components belong here -->
         <iron-localstorage id="appSettings"
@@ -150,7 +148,6 @@
         <bde-help-page id="help"></bde-help-page>
 
         <bde-application-settings id="settings"
-                                  webpackage="{{webpackage}}"
                                   settings="{{settings}}"
                                   opened="{{settingsOpened}}"
         ></bde-application-settings>
@@ -158,8 +155,8 @@
         <bde-repository-browser
                 id="browser"
                 settings="[[settings]]"
-                url="[[computeBaseUrl(settings.baseUrl, settings.baseName, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
-                webpackage="{{webpackage}}"
+                url="[[computeBaseUrl(settings.baseUrl, settings.store, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
+                manifest="{{manifest}}"
                 added-item="{{selectedArtifact}}"
         >
         </bde-repository-browser>
@@ -242,7 +239,7 @@
                 <div drawer>
                     <bde-explorer
                             id="explorer"
-                            manifest="{{webpackage}}"
+                            manifest="{{manifest}}"
                             selected-compound="{{selectedArtifact}}"
                             current-component-metadata="{{currentComponentMetadata}}"
                     ></bde-explorer>

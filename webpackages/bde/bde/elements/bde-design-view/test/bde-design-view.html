@@ -48,12 +48,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         setup(function() {
             myEl = fixture('bde-flexbox-layouter-fixture');
-            myEl.webpackage = testData.webpackage;
+            myEl.manifest = testData.manifest;
             myEl.selectedCompound = testData.selectedCompound;
         });
 
         test('sets the "webpackage" property', function() {
-            assert.equal(myEl.webpackage, testData.webpackage);
+            assert.equal(myEl.manifest, testData.manifest);
         });
         test('sets the "selectedCompound" property', function() {
             assert.equal(myEl.selectedCompound, testData.selectedCompound);
