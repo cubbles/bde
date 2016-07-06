@@ -90,13 +90,39 @@
       artifacts: {
         type: Object,
         notify: true,
-        value: function() {
-          return {
-            apps: [],
-            elementaryComponents: [],
-            compoundComponents: [],
-            utilities: []
-          };
+        value: function () {
+            return {
+                compoundComponents:  [
+                    {
+                        artifactId: 'new-compound',
+                        description: 'component for description',
+                        runnables:[
+                            {
+                                name: 'demo',
+                                path: '/demo/index.html',
+                                description: 'component demo...'
+                            },
+                            {
+                                name: 'docs',
+                                path: '/docs/index.html',
+                                description: 'Dataflow of the component'
+                            }
+                        ],
+                        endpoints: [
+                            {
+                                endpointId: 'main',
+                                resources: [],
+                                dependencies: []
+                            }
+                        ],
+                        slots: [],
+                        members:[],
+                        connections: [],
+                        inits: []
+                    }
+                ]
+
+            };
         }
       }
 
@@ -106,6 +132,10 @@
       'library-update-required': 'onLibraryUpdate'
     },
 
+
+      attached: function(){
+          document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[0]);
+      },
     /**
      * The webpackageId in the base, generated from `groupId`,
      * `name`, and `version`.
@@ -266,4 +296,5 @@
     }
   });
 })();
+
 </script>
