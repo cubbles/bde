@@ -88,11 +88,16 @@
       },
 
       artifacts: {
-        type: Array,
+        type: Object,
+        notify: true,
         value: function() {
-          return [];
-        },
-        notify: true
+          return {
+            apps: [],
+            elementaryComponents: [],
+            compoundComponents: [],
+            utilities: []
+          };
+        }
       }
 
     },
@@ -107,34 +112,112 @@
      *
      * @return {string}
      */
-//    get _id ()  {
-//      return this.groupId + '.' + this.name + '@' + this.version;
-//    },
+    // get _id ()  {
+    //   return this.groupId + '.' + this.name + '@' + this.version;
+    // },
 
-    get apps () {
-      return this.artifacts.filter(function(artifact) {
-        return artifact.is === 'app';
-      });
+    // get apps () {
+    //   return this.artifacts.filter(function(artifact) {
+    //     return artifact.is === 'app';
+    //   });
+    // },
+
+    // get elementaries () {
+    //   return this.artifacts.filter(function(artifact) {
+    //     return artifact.is === 'elementary';
+    //   });
+    // },
+
+    // get compounds () {
+    //   return this.artifacts.filter(function(artifact) {
+    //     return artifact.is === 'compound';
+    //   });
+    // },
+
+    // get utilities () {
+    //   return this.artifacts.filter(function(artifact) {
+    //     return artifact.is === 'utility';
+    //   });
+    // },
+
+    /**
+     * Getter for localArtifacts property
+     *
+     * Returns an array of all artifacts in the
+     * manifest. Every array item will have a
+     * `is` property set to identify the artifact
+     * type.
+     */
+    get localArtifacts () {
+      return [].concat(
+        this.artifacts.apps.map(function(artifact) {
+          artifact.is = 'app';
+          return artifact;
+        }),
+        this.artifacts.elementaryComponents.map(function(artifact) {
+          artifact.is = 'elementary';
+          return artifact;
+        }),
+        this.artifacts.compoundComponents.map(function(artifact) {
+          artifact.is = 'compound';
+          return artifact;
+        }),
+        this.artifacts.utilities.map(function(artifact) {
+          artifact.is = 'utility';
+          return artifact;
+        })
+      );
     },
 
-    get elementaries () {
-      return this.artifacts.filter(function(artifact) {
-        return artifact.is === 'elementary';
+    /**
+     * Setter for localArtifacts property
+     *
+     * Will replace the `artifacts` property
+     * with the given array. The array must contain
+     * artifact items with an `is` property
+     * hinting the artifact type.
+     */
+    set localArtifacts (newLocalArtifacts) {
+      var artifacts = {
+        apps: [],
+        elementaryComponents: [],
+        compoundComponents: [],
+        utilities: []
+      };
+
+      newLocalArtifacts.forEach(function(artifact) {
+        switch (artifact.is) {
+          case 'app':
+            delete artifact.is;
+            artifacts.apps.push(artifact);
+          break;
+
+          case 'elementary':
+            delete artifact.is;
+            artifacts.elementaryComponents.push(artifact);
+          break;
+
+          case 'compound':
+            delete artifact.is;
+            artifacts.compoundComponents.push(artifact);
+          break;
+
+          case 'utility':
+            delete artifact.is;
+            artifacts.utilities.push(artifact);
+          break;
+        }
       });
+
+      this.set('artifacts', artifacts);
     },
 
-    get compounds () {
-      return this.artifacts.filter(function(artifact) {
-        return artifact.is === 'compound';
-      });
-    },
-
-    get utilities () {
-      return this.artifacts.filter(function(artifact) {
-        return artifact.is === 'utility';
-      });
-    },
-
+    /**
+     * Load a new manifest
+     *
+     * @param  {[type]} manifest [description]
+     * @return {[type]}          [description]
+     */
     loadManifest: function(manifest) {
 
       Object.keys(manifest)
@@ -145,36 +228,16 @@
           this.set(key, manifest[key]);
         }, this);
 
-      manifest.artifacts.apps.forEach(function(app) {
-        var artifact = app;
-        artifact.is = 'app';
-        this.push('artifacts', artifact);
-      }, this);
-
-      manifest.artifacts.compoundComponents.forEach(function(compound) {
-        var artifact = compound;
-        artifact.is = 'compound';
-        compound.members.forEach(function(member) {
-
-        }, this);
-        this.push('artifacts', artifact);
-      }, this);
-
-      manifest.artifacts.elementaryComponents.forEach(function(elementary) {
-        var artifact = elementary;
-        artifact.is = 'elementary';
-        this.push('artifacts', artifact);
-      }, this);
-
-      manifest.artifacts.utilities.forEach(function(utility) {
-        var artifact = utility;
-        artifact.is = 'utility';
-        this.push('artifacts', artifact);
-      }, this);
-
       this.fire('bde-manifest-loaded', { manifest: this });
     },
 
+    /**
+     * Output current manifest in a base-compatible format
+     *
+     * @param  {Function|Array} replacer (optional)
+     * @param  {String|Number}  space    (optional)
+     * @return {String}
+     */
     toJSON: function() {
       var manifest = {};
 
@@ -186,47 +249,18 @@
           manifest[key] = this[key];
         }, this);
 
-      manifest.artifacts = {
-        apps: [],
-        elementaryComponents: [],
-        compoundComponents: [],
-        utilities: []
-      };
-      this.artifacts.forEach(function(artifact) {
-        var copyArtifact = JSON.parse(JSON.stringify(artifact));
+      // @TODO (fdu): Do we still need the webpackageId in every member?
+      // this.artifacts.compoundComponents = this.artifacts.compoundComponents.map(function(artifact) {
+      //   artifact.members = artifact.members.map(function(member) {
+      //     member.componentId = [
+      //       member.metadata.webpackageId,
+      //       member.metadata.artifactId
+      //     ].join('/');
+      //     delete member.metadata;
 
-        switch (copyArtifact.is) {
-
-          case 'app':
-            delete copyArtifact.is;
-            manifest.artifacts.apps.push(copyArtifact);
-          break;
-
-          case 'elementary':
-            delete copyArtifact.is;
-            manifest.artifacts.elementaryComponents.push(copyArtifact);
-          break;
-
-          case 'compound':
-            delete copyArtifact.is;
-            copyArtifact.members = copyArtifact.members.map(function(member) {
-              member.componentId = [
-                member.metadata.webpackageId,
-                member.metadata.artifactId
-              ].join('/');
-              delete member.metadat;
-
-              return member;
-            });
-            manifest.artifacts.compoundComponents.push(copyArtifact);
-          break;
-
-          case 'utility':
-            delete copyArtifact.is;
-            manifest.artifacts.utilities.push(copyArtifact);
-          break;
-        }
-      });
+      //     return member;
+      //   });
+      // });
 
       return JSON.stringify.apply(this, [manifest].concat(Array.from(arguments)));
     }
