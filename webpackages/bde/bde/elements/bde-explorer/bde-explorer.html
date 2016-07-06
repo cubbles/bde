@@ -138,7 +138,7 @@ Example:
                                 <div secondary>[[compound.description]]</div>
                                 <div secondary>[[compound.members.length]] Members</div>
                             </paper-item-body>
-                            <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openCompoundDetails">
+                            <paper-icon-button icon="icons:settings" alt="Settings" on-tap="openCompoundDetails" disabled="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]">
                             </paper-icon-button>
                         </paper-item>
                         <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist" on-iron-select="explorerItemSelected">
