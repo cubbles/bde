@@ -20,7 +20,7 @@ Example:
     <bde-repository-item
         item="{{item}}"
         last-item-selected="{{addedItem}}"
-        webpackage="{{webpackage}}">
+        manifest="{{manifest}}">
     </bde-repository-item>
 
 @group BDE Custom Elements
@@ -98,9 +98,9 @@ Example:
        * Object to store the couchDB data for the given component. For later use in the bde-creator.
        *
        * @type Object
-       * @property webpackage
+       * @property manifest
        */
-      webpackage: {
+      manifest: {
         type: Object,
         notify: true
       },
@@ -131,8 +131,7 @@ Example:
      * @return {String} url URL ind Base for the given component
      */
     getItemUrl: function (item) {
-      // url = https://www.cubbles.world/ + store/ + name + @version (name + @version = webpackageId)
-      var url = this.get('settings.baseUrl') + '/' + this.get('settings.baseName') + '/' + item.webpackageId + '/manifest.webpackage';
+      var url = this.get('settings.baseUrl') + '/' + this.get('settings.store') + '/' + item.webpackageId + '/manifest.webpackage';
       return url;
     },
 
@@ -143,9 +142,9 @@ Example:
      * @param  {Event} event The iron-ajax respons event.
      */
     handleResponse: function (event) {
-        var webpackage = this.$.itemRequest.lastResponse
+        var manifest = this.$.itemRequest.lastResponse
         var path = inflection.pluralize(this.item.artifactType);
-        var artifact = webpackage.artifacts[path]
+        var artifact = manifest.artifacts[path]
             .find(artifact => artifact.artifactId === this.item.artifactId);
 
         if (!artifact) {
@@ -154,9 +153,9 @@ Example:
 
         artifact.artifactType = this.item.artifactType;
         artifact.url = this.getItemUrl(this.item);
-        artifact.webpackageId = webpackage._id;
+        artifact.webpackageId = manifest._id;
 
-        this.set('webpackage', webpackage);
+        this.set('manifest', manifest);
         this.set('lastItemSelected', artifact);
     }
 

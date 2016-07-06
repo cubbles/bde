@@ -74,30 +74,30 @@
                                          value="[[_intermediate.baseUrl]]"
                                          auto-validate></paper-input>
 
-                            <paper-input id="baseName"
+                            <paper-input id="store"
                                          type="text"
-                                         name="baseName"
-                                         label="Base Name"
+                                         name="store"
+                                         label="Store"
                                          pattern="[a-zA-Z0-9-._~]+"
-                                         value="[[_intermediate.baseName]]"
+                                         value="[[_intermediate.store]]"
                                          auto-validate></paper-input>
 
-                            <paper-input id="username"
-                                         name="username"
-                                         label="Username"
-                                         pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"
-                                         value="[[_intermediate.username]]"
-                                         auto-validate></paper-input>
+                            <!--<paper-input id="username"-->
+                                         <!--name="username"-->
+                                         <!--label="Username"-->
+                                         <!--pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"-->
+                                         <!--value="[[_intermediate.username]]"-->
+                                         <!--auto-validate></paper-input>-->
 
-                            <paper-input id="password"
-                                         name="password"
-                                         type="password"
-                                         label="Password"
-                                         value="[[_intermediate.password]]"></paper-input>
+                            <!--<paper-input id="password"-->
+                                         <!--name="password"-->
+                                         <!--type="password"-->
+                                         <!--label="Password"-->
+                                         <!--value="[[_intermediate.password]]"></paper-input>-->
 
-                            <paper-button raised on-tap="baseConnect">
-                                [[_connectButtonText(_connected)]]
-                            </paper-button>
+                            <!--<paper-button raised on-tap="baseConnect">-->
+                                <!--[[_connectButtonText(_connected)]]-->
+                            <!--</paper-button>-->
 
                         </div>
                     </section>
@@ -159,11 +159,6 @@
                 opened: {
                     type: Boolean,
                     value: false
-                },
-
-                webpackage: {
-                    type: Object,
-                    notify: true
                 },
 
                 settings: {

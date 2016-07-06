@@ -16,8 +16,7 @@
         }
       },
 
-      // TODO: use manifest instead
-      webpackage: {
+      manifest: {
         type: Object
       },
 
@@ -41,14 +40,7 @@
       },
 
       settings: {
-        type: Object,
-        value: function () {
-          return {
-            baseUrl: 'https://cubbles.world',
-            baseName: 'sandbox',
-            author: { name: '', email: '', url: '' }
-          };
-        }
+        type: Object
       },
 
       showExplorer: {
@@ -75,7 +67,7 @@
 
     attached: function () {
       // Bind webpackage node to local scope
-      this.set('webpackage', this.$.webpackage);
+      this.set('manifest', this.$.manifest);
 
       // Show the Explorer
       this.$.drawerPanel.openDrawer();
@@ -83,10 +75,9 @@
       // Attach resize listener
       // (cannot use listeners for window events)
       window.addEventListener('resize', this.handleResize.bind(this));
-
     },
 
-    computeBaseUrl: function (baseUrl, baseName, partial) {
+    computeBaseUrl: function (baseUrl, store, partial) {
       if (!partial || typeof partial !== 'string') {
         throw new TypeError('`partial` must be a string');
       }
@@ -95,7 +86,7 @@
       partial = partial.replace(/^\/?/, '/');
 
       try {
-        return baseUrl + '/' + baseName + partial;
+        return baseUrl + '/' + store + partial;
       } catch (e) {
         return '';
       }
@@ -110,8 +101,8 @@
       this.set('screenHeight', window.outerHeight);
     },
 
-    loadWebpackage: function (webpackage) {
-      this.$.webpackage.loadWebpackage(webpackage);
+    loadManifest: function (manifest) {
+      this.$.manifest.loadManifest(manifest);
     },
 
     getCompoundFromBase: function () {
@@ -136,6 +127,18 @@
 
     helpBtnHandler: function () {
       this.$.help.opened = !this.$.help.opened;
+    },
+
+    initializeDefaultSettings: function () {
+      this.set('settings', {
+        baseUrl: 'https://cubbles.world',
+        store: 'sandbox',
+        author: {
+          name: '',
+          email: '',
+          url: ''
+        }
+      });
     }
   });
 })();

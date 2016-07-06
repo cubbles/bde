@@ -49,7 +49,7 @@ Example:
     <app-data key="settings" data="{{_settings}}"></app-data>
 
     <iron-ajax id="ajax"
-      url="[[_computeBaseUrl(_settings.baseUrl, _settings.baseName)]]"
+      url="[[_computeBaseUrl(_settings.baseUrl, _settings.store)]]"
       handle-as="json"
       on-response="handleResponse"
       auto
@@ -299,8 +299,8 @@ Example:
       this.set('_cubbles', cubbles);
     },
 
-    _computeBaseUrl: function(baseUrl, baseName) {
-      return baseUrl.replace(/[/]?$/, '/') + baseName + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
+    _computeBaseUrl: function(baseUrl, store) {
+      return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
     }
   });
   </script>
