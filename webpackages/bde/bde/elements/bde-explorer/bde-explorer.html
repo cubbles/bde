@@ -300,7 +300,8 @@ Example:
                 // this.$.addAppDialog.open();
             },
 
-            openCompoundDetails: function () {
+            openCompoundDetails: function (e) {
+                e.stopPropagation();
               this.$.explorerDetails.open();
             },
 
