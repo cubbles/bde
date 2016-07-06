@@ -16,14 +16,15 @@
     "web-component-tester": "^4.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
-  "homepage": "https://github.com/mplabs/the-graph",
-  "_release": "055885f74e",
+  "homepage": "https://github.com/cubbles/bde.the-graph",
+  "_release": "eb8818fe6d",
   "_resolution": {
     "type": "branch",
     "branch": "master",
-    "commit": "055885f74eb1c051f39ee731b83000ddea14ea03"
+    "commit": "eb8818fe6d6f14ad11da3fb575d0e5ec800a7574"
   },
-  "_source": "git://github.com/mplabs/the-graph.git",
+  "_source": "git://github.com/cubbles/bde.the-graph.git",
   "_target": "*",
-  "_originalSource": "mplabs/the-graph"
+  "_originalSource": "cubbles/bde.the-graph",
+  "_direct": true
 }

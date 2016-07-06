@@ -27,11 +27,11 @@
     "polymer": "^1.5.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.10",
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
-    "the-graph": "mplabs/the-graph",
     "jsonpath-plus": "^0.13.1",
     "inflection": "^1.10.0",
     "Sortable": "^1.4.2",
-    "highlightjs": "^9.4.0"
+    "highlightjs": "^9.4.0",
+    "the-graph": "cubbles/bde.the-graph"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^4.3.0",

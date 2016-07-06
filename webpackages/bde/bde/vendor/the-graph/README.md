@@ -1,6 +1,6 @@
 # \<the-graph\>
 
-A wpolymer element for viewing and editing flow-based programming graphs.
+A polymer element for viewing and editing flow-based programming graphs.
 
 ## Install the Polymer-CLI
 
