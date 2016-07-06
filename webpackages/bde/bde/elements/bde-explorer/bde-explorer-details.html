@@ -49,6 +49,10 @@
                 border-color: #dbdbdb;
                 margin-top: 10px;
             }
+
+            .addItem {
+                cursor: pointer;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
@@ -114,6 +118,12 @@
                                 </div>
                             </template>
                         </iron-list>
+                        <paper-icon-item class="addItem" on-tap="addRunnable">
+                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                            <paper-item-body>
+                                <div>Add Runnable</div>
+                            </paper-item-body>
+                        </paper-icon-item>
                     </div>
                 </iron-collapse>
 
@@ -184,6 +194,14 @@
                                                                 </div>
                                                             </template>
                                                         </iron-list>
+                                                        <paper-icon-item class="addItem"
+                                                                         on-tap="addEndpointResource"
+                                                                         data-endpoint-id$="[[endpoint.endpointId]]">
+                                                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                                                            <paper-item-body>
+                                                                <div>Add Resource</div>
+                                                            </paper-item-body>
+                                                        </paper-icon-item>
                                                     </div>
                                                 </iron-collapse>
 
@@ -202,13 +220,22 @@
                                                                    as="dependency">
                                                             <template>
                                                                 <div class="list-item-container">
-                                                                    <paper-input pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+"
-                                                                                 no-label-float
-                                                                                 value="{{dependency}}">
+                                                                    <paper-input
+                                                                            pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+"
+                                                                            no-label-float
+                                                                            value="{{dependency}}">
                                                                     </paper-input>
                                                                 </div>
                                                             </template>
                                                         </iron-list>
+                                                        <paper-icon-item class="addItem"
+                                                                         on-tap="addEndpointDependency"
+                                                                         data-endpoint-id$="[[endpoint.endpointId]]">
+                                                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                                                            <paper-item-body>
+                                                                <div>Add Dependency</div>
+                                                            </paper-item-body>
+                                                        </paper-icon-item>
                                                     </div>
                                                 </iron-collapse>
                                             </div>
@@ -216,6 +243,12 @@
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addEndpoint">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Endpoint</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
 
@@ -273,6 +306,12 @@
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addSlot">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Slot</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
 
@@ -324,6 +363,12 @@
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addMember">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Member</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
 
@@ -401,6 +446,12 @@
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addConnection">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Connection</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
 
@@ -418,7 +469,7 @@
                                     <div>
                                         <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
                                              data-collapse-id$="[[_idForCollapse(index, 'init_')]]">
-                                            <span>[[init.slot]]</span>
+                                            <span>[[index]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                         </div>
                                         <iron-collapse id$="[[_idForCollapse(index, 'init_')]]">
@@ -446,6 +497,12 @@
                                     </div>
                                 </template>
                             </iron-list>
+                            <paper-icon-item class="addItem" on-tap="addInit">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Init</div>
+                                </paper-item-body>
+                            </paper-icon-item>
                         </div>
                     </iron-collapse>
                 </template>
@@ -544,6 +601,56 @@
                     }
                 }
                 return false;
+            },
+            addRunnable:function () {
+                this.push('artifact.runnables', {name: 'newRunnable', path: '', description: ''});
+            },
+            addEndpoint:function () {
+                this.push(
+                        'artifact.endpoints',
+                        {endpointId: 'newEndpoint', description: '', resources: [{prod: '', dev: ''}], dependencies: []}
+                );
+            },
+            addEndpointResource:function (e) {
+                var endpointId = e.currentTarget.dataset.endpointId;
+                var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
+                this.push('artifact.endpoints.' + i + '.resources', {prod: '', dev: ''});
+            },
+            addEndpointDependency:function (e) {
+                var endpointId = e.currentTarget.dataset.endpointId;
+                var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
+                this.push('artifact.endpoints.' + i + '.dependencies', '');
+            },
+            indexOfItemByProperty: function (list, property, value) {
+                for (var i=0; i < list.length; i++) {
+                    if (list[i][property] === value) {
+                        return i;
+                    }
+                }
+                return -1;
+            },
+            addSlot:function () {
+                this.push('artifact.slots', {slotId: 'newSlot', type: '', direction: [], description: ''});
+            },
+            addMember:function () {
+                this.push('artifact.members', {memberId: 'newMember', componentId: '', displayName: '', description: ''});
+            },
+            addConnection:function () {
+                this.push(
+                        'artifact.connections',
+                        {
+                            connectionId: 'newConnection',
+                            source: {memberIdRef: '', slot: ''},
+                            destination: {memberIdRef: '', slot: ''},
+                            copyValue: false,
+                            repeatedValues: false,
+                            hookFunction: '',
+                            description: ''
+                        }
+                );
+            },
+            addInit:function () {
+                this.push('artifact.inits', {memberIdRef: '', slot: '', value: '', description: ''});
             }
         });
     </script>
