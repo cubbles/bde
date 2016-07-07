@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <link rel="import" href="../../vendor/polymer/polymer.html">
 <link rel='import' href='../../vendor/paper-button/paper-button.html'/>
 <link rel='import' href='../../vendor/paper-radio-group/paper-radio-group.html'/>
@@ -13,6 +14,7 @@
 <link rel="import" href="../../vendor/iron-collapse/iron-collapse.html" />
 <link rel="import" href="../../vendor/iron-media-query/iron-media-query.html" />
 <link rel="import" href="../../vendor/iron-icons/iron-icons.html" />
+<link rel="import" href="../../vendor/paper-toast/paper-toast.html">
 <!--
 
 `bde-flexbox-layouter` is the flexbox editor for compound templates
@@ -35,7 +37,7 @@
                 border: 1px dashed lightgrey;
             }
 
-            .sortable:not(.selected) {
+            .sortable:not(.selected):not(.parking) {
                 cursor: pointer;
             }
 
@@ -49,7 +51,11 @@
                 float: left;
             }
 
-            .sortable > * i, .flexbox > i {
+            .sortable.parking > * {
+                cursor: move;
+            }
+
+            .flexbox > i {
                 cursor: pointer;
                 transition: opacity .2s;
                 opacity: 0;
@@ -75,7 +81,7 @@
                 margin: -53px 30px 0 0;
             }
 
-            .sortable > *:hover > i, .flexbox:hover > i{
+            .flexbox:hover > i{
                 opacity: 1;
             }
 
@@ -84,45 +90,42 @@
                 background: #1db1cc !important;
             }
 
-            .container {
-                margin-top: 15px;
-                cursor: pointer;
-            }
-
-            .container:focus {
-                outline: 0;
-            }
-
-            .container > span {
-                color: var(--bde-explorer-heading-text-color, --primary-text-color);
-
-                @apply(--paper-font-body2);
-            }
-
-            .container > .count {
-                color: var(--secondary-text-color);
-
-                @apply(--paper-font-caption);
-            }
-
             small {
                 font-weight: normal;
             }
 
-            .hidden {
+            .hidden:not(.flexbox) {
                 display: none;
             }
 
-            .selected, .member-selected {
+            .selected, .sortable:not(.parking) .member-selected {
                 background-color: var(--paper-grey-100) !important;
             }
 
             .add-flexbox {
                 margin-left: 20px;
             }
+
+            #right-drawer {
+                --paper-drawer-panel-right-drawer-container: {
+                    background-color: var(--paper-grey-100);
+                    padding: 20px;
+                    z-index: 1;
+
+                    @apply(--shadow-elevation-2dp);
+                };
+            }
+
+            #right-drawer [drawer] {
+                overflow-y: auto;
+            }
+
+            .flexbox .parking {
+                background: url('hidden.png') repeat-x;
+            }
         </style>
 
-        <paper-drawer-panel
+        <paper-drawer-panel id="right-drawer"
                 right-drawer
                 drawer-width="400px"
                 disable-swipe
@@ -134,120 +137,95 @@
                 <p>This tool allows you to lay out, align and distribute space among members (i.e., elementaries
                     or utilities) in a compound, even when their size is unknown and/or dynamic.</p>
                 <strong hidden$="[[selectedCompound]]">Please select a compound in the webpackage explorer</strong>
-                <div hidden$="[[!selectedCompound]]" class="container" tabindex="0" on-tap="toggleCompoundMembers">
-                    <iron-icon icon="[[calculateToggleIcon(compoundMembersOpen)]]"></iron-icon>
-                    <span>Compound Members</span>
-                    <span class="count">([[selectedCompound.members.length]])</span>
-                </div>
-                <p hidden$="[[!selectedCompound]]">By clicking the + Button next to the member, it will be added to the box selected (the first box is selected by default).</p>
-                <iron-collapse opened="[[compoundMembersOpen]]" hidden$="[[!selectedCompound]]">
-                    <template is="dom-repeat" items="[[selectedCompound.members]]">
-                        <paper-icon-item>
-                            <iron-icon icon="[[calculateMemberIcon(item.componentId)]]" item-icon>
-                            </iron-icon>
-                            <paper-item-body>
-                                <div>[[item.memberId]]</div>
-                            </paper-item-body>
-                            <paper-icon-button id="[[trimComponentId(item.componentId)]]-add-button"
-                                               icon="icons:add" alt="Add member to template"
-                                               data-args="[[trimComponentId(item.componentId)]],[[item.memberId]]"
-                                               on-tap="addMember">
-                            </paper-icon-button>
-                        </paper-icon-item>
-                    </template>
-                </iron-collapse>
-
-                <div class="container" tabindex="0" on-tap="toggleLayoutSettings" hidden$="[[!selectedCompound]]">
-                    <iron-icon icon="[[calculateToggleIcon(layoutSettingsOpen)]]"></iron-icon>
-                    <span>Layout Settings</span>
-                </div>
-                <iron-collapse opened="[[layoutSettingsOpen]]" hidden$="[[!selectedCompound]]">
-                    <div class="controls-wrapper">
-                        <div class="controls-wrapper-buttons">
-                            <div>
-                                <h3>
-                                    Direction
-                                    <small>Specifies the direction of the members</small>
-                                </h3>
-                                <paper-radio-group selected="{{flexDirection}}">
-                                    <paper-radio-button name="row">Horizonal</paper-radio-button>
-                                    <paper-radio-button name="row-reverse">Horizonal Reverse</paper-radio-button>
-                                    <paper-radio-button name="column">Vertical</paper-radio-button>
-                                    <paper-radio-button name="column-reverse">Vertical Reverse</paper-radio-button>
-                                </paper-radio-group>
-                            </div>
-                            <div id="justify-content">
-                                <h3>
-                                    Justify Content
-                                    <small>Aligns the members when they do not use all available space horizontally
-                                    </small>
-                                </h3>
-                                <paper-radio-group selected="{{justifyContent}}">
-                                    <paper-radio-button name="flex-start">Left</paper-radio-button>
-                                    <paper-radio-button name="flex-end">Right</paper-radio-button>
-                                    <paper-radio-button name="center">Center</paper-radio-button>
-                                    <paper-radio-button name="space-between">Space Between</paper-radio-button>
-                                    <paper-radio-button name="space-around">Space Around</paper-radio-button>
-                                </paper-radio-group>
-                            </div>
-                            <div id="wrap">
-                                <h3>
-                                    Wrap
-                                    <small>Specifies whether the members should wrap or not</small>
-                                </h3>
-                                <paper-radio-group selected="{{flexWrap}}">
-                                    <paper-radio-button name="nowrap">No Wrap</paper-radio-button>
-                                    <paper-radio-button name="wrap">Wrap</paper-radio-button>
-                                    <paper-radio-button name="wrap-reverse">Wrap Reverse</paper-radio-button>
-                                </paper-radio-group>
-                            </div>
-                            <div id="align-items">
-                                <h3>
-                                    Align Items
-                                    <small>Specifies the default alignment for members</small>
-                                </h3>
-                                <paper-radio-group selected="{{alignItems}}">
-                                    <paper-radio-button name="flex-start">Left</paper-radio-button>
-                                    <paper-radio-button name="flex-end">Right</paper-radio-button>
-                                    <paper-radio-button name="center">Center</paper-radio-button>
-                                    <paper-radio-button name="baseline">Baseline</paper-radio-button>
-                                    <paper-radio-button name="stretch">Stretch</paper-radio-button>
-                                </paper-radio-group>
-                            </div>
-                            <!--<div>-->
-                            <!--<h3>-->
-                            <!--Align Content-->
-                            <!--<small>Modifies the behavior of the flex-wrap property</small>-->
-                            <!--</h3>-->
-                            <!--<paper-radio-group selected="{{alignContent}}">-->
-                            <!--<paper-radio-button name="flex-start">Start</paper-radio-button>-->
-                            <!--<paper-radio-button name="flex-end">End</paper-radio-button>-->
-                            <!--<paper-radio-button name="center">Center</paper-radio-button>-->
-                            <!--<paper-radio-button name="space-between">Space Between</paper-radio-button>-->
-                            <!--<paper-radio-button name="space-around">Space Around</paper-radio-button>-->
-                            <!--<paper-radio-button name="stretch">Stretch</paper-radio-button>-->
-                            <!--</paper-radio-group>-->
-                            <!--</div>-->
-                            <div id="item-settings" class="hidden">
-                                <h3>Selected Member Settings</h3>
-                                <div id="flex-grow">
-                                    <paper-input label="Grow" type="number" value="{{flexGrow}}" min="0"
-                                                 always-float-label></paper-input>
-                                    <small>Specifies how much the member will grow relative to the others (e.g., 2)</small>
-                                </div>
-                                <div id="flex-shrink">
-                                    <paper-input label="Shrink" type="number" value="{{flexShrink}}" min="1"
-                                                 always-float-label></paper-input>
-                                    <small>Specifies how the member will shrink relative to the others (e.g., 2)</small>
-                                </div>
-                            </div>
+                <div class="controls-wrapper" hidden$="[[!selectedCompound]]">
+                    <div>
+                        <h3>
+                            Direction
+                            <small>Specifies the direction of the members</small>
+                        </h3>
+                        <paper-radio-group selected="{{flexDirection}}">
+                            <paper-radio-button name="row">Horizonal</paper-radio-button>
+                            <paper-radio-button name="row-reverse">Horizonal Reverse</paper-radio-button>
+                            <paper-radio-button name="column">Vertical</paper-radio-button>
+                            <paper-radio-button name="column-reverse">Vertical Reverse</paper-radio-button>
+                        </paper-radio-group>
+                    </div>
+                    <div id="justify-content">
+                        <h3>
+                            Justify Content
+                            <small>Aligns the members when they do not use all available space horizontally
+                            </small>
+                        </h3>
+                        <paper-radio-group selected="{{justifyContent}}">
+                            <paper-radio-button name="flex-start">Left</paper-radio-button>
+                            <paper-radio-button name="flex-end">Right</paper-radio-button>
+                            <paper-radio-button name="center">Center</paper-radio-button>
+                            <paper-radio-button name="space-between">Space Between</paper-radio-button>
+                            <paper-radio-button name="space-around">Space Around</paper-radio-button>
+                        </paper-radio-group>
+                    </div>
+                    <div id="wrap">
+                        <h3>
+                            Wrap
+                            <small>Specifies whether the members should wrap or not</small>
+                        </h3>
+                        <paper-radio-group selected="{{flexWrap}}">
+                            <paper-radio-button name="nowrap">No Wrap</paper-radio-button>
+                            <paper-radio-button name="wrap">Wrap</paper-radio-button>
+                            <paper-radio-button name="wrap-reverse">Wrap Reverse</paper-radio-button>
+                        </paper-radio-group>
+                    </div>
+                    <div id="align-items">
+                        <h3>
+                            Align Items
+                            <small>Specifies the default alignment for members</small>
+                        </h3>
+                        <paper-radio-group selected="{{alignItems}}">
+                            <paper-radio-button name="flex-start">Left</paper-radio-button>
+                            <paper-radio-button name="flex-end">Right</paper-radio-button>
+                            <paper-radio-button name="center">Center</paper-radio-button>
+                            <paper-radio-button name="baseline">Baseline</paper-radio-button>
+                            <paper-radio-button name="stretch">Stretch</paper-radio-button>
+                        </paper-radio-group>
+                    </div>
+                    <!--<div>-->
+                    <!--<h3>-->
+                    <!--Align Content-->
+                    <!--<small>Modifies the behavior of the flex-wrap property</small>-->
+                    <!--</h3>-->
+                    <!--<paper-radio-group selected="{{alignContent}}">-->
+                    <!--<paper-radio-button name="flex-start">Start</paper-radio-button>-->
+                    <!--<paper-radio-button name="flex-end">End</paper-radio-button>-->
+                    <!--<paper-radio-button name="center">Center</paper-radio-button>-->
+                    <!--<paper-radio-button name="space-between">Space Between</paper-radio-button>-->
+                    <!--<paper-radio-button name="space-around">Space Around</paper-radio-button>-->
+                    <!--<paper-radio-button name="stretch">Stretch</paper-radio-button>-->
+                    <!--</paper-radio-group>-->
+                    <!--</div>-->
+                    <div id="item-settings" class="hidden">
+                        <h3>Selected Member Settings</h3>
+                        <div id="flex-grow">
+                            <paper-input label="Grow" type="number" value="{{flexGrow}}" min="0"
+                                         always-float-label></paper-input>
+                            <small>Specifies how much the member will grow relative to the others (e.g., 2)</small>
+                        </div>
+                        <div id="flex-shrink">
+                            <paper-input label="Shrink" type="number" value="{{flexShrink}}" min="1"
+                                         always-float-label></paper-input>
+                            <small>Specifies how the member will shrink relative to the others (e.g., 2)</small>
                         </div>
                     </div>
-                </iron-collapse>
+                </div>
             </div>
 
             <div main>
                 <div id="flexbox-container">
+                    <div class="flexbox parking">
+                        <sortable-js group="sortable" class="sortable parking"
+                                     on-sort="templateChanged"
+                                     on-add="moveMember" ghost-class="ghost">
+                        </sortable-js>
+                    </div>
                     <div class="flexbox">
                         <sortable-js group="sortable" class="sortable selected"
                                      on-sort="templateChanged" on-tap="selectFlexbox"
@@ -257,6 +235,7 @@
                 </div>
                 <paper-icon-button class="add-flexbox" icon="icons:add" title="Add new flexbox" on-tap="addFlexbox">
                 </paper-icon-button>
+                <paper-toast id="toast" text="Flexbox can not be removed because it is not empty" no-auto-focus></paper-toast>
             </div>
 
         </paper-drawer-panel>
@@ -270,6 +249,7 @@
                 },
                 selectedCompound: {
                     type: Object,
+                    value: null,
                     observer: 'selectedCompoundChanged'
                 },
                 compoundMembersOpen: {
@@ -322,7 +302,6 @@
                 Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
             },
             currentComponentMetadataChanged: function () {
-
                 if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest
                         || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId){
                     return;
@@ -337,21 +316,31 @@
             },
             selectedCompoundChanged: function (compound) {
                 this.clearContainer();
+                var sortable = this.$$('.sortable.selected');
+
+                if (compound) {
+                    var members = compound.members;
+                    for (let i = 0; i < members.length; i++) {
+                        var element = document.createElement(this.trimComponentId(members[i].componentId));
+
+                        Polymer.dom(sortable).appendChild(element);
+                        element.setAttribute('class', 'member style-scope bde-flexbox-layouter');
+                        element.setAttribute('member-id-ref', members[i].memberId);
+                        element.innerHTML = members[i].memberId;
+                        element.addEventListener('tap', this.selectMember.bind(this));
+                    }
+                }
             },
             clearContainer: function () {
                 var container = this.$$('#flexbox-container'),
-                        flexboxes = Polymer.dom(container).querySelectorAll('.flexbox');
+                    flexboxes = Polymer.dom(container).querySelectorAll('.flexbox');
 
                 for (var i = 0; i < flexboxes.length; i++) {
                     var sortable = Polymer.dom(flexboxes[i]).querySelector('.sortable'),
-                            nodes = Polymer.dom(flexboxes[i]).querySelectorAll('.member');
-                    // Restore members
-                    for (let i = 0; i < nodes.length; i++) {
-                        let name = nodes[i].nodeName.toString().toLowerCase();
-                        this.$$('#' + name + '-add-button').classList.remove('hidden');
-                    }
+                        nodes = Polymer.dom(flexboxes[i]).querySelectorAll('.member');
+
                     // Remove flexbox
-                    if (i > 0) {
+                    if (i > 1) {
                         Polymer.dom(container).removeChild(flexboxes[i]);
                     } else {
                         for (let n = 0; n < nodes.length; n++) {
@@ -369,7 +358,7 @@
                     }
                 }
                 // Select first flexbox
-                this.$$('.sortable').classList.add('selected');
+                this.$$('.sortable:not(.parking)').classList.add('selected');
                 this.templateChanged();
             },
             flexDirectionChanged: function (value) {
@@ -429,60 +418,14 @@
                 if (item) item.style.flexShrink = value;
                 this.templateChanged();
             },
-            toggleCompoundMembers: function () {
-                this.layoutSettingsOpen = false;
-                this.compoundMembersOpen = !this.compoundMembersOpen;
-            },
-            toggleLayoutSettings: function () {
-                this.compoundMembersOpen = false;
-                this.layoutSettingsOpen = !this.layoutSettingsOpen;
-            },
-            calculateToggleIcon: function (state) {
-                return state ? 'icons:arrow-drop-down' : 'icons:arrow-drop-up';
-            },
-            calculateMemberIcon: function (componentId) {
-                var artifactId = this.trimComponentId(componentId);
-
-                for (var key in this.currentComponentMetadata.manifest.artifacts.elementaryComponents) {
-                    if (this.currentComponentMetadata.manifest.artifacts.elementaryComponents[key]['artifactId'] == artifactId) {
-                        return 'icons:donut-large';
-                    }
-                }
-                for (var key in this.currentComponentMetadata.manifest.artifacts.utilities) {
-                    if (this.currentComponentMetadata.manifest.artifacts.utilities[key]['artifactId'] == artifactId) {
-                        return 'icons:extension';
-                    }
-                }
-                return 'icons:cloud';
-            },
             trimComponentId: function (componentId) {
                 return  componentId.substring(componentId.indexOf('/') + 1)
             },
-            addMember: function (event) {
-                var args = Polymer.dom(event).localTarget.dataArgs.split(','),
-                        componentId = args[0],
-                        memberId = args[1],
-                        sortable = this.$$('.sortable.selected'),
-                        member = document.createElement(componentId),
-                        removeButton = document.createElement('i');
-
-                Polymer.dom(sortable).appendChild(member);
-                member.setAttribute('class', 'member style-scope bde-flexbox-layouter');
-                member.setAttribute('member-id-ref', memberId);
-                member.innerHTML = memberId;
-                member.addEventListener('tap', this.selectMember.bind(this));
-                Polymer.dom(member).appendChild(removeButton);
-                removeButton.setAttribute('class', 'style-scope bde-flexbox-layouter');
-                removeButton.innerHTML = '✖';
-                removeButton.addEventListener('tap', this.removeMember.bind(this));
-                // Hide add button
-                Polymer.dom(event).localTarget.classList.add('hidden');
-            },
             addFlexbox: function () {
                 var container = this.$$('#flexbox-container'),
-                        flexbox = document.createElement('div'),
-                        sortable = document.createElement('sortable-js'),
-                        removeButton = document.createElement('i');
+                    flexbox = document.createElement('div'),
+                    sortable = document.createElement('sortable-js'),
+                    removeButton = document.createElement('i');
 
                 Polymer.dom(flexbox).appendChild(sortable);
                 Polymer.dom(flexbox).appendChild(removeButton);
@@ -516,70 +459,76 @@
                 this.flexWrap = Polymer.dom(event).localTarget.style.flexWrap;
                 this.justifyContent = Polymer.dom(event).localTarget.style.justifyContent;
                 this.alignItems = Polymer.dom(event).localTarget.style.alignItems;
+                // Unselect member
+                selectedElements = Polymer.dom(this.root).querySelectorAll('.member-selected');
+                for (let i = 0; i < selectedElements.length; i++) {
+                    selectedElements[i].classList.remove('member-selected');
+                }
                 this.$$('#item-settings').classList.add('hidden');
             },
             removeFlexbox: function (event) {
                 var container = this.$$('#flexbox-container'),
-                        flexbox = Polymer.dom(event).localTarget.parentNode,
-                        sortable = Polymer.dom(flexbox).querySelector('.sortable'),
-                        nodes = Polymer.dom(flexbox).querySelectorAll('.member');
-                // Restore members
-                for (let i = 0; i < nodes.length; i++) {
-                    let name = nodes[i].nodeName.toString().toLowerCase();
-                    this.$$('#' + name + '-add-button').classList.remove('hidden');
+                    flexbox = Polymer.dom(event).localTarget.parentNode,
+                    sortable = Polymer.dom(flexbox).querySelector('.sortable'),
+                    nodes = Polymer.dom(flexbox).querySelectorAll('.member');
+
+                // Flexboxes with members can not be removed
+                if (nodes.length > 0) {
+                    this.$.toast.open();
+                } else {
+                    // If the flexbox to be removed is selected, select first by default
+                    if (sortable.classList.contains('selected')) {
+                        this.$$('.sortable:not(.parking)').classList.add('selected');
+                    }
+                    // Remove flexbox
+                    Polymer.dom(container).removeChild(flexbox);
+                    this.templateChanged();
                 }
-                // If the flexbox to be removed is selected, select first by default
-                if (sortable.classList.contains('selected')) {
-                    this.$$('.sortable').classList.add('selected');
-                }
-                // Remove flexbox
-                Polymer.dom(container).removeChild(flexbox);
-                this.templateChanged();
             },
             selectMember: function (event) {
-                var selectedElements = Polymer.dom(event).localTarget.parentNode.parentNode.querySelectorAll('.member-selected');
-                for (let i = 0; i < selectedElements.length; i++) {
-                    selectedElements[i].classList.remove('member-selected');
+                // Hidden members can not be selected
+                if (!Polymer.dom(event).localTarget.parentNode.classList.contains('parking')) {
+                    var container = Polymer.dom(event).localTarget.parentNode.parentNode.parentNode,
+                        flexboxes = Polymer.dom(container).querySelectorAll('.sortable:not(.parking)');
+
+                    for (let i = 0; i < flexboxes.length; i++) {
+                        var selectedElements = Polymer.dom(flexboxes[i]).querySelectorAll('.member-selected');
+                        for (let i = 0; i < selectedElements.length; i++) {
+                            selectedElements[i].classList.remove('member-selected');
+                        }
+                    }
+                    Polymer.dom(event).localTarget.classList.add('member-selected');
+                    this.$$('#item-settings').classList.remove('hidden');
+                    this.flexGrow = Polymer.dom(event).localTarget.style.flexGrow;
+                    this.flexShrink = Polymer.dom(event).localTarget.style.flexShrink;
                 }
-                Polymer.dom(event).localTarget.classList.add('member-selected');
-                this.$$('#item-settings').classList.remove('hidden');
-                this.flexGrow = Polymer.dom(event).localTarget.style.flexGrow;
-                this.flexShrink = Polymer.dom(event).localTarget.style.flexShrink;
                 event.stopPropagation();
             },
             moveMember: function (event) {
                 var from = Polymer.dom(event).event.from,
-                        to = Polymer.dom(event).event.to,
-                        member = Polymer.dom(event).event.item;
+                    to = Polymer.dom(event).event.to,
+                    member = Polymer.dom(event).event.item;
 
                 if (from && to && member) {
                     Polymer.dom(from).removeChild(member);
                     Polymer.dom(to).appendChild(member);
                 }
             },
-            removeMember: function (event) {
-                // Restore add button
-                var name = Polymer.dom(event).localTarget.parentNode.nodeName.toString().toLowerCase();
-                this.$$('#' + name + '-add-button').classList.remove('hidden');
-                // Remove member
-                var flexbox = Polymer.dom(event).localTarget.parentNode.parentNode,
-                        member = Polymer.dom(event).localTarget.parentNode;
-                Polymer.dom(flexbox).removeChild(member);
-            },
             templateChanged: function () {
                 console.log('<bde-flexbox-layouter>::templateChanged', this.getTemplate());
             },
             getTemplate: function () {
-                //var container = this.$$('#flexbox-container').cloneNode(true);
                 var flexboxes = Polymer.dom(this.root).querySelectorAll('.sortable'),
-                        template = document.createElement('template');
+                    template = document.createElement('template');
 
                 for (let i = 0; i < flexboxes.length; i++) {
                     let flexbox = flexboxes[i].cloneNode(true),
-                            div = document.createElement('div');
-
-
-                        div.style.cssText = flexbox.getAttribute('style');
+                        div = document.createElement('div');
+                        if (flexbox.classList.contains('parking')) {
+                            div.style.display = 'none';
+                        } else {
+                            div.style.cssText = flexbox.getAttribute('style');
+                        }
 
                     template.content.appendChild(div);
                     while (flexbox.hasChildNodes()) {
