@@ -1,0 +1,718 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer-gestures/polymer-gestures.html">
+<link rel="import" href="the-graph-dark.html">
+<link rel="import" href="the-graph-light.html">
+<dom-module id="the-graph">
+
+  <template>
+    <style import="the-graph-dark"></style>
+    <style import="the-graph-light"></style>
+    <style>
+      @font-face {
+          /* we want the svg version */
+          font-family: 'FontAwesomeSVG';
+          src: url('../font-awesome/fonts/fontawesome-webfont.svg') format('svg'),
+               url('../font-awesome/fonts/fontawesome-webfont.eot') format('embedded-opentype'),
+               url('../font-awesome/fonts/fontawesome-webfont.woff') format('woff'),
+               url('../font-awesome/fonts/fontawesome-webfont.ttf') format('truetype');
+          font-weight: normal;
+          font-style: normal;
+      }
+      :host {
+        display: block;
+      }
+    </style>
+    <div id="svgcontainer"></div>
+  </template>
+
+  <script src="../react/react.js"></script>
+  <script src="../react/react-dom.js"></script>
+  <script src="../klayjs-noflo/klay-noflo.js"></script>
+  <script src="../hammerjs/hammer.min.js"></script>
+  <script type="text/javascript" src="./lib/the-graph.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-app.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-graph.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-node.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-node-menu.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-node-menu-port.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-node-menu-ports.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-port.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-edge.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-iip.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-group.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-tooltip.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-menu.js"></script>
+  <script type="text/javascript" src="./lib/the-graph-clipboard.js"></script>
+  <script type="text/javascript" src="./build/font-awesome-unicode-map.js"></script>
+  <script>
+    "use strict";
+
+    Polymer({
+
+      is: 'the-graph',
+
+      properties: {
+
+        animatedEdges: {
+          type: Array,
+          value: function () {
+            return [];
+          },
+          notify: true
+        },
+
+        appView: {
+          type: Object,
+          value: null
+        },
+
+        autolayout: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          observer: 'autolayoutChanged'
+        },
+
+        autolayouter: {
+          type: Function,
+          value: null
+        },
+
+        debounceLibraryRefeshTimer: {
+          type: Number,
+          value: null
+        },
+
+        displaySelectionGroup: {
+          type: Boolean,
+          value: true,
+          notify: true,
+          observer: 'displaySelectionGroupChanged'
+        },
+
+        editable: {
+          type: Boolean,
+          value: true
+        },
+
+        errorNodes: {
+          type: Object,
+          value: function () {
+            return {};
+          },
+          notify: true,
+          observer: 'errorNodesChanged'
+        },
+
+        forceSelection: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          observer: 'forceSelectionChanged'
+        },
+
+        getMenuDef: {
+          type: Function,
+          notify: true
+        },
+
+        graph: {
+          value: null,
+          notify: true,
+          observer: 'graphChanged'
+        },
+
+        graphView: {
+          type: Object,
+          value: null
+        },
+
+        grid: {
+          type: Number,
+          value: 72
+        },
+
+        height: {
+          type: Number,
+          value: 600,
+          notify: true,
+          observer: 'heightChanged'
+        },
+
+        library: {
+          value: function() {
+            return {};
+          },
+          notify: true
+        },
+
+        maxZoom: {
+          type: Number,
+          value: 15,
+          notify: true
+        },
+
+        menus: {
+          value: null,
+          notify: true,
+          observer: 'menusChanged'
+        },
+
+        minZoom: {
+          type: Number,
+          value: 0.15,
+          notify: true
+        },
+
+        offsetX: {
+          value: null,
+          notify: true
+        },
+
+        offsetY: {
+          value: null,
+          notify: true
+        },
+
+        pan: {
+          value: function() {
+            return [0, 0];
+          },
+          notify: true,
+          observer: 'panChanged'
+        },
+
+        scale: {
+          type: Number,
+          value: 1,
+          notify: true
+        },
+
+        selectedEdges: {
+          type: Array,
+          value: function () {
+            return [];
+          },
+          notify: true
+        },
+
+        selectedNodes: {
+          type: Array,
+          value: function () {
+            return [];
+          },
+          notify: true
+        },
+
+        selectedNodesHash: {
+          type: Object,
+          value: function () {
+            return {};
+          },
+          notify: true
+        },
+
+        snap: {
+          type: Number,
+          value: 36
+        },
+
+        theme: {
+          type: String,
+          value: 'dark',
+          notify: true,
+          observer: 'themeChanged'
+        },
+
+        width: {
+          type: Number,
+          value: 800,
+          notify: true,
+          observer: 'widthChanged'
+        }
+      },
+
+      observers: [
+        'animatedEdgesChanged(animatedEdges.splices)',
+        'selectedEdgesChanged(selectedEdges.splices)',
+        'selectedNodesChanged(selectedNodes.splices)',
+        'selectedNodesHashChanged(selectedNodesHash)'
+      ],
+
+      listeners: {
+        'track': 'onTrack',
+        'tap': 'onTap'
+      },
+
+      hostAttributes: {
+        'touch-action': 'none'
+      },
+
+      created: function () {
+        // Initializes the autolayouter
+        this.autolayouter = klayNoflo.init({
+          onSuccess: this.applyAutolayout.bind(this),
+          workerScript: '../bower_components/klayjs/klay.js'
+        });
+      },
+
+      ready: function () {
+        this.themeChanged();
+      },
+
+      themeChanged: function () {
+        this.$.svgcontainer.classList.remove('the-graph-dark', 'the-graph-light');
+        this.$.svgcontainer.classList.add('the-graph-' + this.theme);
+      },
+
+      graphChanged: function (newGraph, oldGraph) {
+        if (!newGraph) { return; }
+
+        if (oldGraph && oldGraph.removeListener) {
+          oldGraph.removeListener('endTransaction', this.fireChanged);
+        }
+        // Listen for graph changes
+        this.graph.on('endTransaction', this.fireChanged.bind(this));
+        // Fire polymer events
+        this.graph.on('addNode', this.fire.bind(this, 'the-graph-add-node'));
+        this.graph.on('removeNode', this.fire.bind(this, 'the-graph-remove-node'));
+        this.graph.on('addInport', this.fire.bind(this, 'the-graph-add-inport'));
+        this.graph.on('removeInport', this.fire.bind(this, 'the-graph-remove-inport'));
+        this.graph.on('addOutport', this.fire.bind(this, 'the-graph-add-outport'));
+        this.graph.on('removeOutport', this.fire.bind(this, 'the-graph-remove-outport'));
+        this.graph.on('addEdge', this.fire.bind(this, 'the-graph-add-edge'));
+        this.graph.on('removeEdge', this.fire.bind(this, 'the-graph-remove-edge'));
+        // Listen for autolayout changes
+        if (this.autolayout) {
+          this.graph.on('addNode', this.triggerAutolayout.bind(this));
+          this.graph.on('removeNode', this.triggerAutolayout.bind(this));
+          this.graph.on('addInport', this.triggerAutolayout.bind(this));
+          this.graph.on('removeInport', this.triggerAutolayout.bind(this));
+          this.graph.on('addOutport', this.triggerAutolayout.bind(this));
+          this.graph.on('removeOutport', this.triggerAutolayout.bind(this));
+          this.graph.on('addEdge', this.triggerAutolayout.bind(this));
+          this.graph.on('removeEdge', this.triggerAutolayout.bind(this));
+        }
+        if (this.appView) {
+          // Remove previous instance
+          React.unmountComponentAtNode(this.$.svgcontainer);
+        }
+        // Setup app
+        this.set('$.svgcontainer.innerHTML', '');
+        this.appView = ReactDOM.render(window.TheGraph.App({
+          graph: this.graph,
+          width: this.width,
+          minZoom: this.minZoom,
+          maxZoom: this.maxZoom,
+          height: this.height,
+          library: this.library,
+          menus: this.menus,
+          editable: this.editable,
+          onEdgeSelection: this.onEdgeSelection.bind(this),
+          onNodeSelection: this.onNodeSelection.bind(this),
+          onPanScale: this.onPanScale.bind(this),
+          getMenuDef: this.getMenuDef,
+          displaySelectionGroup: this.displaySelectionGroup,
+          forceSelection: this.forceSelection,
+          offsetY: this.offsetY,
+          offsetX: this.offsetX
+        }), this.$.svgcontainer);
+        this.graphView = this.appView.refs.graph;
+      },
+
+      onPanScale: function (x, y, scale) {
+        this.set('pan' + ('.' + 0), x);
+        this.set('pan' + ('.' + 1), y);
+        this.scale = scale;
+      },
+
+      onEdgeSelection: function (itemKey, item, toggle) {
+        if (itemKey === undefined) {
+          if (this.selectedEdges.length > 0) {
+            this.splice('selectedEdges', 0, this.selectedEdges.length);
+          }
+          this.fire('edges', this.selectedEdges);
+          return;
+        }
+        if (toggle) {
+          var index = this.selectedEdges.indexOf(item);
+          var isSelected = index !== -1;
+          var shallowClone = this.selectedEdges.slice();
+          if (isSelected) {
+            shallowClone.splice(index, 1);
+            this.set('selectedEdges', shallowClone);
+          } else {
+            shallowClone.push(item);
+            this.set('selectedEdges', shallowClone);
+          }
+        } else {
+          this.splice('selectedEdges', 0, this.selectedEdges.length);
+          this.push('selectedEdges', item);
+        }
+        this.fire('edges', this.selectedEdges);
+      },
+
+      onNodeSelection: function (itemKey, item, toggle) {
+        if (itemKey === undefined) {
+          this.splice('selectedNodes', 0, this.selectedNodes.length);
+        } else if (toggle) {
+          var index = this.selectedNodes.indexOf(item);
+          var isSelected = index !== -1;
+          if (isSelected) {
+            this.splice('selectedNodes', index, 1);
+          } else {
+            this.push('selectedNodes', item);
+          }
+        } else {
+          this.splice('selectedNodes', 0, this.selectedNodes.length);
+          this.push('selectedNodes', item);
+        }
+        this.fire('nodes', this.selectedNodes);
+      },
+
+      onTrack: function(event) {
+        // Dont propagate beyond PolymerGestures scope
+        event.stopPropagation();
+      },
+
+      onTap: function(event) {
+        // Dont propagate beyond PolymerGestures scope
+        event.stopPropagation();
+      },
+
+      selectedNodesChanged: function (changeRecord) {
+        if (!changeRecord) { return; }
+        
+        var selectedNodesHash = {};
+        for (var i = 0, len = this.selectedNodes.length; i < len; i++) {
+          selectedNodesHash[this.selectedNodes[i].id] = true;
+        }
+
+        this.set('selectedNodesHash', selectedNodesHash);
+        this.fire('nodes', this.selectedNodes);
+      },
+
+      selectedNodesHashChanged: function () {
+        if (!this.graphView) {
+          return;
+        }
+        this.graphView.setSelectedNodes(this.selectedNodesHash);
+      },
+
+      errorNodesChanged: function () {
+        if (!this.graphView) {
+          return;
+        }
+        this.graphView.setErrorNodes(this.errorNodes);
+      },
+
+      selectedEdgesChanged: function () {
+        if (!this.graphView) {
+          return;
+        }
+        this.graphView.setSelectedEdges(this.selectedEdges);
+        this.fire('edges', this.selectedEdges);
+      },
+
+      animatedEdgesChanged: function () {
+        if (!this.graphView) {
+          return;
+        }
+        this.graphView.setAnimatedEdges(this.animatedEdges);
+      },
+
+      fireChanged: function (_, event) {
+        this.fire('changed', this);
+      },
+
+      autolayoutChanged: function () {
+        if (!this.graph) {
+          return;
+        }
+        // Only listen to changes that affect layout
+        if (this.autolayout) {
+          this.graph.on('addNode', this.triggerAutolayout.bind(this));
+          this.graph.on('removeNode', this.triggerAutolayout.bind(this));
+          this.graph.on('addInport', this.triggerAutolayout.bind(this));
+          this.graph.on('removeInport', this.triggerAutolayout.bind(this));
+          this.graph.on('addOutport', this.triggerAutolayout.bind(this));
+          this.graph.on('removeOutport', this.triggerAutolayout.bind(this));
+          this.graph.on('addEdge', this.triggerAutolayout.bind(this));
+          this.graph.on('removeEdge', this.triggerAutolayout.bind(this));
+        } else {
+          this.graph.removeListener('addNode', this.triggerAutolayout);
+          this.graph.removeListener('removeNode', this.triggerAutolayout);
+          this.graph.removeListener('addInport', this.triggerAutolayout);
+          this.graph.removeListener('removeInport', this.triggerAutolayout);
+          this.graph.removeListener('addOutport', this.triggerAutolayout);
+          this.graph.removeListener('removeOutport', this.triggerAutolayout);
+          this.graph.removeListener('addEdge', this.triggerAutolayout);
+          this.graph.removeListener('removeEdge', this.triggerAutolayout);
+        }
+      },
+
+      triggerAutolayout: function (event) {
+        var graph = this.graph;
+        var portInfo = this.graphView ? this.graphView.portInfo : null;
+        // Calls the autolayouter
+        this.autolayouter.layout({
+          'graph': graph,
+          'portInfo': portInfo,
+          'direction': 'RIGHT',
+          'options': {
+            'intCoordinates': true,
+            'algorithm': 'de.cau.cs.kieler.klay.layered',
+            'layoutHierarchy': true,
+            'spacing': 36,
+            'borderSpacing': 20,
+            'edgeSpacingFactor': 0.2,
+            'inLayerSpacingFactor': 2,
+            'nodePlace': 'BRANDES_KOEPF',
+            'nodeLayering': 'NETWORK_SIMPLEX',
+            'edgeRouting': 'POLYLINE',
+            'crossMin': 'LAYER_SWEEP',
+            'direction': 'RIGHT'
+          }
+        });
+      },
+
+      applyAutolayout: function (layoutedKGraph) {
+        this.graph.startTransaction('autolayout');
+        // Update original graph nodes with the new coordinates from KIELER graph
+        var children = layoutedKGraph.children.slice();
+        var i, len;
+        for (i = 0, len = children.length; i < len; i++) {
+          var klayNode = children[i];
+          var nofloNode = this.graph.getNode(klayNode.id);
+          // Encode nodes inside groups
+          if (klayNode.children) {
+            var klayChildren = klayNode.children;
+            var idx;
+            for (idx in klayChildren) {
+              var klayChild = klayChildren[idx];
+              if (klayChild.id) {
+                this.graph.setNodeMetadata(klayChild.id, {
+                  x: Math.round((klayNode.x + klayChild.x) / this.snap) * this.snap,
+                  y: Math.round((klayNode.y + klayChild.y) / this.snap) * this.snap
+                });
+              }
+            }
+          }
+          // Encode nodes outside groups
+          if (nofloNode) {
+            this.graph.setNodeMetadata(klayNode.id, {
+              x: Math.round(klayNode.x / this.snap) * this.snap,
+              y: Math.round(klayNode.y / this.snap) * this.snap
+            });
+          } else {
+            // Find inport or outport
+            var idSplit = klayNode.id.split(':::');
+            var expDirection = idSplit[0];
+            var expKey = idSplit[1];
+            if (expDirection === 'inport' && this.graph.inports[expKey]) {
+              this.graph.setInportMetadata(expKey, {
+                x: Math.round(klayNode.x / this.snap) * this.snap,
+                y: Math.round(klayNode.y / this.snap) * this.snap
+              });
+            } else if (expDirection === 'outport' && this.graph.outports[expKey]) {
+              this.graph.setOutportMetadata(expKey, {
+                x: Math.round(klayNode.x / this.snap) * this.snap,
+                y: Math.round(klayNode.y / this.snap) * this.snap
+              });
+            }
+          }
+        }
+        this.graph.endTransaction('autolayout');
+        // Fit to window
+        this.triggerFit();
+      },
+
+      triggerFit: function () {
+        if (this.appView) {
+          this.appView.triggerFit();
+        }
+      },
+
+      widthChanged: function () {
+        if (!this.appView) {
+          return;
+        }
+        this.appView.setState({ width: this.width });
+      },
+
+      heightChanged: function () {
+        if (!this.appView) {
+          return;
+        }
+        this.appView.setState({ height: this.height });
+      },
+
+      updateIcon: function (nodeId, icon) {
+        if (!this.graphView) {
+          return;
+        }
+        this.graphView.updateIcon(nodeId, icon);
+      },
+
+      rerender: function (options) {
+        // This is throttled with rAF internally
+        if (!this.graphView) {
+          return;
+        }
+        this.graphView.markDirty(options);
+      },
+
+      addNode: function (id, component, metadata) {
+        if (!this.graph) {
+          return;
+        }
+        this.graph.addNode(id, component, metadata);
+      },
+
+      getPan: function () {
+        if (!this.appView) {
+          return [0, 0];
+        }
+        return [
+          this.appView.state.x,
+          this.appView.state.y
+        ];
+      },
+
+      panChanged: function () {
+        // Send pan back to React
+        if (!this.appView) {
+          return;
+        }
+        this.appView.setState({
+          x: this.pan[0],
+          y: this.pan[1]
+        });
+      },
+
+      getScale: function () {
+        if (!this.appView) {
+          return 1;
+        }
+        return this.appView.state.scale;
+      },
+
+      displaySelectionGroupChanged: function () {
+        if (!this.graphView) {
+          return;
+        }
+        this.graphView.setState({ displaySelectionGroup: this.displaySelectionGroup });
+      },
+
+      forceSelectionChanged: function () {
+        if (!this.graphView) {
+          return;
+        }
+        this.graphView.setState({ forceSelection: this.forceSelection });
+      },
+
+      focusNode: function (node) {
+        this.appView.focusNode(node);
+      },
+
+      menusChanged: function () {
+        // Only if the object itself changes,
+        // otherwise builds menu from reference every time menu shown
+        if (!this.appView) {
+          return;
+        }
+        this.appView.setProps({ menus: this.menus });
+      },
+
+      debounceLibraryRefesh: function () {
+        // Breaking the "no debounce" rule, this fixes #76 for subgraphs
+        if (this.debounceLibraryRefeshTimer) {
+          clearTimeout(this.debounceLibraryRefeshTimer);
+        }
+        this.debounceLibraryRefeshTimer = setTimeout(function () {
+          this.rerender({ libraryDirty: true });
+        }.bind(this), 200);
+      },
+
+      mergeComponentDefinition: function (component, definition) {
+        // In cases where a component / subgraph ports change,
+        // we don't want the connections hanging in middle of node
+        // TODO visually indicate that port is a ghost
+        if (component === definition) {
+          return definition;
+        }
+        var _i, _j, _len, _len1, exists;
+        var cInports = component.inports;
+        var dInports = definition.inports;
+        if (cInports !== dInports) {
+          for (_i = 0, _len = cInports.length; _i < _len; _i++) {
+            var cInport = cInports[_i];
+            exists = false;
+            for (_j = 0, _len1 = dInports.length; _j < _len1; _j++) {
+              var dInport = dInports[_j];
+              if (cInport.name === dInport.name) {
+                exists = true;
+              }
+            }
+            if (!exists) {
+              dInports.push(cInport);
+            }
+          }
+        }
+        var cOutports = component.outports;
+        var dOutports = definition.outports;
+        if (cOutports !== dOutports) {
+          for (_i = 0, _len = cOutports.length; _i < _len; _i++) {
+            var cOutport = cOutports[_i];
+            exists = false;
+            for (_j = 0, _len1 = dOutports.length; _j < _len1; _j++) {
+              var dOutport = dOutports[_j];
+              if (cOutport.name === dOutport.name) {
+                exists = true;
+              }
+            }
+            if (!exists) {
+              dOutports.push(cOutport);
+            }
+          }
+        }
+        if (definition.icon !== 'cog') {
+          // Use the latest icon given
+          component.icon = definition.icon;
+        } else {
+          // we should use the icon from the library
+          definition.icon = component.icon;
+        }
+        // a component could also define a svg icon
+        definition.iconsvg = component.iconsvg;
+        return definition;
+      },
+
+      registerComponent: function (definition, generated) {
+        var component = this.library[definition.name];
+        var def = definition;
+        if (component) {
+          if (generated) {
+            // Don't override real one with generated dummy
+            return;
+          }
+          def = this.mergeComponentDefinition(component, definition);
+        }
+        this.set('library' + ('.' + definition.name), def);
+        // So changes are rendered
+        this.debounceLibraryRefesh();
+      },
+
+      getComponent: function (name) {
+        return this.library[name];
+      },
+
+      toJSON: function () {
+        if (!this.graph) {
+          return {};
+        }
+        return this.graph.toJSON();
+      }      
+    });
+  </script>
+</dom-module>
