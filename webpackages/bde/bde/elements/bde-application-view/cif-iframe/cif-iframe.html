@@ -54,6 +54,9 @@
 
         function _handleCurrentComponentMetadata (currentComponentMetadata) {
 
+            if(typeof currentComponentMetadata.manifest === 'string' ){
+                currentComponentMetadata.manifest = JSON.parse(currentComponentMetadata.manifest);
+            }
             // Cannot handle resetting CIF container, yet
             if (window.cif) {
                 document.location.reload();
@@ -67,18 +70,20 @@
                 console.log("Webcomponents injected...");
             });
 
+            var webpackageId =  currentComponentMetadata.manifest.name + '@' +
+                    currentComponentMetadata.manifest.version + '/' +
+                    currentComponentMetadata.artifactId + '/' +
+                    currentComponentMetadata.endpointId;
+            if(currentComponentMetadata.manifest.groupId && currentComponentMetadata.manifest.groupId.length>0){
+                webpackageId = currentComponentMetadata.manifest.groupId  + '.' + webpackageId;
+            }
             // Create rootDependencies object
             window.cubx = {
                 CRCInit: {
                     allowAbsoluteResourceUrls: true,
                     rootDependencies: [
                         {
-                            endpoint: (currentComponentMetadata.manifest.groupId + '.' || '') +
-                                currentComponentMetadata.manifest.name + '@' +
-                                currentComponentMetadata.manifest.version + '/' +
-                                currentComponentMetadata.artifactId + '/' +
-                                currentComponentMetadata.endpointId,
-
+                            endpoint: webpackageId,
                             manifest: currentComponentMetadata.manifest
                         }
                     ]
