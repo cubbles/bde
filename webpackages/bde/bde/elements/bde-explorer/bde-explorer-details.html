@@ -689,13 +689,24 @@
                 return false;
             },
             addRunnable: function () {
-                this.push('artifact.runnables', {name: 'newRunnable', path: '', description: ''});
+                var newIndex = this.artifact.runnables.length;
+                this.push(
+                        'artifact.runnables',
+                        {
+                            name: 'runnable' + newIndex,
+                            path: '',
+                            description: ''
+                        });
             },
             addEndpoint: function () {
                 this.push(
                         'artifact.endpoints',
-                        {endpointId: 'newEndpoint', description: '', resources: [{prod: '', dev: ''}], dependencies: []}
-                );
+                        {
+                            endpointId: 'endpoint' + this.artifact.endpoints.length,
+                            description: '',
+                            resources: [{prod: '', dev: ''}],
+                            dependencies: []
+                        });
             },
             addEndpointResource: function (e) {
                 var endpointId = e.currentTarget.dataset.endpointId;
@@ -707,30 +718,31 @@
                 var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
                 this.push('artifact.endpoints.' + i + '.dependencies', '');
             },
-            indexOfItemByProperty: function (list, property, value) {
-                for (var i = 0; i < list.length; i++) {
-                    if (list[i][property] === value) {
-                        return i;
-                    }
-                }
-                return -1;
-            },
             addSlot: function () {
-                this.push('artifact.slots', {slotId: 'newSlot', type: '', direction: [], description: ''});
+                this.push(
+                        'artifact.slots',
+                        {
+                            slotId: 'slot' + this.artifact.slots.length,
+                            type: '',
+                            direction: [],
+                            description: ''
+                        });
             },
             addMember: function () {
-                this.push('artifact.members', {
-                    memberId: 'newMember',
-                    componentId: '',
-                    displayName: '',
-                    description: ''
-                });
+                this.push(
+                        'artifact.members',
+                        {
+                            memberId: 'member' + this.artifact.members.length,
+                            componentId: '',
+                            displayName: '',
+                            description: ''
+                        });
             },
             addConnection: function () {
                 this.push(
                         'artifact.connections',
                         {
-                            connectionId: 'newConnection',
+                            connectionId: 'connection' + this.artifact.connections.length,
                             source: {memberIdRef: '', slot: ''},
                             destination: {memberIdRef: '', slot: ''},
                             copyValue: false,
@@ -743,28 +755,13 @@
             addInit: function () {
                 this.push('artifact.inits', {memberIdRef: '', slot: '', value: '', description: ''});
             },
-            removeRunnable: function (e) {
-                var runnableName = e.currentTarget.dataset.runnableName;
-                var i = this.indexOfItemByProperty(this.artifact.runnables, 'name', runnableName);
-                if (i !== -1) {
-                    this.splice('artifact.runnables', i, 1);
+            indexOfItemByProperty: function (list, property, value) {
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i][property] === value) {
+                        return i;
+                    }
                 }
-            },
-            removeEndpoint: function (e) {
-                var endpointId = e.currentTarget.dataset.endpointId;
-                var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
-                if (i !== -1) {
-                    this.splice('artifact.endpoints', i, 1);
-                }
-            },
-            removeEndpointDependency: function (e) {
-                var endpointId = e.currentTarget.dataset.endpointId;
-                var dependency = e.currentTarget.dataset.dependency;
-                var epI = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
-                var depI = this.artifact.endpoints[epI].dependencies.indexOf(dependency);
-                if (epI !== -1 && depI !== -1) {
-                    this.splice('artifact.endpoints.' + epI + '.dependencies', depI, 1);
-                }
+                return -1;
             },
             _createPath: function () {
                 var path = Array.prototype.slice.call(arguments).join('.');
