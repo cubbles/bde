@@ -156,9 +156,9 @@ Example:
         artifact.webpackageId = manifest._id;
 
 
+        this.set('lastItemSelected', artifact);
         document.querySelector('#manifest').loadManifest(manifest);
 
-        this.set('lastItemSelected', artifact);
     }
 
   });

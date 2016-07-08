@@ -129,7 +129,7 @@
       this.$.help.opened = !this.$.help.opened;
     },
 
-    newWebpackageBtnHandler: function() {
+    newWebpackageBtnHandler: function () {
       // TODO neue webpackage erzeugen
       window.alert('comming soon');
     },
