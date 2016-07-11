@@ -135,7 +135,7 @@ Polymer({
     var item = e.model.dataHost.itemForElement(e.target);
     item.is = e.model.dataHost.id.replace(/List/, '');
 
-    this.fire('bde-explorer-open-settings', { item: item });
+    this.fire('bde-explorer-open-settings', {item: item});
   },
 
   selectApp: function (e) {
@@ -145,7 +145,7 @@ Polymer({
     item.is = 'app';
     this.$.appSelector.select(item);
 
-    this.fire('iron-select', { is: 'app', item: item });
+    this.fire('iron-select', {is: 'app', item: item});
   },
 
   explorerItemSelected: function (e) {
@@ -207,7 +207,7 @@ Polymer({
   },
 
   selectEndpoint: function (endpointId) {
-    this.set('currentComponentMetadata.endpointId', endpointId.split('#')[ 1 ]);
+    this.set('currentComponentMetadata.endpointId', endpointId.split('#')[1]);
   },
 
   selectElementary: function (e) {
@@ -217,7 +217,7 @@ Polymer({
     item.is = 'elementary';
     this.$.elementarySelector.select(item);
 
-    this.fire('iron-select', { is: 'elementary', item: item });
+    this.fire('iron-select', {is: 'elementary', item: item});
   },
 
   selectUtility: function (e) {
@@ -227,7 +227,7 @@ Polymer({
     item.is = 'utility';
     this.$.elementarySelector.select(item);
 
-    this.fire('iron-select', { is: 'utility', item: item });
+    this.fire('iron-select', {is: 'utility', item: item});
   },
 
   toggleApps: function () {
@@ -281,5 +281,11 @@ Polymer({
   },
   _createIdForEndpointsMenuTemplate: function (artifactId) {
     return 'endpoints_template_' + artifactId;
+  },
+  _groupIdDefined: function (groupId) {
+    if (groupId) {
+      return true;
+    }
+    return false;
   }
 });

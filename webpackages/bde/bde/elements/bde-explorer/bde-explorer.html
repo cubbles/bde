@@ -116,14 +116,61 @@ Example:
             :focus {
                 outline: 0;
             }
+
+            #webpackageExplorerHeader .title{
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            #webpackageExplorerHeader .content {
+                color: #737373;
+                font-size: small;
+            }
+
+            .long-text-block {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                line-height: 1.5em;
+                max-height: 4.5em;
+            }
+
         </style>
 
-        <h2>Webpackage Explorer</h2>
+        <div id="webpackageExplorerHeader">
+            <div class="title">
+                <div>
+                    <span hidden="[[!_groupIdDefined(manifest.groupId)]]">[[manifest.groupId]].</span><span>[[manifest.name]]@[[manifest.version]]</span>
+                </div>
+                <paper-icon-button icon="icons:settings"
+                                   class="menuIconButton"
+                                   alt="Webpackage Meta Information"
+                                   on-tap="openWebpackageMetaInfo">
+                </paper-icon-button>
+            </div>
+            <div class="content">
+                <div class="long-text-block">[[manifest.description]]</div>
+            </div>
+            <paper-tooltip for$="webpackageExplorerHeader">
+                <div class="tooltip tooltip_title">
+                    <span hidden="[[!_groupIdDefined(manifest.groupId)]]">[[manifest.groupId]].</span><span>[[manifest.name]]@[[manifest.version]]</span>
+                </div>
+                <div class="tooltip tooltip_details">[[manifest.description]]</div>
+            </paper-tooltip>
+        </div>
 
         <bde-compound-creator id="compoundCreator"
                               on-last-artifact-changed="handleNewCompound"></bde-compound-creator>
         <bde-explorer-details id="explorerDetails"
                               artifact="{{selectedCompound}}"></bde-explorer-details>
+        <bde-webpackage-meta-info id="webpackageMetaInfo"
+                                  manifest="{{manifest}}"></bde-webpackage-meta-info>
 
         <div class="container" tabindex="0" on-tap="toggleApps">
             <iron-icon icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
@@ -187,7 +234,6 @@ Example:
                                                class="menuIconButton">
                             </paper-icon-button>
                         </paper-item>
-
                         <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist explorerSubmenu"
                                     on-iron-select="explorerItemSelected" >
                             <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint" id$="[[_createIdForEndpointsMenuTemplate(compound.artifactId)]]">
@@ -206,7 +252,6 @@ Example:
                             </template>
                         </paper-menu>
                     </paper-submenu>
-
                 </template>
             </paper-menu>
 

@@ -61,12 +61,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <paper-toast id="toast"></paper-toast>
 
-            <bde-explorer
-                    id="explorer"
-                    manifest="{{testObject.manifest}}"
-                    selected-compound="{{testObject.selectedCompound}}"
-                    current-component-metadata="{{testObject.currentComponentMetadata}}"
-            ></bde-explorer>
+            <bde-explorer id="explorer"
+                          manifest="{{testObject.manifest}}"
+                          selected-compound="{{testObject.selectedCompound}}"
+                          current-component-metadata="{{testObject.currentComponentMetadata}}"
+                          style="width:300px;">
+
+            </bde-explorer>
 
             <h4>Selected compound</h4>
             <code id="code" class="json"></code>
@@ -85,7 +86,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.$.toast.fitInto = document.querySelector('.wrapper');
 
-        this.$.explorer.addEventListener('iron-select', (e) => {
+        this.$.explorer.addEventListener('iron-select', (e) = > {
             if (
         !this.selectedArtifact
         )
@@ -109,7 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     app.testObject.manifest.artifacts.utilities
             );
 
-            console.log(allArtifacts.find(a => a == e.detail.item)
+            console.log(allArtifacts.find(a = > a == e.detail.item)
             )
             ;
         });
