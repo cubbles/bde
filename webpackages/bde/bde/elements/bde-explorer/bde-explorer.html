@@ -107,6 +107,17 @@ Example:
                 margin-left: 15px;
                 --paper-item-icon-width: 30px;
             }
+
+            .explorerSubmenu {
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .menuIconButton {
+                height: 20px;
+                padding: 0;
+            }
+
         </style>
 
         <h2>Webpackage Explorer</h2>
@@ -174,11 +185,12 @@ Example:
                             </paper-tooltip>
                             <paper-icon-button icon="icons:settings" alt="Settings"
                                                on-tap="openCompoundDetails"
-                                               disabled$="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]">
+                                               disabled$="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]"
+                                                class="menuIconButton" >
                             </paper-icon-button>
                         </paper-item>
 
-                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist"
+                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist explorerSubmenu"
                                     on-iron-select="explorerItemSelected" id$="[[_createIdForEndpointsMenu(compound.artifactId)]]">
                             <div class="endpoint-list-header">Endpoints</div>
                             <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint" id$="[[_createIdForEndpointsMenuTemplate(compound.artifactId)]]">
