@@ -66,6 +66,10 @@ Polymer({
 
   },
 
+  observers: [
+    'manifestChanged(manifest.*)'
+  ],
+
   listeners: {
     'bde_compound_select': 'handleBdeCompoundSelect'
   },
