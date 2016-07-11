@@ -22,7 +22,7 @@
     switch (data.message) {
 
       case 'debug':
-        console.log("got", data);
+        console.log('got', data);
         break;
 
       case 'currentComponentMetadata':
@@ -35,8 +35,7 @@
   };
 
   function _handleCurrentComponentMetadata (currentComponentMetadata) {
-
-    if(typeof currentComponentMetadata.manifest === 'string' ){
+    if (typeof currentComponentMetadata.manifest === 'string') {
       currentComponentMetadata.manifest = JSON.parse(currentComponentMetadata.manifest);
     }
     // Cannot handle resetting CIF container, yet
@@ -49,15 +48,15 @@
     var webComponentsUrl = baseUrl + rteWebpackage + '/webcomponents/webcomponents-lite.js';
 
     _injectScript(webComponentsUrl, function () {
-      console.log("Webcomponents injected...");
+      console.log('Webcomponents injected...');
     });
 
-    var webpackageId =  currentComponentMetadata.manifest.name + '@' +
+    var webpackageId = currentComponentMetadata.manifest.name + '@' +
       currentComponentMetadata.manifest.version + '/' +
       currentComponentMetadata.artifactId + '/' +
       currentComponentMetadata.endpointId;
-    if(currentComponentMetadata.manifest.groupId && currentComponentMetadata.manifest.groupId.length>0){
-      webpackageId = currentComponentMetadata.manifest.groupId  + '.' + webpackageId;
+    if (currentComponentMetadata.manifest.groupId && currentComponentMetadata.manifest.groupId.length > 0) {
+      webpackageId = currentComponentMetadata.manifest.groupId + '.' + webpackageId;
     }
     // Create rootDependencies object
     window.cubx = {
@@ -75,14 +74,14 @@
     var component = document.createElement(currentComponentMetadata.artifactId);
     crcRoot.appendChild(component);
 
-    _injectScript(crcLoaderUrl, function() {
-        console.log("CRCLoader injected...");
-        var event = document.createEvent('CustomEvent');
-        event.initCustomEvent('iframeReady', true, true, {});
-        // Dispatch this 'iframeReady' event so that the CRC starts working
-        document.dispatchEvent(event);
-      },
-      {'data-crcinit-loadcif': 'true', 'data-cubx-startevent': 'iframeReady'});
+    _injectScript(crcLoaderUrl, function () {
+      console.log('CRCLoader injected...');
+      var event = document.createEvent('CustomEvent');
+      event.initCustomEvent('iframeReady', true, true, {});
+      // Dispatch this 'iframeReady' event so that the CRC starts working
+      document.dispatchEvent(event);
+    },
+    { 'data-crcinit-loadcif': 'true', 'data-cubx-startevent': 'iframeReady' });
   };
 
   function _injectScript (src, cb, additionalAttrs) {
@@ -96,15 +95,14 @@
     script.src = src;
     if (additionalAttrs) {
       for (var attr in additionalAttrs) {
-        script.setAttribute(attr, additionalAttrs[attr]);
+        script.setAttribute(attr, additionalAttrs[ attr ]);
       }
-
     }
     head.appendChild(script);
   };
 
-  function _postMessage (message, data) {
-    var message = { message: message };
+  function _postMessage (incomingMessage, data) {
+    var message = { message: incomingMessage };
 
     if (data) { message.data = data; }
 
@@ -115,8 +113,7 @@
   };
 
   window.addEventListener('message', _handleMessage, false);
-  window.addEventListener('cifReady', function(e) {
+  window.addEventListener('cifReady', function (e) {
     _postMessage('loaded');
   }, false);
-
 }());
