@@ -79,8 +79,9 @@
 
       <paper-dialog-scrollable>
 
-        <bde-base-browser id="browser" on-iron-selected="_addCubble">
-        </bde-base-browser>
+        <bde-base-browser id="browser"
+          on-iron-selected="_addCubble"
+        ></bde-base-browser>
 
       </paper-dialog-scrollable>
 
@@ -91,9 +92,11 @@
     </paper-dialog>
 
     <paper-drawer-panel id="drawerPanel"
-      force-narrow="[[!_sidepanel]]"
-      right-drawer drawer-width="400px"
-      disable-swipe disable-edge-swipe>
+      drawer-width="400px"
+      right-drawer
+      force-narrow="[[!showPropertyEditor]]"
+      disable-swipe
+      disable-edge-swipe>
 
       <div id="mainPanel" main>
 
@@ -108,402 +111,44 @@
           selected-edges="{{selectedEdges}}"
           last-selected-node="{{lastSelectedNode}}"
           last-selected-edge="{{lastSelectedEdge}}"
-          ></bde-graph>
+        ></bde-graph>
 
-      <div id="toolbar">
-        <paper-fab id="zoomToFit"
-        icon="icons:aspect-ratio"
-        on-tap="zoomToFit"
-        ></paper-fab>
-
-        <paper-fab id="triggerAutolayout"
-        icon="bde:magic-wand"
-        on-tap="triggerAutolayout"
-        ></paper-fab>
-
-        <div class="flex"></div>
-
-        <paper-fab id="addCubble"
-          class$="[[_addCubbleClass(_sidepanel)]]"
-          icon="icons:add"
-          active="{{dialogOpened}}"
-          toggles
+        <div id="toolbar">
+          <paper-fab id="zoomToFit"
+            icon="icons:aspect-ratio"
+            on-tap="zoomToFit"
           ></paper-fab>
+
+          <paper-fab id="triggerAutolayout"
+            icon="bde:magic-wand"
+            on-tap="triggerAutolayout"
+          ></paper-fab>
+
+          <div class="flex"></div>
+
+          <paper-fab id="addCubble"
+            class$="[[_addCubbleClass(showPropertyEditor)]]"
+            icon="icons:add"
+            active="{{dialogOpened}}"
+            toggles
+            ></paper-fab>
+        </div>
+
       </div>
 
-    </div>
+      <div id="drawerPanel" drawer>
 
-    <div id="drawerPanel" force-narrow="[[_forceNarrow(selectedEdges.splices, selectedNodes.splices)]]" drawer>
-
-      <bde-properties-editor id="propertyEditor"
-        selected-nodes="[[selectedNodes]]"
-        selected-edges="[[selectedEdges]]"
+        <bde-properties-editor id="propertyEditor"
+          members="[[selectedMembers]]"
+          connections="[[selectedConnections]]"
         ></bde-properties-editor>
 
-    </div>
+      </div>
 
-  </paper-drawer-panel>
+    </paper-drawer-panel>
 
 </template>
-<script>
-  Polymer({
-    is: 'bde-dataflow-view',
-
-    properties: {
-
-      artifact: {
-        type: Object,
-        notify: true,
-        observer: '_artifactChanged'
-      },
-
-      selectedNodes: {
-        type: Array,
-        notify: true
-      },
-
-      selectedEdges: {
-        type: Array,
-        notify: true
-      },
-
-      lastSelectedNode: {
-        type: Object,
-        notify: true
-      },
-
-      lastSelectedEdge: {
-        type: Object,
-        notify: true
-      },
-
-      _graphWidth: {
-        type: Number
-      },
-
-      _graphHeight: {
-       type: Number
-     },
-
-      _graphOffsetX: {
-       type: Number
-     },
-
-      _graphOffsetY: {
-       type: Number
-     },     
-
-     _sidepanel: {
-      type: Boolean,
-      value: false
-    }
-  },
-
-  observers: [
-    '_handleSelectedNodesChanged(selectedNodes.splices)',
-    '_handleSelectedEdgesChanged(selectedEdges.splices)',
-    'membersChanged(artifact.members.splices)'
-  ],
-
-  listeners: {
-    'library-update-required': 'onLibraryUpdate',
-    'the-graph-add-node': 'handleAddNode',
-    'the-graph-remove-node': 'handleRemoveNode',
-    'the-graph-add-inport': 'handleAddInport',
-    'the-graph-remove-inport': 'handleRemoveInport',
-    'the-graph-add-outport': 'handleAddOutport',
-    'the-graph-remove-outport': 'handleRemoveOutport',
-    'the-graph-add-edge': 'handleAddEdge',
-    'the-graph-remove-edge': 'handleRemoveEdge'
-  },
-
-  attached: function() {
-    // Set initial graph size
-    this.async(this._handleResize);
-
-    // Resize cannot be bound using `listeners`
-    window.addEventListener('resize', this._handleResize.bind(this));
-  },
-
-  handleAddNode: function(event) {
-    var node = event.detail;
-    // @TODO (fdu): Get the cubble component from dependencies
-    //              and add the new member
-    console.log('handleAddNode', event.detail);
-  },
-
-  handleRemoveNode: function(event) {
-    var node = event.detail;
-    var memberIdx = this.artifact.members.findIndex(m => m.memberId === node.id);
-    this.splice('artifact.members', memberIdx, 1);
-  },
-
-  handleAddInport: function(event, port) {
-    var inport = this.$.graph.nofloGraph.inports[port];
-    this.push('artifact.slots', {
-      slotId: port,
-      type: 'all', // @TODO (fdu): Fix this to be type of source slot
-      direction: ['input']
-    });
-    this.push('artifact.connections', {
-      connectionId: Math.random().toString(36).substring(7),
-      source: {
-        slot: port
-      },
-      destination: {
-        memberIdRef: inport.process,
-        slot: inport.port
-      }
-    });
-  },
-
-  handleRemoveInport: function(event, port) {
-    var slotIdx = this.artifact.slots.findIndex(s => s.slotId === port);
-    this.artifact.connections.forEach(function(connection, connectionIdx) {
-        if (!connection.source.memberIdRef &&
-             connection.source.slot === port) {
-          this.splice('artifact.connections', connectionIdx, 1)
-        }
-      }, this);
-    this.splice('artifact.slots', slotIdx, 1);
-  },
-
-  handleAddOutport: function(event, port) {
-    var outport = this.$.graph.nofloGraph.outports[port];
-    this.push('artifact.slots', {
-      slotId: port,
-      type: 'all', // @TODO (fdu): Fix this to be type of source slot
-      direction: ['output']
-    });
-    this.push('artifact.connections', {
-      connectionId: Math.random().toString(36).substring(7),
-      source: {
-        memberIdRef: outport.process,
-        slot: outport.port
-      },
-      destination: {
-        slot: port
-      }
-    });
-  },
-
-  handleRemoveOutport: function(event, port) {
-    var slotIdx = this.artifact.slots.findIndex(s => s.slotId === port);
-    this.artifact.connections.forEach(function(connection, connectionIdx) {
-        if (!connection.destination.memberIdRef &&
-             connection.destination.slot === port) {
-          this.splice('artifact.connections', connectionIdx, 1)
-        }
-      }, this);
-    this.splice('artifact.slots', slotIdx, 1);
-  },
-
-  handleAddEdge: function(event) {
-    var edge = event.detail;
-
-    this.push('artifact.connections', {
-      connectionId: Math.random().toString(36).substring(7),
-      source: {
-        memberIdRef: edge.from.node,
-        slot: edge.from.port
-      },
-      destination: {
-        memberIdRef: edge.to.node,
-        slot: edge.to.port
-      }
-    });
-  },
-
-  handleRemoveEdge: function(event) {
-    var edge = event.detail;
-    var cIdx = this.artifact.connections.findIndex(function(connection) {
-      return connection.source.memberIdRef === edge.from.node &&
-        connection.source.slot === edge.from.port &&
-        connection.destination.memberIdRef === edge.to.node &&
-        connection.destination.slit === edge.to.port;
-    });
-
-    this.splice('artifact.connections', cIdx, 1);
-  },
-
-  membersChanged: function(changeRecord) {
-    if (!changeRecord) { return; }
-
-    changeRecord.indexSplices.forEach(function(s) {
-      // @TODO (fdu) removed.forEach(...)
-
-      for(var i = 0; i < s.addedCount; i++) {
-        this.$.graph.addMember(s.object[s.index + i]);
-      }
-    }, this);
-  },
-
-  onLibraryUpdate: function(event) {
-    var component = event.detail.item;
-    this.$.graph.registerComponent(component, false);
-  },
-
-  triggerAutolayout: function() {
-    this.$.graph.triggerAutolayout(true);
-  },
-
-  zoomToFit: function() {
-    this.$.graph.triggerFit();
-  },
-
-  _addCubble: function(event) {
-    var item = event.detail.item;
-    this.$.dialog.close();
-    this.push('artifact.members', item);
-    this.push('artifact.endpoints.#0.dependencies',
-      item.metadata.webpackageId + '/' + item.metadata.artifactId
-    );
-  },
-
-  _addCubbleClass: function(_sidepanel) {
-    return (_sidepanel) ? 'moveRight' : '';
-  },
-
-  _artifactChanged: function(newArtifact, oldArtifact) {
-    if (!newArtifact || newArtifact === oldArtifact) { return; }
-    
-    this.set('selectedNodes', Array());
-    this.set('selectedEdges', Array());
-    this.set('lastSelectedNode', void(0));
-    this.set('lastSelectedEdge', void(0));
-
-    this.set('graph', this._graphFromArtifact(newArtifact));
-  },
-
-  _graphFromArtifact: function(artifact) {
-    if (!artifact) { return; }
-
-    var graph = {
-      "id": Math.random().toString(36).substring(7),
-      "project": "",
-      "properties": {
-        "name": artifact.artifactId
-      },
-      inports: {},
-      outports: {},
-      processes: {},
-      connections: []
-    };
-
-    // External inslots
-    artifact.connections
-    .filter(function(connection) {
-      return (!connection.source.memberIdRef &&
-        connection.destination.memberIdRef);
-    })
-    .forEach(function(connection) {
-      var slot = artifact.slots
-      .filter(function(slot) {
-        return slot.direction.indexOf('input') !== -1;
-      })
-      .find(function(slot) {
-        return slot.slotId === connection.source.slot;
-      });
-
-      graph.inports[slot.slotId] = {
-        "process": connection.destination.memberIdRef,
-        "port": connection.destination.slot,
-        "metadata": { x: 0, y: 0 }
-      };
-    });
-
-    // External outslots
-    artifact.connections
-    .filter(function(connection) {
-      return (!connection.destination.memberIdRef &&
-        connection.source.memberIdRef);
-    })
-    .forEach(function(connection) {
-      var slot = artifact.slots
-      .filter(function(slot) {
-        return slot.direction.indexOf('output') !== -1;
-      })
-      .find(function(slot) {
-        return slot.slotId === connection.destination.slot;
-      });
-
-      graph.inports[slot.slotId] = {
-        "process": connection.source.memberIdRef,
-        "port": connection.source.slot,
-        "metadata": { x: 0, y: 0 }
-      };
-    });
-
-    // Members
-    artifact.members.forEach(function(member) {
-      graph.processes[member.memberId] = {
-        "component": member.componentId,
-        "metadata": {
-          "x": 0,
-          "y": 0,
-          "label": member.displayName || member.memberId
-        }
-      };
-    });
-
-    // Connections
-    artifact.connections.forEach(function(connection) {
-      var connection = {
-        "src": {
-          "process": connection.source.memberIdRef,
-          "port": connection.source.slot
-        },
-        "tgt": {
-          "process": connection.destination.memberIdRef,
-          "port": connection.destination.slot
-        },
-        "metadata": {}
-      };
-
-      graph.connections.push(connection);
-    });
-
-    // Initializers
-    artifact.inits.forEach(function(init) {
-      var connection = {
-        "data": init.value,
-        "tgt": {
-          "process": init.memberIdRef,
-          "port": init.slot
-        }
-      };
-
-      graph.connections.push(connection);
-    });
-
-    return graph;
-  },
-
-  _handleResize: function() {
-    var clientRects = this.getClientRects();
-    var width = clientRects[0].width;
-    var height = clientRects[0].height;
-    var offsetX = clientRects[0].left;
-    var offsetY = clientRects[0].top;
-
-    this._graphWidth = width;
-    this._graphHeight = height;
-    this._graphOffsetX = offsetX;
-    this._graphOffsetY = offsetY;
-  },
-
-  _handleSelectedNodesChanged: function() {
-    this.fire('iron-selected', { item: this.lastSelectedNode, type: 'node' });
-  },
-
-  _handleSelectedEdgesChanged: function() {
-    this.fire('iron-selected', { item: this.lastSelectedEdge, type: 'edge' });
-  },
-
-  _forceNarrow: function() {
-    console.log(this.selectedNodes.length, this.selectedEdges.length, !(this.selectedNodes.length && this.selectedEdges.length));
-    return !(this.selectedNodes.length && this.selectedEdges.length);
-  }
-});
-</script>
+<!-- Fetch API polyfill -->
+<script src="../../vendor/fetch/fetch.js"></script>
+<script src="./bde-dataflow-view.js"></script>
 </dom-module>

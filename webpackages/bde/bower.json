@@ -31,7 +31,9 @@
     "inflection": "^1.10.0",
     "Sortable": "^1.4.2",
     "highlightjs": "^9.4.0",
-    "the-graph": "cubbles/bde.the-graph"
+    "the-graph": "cubbles/bde.the-graph",
+    "klayjs": "^0.4.1",
+    "fetch": "^1.0.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^4.3.0",
@@ -43,6 +45,7 @@
     "polymer": "^1.4.0",
     "react": "^15.1.0",
     "webcomponentsjs": "0.7.22",
-    "font-awesome": "^4.6.3"
+    "font-awesome": "^4.6.3",
+    "klayjs": "~0.2.1"
   }
 }

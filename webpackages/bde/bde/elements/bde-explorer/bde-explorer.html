@@ -13,6 +13,7 @@
 <link rel="import" href="../../vendor/paper-styles/default-theme.html">
 <link rel="import" href="bde-compound-creator.html">
 <link rel="import" href="bde-explorer-details.html"/>
+<link rel="import" href="bde-webpackage-meta-info.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-menu.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-submenu.html"/>
 <link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html"/>
@@ -89,14 +90,14 @@ Example:
             .tooltip_details {
                 padding-left: 10px;
                 font-weight: normal;
-                margin-bottom:  5px;
+                margin-bottom: 5px;
             }
 
             .artifact {
                 margin-left: 15px;
             }
 
-            .addItem{
+            .addItem {
                 font-family: 'Roboto', 'Noto', sans-serif;
                 font-size: 14px;
                 margin-left: 15px;
@@ -183,7 +184,7 @@ Example:
                             <paper-icon-button icon="icons:settings" alt="Settings"
                                                on-tap="openCompoundDetails"
                                                disabled$="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]"
-                                                class="menuIconButton" >
+                                               class="menuIconButton">
                             </paper-icon-button>
                         </paper-item>
 

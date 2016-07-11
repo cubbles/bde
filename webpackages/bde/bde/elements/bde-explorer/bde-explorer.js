@@ -97,6 +97,10 @@ Polymer({
     // this.$.addAppDialog.open();
   },
 
+  openWebpackageMetaInfo: function (e) {
+    this.$.webpackageMetaInfo.open();
+  },
+
   openCompoundDetails: function (e) {
     e.stopPropagation();
     this.$.explorerDetails.open();

@@ -32,7 +32,7 @@ actions can be performed on said element.
 
     <template>
 
-        <template is="dom-repeat" items="{{members}}" filter="_filterSelectedMembers" observe="selected members.selected" as="member">
+        <template is="dom-repeat" items="{{members}}" as="member">
 
             <bde-node-inspector
                 id="[[member.id]]"
@@ -65,10 +65,6 @@ Polymer({
             type: Array
         }
 
-    },
-
-    _filterSelectedMembers: function (member) {
-        return member.selected;
     },
 
     _filterSelectedConnections: function (connection) {

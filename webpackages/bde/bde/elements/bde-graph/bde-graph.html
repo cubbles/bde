@@ -59,8 +59,8 @@
       pan="{{pan}}" scale="{{scale}}"
       autolayout="{{autolayout}}"
       theme="{{theme}}"
-      selected-nodes="{{_selectedNodes}}"
-      selected-edges="{{_selectedEdges}}"
+      selected-nodes="{{selectedNodes}}"
+      selected-edges="{{selectedEdges}}"
       hidden="[[!ready]]"
       display-selection-group
       force-selection>
@@ -192,24 +192,22 @@
           type: Array
         },
 
-        _selectedNodes: {
+        selectedNodes: {
           type: Array
         },
 
-        _selectedEdges: {
+        selectedEdges: {
           type: Array
         }
       },
 
       observers: [
-        '_selectedNodesChanged(_selectedNodes.splices)',
-        '_selectedEdgesChanged(_selectedEdges.splices)',
         '_dimensionsChanged(width, height)',
         '_graphChanged(graph)',
         '_edgesChanged(nofloGraph.edges.splices)',
         '_inportsChanged(nofloGraph.inports)',
         '_outportsChanged(nofloGraph.outports)',
-        '_nodesChanged(nofloGraph.nodes.splices)'
+        '_nodesChanged(nofloGraph.nodes.splices)',
       ],
 
       listeners: {
@@ -224,8 +222,8 @@
 
         var pasteAction = function(graph, itemKey, item) {
           var pasted = TheGraph.Clipboard.paste(graph);
-          this.set('_selectedNodes', pasted.nodes);
-          this.set('_selectedEdges', []);
+          this.set('selectedNodes', pasted.nodes);
+          this.set('selectedEdges', []);
         }.bind(this);
 
         var pasteMenu = {
@@ -240,9 +238,9 @@
           delete: function(graph, itemKey, item) {
             graph.removeNode(itemKey);
             // Remove selection
-            var newSelection = this._selectedNodes
+            var newSelection = this.selectedNodes
               .filter(function(selected) { return (selected !== item) });
-            this.set('_selectedNodes', newSelection);
+            this.set('selectedNodes', newSelection);
           }.bind(this),
 
           copy: function(graph, itemKey, item) {
@@ -253,9 +251,9 @@
           delete: function(graph, itemKey, item) {
             graph.removeEdge(item.from.node, item.from.port, item.to.node, item.to.port);
             // Remove selection
-            var newSelection = this._selectedEdges
+            var newSelection = this.selectedEdges
               .filter(function(selected) { return (selected !== item) });
-            this.set('_selectedEdges', newSelection);
+            this.set('selectedEdges', newSelection);
           }.bind(this)
         };
 
@@ -663,14 +661,6 @@
         }
 
         return node;
-      },
-
-      _selectedEdgesChanged: function(changeRecord) {
-
-      },
-
-      _selectedNodesChanged: function(changeRecord) {
-
       }
     });
   })();
