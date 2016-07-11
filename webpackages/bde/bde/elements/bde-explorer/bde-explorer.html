@@ -14,7 +14,11 @@
 <link rel="import" href="bde-compound-creator.html">
 <link rel="import" href="bde-explorer-details.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-menu.html"/>
-<link rel="import" href="../../vendor/paper-menu/paper-submenu.html"/><!--
+<link rel="import" href="../../vendor/paper-menu/paper-submenu.html"/>
+<link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html"/>
+
+
+<!--
 `bde-explorer` is the management component for handling cubble packages
 
 Example:
@@ -51,8 +55,6 @@ Example:
                 @apply(--paper-font-caption);
             }
 
-            <iron-icon icon="icons:add" item-icon></iron-icon>
-
             paper-button {
                 width: 90%;
                 margin: 2em 5% 0;
@@ -60,12 +62,12 @@ Example:
             }
 
             .endpoint-item {
-                padding-left: 50px;
-                min-height: 0 !important;
+                padding-left: 60px;
+
             }
 
             .endpoint-list-header {
-                padding-left: 30px;
+                padding-left: 45px;
                 font-weight: 500;
             }
 
@@ -74,9 +76,47 @@ Example:
             }
 
             paper-menu  paper-item, .endpoint-list-header{
+                min-height: 0 !important;
                 cursor: pointer;
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-size: 14px;
             }
 
+            .tooltip {
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-size: 14px;
+            }
+            .tooltip_title {
+                font-weight: bold;
+                text-decoration: underline;
+                margin-bottom: 10px;
+            }
+            .tooltip_details {
+                padding-left: 10px;
+                font-weight: normal;
+                margin-bottom:  5px;
+            }
+
+            .artifact {
+                margin-left: 15px;
+            }
+
+            .addItem{
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-size: 14px;
+                margin-left: 15px;
+                --paper-item-icon-width: 30px;
+            }
+
+            .explorerSubmenu {
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .menuIconButton {
+                height: 20px;
+                padding: 0;
+            }
 
         </style>
 
@@ -128,38 +168,43 @@ Example:
         <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
             <paper-menu attr-for-selected="data-artifact-id"
                         on-iron-select="explorerItemSelected"
-                        selected="[[selectedCompound.artifactId]]"
                         id="compoundSelector">
                 <template is="dom-repeat" id="compoundList"
                           items="{{manifest.artifacts.compoundComponents}}" as="compound">
                     <paper-submenu data-artifact-id$="[[compound.artifactId]]">
                         <!--<paper-icon-item class="menu-trigger">-->
-                        <paper-item class="menu-trigger" title="[[compound.artifactId]]">
+                        <paper-item class="menu-trigger artifact" id$="[[compound.artifactId]]">
                             <!--<iron-icon icon="icons:donut-small" item-icon></iron-icon>-->
-                            <paper-item-body three-line>
+                            <paper-item-body>
                                 <div>[[compound.artifactId]]</div>
-                                <div secondary>[[compound.description]]</div>
-                                <div secondary>[[compound.members.length]] Members</div>
                             </paper-item-body>
+                            <paper-tooltip for$="[[compound.artifactId]]">
+                                <div class="tooltip tooltip_title">[[compound.artifactId]]</div>
+                                <div class="tooltip tooltip_details">[[compound.description]]</div>
+                                <div class="tooltip tooltip_details">[[compound.members.length]] Members</div>
+                            </paper-tooltip>
                             <paper-icon-button icon="icons:settings" alt="Settings"
                                                on-tap="openCompoundDetails"
-                                               disabled="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]">
+                                               disabled$="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]"
+                                                class="menuIconButton" >
                             </paper-icon-button>
                         </paper-item>
-                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist"
-                                    on-iron-select="explorerItemSelected">
+
+                        <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist explorerSubmenu"
+                                    on-iron-select="explorerItemSelected" id$="[[_createIdForEndpointsMenu(compound.artifactId)]]">
                             <div class="endpoint-list-header">Endpoints</div>
-                            <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint">
-                                <paper-item data-endpoint-id$="[[endpoint.endpointId]]"
+                            <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint" id$="[[_createIdForEndpointsMenuTemplate(compound.artifactId)]]">
+                                <paper-item data-endpoint-id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]"
                                             class="endpoint-item" title="[[endpoint.endpointId]]">
                                     <paper-item-body>
-                                        <div data-endpoint-id$="[[endpoint.endpointId]]">[[endpoint.endpointId]]</div>
+                                        <div data-endpoint-id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">[[endpoint.endpointId]]</div>
                                         <div secondary>[[endpoint.description]]</div>
                                     </paper-item-body>
                                 </paper-item>
                             </template>
                         </paper-menu>
                     </paper-submenu>
+
                 </template>
             </paper-menu>
 
@@ -233,244 +278,5 @@ Example:
             </array-selector>
         </iron-collapse>
     </template>
-    <script>
-        Polymer({
-            is: 'bde-explorer',
-
-            properties: {
-
-                manifest: {
-                    type: Object,
-                    observer: 'manifestChanged'
-                },
-                currentComponentMetadata: {
-                    type: Object,
-                    notify: true
-                },
-
-                selectedApp: {
-                    type: Object,
-                    notify: true
-                },
-
-                selectedCompound: {
-                    type: Object,
-                    notify: true
-                },
-
-                selectedElementary: {
-                    type: Object,
-                    notify: true
-                },
-
-                selectedUtility: {
-                    type: Object,
-                    notify: true
-                },
-
-                toggleMenus: {
-                    type: Boolean,
-                    value: true
-                },
-
-                _appsOpen: {
-                    type: Boolean,
-                    value: false
-                },
-
-                _compoundsOpen: {
-                    type: Boolean,
-                    value: true
-                },
-
-                _elementariesOpen: {
-                    type: Boolean,
-                    value: false
-                },
-
-                _utilitiesOpen: {
-                    type: Boolean,
-                    value: false
-                }
-
-            },
-
-            addApp: function () {
-                // this.$.addAppDialog.open();
-            },
-
-            openCompoundDetails: function (e) {
-                e.stopPropagation();
-                this.$.explorerDetails.open();
-            },
-
-            addCompound: function () {
-                this.$.compoundCreator.open();
-                // this.$.addCompoundDialog.open();
-                // console.dir(this.$.addCompoundForm[0]);
-                // this.$.addCompoundForm[0].focus();
-            },
-            manifestChanged: function () {
-                this.deselect();
-
-                if (this.manifest) {
-                    this.set('currentComponentMetadata.manifest', this.manifest);
-                    this.set('currentComponentMetadata.artifactId', null);
-                    this.set('currentComponentMetadata.endpointId', null);
-                    var menu = this.$$('#compoundSelector');
-                    Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
-                        subMenu.close();
-                    });
-                }
-            },
-            deselect: function () {
-                this.$.appSelector.deselect();
-                this.$.utilitySelector.deselect();
-                // this.$.compoundSelector.deselect();
-                // this.$.utilitySelector.deselect();
-            },
-
-//            handleAddCompoundDialogClosed: function (e, reason) {
-//                // User clicked outside the dialog
-//                if (!reason.canceled && !reason.confirmed) {
-//                    this.$.addCompoundForm.reset();
-//                }
-//            },
-//
-//            handleAddCompoundFormSubmit: function (e) {
-//                if (this.$.addCompoundForm.validate()) {
-//                    this.push('artifacts.compounds', this.$.addCompoundForm.serialize());
-//                    this.$.addCompoundForm.reset();
-//                    this.$.addCompoundDialog.close();
-//                }
-//            },
-
-            handleNewCompound: function (e) {
-                this.push('manifest.artifacts.compoundComponents', e.detail.value);
-                this.$.compoundSelector.select(e.detail.value);
-            },
-
-            openSettings: function (e) {
-                e.stopPropagation();
-                var item = e.model.dataHost.itemForElement(e.target);
-                item.is = e.model.dataHost.id.replace(/List/, '');
-
-                this.fire('bde-explorer-open-settings', {item: item});
-            },
-
-            selectApp: function (e) {
-                this.deselect();
-
-                var item = this.$.appList.itemForElement(e.target);
-                item.is = 'app';
-                this.$.appSelector.select(item);
-
-                this.fire('iron-select', {is: 'app', item: item});
-            },
-
-            explorerItemSelected: function (e) {
-                var item = e.detail.item;
-
-                if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
-                    this.deselectCompound();
-                    this.selectCompound(item);
-                } else if (item.dataset.endpointId && item.dataset.endpointId !== this.currentComponentMetadata.endpointId) {
-                    this.selectEndpoint(item);
-                }
-
-            },
-
-            deselectCompound: function () {
-                var menu = this.$$('#compoundSelector');
-                menu.selected = null;
-                Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
-                    subMenu.close();
-                    Polymer.dom(subMenu).querySelector('paper-menu').selected = null;
-                });
-
-            },
-
-            selectCompound: function (item) {
-                item.is = 'compound';
-                this.set('currentComponentMetadata.artifactId', item.dataset.artifactId);
-                var subMenu = this.$$('[data-artifact-id=' + item.dataset.artifactId + ']');
-                subMenu.open();
-                Polymer.dom(subMenu).querySelector('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
-                var compound;
-                this.manifest.artifacts.compoundComponents.forEach(function (comp) {
-                    if (comp.artifactId === item.dataset.artifactId) {
-                        compound = comp;
-                    }
-                });
-                this.set('selectedCompound', compound);
-            },
-            selectEndpoint: function (item) {
-                this.set('currentComponentMetadata.endpointId', item.dataset.endpointId);
-            },
-
-            selectElementary: function (e) {
-                this.deselect();
-
-                var item = this.$.elementaryList.itemForElement(e.target);
-                item.is = 'elementary';
-                this.$.elementarySelector.select(item);
-
-                this.fire('iron-select', {is: 'elementary', item: item});
-            },
-
-            selectUtility: function (e) {
-                this.deselect();
-
-                var item = this.$.utilityList.itemForElement(e.target);
-                item.is = 'utility';
-                this.$.elementarySelector.select(item);
-
-                this.fire('iron-select', {is: 'utility', item: item});
-            },
-
-            toggleApps: function () {
-                if (this.toggleMenus) {
-                    this._compoundsOpen = false;
-                    this._elementariesOpen = false;
-                    this._utilitiesOpen = false;
-                }
-                this._appsOpen = !this._appsOpen;
-            },
-
-            toggleCompounds: function () {
-                if (this.toggleMenus) {
-                    this._appsOpen = false;
-                    this._elementariesOpen = false;
-                    this._utilitiesOpen = false;
-                }
-                this._compoundsOpen = !this._compoundsOpen;
-            },
-
-            toggleElementaries: function () {
-                if (this.toggleMenus) {
-                    this._appsOpen = false;
-                    this._compoundsOpen = false;
-                    this._utilitiesOpen = false;
-                }
-                this._elementariesOpen = !this._elementariesOpen;
-            },
-
-            toggleUtilities: function () {
-                if (this.toggleMenus) {
-                    this._appsOpen = false;
-                    this._compoundsOpen = false;
-                    this._elementariesOpen = false;
-                }
-                this._utilitiesOpen = !this._utilitiesOpen;
-            },
-
-            _calculateToggleIcon: function (state) {
-                return state ? 'icons:arrow-drop-up' : 'icons:arrow-drop-down';
-            },
-
-            _equals: function (a, b) {
-                return a === b;
-            }
-        });
-    </script>
+    <script src="bde-explorer.js"></script>
 </dom-module>

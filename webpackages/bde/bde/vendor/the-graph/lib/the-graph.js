@@ -43,7 +43,6 @@
   TheGraph.mixins.Tooltip = {
     showTooltip: function (event) {     
       if ( !this.shouldShowTooltip() ) { return; }
-      console.log(event.clientX, event.clientY, event);
       var tooltipEvent = new CustomEvent('the-graph-tooltip', { 
         detail: {
           tooltip: this.props.label,

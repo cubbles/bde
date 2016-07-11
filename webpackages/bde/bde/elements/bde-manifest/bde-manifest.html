@@ -13,7 +13,8 @@
 
       name: {
         type: String,
-        notify: true
+        notify: true,
+          value: 'new-webpackage'
       },
 
       groupId: {
@@ -95,7 +96,7 @@
                 compoundComponents:  [
                     {
                         artifactId: 'new-compound',
-                        description: 'component for description',
+                        description: 'component description...',
                         runnables:[
                             {
                                 name: 'demo',
@@ -135,6 +136,7 @@
 
       attached: function(){
           document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[0]);
+          document.querySelector('bde-app').set('manifest', this);
       },
     /**
      * The webpackageId in the base, generated from `groupId`,
@@ -268,12 +270,12 @@
      * @param  {String|Number}  space    (optional)
      * @return {String}
      */
-    toJSON: function() {
+    toValidManifest: function() {
       var manifest = {};
 
-      Object.keys(this.__data__)
+      Object.keys(this.properties)
         .filter(function(key) {
-          return ((key !== 'artifacts') && (key !== 'baseContext'));
+          return ((key !== 'metadata'));
         })
         .forEach(function(key) {
           manifest[key] = this[key];
@@ -292,7 +294,7 @@
       //   });
       // });
 
-      return JSON.stringify.apply(this, [manifest].concat(Array.from(arguments)));
+      return manifest;
     }
   });
 })();

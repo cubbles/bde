@@ -14,6 +14,7 @@
         <style>
             :host {
                 display: block;
+                z-index: 2;
             }
 
             paper-dialog {
@@ -84,16 +85,29 @@
                 </div>
                 <iron-collapse id="runnablesCollapse">
                     <div class="collapse-content">
-                        <template is="dom-repeat" id="runnables" items="{{artifact.runnables}}" as="runnable">
+                        <template is="dom-repeat"
+                                  id="runnables"
+                                  items="{{artifact.runnables}}"
+                                  as="runnable"
+                                  index-as="runnablei">
                             <div>
                                 <div tabindex="0"
                                      on-tap="toggleCollapse"
                                      class="collapse-header"
-                                     data-collapse-id$="[[_idForCollapse(index, 'runnable_')]]">
+                                     data-collapse-id$="[[_idForCollapse(runnablei, 'runnable_')]]">
                                     <span>[[runnable.name]]</span>
                                     <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                 </div>
-                                <iron-collapse id$="[[_idForCollapse(index, 'runnable_')]]">
+                                <iron-collapse id$="[[_idForCollapse(runnablei, 'runnable_')]]">
+                                    <paper-icon-item class="addItem"
+                                                     on-tap="removeItem"
+                                                     data-path$="[[_createPath('runnables')]]"
+                                                     data-item-index$="[[runnablei]]">
+                                        <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                        <paper-item-body>
+                                            <div>Remove</div>
+                                        </paper-item-body>
+                                    </paper-icon-item>
                                     <div class="collapse-content">
                                         <paper-input label="Name"
                                                      placeholder="A (short) name for the runnable."
@@ -134,17 +148,30 @@
                     </div>
                     <iron-collapse id="endpointsCollapse">
                         <div class="collapse-content">
-                            <template is="dom-repeat" id="endpoints" items="[[artifact.endpoints]]" as="endpoint">
+                            <template is="dom-repeat"
+                                      id="endpoints"
+                                      items="[[artifact.endpoints]]"
+                                      index-as="endpointi"
+                                      as="endpoint">
                                 <div>
                                     <div tabindex="0"
                                          on-tap="toggleCollapse"
                                          class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(index, 'endpoint_')]]">
+                                         data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_')]]">
                                         <span>[[endpoint.endpointId]]</span>
                                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                     </div>
-                                    <iron-collapse id$="[[_idForCollapse(index, 'endpoint_')]]">
+                                    <iron-collapse id$="[[_idForCollapse(endpointi, 'endpoint_')]]">
                                         <div class="collapse-content">
+                                            <paper-icon-item class="addItem"
+                                                             on-tap="removeItem"
+                                                             data-path$="[[_createPath('endpoints')]]"
+                                                             data-item-index$="[[endpointi]]">
+                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                <paper-item-body>
+                                                    <div>Remove</div>
+                                                </paper-item-body>
+                                            </paper-icon-item>
                                             <paper-input label="Endpoint Id"
                                                          placeholder="Identifier for this slot item - unique within this component."
                                                          pattern="^[a-z0-9-]+"
@@ -159,17 +186,27 @@
                                             <div tabindex="0"
                                                  on-tap="toggleCollapse"
                                                  class="collapse-header"
-                                                 data-collapse-id$="[[_idForCollapse(index, 'endpoint_resources_')]]">
+                                                 data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_resources_')]]">
                                                 <span title="Contains the first-level resources of this endpoint.">Resources</span>
                                                 <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                             </div>
-                                            <iron-collapse id="[[_idForCollapse(index, 'endpoint_resources_')]]">
+                                            <iron-collapse id="[[_idForCollapse(endpointi, 'endpoint_resources_')]]">
                                                 <div class="collapse-content">
                                                     <template is="dom-repeat"
                                                               id="resources"
                                                               items="[[endpoint.resources]]"
+                                                              index-as="resourcei"
                                                               as="resource">
                                                         <div class="list-item-container">
+                                                            <paper-icon-item class="addItem"
+                                                                             on-tap="removeItem"
+                                                                             data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
+                                                                             data-item-index$="[[resourcei]]">
+                                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                                <paper-item-body>
+                                                                    <div>Remove</div>
+                                                                </paper-item-body>
+                                                            </paper-icon-item>
                                                             <template is="dom-if" if="[[_isObject(resource)]]">
                                                                 <paper-input label="Prod"
                                                                              placeholder="Path to potentially optimized resource."
@@ -204,20 +241,30 @@
                                             <div tabindex="0"
                                                  on-tap="toggleCollapse"
                                                  class="collapse-header"
-                                                 data-collapse-id$="[[_idForCollapse(index, 'endpoint_dependencies_')]]">
+                                                 data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]">
                                                     <span title="0..n other artifacts-endpoints this artifact-endpoint needs to work properly. Note: 'webpackage': 'this' refers artifact(s) of the this webpackage.">
                                                         Dependencies
                                                     </span>
                                                 <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                             </div>
-                                            <iron-collapse id="[[_idForCollapse(index, 'endpoint_dependencies_')]]">
+                                            <iron-collapse id="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]">
                                                 <div class="collapse-content">
                                                     <template is="dom-repeat"
                                                               id="dependencies"
                                                               is="dom-repeat"
                                                               items="{{endpoint.dependencies}}"
+                                                              index-as="dependencyi"
                                                               as="dependency">
                                                         <div class="list-item-container">
+                                                            <paper-icon-item class="addItem"
+                                                                             on-tap="removeItem"
+                                                                             data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
+                                                                             data-item-index$="[[dependencyi]]">
+                                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                                <paper-item-body>
+                                                                    <div>Remove</div>
+                                                                </paper-item-body>
+                                                            </paper-icon-item>
                                                             <paper-input
                                                                     pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+"
                                                                     no-label-float
@@ -257,17 +304,30 @@
                     </div>
                     <iron-collapse id="slotsCollapse">
                         <div class="collapse-content">
-                            <template is="dom-repeat" id="slots" items="[[artifact.slots]]" as="slot">
+                            <template is="dom-repeat"
+                                      id="slots"
+                                      items="[[artifact.slots]]"
+                                      index-as="sloti"
+                                      as="slot">
                                 <div>
                                     <div tabindex="0"
                                          on-tap="toggleCollapse"
                                          class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(index, 'slot_')]]">
+                                         data-collapse-id$="[[_idForCollapse(sloti, 'slot_')]]">
                                         <span>[[slot.slotId]]</span>
                                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                     </div>
-                                    <iron-collapse id$="[[_idForCollapse(index, 'slot_')]]">
+                                    <iron-collapse id$="[[_idForCollapse(sloti, 'slot_')]]">
                                         <div class="collapse-content">
+                                            <paper-icon-item class="addItem"
+                                                             on-tap="removeItem"
+                                                             data-path$="[[_createPath('slots')]]"
+                                                             data-item-index$="[[sloti]]">
+                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                <paper-item-body>
+                                                    <div>Remove</div>
+                                                </paper-item-body>
+                                            </paper-icon-item>
                                             <paper-input label="Slot Id"
                                                          placeholder="Identifier for this slot item - unique within this component."
                                                          pattern="^[a-z][a-zA-Z0-9-]*"
@@ -320,17 +380,30 @@
                     </div>
                     <iron-collapse id="membersCollapse">
                         <div class="collapse-content">
-                            <template is="dom-repeat" id="members" items="[[artifact.members]]" as="member">
+                            <template is="dom-repeat"
+                                      id="members"
+                                      items="[[artifact.members]]"
+                                      index-as="memberi"
+                                      as="member">
                                 <div>
                                     <div tabindex="0"
                                          on-tap="toggleCollapse"
                                          class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(index, 'member_')]]">
+                                         data-collapse-id$="[[_idForCollapse(memberi, 'member_')]]">
                                         <span>[[member.memberId]]</span>
                                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                     </div>
-                                    <iron-collapse id$="[[_idForCollapse(index, 'member_')]]">
+                                    <iron-collapse id$="[[_idForCollapse(memberi, 'member_')]]">
                                         <div class="collapse-content">
+                                            <paper-icon-item class="addItem"
+                                                             on-tap="removeItem"
+                                                             data-path$="[[_createPath('members')]]"
+                                                             data-item-index$="[[memberi]]">
+                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                <paper-item-body>
+                                                    <div>Remove</div>
+                                                </paper-item-body>
+                                            </paper-icon-item>
                                             <paper-input label="Member Id"
                                                          placeholder="Identifier for this member item - unique within this compound component."
                                                          pattern="^[a-z][a-zA-Z0-9-]*"
@@ -375,15 +448,28 @@
                     </div>
                     <iron-collapse id="connectionsCollapse">
                         <div class="collapse-content">
-                            <template is="dom-repeat" id="connections" items="[[artifact.connections]]" as="connection">
+                            <template is="dom-repeat"
+                                      id="connections"
+                                      items="[[artifact.connections]]"
+                                      index-as="connectioni"
+                                      as="connection">
                                 <div>
                                     <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(index, 'connection_')]]">
+                                         data-collapse-id$="[[_idForCollapse(connectioni, 'connection_')]]">
                                         <span>[[connection.connectionId]]</span>
                                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                     </div>
-                                    <iron-collapse id$="[[_idForCollapse(index, 'connection_')]]">
+                                    <iron-collapse id$="[[_idForCollapse(connectioni, 'connection_')]]">
                                         <div class="collapse-content">
+                                            <paper-icon-item class="addItem"
+                                                             on-tap="removeItem"
+                                                             data-path$="[[_createPath('connections')]]"
+                                                             data-item-index$="[[connectioni]]">
+                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                <paper-item-body>
+                                                    <div>Remove</div>
+                                                </paper-item-body>
+                                            </paper-icon-item>
                                             <paper-input label="Connection Id"
                                                          placeholder="Identifier for this connection item - unique within this compound component."
                                                          pattern="^[a-z][a-zA-Z0-9-:]*"
@@ -454,15 +540,28 @@
                     </div>
                     <iron-collapse id="initsCollapse">
                         <div class="collapse-content">
-                            <template is="dom-repeat" id="inits" items="[[artifact.inits]]" as="init">
+                            <template is="dom-repeat"
+                                      id="inits"
+                                      items="[[artifact.inits]]"
+                                      index-as="initi"
+                                      as="init">
                                 <div>
                                     <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(index, 'init_')]]">
-                                        <span>[[index]]</span>
+                                         data-collapse-id$="[[_idForCollapse(initi, 'init_')]]">
+                                        <span>[[initi]]</span>
                                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                     </div>
-                                    <iron-collapse id$="[[_idForCollapse(index, 'init_')]]">
+                                    <iron-collapse id$="[[_idForCollapse(initi, 'init_')]]">
                                         <div class="collapse-content">
+                                            <paper-icon-item class="addItem"
+                                                             on-tap="removeItem"
+                                                             data-path$="[[_createPath('inits')]]"
+                                                             data-item-index$="[[initi]]">
+                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                <paper-item-body>
+                                                    <div>Remove</div>
+                                                </paper-item-body>
+                                            </paper-icon-item>
                                             <paper-input label="Member Id Reference"
                                                          placeholder="The 'memberId' value of the member item, the slot belongs to. If the property is missed, it refers to an own slot of the compound component."
                                                          pattern="^[a-z][a-zA-Z0-9-]*"
@@ -591,13 +690,24 @@
                 return false;
             },
             addRunnable: function () {
-                this.push('artifact.runnables', {name: 'newRunnable', path: '', description: ''});
+                var newIndex = this.artifact.runnables.length;
+                this.push(
+                        'artifact.runnables',
+                        {
+                            name: 'runnable' + newIndex,
+                            path: '',
+                            description: ''
+                        });
             },
             addEndpoint: function () {
                 this.push(
                         'artifact.endpoints',
-                        {endpointId: 'newEndpoint', description: '', resources: [{prod: '', dev: ''}], dependencies: []}
-                );
+                        {
+                            endpointId: 'endpoint' + this.artifact.endpoints.length,
+                            description: '',
+                            resources: [{prod: '', dev: ''}],
+                            dependencies: []
+                        });
             },
             addEndpointResource: function (e) {
                 var endpointId = e.currentTarget.dataset.endpointId;
@@ -609,30 +719,31 @@
                 var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
                 this.push('artifact.endpoints.' + i + '.dependencies', '');
             },
-            indexOfItemByProperty: function (list, property, value) {
-                for (var i = 0; i < list.length; i++) {
-                    if (list[i][property] === value) {
-                        return i;
-                    }
-                }
-                return -1;
-            },
             addSlot: function () {
-                this.push('artifact.slots', {slotId: 'newSlot', type: '', direction: [], description: ''});
+                this.push(
+                        'artifact.slots',
+                        {
+                            slotId: 'slot' + this.artifact.slots.length,
+                            type: '',
+                            direction: [],
+                            description: ''
+                        });
             },
             addMember: function () {
-                this.push('artifact.members', {
-                    memberId: 'newMember',
-                    componentId: '',
-                    displayName: '',
-                    description: ''
-                });
+                this.push(
+                        'artifact.members',
+                        {
+                            memberId: 'member' + this.artifact.members.length,
+                            componentId: '',
+                            displayName: '',
+                            description: ''
+                        });
             },
             addConnection: function () {
                 this.push(
                         'artifact.connections',
                         {
-                            connectionId: 'newConnection',
+                            connectionId: 'connection' + this.artifact.connections.length,
                             source: {memberIdRef: '', slot: ''},
                             destination: {memberIdRef: '', slot: ''},
                             copyValue: false,
@@ -644,6 +755,23 @@
             },
             addInit: function () {
                 this.push('artifact.inits', {memberIdRef: '', slot: '', value: '', description: ''});
+            },
+            indexOfItemByProperty: function (list, property, value) {
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i][property] === value) {
+                        return i;
+                    }
+                }
+                return -1;
+            },
+            _createPath: function () {
+                var path = Array.prototype.slice.call(arguments).join('.');
+                return 'artifact.' + path;
+            },
+            removeItem: function (e) {
+                var itemIndex = e.currentTarget.dataset.itemIndex;
+                var path = e.currentTarget.dataset.path;
+                this.splice(path, itemIndex, 1);
             }
         });
     </script>

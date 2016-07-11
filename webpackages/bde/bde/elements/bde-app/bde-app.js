@@ -129,6 +129,11 @@
       this.$.help.opened = !this.$.help.opened;
     },
 
+    newWebpackageBtnHandler: function () {
+      // TODO neue webpackage erzeugen
+      window.alert('comming soon');
+    },
+
     initializeDefaultSettings: function () {
       this.set('settings', {
         baseUrl: 'https://cubbles.world',

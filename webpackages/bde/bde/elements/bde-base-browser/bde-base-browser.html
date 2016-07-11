@@ -28,280 +28,54 @@ Example:
 @demo ../elements/bde-base-browser/demo/index.html
 -->
 <dom-module id="bde-base-browser">
-  <template>
-    <style is="custon-style">
-      :host {
-        display: block;
-      }
-
-      #clearBtn {
-        color: var(--paper-grey-600);
-        width: 23px; /* 15px + 2*4px for padding */
-        height: 23px;
-        padding: 0px 4px;
-      }
-
-      iron-list {
-        @apply(--layout-flex);
-      }
-    </style>
-
-    <app-data key="settings" data="{{_settings}}"></app-data>
-
-    <iron-ajax id="ajax"
-      url="[[_computeBaseUrl(_settings.baseUrl, _settings.store)]]"
-      handle-as="json"
-      on-response="handleResponse"
-      auto
-      ></iron-ajax>
-
-    <paper-input id="search"
-      label="Search components in the base..."
-      value="{{searchTerm}}"
-      on-input="handleInput"
-      autofocus>
-      <iron-icon icon="icons:search" prefix></iron-icon>
-      <paper-icon-button id="clearBtn"
-        icon="icons:clear"
-        title="clear search"
-        on-tap="clearInput"
-        suffix
-        ></paper-icon-button>
-    </paper-input>
-
-    <iron-list id="list"
-      items="[[_filtered]]"
-      multi-selection>
-      <template>
-        <bde-base-item item="{{item}}"></bde-base-item>
-      </template>
-    </iron-list>
-  </template>
-  <script>
-  Polymer({
-    is: 'bde-base-browser',
-
-    properties: {
-      /**
-       * The search term from the `paper-input` field.
-       *
-       * @type {String}
-       */
-       searchTerm: {
-        type: String,
-        notify: true
-      },
-
-      /**
-       * The selected artifact
-       *
-       * @type {Object}
-       */
-       selected: {
-        type: Object,
-        notify: true
-      },
-
-      /**
-       * Wether to display only app artifacts
-       *
-       * @type {Boolean}
-       */
-       appsOnly: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * Wether to display only elementary artifacts
-       *
-       * @type {Boolean}
-       */
-       elementariesOnly: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * Wether to display only compound artifacts
-       *
-       * @type {Boolean}
-       */
-       compoundsOnly: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * Wether to display only utility artifacts
-       *
-       * @type {Boolean}
-       */
-       utilitiesOnly: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * All cubbles in the base
-       *
-       * @type {Array}
-       * @private
-       */
-       _cubbles: {
-        type: Array
-      },
-
-      /**
-       * Cubbles filtered by the criteria
-       *
-       * @type {Array}
-       * @private
-       */
-       _filtered: {
-        type: Array
-      },
-
-      /**
-       * Global app settings
-       *
-       * @type {Object}
-       * @private
-       */
-       _settings: {
-        type: Object
-      }
-    },
-
-    listeners: {
-      'iron-select': 'handleItemSelect'
-    },
-
-    /**
-     * Clear the input of the search field on button click.
-     *
-     * @method clearInput
-     */
-    clearInput: function() {
-      this.set('_filtered', []);
-      this.$.search.value = '';
-      this.$.search.focus();
-    },
-
-    /**
-     * Handles the input of a search term in the input field
-     * and returns the filtered array matching the expression in the input.
-     * As well as resizing the dialog, based on search result.
-     *
-     * @method handleInput
-     */
-    handleInput: function(event) {
-      this.debounce('handleInput', function() {
-        var searchTerm = event.target.value.replace(/[*,?]/g, '');
-        var filtered = JSON.parse(JSON.stringify(this._cubbles || []));
-
-            // Scroll to top of the list
-            this.$.list.scrollTarget.scrollTop = 0;
-
-            if (searchTerm.length === 0) {
-              this.set('_filtered', []);
-              return;
+    <template>
+        <style is="custon-style">
+            :host {
+                display: block;
             }
 
-            if (this.appsOnly) {
-              filtered = filtered.filter( i => i.artifactType == "app");
+            #clearBtn {
+                color: var(--paper-grey-600);
+                width: 23px; /* 15px + 2*4px for padding */
+                height: 23px;
+                padding: 0px 4px;
             }
 
-            if (this.elementariesOnly) {
-              filtered = filtered.filter( i => i.artifactType == "elementaryComponent");
+            iron-list {
+                @apply(--layout-flex);
             }
+        </style>
 
-            if (this.compoundsOnly) {
-              filtered = filtered.filter( i => i.artifactType == "compoundComponent");
-            }
+        <app-data key="settings" data="{{_settings}}"></app-data>
 
-            if (this.utilitiesOnly) {
-              filtered = filtered.filter( i => i.artifactType == "utility");
-            }
+        <iron-ajax id="ajax"
+                   url="[[_computeBaseUrl(_settings.baseUrl, _settings.store)]]"
+                   handle-as="json"
+                   on-response="handleResponse"
+                   auto
+        ></iron-ajax>
 
-            filtered = filtered.filter(i => -1 != i.artifactId.indexOf(searchTerm) ||
-              -1 != i.name.indexOf(searchTerm));
+        <paper-input id="search"
+                     label="Search components in the base..."
+                     value="{{searchTerm}}"
+                     on-input="handleInput"
+                     autofocus>
+            <iron-icon icon="icons:search" prefix></iron-icon>
+            <paper-icon-button id="clearBtn"
+                               icon="icons:clear"
+                               title="clear search"
+                               on-tap="clearInput"
+                               suffix
+            ></paper-icon-button>
+        </paper-input>
 
-            filtered = filtered.sort((a,b) => (a.artifactId == b.artifactId) ? 0 : (a.artifactId < b.artifactId) ? -1 : 1)
-
-            this.set('_filtered', filtered);
-
-            this.async(() => this.$.list.fire('iron-resize'));
-          }.bind(this), 125);
-    },
-
-    /**
-     * Item was selected from the list of results
-     */
-    handleItemSelect: function(event) {
-      var artifact = event.detail;
-      var parts = artifact.webpackageId.match(/([^.]+)@/);
-      var component = {
-        name: parts[1] + '/' + artifact.artifactId,
-        icon: 'cog',
-        description: artifact.description || '',
-        inports: [],
-        outports: []
-      };
-
-      component.inports = artifact.slots
-        .filter(function(slot) { return slot.direction.indexOf('input') !== -1; })
-        .map(function(slot) {
-          return {
-            name: slot.slotId,
-            type: slot.type
-          }
-        });
-
-      component.outports = artifact.slots
-        .filter(function(slot) { return slot.direction.indexOf('output') !== -1; })
-        .map(function(slot) {
-          return {
-            name: slot.slotId,
-            type: slot.type
-          }
-        });
-
-      var member = {
-        memberId: artifact.artifactId + '_' + Math.random().toString(36).substring(7),
-        componentId: parts[1] + '/' + artifact.artifactId,
-        displayName: artifact.artifactId,
-        description: artifact.description || '',
-        metadata: {
-          webpackageId: artifact.webpackageId,
-          artifactId: artifact.artifactId
-        }
-      };
-
-      this.selected = event.detail;
-      this.fire('library-update-required', { item: component });
-      this.fire('iron-selected', { item: member });
-    },
-
-    /**
-     * Handles the initial AJAX response and applies a prefiltering of the result list.
-     *
-     * @method handleResponse
-     * @param  {[Event]} event [Response of AJAX call.]
-     */
-    // TODO (ene): use couchDB functionality for filtering certain document-attributes, like modelVersion...
-    handleResponse: function() {
-      var cubbles = this.$.ajax.lastResponse
-      .filter(item => item.modelVersion.match(/8.3/))
-      .filter(item => item.artifactType == 'compoundComponent' ||
-        item.artifactType == 'elementaryComponent');
-
-      this.set('_cubbles', cubbles);
-    },
-
-    _computeBaseUrl: function(baseUrl, store) {
-      return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
-    }
-  });
-  </script>
+        <iron-list id="list"
+                   items="[[_filtered]]"
+                   multi-selection>
+            <template>
+                <bde-base-item item="{{item}}"></bde-base-item>
+            </template>
+        </iron-list>
+    </template>
+    <script src="bde-base-browser.js"></script>
 </dom-module>

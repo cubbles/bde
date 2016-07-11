@@ -387,7 +387,7 @@
         for (var i = 0, len = this.selectedNodes.length; i < len; i++) {
           selectedNodesHash[this.selectedNodes[i].id] = true;
         }
-        console.log('selectedNodesHash', selectedNodesHash);
+
         this.set('selectedNodesHash', selectedNodesHash);
         this.fire('nodes', this.selectedNodes);
       },
@@ -618,7 +618,7 @@
       menusChanged: function () {
         // Only if the object itself changes,
         // otherwise builds menu from reference every time menu shown
-        if (!this.appView || !this.appView.setProps) {
+        if (!this.appView) {
           return;
         }
         this.appView.setProps({ menus: this.menus });

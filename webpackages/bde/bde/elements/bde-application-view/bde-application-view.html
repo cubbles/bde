@@ -108,7 +108,7 @@
             },
 
             observers: [
-                    'currentComponentMetadataChanged(currentComponentMetadata.*)'
+                'currentComponentMetadataChanged(currentComponentMetadata.*)'
             ],
 
             created: function () {
@@ -141,7 +141,7 @@
             },
             entryHandler: function(e){
                 var applicationView = e.detail.item;
-                if (applicationView.id !== 'applicationView'){
+                if (!applicationView || !applicationView.id || applicationView.id !== 'applicationView'){
                     return;
                 }
                 applicationView.currentComponentMetadataChanged();
@@ -173,8 +173,16 @@
             _postMessage: function (message, data) {
                 this.debounce('postMessage', () => {
                     var payload = { 'message': message };
-
-                    if (data) { payload.data = data; }
+                    payload.data = {};
+                    if (data) {
+                        Object.keys(data).forEach(function (key) {
+                            if (key === 'manifest'){
+                                payload.data[ key ] = data[ key ].toValidManifest();
+                            } else {
+                                payload.data[ key ] = data[ key ];
+                            }
+                        });
+                    }
 
                     this.$.iframe.contentWindow.postMessage(
                         JSON.parse(JSON.stringify(payload)),

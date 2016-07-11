@@ -142,7 +142,7 @@ Example:
      * @param  {Event} event The iron-ajax respons event.
      */
     handleResponse: function (event) {
-        var manifest = this.$.itemRequest.lastResponse
+        var manifest = this.$.itemRequest.lastResponse;
         var path = inflection.pluralize(this.item.artifactType);
         var artifact = manifest.artifacts[path]
             .find(artifact => artifact.artifactId === this.item.artifactId);
@@ -155,8 +155,10 @@ Example:
         artifact.url = this.getItemUrl(this.item);
         artifact.webpackageId = manifest._id;
 
-        this.set('manifest', manifest);
+
         this.set('lastItemSelected', artifact);
+        document.querySelector('#manifest').loadManifest(manifest);
+
     }
 
   });
