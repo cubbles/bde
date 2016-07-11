@@ -1,0 +1,452 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-button/paper-button.html">
+<link rel="import" href="../../vendor/paper-item/paper-item.html">
+<link rel="import" href="../../vendor/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../vendor/paper-item/paper-icon-item.html">
+<link rel="import" href="../../vendor/paper-item/paper-item-body.html">
+<link rel="import" href="../../vendor/paper-listbox/paper-listbox.html">
+
+<dom-module id="bde-webpackage-meta-info">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            paper-dialog {
+                width: 45vw;
+                top: 60px;
+            }
+
+            paper-checkbox {
+                margin-top: 10px;
+                margin-bottom: 10px;
+                margin-right: 10px;
+            }
+
+            .collapse-content {
+                padding: 10px;
+            }
+
+            .collapse-header {
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            .main-collapse-header {
+                font-size: medium;
+                margin-top: 15px;
+            }
+
+            .list-item-container {
+                border-style: solid;
+                border-width: 1px;
+                padding: 10px;
+                border-color: #dbdbdb;
+                margin-top: 10px;
+            }
+
+            .addItem {
+                cursor: pointer;
+            }
+        </style>
+
+        <paper-dialog id="dialog" opened="{{opened}}">
+
+            <h2>Webpackage Meta Information</h2>
+
+            <paper-input label="Name"
+                         pattern="^([a-z][a-z0-9]*)([a-z\-]*(([0-9])+([0-9\.]+)*([0-9])+)*)*([a-z0-9]*)"
+                         placeholder="The name of the webpackage"
+                         required
+                         auto-validate
+                         value="{{manifest.name}}">
+            </paper-input>
+
+            <paper-dialog-scrollable>
+                <paper-input label="Group Id"
+                             pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*"
+                             placeholder="Use this to define/select a namespace for the webpackage (e.g. org.example)"
+                             auto-validate
+                             value="{{manifest.groupId}}">
+                </paper-input>
+
+                <paper-input label="Version"
+                             pattern="^(\d+)(\.[\d]+)*(-SNAPSHOT)?"
+                             placeholder="Version number of the webpackage"
+                             auto-validate
+                             value="{{manifest.version}}">
+                </paper-input>
+
+                <paper-textarea label="Description"
+                                placeholder="A short description of the webpackage"
+                                value="{{manifest.description}}">
+                </paper-textarea>
+
+                <paper-input label="Model Version"
+                             title="Version of the webpackage specification"
+                             readonly
+                             value="{{manifest.modelVersion}}">
+                </paper-input>
+
+                <h3>Author</h3>
+
+                <paper-input label="Name"
+                             pattern="^(([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?[\.]?\s)+([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?"
+                             required
+                             auto-validate
+                             value="{{manifest.author.name}}">
+                </paper-input>
+                <paper-input label="Email"
+                             pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)"
+                             required
+                             auto-validate
+                             value="{{manifest.author.email}}">
+                </paper-input>
+                <paper-input label="Url"
+                             pattern="^(https?)://[^\s\/$.?#].[^\s]*"
+                             placeholder="Url of the author (e.g. the personal homepage)"
+                             auto-validate
+                             value="{{manifest.author.url}}">
+                </paper-input>
+
+                <div tabindex="0"
+                     on-tap="toggleCollapse"
+                     data-collapse-id="contributorsCollapse"
+                     class="main-collapse-header collapse-header">
+                    <span title="List of contributors of this webpackage">Contributors</span>
+                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                </div>
+                <iron-collapse id="contributorsCollapse">
+                    <div class="collapse-content">
+                        <template is="dom-repeat"
+                                  id="contributors"
+                                  items="{{manifest.contributors}}"
+                                  as="contributor"
+                                  index-as="contributori">
+                            <div>
+                                <div tabindex="0"
+                                     on-tap="toggleCollapse"
+                                     class="collapse-header"
+                                     data-collapse-id$="[[_idForCollapse(contributori, 'contributor_')]]">
+                                    <span>[[contributor.name]]</span>
+                                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                </div>
+                                <iron-collapse id$="[[_idForCollapse(contributori, 'contributor_')]]">
+                                    <paper-icon-item class="addItem"
+                                                     on-tap="removeItem"
+                                                     data-path$="[[_createPath('contributors')]]"
+                                                     data-item-index$="[[contributori]]">
+                                        <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                        <paper-item-body>
+                                            <div>Remove</div>
+                                        </paper-item-body>
+                                    </paper-icon-item>
+                                    <div class="collapse-content">
+                                        <paper-input label="Name"
+                                                     pattern="^(([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?[\.]?\s)+([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?"
+                                                     required
+                                                     auto-validate
+                                                     value="{{contributor.name}}">
+                                        </paper-input>
+                                        <paper-input label="Email"
+                                                     pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)"
+                                                     required
+                                                     auto-validate
+                                                     value="{{contributor.email}}">
+                                        </paper-input>
+                                        <paper-input label="Url"
+                                                     pattern="^(https?)://[^\s\/$.?#].[^\s]*"
+                                                     placeholder="Url of the author (e.g. the personal homepage)"
+                                                     auto-validate
+                                                     value="{{contributor.url}}">
+                                        </paper-input>
+                                    </div>
+                                </iron-collapse>
+                            </div>
+                        </template>
+                        <paper-icon-item class="addItem"
+                                         on-tap="addItem"
+                                         data-path$="[[_createPath('contributors')]]"
+                                         data-item-name="contributor">
+                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                            <paper-item-body>
+                                <div>Add Contributor</div>
+                            </paper-item-body>
+                        </paper-icon-item>
+                    </div>
+                </iron-collapse>
+
+                <div class="layout horizontal">
+                    <paper-dropdown-menu label="License" selected-item-label="{{selectedLicenseLabel}}">
+                        <paper-menu class="dropdown-content" attr-for-selected="data-value"
+                                    selected="{{selectedLicense}}">
+                            <template is="dom-repeat" items="{{licenses}}">
+                                <paper-item data-value$="{{item.value}}">{{item.label}}</paper-item>
+                            </template>
+                        </paper-menu>
+                    </paper-dropdown-menu>
+                    <input is="iron-input" type="hidden" name="license"
+                           value="[[_decideLicense(selectedLicense, otherLicense)]]">
+                    <paper-input placeholder="License name"
+                                 value="{{otherLicense}}"
+                                 hidden="[[!_equals(selectedLicenseLabel, 'Other')]]">
+                    </paper-input>
+                </div>
+                <paper-input label="Homepage"
+                             pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
+                             placeholder="The url of the webpackage related website"
+                             auto-validate
+                             value="{{manifest.hompage}}">
+                </paper-input>
+                <paper-input label="Keywords"
+                             placeholder="Keywords separated by ', ' which help to find this webpackage."
+                             pattern="^([\w]+)((,\s*[\w]+)*)"
+                             auto-validate
+                             value="{{keywords}}">
+                </paper-input>
+
+                <template is="dom-if" if="[[_isObject(manifest.man)]]">
+                    <div on-tap="toggleCollapse"
+                         data-collapse-id="manualsCollpase"
+                         class="main-collapse-header collapse-header">
+                        <span title="Urls to external manual(s) related to this webpackage.">Manuals</span>
+                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                    </div>
+                    <iron-collapse id="manualsCollpase">
+                        <div class="collapse-content">
+                            <template is="dom-repeat"
+                                      id="runnables"
+                                      items="{{manifest.man}}"
+                                      as="man"
+                                      index-as="mani">
+                                <div class="list-item-container">
+                                    <paper-icon-item class="addItem"
+                                                     on-tap="removeItem"
+                                                     data-path$="[[_createPath('man')]]"
+                                                     data-item-index$="[[mani]]">
+                                        <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                        <paper-item-body>
+                                            <div>Remove</div>
+                                        </paper-item-body>
+                                    </paper-icon-item>
+                                    <paper-input pattern="^(https?)://[^\s\/$.?#].[^\s]*"
+                                                 placeholder="Url to an external manual related to this webpackage"
+                                                 auto-validate
+                                                 no-label-float
+                                                 value="{{man}}">
+                                    </paper-input>
+                                </div>
+                            </template>
+                            <paper-icon-item class="addItem"
+                                             on-tap="addItem"
+                                             data-path$="[[_createPath('man')]]"
+                                             data-item-name="man">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Manual</div>
+                                </paper-item-body>
+                            </paper-icon-item>
+                        </div>
+                    </iron-collapse>
+                </template>
+
+
+                <div on-tap="toggleCollapse"
+                     data-collapse-id="runnablesCollapse"
+                     class="main-collapse-header collapse-header">
+                    <span title="Resources that are actually runnable in a user webbrowser.">Runnables</span>
+                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                </div>
+                <iron-collapse id="runnablesCollapse">
+                    <div class="collapse-content">
+                        <template is="dom-repeat"
+                                  id="runnables"
+                                  items="{{manifest.runnables}}"
+                                  as="runnable"
+                                  index-as="runnablei">
+                            <div>
+                                <div tabindex="0"
+                                     on-tap="toggleCollapse"
+                                     class="collapse-header"
+                                     data-collapse-id$="[[_idForCollapse(runnablei, 'runnable_')]]">
+                                    <span>[[runnable.name]]</span>
+                                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                </div>
+                                <iron-collapse id$="[[_idForCollapse(runnablei, 'runnable_')]]">
+                                    <paper-icon-item class="addItem"
+                                                     on-tap="removeItem"
+                                                     data-path$="[[_createPath('runnables')]]"
+                                                     data-item-index$="[[runnablei]]">
+                                        <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                        <paper-item-body>
+                                            <div>Remove</div>
+                                        </paper-item-body>
+                                    </paper-icon-item>
+                                    <div class="collapse-content">
+                                        <paper-input label="Name"
+                                                     placeholder="A (short) name for the runnable."
+                                                     pattern="^(.)+"
+                                                     required
+                                                     value="{{runnable.name}}">
+                                        </paper-input>
+                                        <paper-input label="Path"
+                                                     placeholder="Path to the 'runnable' resource - relative to the webpackage itself (e.g. '/doc/index.html')."
+                                                     pattern="^/(.)+"
+                                                     required
+                                                     value="{{runnable.path}}">
+                                        </paper-input>
+                                        <paper-textarea label="Description"
+                                                        placeholder="Short description of the runnable: short content description, target group etc."
+                                                        value="{{runnable.label}}">
+                                        </paper-textarea>
+                                    </div>
+                                </iron-collapse>
+                            </div>
+                        </template>
+                        <paper-icon-item class="addItem"
+                                         on-tap="addItem"
+                                         data-path$="[[_createPath('runnables')]]"
+                                         data-item-name="runnable">
+                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                            <paper-item-body>
+                                <div>Add Runnable</div>
+                            </paper-item-body>
+                        </paper-icon-item>
+                    </div>
+                </iron-collapse>
+
+            </paper-dialog-scrollable>
+
+            <div class="buttons">
+                <paper-button raised dialog-dismiss>Close</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'bde-webpackage-meta-info',
+            properties: {
+                manifest: {
+                    type: Object,
+                    notify: true,
+                    observer: 'manifestChanged'
+                },
+                opened: {
+                    type: Boolean,
+                    value: false
+                },
+                licenses: {
+                    type: Array,
+                    value: [
+                        {value: 'None', label: 'None'},
+                        {value: 'MIT', label: 'MIT'},
+                        {value: 'Apache-2', label: 'Apache-2'},
+                        {value: 'GPL-3', label: 'GPL-3'},
+                        {value: '', label: 'Other'}
+                    ]
+                },
+                selectedLicense: {
+                    type: String,
+                    value: 'None'
+                },
+                keywords: {
+                    type: String,
+                    value: '',
+                    observer: 'keywordsChanged'
+                }
+            },
+            _decideLicense: function (selectedLicense, otherLicense) {
+                if (!this.manifest) {
+                    return;
+                }
+                if (selectedLicense) {
+                    this.manifest.license = selectedLicense;
+                }
+                else {
+                    this.manifest.license = otherLicense;
+                }
+            },
+            keywordsChanged: function () {
+                if (!this.manifest) {
+                    return;
+                }
+                this.manifest.keywords = this.keywords.replace(/ /g, '').split(',');
+            },
+            manifestChanged: function () {
+                if (this.manifest.man && typeof this.manifest.man === 'string') {
+                    this.set('manifest.man', [this.manifest.man]);
+                }
+                if (this.manifest.license) {
+                    this.selectedLicense = this.manifest.license;
+                }
+                if (this.manifest.keywords) {
+                    keywords = this.manifest.keywords.join(', ');
+                }
+            },
+            open: function () {
+                this.opened = true;
+            },
+            close: function () {
+                this.opened = false;
+            },
+            toggleCollapse: function (e) {
+                var collapseDiv = this.$$('#' + e.currentTarget.dataset.collapseId);
+                collapseDiv.toggle();
+                Polymer.dom(e.currentTarget).querySelector('iron-icon').icon = this._calculateToggleIcon(collapseDiv.opened);
+            },
+            removeItem: function (e) {
+                var itemIndex = e.currentTarget.dataset.itemIndex;
+                var path = e.currentTarget.dataset.path;
+                this.splice(path, itemIndex, 1);
+            },
+            addItem: function (e) {
+                var path = e.currentTarget.dataset.path;
+                if (!this.get(path)) {
+                    this.set(path, []);
+                }
+                var item = this._createItem(e.currentTarget.dataset.itemName);
+                this.push(path, item);
+            },
+            _createItem: function (itemName) {
+                var newIndex;
+                switch (itemName) {
+                    case 'contributor':
+                        newIndex = this.manifest.contributors.length;
+                        return {name: 'Contributor ' + newIndex};
+                    case 'runnable':
+                        newIndex = this.manifest.runnables.length;
+                        return {name: 'Runnable ' + newIndex, path: '', description: ''};
+                    case 'man':
+                        newIndex = this.manifest.man.length;
+                        return '';
+                    default:
+                        return {};
+                }
+            },
+            _createPath: function () {
+                var path = Array.prototype.slice.call(arguments).join('.');
+                return 'manifest.' + path;
+            },
+            _idForCollapse: function (index, prefix) {
+                prefix = prefix || '';
+                return prefix + 'collapse' + index;
+            },
+            _calculateToggleIcon: function (state) {
+                return state ? 'icons:arrow-drop-up' : 'icons:arrow-drop-down';
+            },
+            _isObject: function (value) {
+                return typeof value === 'object';
+            },
+            _equals: function (a, b) {
+                return a === b;
+            }
+        });
+    </script>
+</dom-module>

@@ -130,8 +130,7 @@
     },
 
     newWebpackageBtnHandler: function () {
-      // TODO neue webpackage erzeugen
-      window.alert('comming soon');
+      document.querySelector('#manifest').reset();
     },
 
     initializeDefaultSettings: function () {

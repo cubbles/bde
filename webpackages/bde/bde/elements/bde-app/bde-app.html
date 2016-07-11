@@ -148,8 +148,8 @@
 
         <bde-application-settings id="settings"
                                   settings="{{settings}}"
-                                  opened="{{settingsOpened}}"
-        ></bde-application-settings>
+                                  opened="{{settingsOpened}}">
+        </bde-application-settings>
 
         <bde-repository-browser
                 id="browser"
@@ -177,7 +177,7 @@
                 <paper-icon-button id="newWebpacakgeBtn"
                                    title="Create new webpackage..."
                                    aria-label="newWebpackage"
-                                   icon="add-circle"
+                                   icon="editor:insert-drive-file"
                                    on-tap="newWebpackageBtnHandler"
 
                 ></paper-icon-button>
@@ -193,20 +193,6 @@
                                    title="Deploy..."
                                    aria-label="compounds"
                                    icon="icons:cloud-upload"
-                ></paper-icon-button>
-
-                <paper-icon-button id="aboutBtn"
-                                   title="About..."
-                                   aria-label="about"
-                                   icon="icons:copyright"
-                                   on-tap="aboutBtnHandler"
-                ></paper-icon-button>
-
-                <paper-icon-button id="helpBtn"
-                                   title="Help Page"
-                                   aria-label="help"
-                                   icon="icons:help-outline",
-                                   on-tap="helpBtnHandler"
                 ></paper-icon-button>
 
                 <span class="flex"></span>
@@ -234,6 +220,19 @@
                                        class="route-buttons"
                     ></paper-icon-button>
                 </page-select-menu>
+                <paper-icon-button id="aboutBtn"
+                                   title="About..."
+                                   aria-label="about"
+                                   icon="icons:copyright"
+                                   on-tap="aboutBtnHandler"
+                ></paper-icon-button>
+
+                <paper-icon-button id="helpBtn"
+                                   title="Help Page"
+                                   aria-label="help"
+                                   icon="icons:help-outline"
+                                   on-tap="helpBtnHandler"
+                ></paper-icon-button>
             </paper-toolbar>
 
             <paper-drawer-panel id="drawerPanel"

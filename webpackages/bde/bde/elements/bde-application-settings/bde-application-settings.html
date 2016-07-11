@@ -52,7 +52,6 @@
                 <paper-tabs selected="{{_tabSelected}}">
 
                     <paper-tab>Base Settings</paper-tab>
-                    <paper-tab>User Settings</paper-tab>
                     <paper-tab>View Settings</paper-tab>
 
                 </paper-tabs>
@@ -98,41 +97,6 @@
                             <!--<paper-button raised on-tap="baseConnect">-->
                                 <!--[[_connectButtonText(_connected)]]-->
                             <!--</paper-button>-->
-
-                        </div>
-                    </section>
-
-                    <section id="user">
-
-                        <div class="content">
-                            <paper-input id="authorName"
-                                         type="text"
-                                         name="name"
-                                         label="Full Name"
-                                         pattern="^(([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?[\.]?\s)+([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?$"
-                                         auto-validate
-                            ></paper-input>
-
-                            <paper-input id="authorEmail"
-                                         type="email"
-                                         name="email"
-                                         label="E-Mail Adress"
-                                         pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"
-                                         auto-validate></paper-input>
-
-                            <paper-input id="groupId"
-                                         type="text"
-                                         name="groupId"
-                                         label="Group ID"
-                                         pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*$"
-                                         auto-validate></paper-input>
-
-                            <paper-input id="authorUrl"
-                                         type="url"
-                                         name="url"
-                                         label="URL (e.g. the personal or company homepage)"
-                                         pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
-                                         auto-validate></paper-input>
 
                         </div>
                     </section>

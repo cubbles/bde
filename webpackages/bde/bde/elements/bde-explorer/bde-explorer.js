@@ -66,6 +66,10 @@ Polymer({
 
   },
 
+  observers: [
+    'manifestChanged(manifest.*)'
+  ],
+
   listeners: {
     'bde_compound_select': 'handleBdeCompoundSelect'
   },
@@ -95,6 +99,10 @@ Polymer({
   },
   addApp: function () {
     // this.$.addAppDialog.open();
+  },
+
+  openWebpackageMetaInfo: function (e) {
+    this.$.webpackageMetaInfo.open();
   },
 
   openCompoundDetails: function (e) {
@@ -131,7 +139,7 @@ Polymer({
     var item = e.model.dataHost.itemForElement(e.target);
     item.is = e.model.dataHost.id.replace(/List/, '');
 
-    this.fire('bde-explorer-open-settings', { item: item });
+    this.fire('bde-explorer-open-settings', {item: item});
   },
 
   selectApp: function (e) {
@@ -141,7 +149,7 @@ Polymer({
     item.is = 'app';
     this.$.appSelector.select(item);
 
-    this.fire('iron-select', { is: 'app', item: item });
+    this.fire('iron-select', {is: 'app', item: item});
   },
 
   explorerItemSelected: function (e) {
@@ -150,7 +158,7 @@ Polymer({
     if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
       this.deselectCompound();
       this.selectCompound(item.dataset.artifactId, item.dataset.endpointId);
-    } else if (item.dataset.endpointId && item.dataset.endpointId !== this.currentComponentMetadata.artifactId + '#' + this.currentComponentMetadata.endpointId) {
+    } else if (item.dataset.endpointId && item.dataset.endpointId !== this._createEndpointMenuItemId(this.currentComponentMetadata.artifactId, this.currentComponentMetadata.endpointId)) {
       this.selectEndpoint(item.dataset.endpointId);
     }
   },
@@ -203,7 +211,7 @@ Polymer({
   },
 
   selectEndpoint: function (endpointId) {
-    this.set('currentComponentMetadata.endpointId', endpointId.split('#')[ 1 ]);
+    this.set('currentComponentMetadata.endpointId', endpointId.split('#')[1]);
   },
 
   selectElementary: function (e) {
@@ -213,7 +221,7 @@ Polymer({
     item.is = 'elementary';
     this.$.elementarySelector.select(item);
 
-    this.fire('iron-select', { is: 'elementary', item: item });
+    this.fire('iron-select', {is: 'elementary', item: item});
   },
 
   selectUtility: function (e) {
@@ -223,7 +231,7 @@ Polymer({
     item.is = 'utility';
     this.$.elementarySelector.select(item);
 
-    this.fire('iron-select', { is: 'utility', item: item });
+    this.fire('iron-select', {is: 'utility', item: item});
   },
 
   toggleApps: function () {
@@ -277,5 +285,11 @@ Polymer({
   },
   _createIdForEndpointsMenuTemplate: function (artifactId) {
     return 'endpoints_template_' + artifactId;
+  },
+  _groupIdDefined: function (groupId) {
+    if (groupId) {
+      return true;
+    }
+    return false;
   }
 });
