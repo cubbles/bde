@@ -17,13 +17,14 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "homepage": "https://github.com/cubbles/bde.the-graph",
-  "_release": "d278569559",
+  "_release": "72710a8c86",
   "_resolution": {
     "type": "branch",
     "branch": "master",
-    "commit": "d2785695592f16aefd682d1498dce141ca22da60"
+    "commit": "72710a8c86ec066be9651a0b01e3f77f3eb30ff3"
   },
   "_source": "git://github.com/cubbles/bde.the-graph.git",
   "_target": "*",
-  "_originalSource": "cubbles/bde.the-graph"
+  "_originalSource": "cubbles/bde.the-graph",
+  "_direct": true
 }

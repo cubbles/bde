@@ -252,7 +252,7 @@
         // Initializes the autolayouter
         this.autolayouter = klayNoflo.init({
           onSuccess: this.applyAutolayout.bind(this),
-          workerScript: '../bower_components/klayjs/klay.js'
+          workerScript: '../vendor/klayjs/klay.js'
         });
       },
 
@@ -295,7 +295,7 @@
         }
         if (this.appView) {
           // Remove previous instance
-          React.unmountComponentAtNode(this.$.svgcontainer);
+          ReactDOM.unmountComponentAtNode(this.$.svgcontainer);
         }
         // Setup app
         this.set('$.svgcontainer.innerHTML', '');
@@ -621,7 +621,26 @@
         if (!this.appView) {
           return;
         }
-        this.appView.setProps({ menus: this.menus });
+        // this.appView.setProps({ menus: this.menus }); // deprecated
+        this.appView = ReactDOM.render(window.TheGraph.App({
+          graph: this.graph,
+          width: this.width,
+          minZoom: this.minZoom,
+          maxZoom: this.maxZoom,
+          height: this.height,
+          library: this.library,
+          menus: this.menus,
+          editable: this.editable,
+          onEdgeSelection: this.onEdgeSelection.bind(this),
+          onNodeSelection: this.onNodeSelection.bind(this),
+          onPanScale: this.onPanScale.bind(this),
+          getMenuDef: this.getMenuDef,
+          displaySelectionGroup: this.displaySelectionGroup,
+          forceSelection: this.forceSelection,
+          offsetY: this.offsetY,
+          offsetX: this.offsetX
+        }), this.$.svgcontainer);
+        this.graphView = this.appView.refs.graph;
       },
 
       debounceLibraryRefesh: function () {

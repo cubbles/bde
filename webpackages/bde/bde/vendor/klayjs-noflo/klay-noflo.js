@@ -1,6 +1,6 @@
 var klayNoflo = (function () {
   "use strict";
-  
+
   var worker;
   var defaultOptions = {
     "intCoordinates": true,
@@ -31,7 +31,7 @@ var klayNoflo = (function () {
     init: function (params) {
       // Set up some properties
       var callback, workerScript;
-      
+
       if ("onSuccess" in params) {
         callback = params.onSuccess;
       } else {
@@ -51,7 +51,7 @@ var klayNoflo = (function () {
       worker.addEventListener('message', function (e) {
         callback(e.data);
       }, false);
-      
+
       return this;
     },
 
@@ -60,7 +60,7 @@ var klayNoflo = (function () {
     // in init
     layout: function (params) {
       var graph, options, portInfo, direction, encodedGraph;
-      
+
       if ("graph" in params) {
         graph = params.graph;
       } else {
@@ -83,7 +83,7 @@ var klayNoflo = (function () {
       } else {
         encodedGraph = graph;
       }
-      
+
       worker.postMessage({
         "graph": encodedGraph,
         "options": options
@@ -112,7 +112,7 @@ var klayNoflo = (function () {
       // Start KGraph building
       var kGraph = {
         id: graph.name,
-        children: [], 
+        children: [],
         edges: []
       };
       // Encode nodes
@@ -172,11 +172,11 @@ var klayNoflo = (function () {
             'de.cau.cs.kieler.portSide': portProperties.outportSide
           }
         };
-        
+
         var kChild = {
-          id: tempId, 
+          id: tempId,
           labels: [{text: key}],
-          width: nodeProperties.width, 
+          width: nodeProperties.width,
           height: nodeProperties.height,
           ports: [uniquePort],
           properties: {
@@ -203,9 +203,9 @@ var klayNoflo = (function () {
         };
 
         var kChild = {
-          id: tempId, 
+          id: tempId,
           labels: [{text: key}],
-          width: nodeProperties.width, 
+          width: nodeProperties.width,
           height: nodeProperties.height,
           ports: [uniquePort],
           properties: {
@@ -233,14 +233,14 @@ var klayNoflo = (function () {
         var target = edge.to.node;
         var targetPort = edge.to.port;
         kGraph.edges.push({
-          id: 'e' + currentEdge++, 
+          id: 'e' + currentEdge++,
           source: source,
           sourcePort: source + '_' + sourcePort,
           target: target,
           targetPort: target + '_' + targetPort
         });
       });
-      
+
       // Graph i/o to kGraph edges
       var inportEdges = inportsKeys.map(function (key) {
         var inport = inports[key];
@@ -275,7 +275,7 @@ var klayNoflo = (function () {
 
       // Combine edges, inports, outports to one array
       kGraph.edges = kGraph.edges.concat(inportEdges, outportEdges);
-      
+
       // Encode groups
       var groups = graph.groups;
       var countGroups = 0;
@@ -284,8 +284,8 @@ var klayNoflo = (function () {
       groups.map(function (group) {
         // Create a node to use as a subgraph
         var node = {
-          id: 'group' + countGroups++, 
-          children: [], 
+          id: 'group' + countGroups++,
+          children: [],
           edges: []
         };
         // Build the node/subgraph
