@@ -62,13 +62,8 @@ Example:
             }
 
             .endpoint-item {
-                padding-left: 60px;
+                padding-left: 55px;
 
-            }
-
-            .endpoint-list-header {
-                padding-left: 45px;
-                font-weight: 500;
             }
 
             paper-menu {
@@ -117,7 +112,9 @@ Example:
                 height: 20px;
                 padding: 0;
             }
-
+            :focus {
+                outline: 0;
+            }
         </style>
 
         <h2>Webpackage Explorer</h2>
@@ -191,15 +188,19 @@ Example:
                         </paper-item>
 
                         <paper-menu attr-for-selected="data-endpoint-id" class="menu-content sublist explorerSubmenu"
-                                    on-iron-select="explorerItemSelected" id$="[[_createIdForEndpointsMenu(compound.artifactId)]]">
-                            <div class="endpoint-list-header">Endpoints</div>
+                                    on-iron-select="explorerItemSelected" >
                             <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint" id$="[[_createIdForEndpointsMenuTemplate(compound.artifactId)]]">
                                 <paper-item data-endpoint-id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]"
-                                            class="endpoint-item" title="[[endpoint.endpointId]]">
+                                            class="endpoint-item"
+                                            id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">
                                     <paper-item-body>
-                                        <div data-endpoint-id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">[[endpoint.endpointId]]</div>
-                                        <div secondary>[[endpoint.description]]</div>
+                                        <div>[[endpoint.endpointId]]</div>
                                     </paper-item-body>
+                                    <!--<paper-tooltip for$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">-->
+                                    <paper-tooltip for$="hallo">
+                                        <div class="tooltip tooltip_title">[[endpoint.endpointId]] (Endpoint)</div>
+                                        <div class="tooltip tooltip_details">[[endpoint.description]]</div>
+                                    </paper-tooltip>
                                 </paper-item>
                             </template>
                         </paper-menu>

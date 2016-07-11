@@ -150,7 +150,7 @@ Polymer({
     if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
       this.deselectCompound();
       this.selectCompound(item.dataset.artifactId, item.dataset.endpointId);
-    } else if (item.dataset.endpointId && item.dataset.endpointId !== this.currentComponentMetadata.artifactId + '#' + this.currentComponentMetadata.endpointId) {
+    } else if (item.dataset.endpointId && item.dataset.endpointId !== this._createEndpointMenuItemId(this.currentComponentMetadata.artifactId, this.currentComponentMetadata.endpointId)) {
       this.selectEndpoint(item.dataset.endpointId);
     }
   },
