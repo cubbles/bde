@@ -151,13 +151,20 @@ Example:
             throw new Error("Something went wrong finding our artifact in the webpackage");
         }
 
-        artifact.artifactType = this.item.artifactType;
-        artifact.url = this.getItemUrl(this.item);
-        artifact.webpackageId = manifest._id;
-
+        artifact.is = this.item.artifactType;
+        artifact.metadata = {
+          url: this.getItemUrl(this.item),
+          webpackageId: getWebpackageId(this.item)
+        };
 
         this.set('lastItemSelected', artifact);
         document.querySelector('#manifest').loadManifest(manifest);
+
+        return;
+
+        function getWebpackageId (item) {
+          return item.groupId + '.' + item.name + '@' + item.version;
+        }
 
     }
 

@@ -182,22 +182,26 @@
      */
     get localArtifacts () {
       return [].concat(
-        this.artifacts.apps.map(function(artifact) {
-          artifact.is = 'app';
-          return artifact;
-        }),
-        this.artifacts.elementaryComponents.map(function(artifact) {
-          artifact.is = 'elementary';
-          return artifact;
-        }),
-        this.artifacts.compoundComponents.map(function(artifact) {
-          artifact.is = 'compound';
-          return artifact;
-        }),
-        this.artifacts.utilities.map(function(artifact) {
-          artifact.is = 'utility';
-          return artifact;
-        })
+        (this.artifacts.apps) ?
+          this.artifacts.apps.map(function(artifact) {
+            artifact.is = 'app';
+            return artifact;
+          }) : [],
+        (this.artifacts.elementaryComponents) ?
+          this.artifacts.elementaryComponents.map(function(artifact) {
+            artifact.is = 'elementary';
+            return artifact;
+          }) : [],
+        (this.artifacts.compoundComponents) ?
+          this.artifacts.compoundComponents.map(function(artifact) {
+            artifact.is = 'compound';
+            return artifact;
+          }) : [],
+        (this.artifacts.utilities) ?
+          this.artifacts.utilities.map(function(artifact) {
+            artifact.is = 'utility';
+            return artifact;
+          }) : []
       );
     },
 
@@ -253,12 +257,8 @@
     loadManifest: function(manifest) {
 
       Object.keys(manifest)
-        .filter(function(key) {
-          return ((key[0] !== '_') && (key !== 'arguments'));
-        })
-        .forEach(function(key) {
-          this.set(key, manifest[key]);
-        }, this);
+        .filter(function(key) { return ((key[0] !== '_') && (key !== 'arguments')) })
+        .forEach(function(key) { this.set(key, manifest[key])  }, this);
 
       this.fire('bde-manifest-loaded', { manifest: this });
     },

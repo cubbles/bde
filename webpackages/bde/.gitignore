@@ -29,6 +29,9 @@ bde/test/vendor/*
 !bde/test/vendor/mocha-config.js
 !bde/test/vendor/test.html
 
+bde/vendor/**/demo
+bde/vendor/**/test
+
 bde/manifest_webapp_backup
 bde/manifest_json_backup
 

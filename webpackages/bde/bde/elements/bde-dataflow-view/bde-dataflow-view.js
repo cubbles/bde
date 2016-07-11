@@ -10,15 +10,9 @@
 
     properties: {
 
-      artifact: {
+      currentComponentMetadata: {
         type: Object,
-        notify: true,
-        observer: '_artifactChanged'
-      },
-
-      manifest: {
-        type: Object,
-        observer: '_manifestChanged'
+        notify: true
       },
 
       selectedMembers: {
@@ -87,9 +81,11 @@
     },
 
     observers: [
+      'artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
+      'manifestChanged(currentComponentMetadata.manifest)',
+
       '_handleSelectedNodesChanged(selectedNodes.splices)',
       '_handleSelectedEdgesChanged(sselectedEdges.splices)',
-      'membersChanged(artifact.members.splices)',
       'showPropertyEditorChanged(showPropertyEditor)'
     ],
 
@@ -111,6 +107,118 @@
 
       // Resize cannot be bound using `listeners`
       window.addEventListener('resize', this._handleResize.bind(this));
+    },
+
+    /**
+     * Load the new artifact
+     *
+     * 1. Resolve dependencies
+     * 2. Rebuild Graph
+     * 3. ???
+     * 4. Profit!
+     *
+     * @param  {Object} manifest   [description]
+     * @param  {String} artifactId [description]
+     * @param  {String} endpointId [description]
+     */
+    artifactIdChanged: function(manifest, artifactId, endpointId) {
+
+      if (!manifest || !artifactId || !endpointId) { return; }
+
+      this.set('selectedNodes', Array());
+      this.set('selectedEdges', Array());
+      this.set('lastSelectedNode', void(0));
+      this.set('lastSelectedEdge', void(0));
+
+      var self = this;
+      var settings = this.settings;
+      var artifact = manifest.localArtifacts.find(function(artifact) {
+        return artifact.artifactId === artifactId;
+      });
+      var endpoint = artifact.endpoints.find(function(endpoint) {
+        return endpoint.endpointId === endpointId;
+      });
+
+      // Go through all dependencies and resolve,
+      // either from the same webpackage or by requesting the base
+      Promise.all(endpoint.dependencies.map(resolveDependency))
+        .then(function(resolutions) {
+          var newLibrary = {};
+
+          resolutions.forEach(function(resolution) {
+            newLibrary[resolution.artifactId] = resolution.definition;
+          });
+
+          // We are done, load the graph
+          self.set('library', newLibrary);
+          self.set('graph', self._graphFromArtifact(artifact));
+          self.triggerAutolayout();
+        });
+
+      function artifactToComponent(artifact) {
+        return {
+          artifactId: artifact.artifactId,
+          definition: {
+            name: artifact.displayName || artifact.artifactId,
+            description: artifact.description,
+            icon: 'cog',
+            inports: artifact.slots.filter(filterInslots).map(transformSlot),
+            outports: artifact.slots.filter(filterOutslots).map(transformSlot)
+          }
+        };
+      }
+
+      function filterInslots(slot) {
+        return (slot.direction.indexOf('input') !== -1);
+      }
+
+      function filterOutslots(slot) {
+        return (slot.direction.indexOf('output') !== -1);
+      }
+
+      function findInManifest(manifest, artifactId) {
+        // We don't care about webpackageId here
+        var artifactId = artifactId.split('/')[1];
+        var artifacts = [];
+        Object.keys(manifest.artifacts).forEach(function(artifactType) {
+          artifacts = artifacts.concat(manifest.artifacts[artifactType]);
+        });
+
+        return artifacts.find(function(artifact) {
+          return artifact.artifactId === artifactId;
+        });
+      }
+
+      function resolveDependency(dependency) {
+        return new Promise(function(resolve, reject) {
+          if (dependency.startsWith('this')) { // Resolve local dependency
+            var artifact = findInManifest(manifest, dependency);
+
+            resolve(artifactToComponent(artifact));
+          } else { // Resolve remote dependency
+            fetch(urlFor(dependency))
+              .then(function(response) { return response.json() })
+              .then(function(manifest) {
+                var artifact = findInManifest(manifest, dependency);
+
+                resolve(artifactToComponent(artifact));
+              });
+          }
+        });
+      }
+
+      function transformSlot (slot) {
+        return { name: slot.slotId, type: slot.type };
+      }
+
+      function urlFor(dependency) {
+        var webpackageId = dependency.split('/')[0];
+
+        var url = settings.baseUrl.replace(/\/?$/, '/') + settings.store + '/';
+        url += webpackageId + '/manifest.webpackage';
+
+        return url;
+      }
     },
 
     handleAddNode: function(event) {
@@ -214,115 +322,6 @@
       this.splice('artifact.connections', cIdx, 1);
     },
 
-    /**
-     * Resolve dependencies in a cubble manifest
-     *
-     * Resolve all dependencies for the selected artifact
-     * and add entries to library
-     *
-     * @param  {Object} manifest
-     * @param  {Object} selectedArtifact
-     * @param  {String} endpoint
-     * @return {Promise}
-     */
-    resolveDependencies: function(manifest, selectedArtifact, endpoint) {
-      return new Promise(function(resolve, reject) {
-        // Need settings to be set here to continue
-        if (!this.settings) { return; }
-
-        var library = {};
-
-        var dependencies = selectedArtifact.endpoints[endpoint].dependencies;
-
-        // Resolve local dependencies
-        dependencies
-          .filter(function(d) { return d.startsWith('this'); })
-          .forEach(function(dependency) {
-            var artifact = findInManifest(dependency);
-
-            library[artifact.artifactId] = {
-              name: artifact.displayName || artifact.artifactId,
-              description: artifact.description,
-              icon: 'cog',
-              inports: artifact.slots.filter(filterInslots).map(transformSlot),
-              outports: artifact.slots.filter(filterOutslots).map(transformSlot),
-            };
-          });
-
-        // Resolve remote dependencies
-        var promises = [];
-        dependencies
-          .filter(function(d) { return !d.startsWith('this'); })
-          .forEach(function(dependency) {
-            // Resolve the dependency and add to library
-            promises.push(new Promise(function(resolve, reject) {
-              fetch(urlFor(dependency))
-                .then(function(res) { return res.json() })
-                .then(function(manifest) {
-                  var artifactId = dependency.split('/')[1];
-                  library[artifactId] = resolveDependency(dependency, artifactId);
-                });
-            }));
-          });
-
-        Promise.all(promises).then(function() {
-          resolve(library);
-        }).catch(reject);
-      });
-
-      function filterInslots(slot) {
-        return (slot.direction.indexOf('input') !== -1);
-      }
-
-      function filterOutslots(slot) {
-        return (slot.direction.indexOf('output') !== -1);
-      }
-
-      function findInManifest(artifactId) {
-        // First part will always be 'this'
-        var artifactId = artifactId.split('/')[1];
-
-        return manifest.localArtifacts.find(function(artifact) {
-          return artifact.artifactId === artifactId;
-        });
-      }
-
-      function resolveDependency(manifest, artifactId) {
-        var artifacts = [].concat(
-          manifest.artifacts.elementaryComponents,
-          manifest.artifacts.compoundComponents
-        );
-        var artifact = artifacts.find(function(artifact) {
-          return artifact.artifactId === artifactId;
-        })
-
-        if (artifact) {
-          return {
-            name: artifact.displayName || artifact.artifactId,
-            description: artifact.description,
-            icon: 'cog',
-            inports: artifact.slots.filter(filterInslots).then(transformSlot),
-            outports: artifact.slots.filter(filterOutslots).then(transformSlot)
-          };
-        }
-      }
-
-      function transformSlot (slot) {
-        return {
-          name: slot.slotId,
-          type: slots.type
-        };
-      }
-
-      function urlFor(dependency) {
-        var webpackageId = dependency.split('/')[0];
-
-        var url = this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
-        url += webpackageId + '/webpackage.manifest';
-      }
-
-    },
-
     membersChanged: function(changeRecord) {
       if (!changeRecord) { return; }
 
@@ -367,17 +366,6 @@
 
     _addCubbleClass: function(showPropertyEditor) {
       return (showPropertyEditor) ? 'moveRight' : '';
-    },
-
-    _artifactChanged: function(newArtifact, oldArtifact) {
-      if (!newArtifact || newArtifact === oldArtifact) { return; }
-
-      this.set('selectedNodes', Array());
-      this.set('selectedEdges', Array());
-      this.set('lastSelectedNode', void(0));
-      this.set('lastSelectedEdge', void(0));
-
-      this.set('graph', this._graphFromArtifact(newArtifact));
     },
 
     _graphFromArtifact: function(artifact) {
@@ -443,7 +431,7 @@
       // Members
       artifact.members.forEach(function(member) {
         graph.processes[member.memberId] = {
-          "component": member.componentId,
+          "component": member.componentId.split('/')[1],
           "metadata": {
             "x": 0,
             "y": 0,
