@@ -9,7 +9,7 @@
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../vendor/paper-styles/paper-styles.html">
 <link rel="import" href="../bde-manifest/bde-manifest.html">
-<link rel="import" href="../bde-application-settings/bde-application-settings.html">
+<link rel="import" href="../bde-store-settings/bde-store-settings.html">
 <link rel="import" href="../page-select-menu/page-select-menu.html">
 <link rel="import" href="../bde-styles/bde-custom-icons.html">
 <link rel="import" href="../bde-help-page/bde-help-page.html">
@@ -19,6 +19,7 @@
 <link rel="import" href="../bde-flexbox-layouter/bde-flexbox-layouter.html">
 <link rel="import" href="../bde-application-view/bde-application-view.html">
 <link rel="import" href="../bde-repository-browser/bde-repository-browser.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
 
 <dom-module id="bde-app">
     <template>
@@ -101,24 +102,33 @@
             #leftSidebar {
                 height: auto;
             }
+
+            .storeUrlText {
+                cursor: pointer;
+            }
+
+            .storeSettingsZone {
+                padding-left: 10px;
+                background-color: var(--paper-cyan-500);
+            }
         </style>
 
         <!-- Global application state -->
         <bde-manifest id="manifest"
-                        name="{{manifest.name}}"
-                        group-id="{{manifest.groupId}}"
-                        version="{{manifest.version}}"
-                        model-version="{{manifest.modelVersion}}"
-                        doc-type="{{manifest.docType}}"
-                        description="{{manifest.description}}"
-                        author="{{manifest.author}}"
-                        contributers="{{manifest.contributers}}"
-                        license="{{manifest.license}}"
-                        homepage="{{manifest.homepage}}"
-                        keywords="{{manifest.keywords}}"
-                        man="{{manifest.man}}"
-                        runnables="{{manifest.runnables}}"
-                        artifacts="{{manifest.artifacts}}"
+                      name="{{manifest.name}}"
+                      group-id="{{manifest.groupId}}"
+                      version="{{manifest.version}}"
+                      model-version="{{manifest.modelVersion}}"
+                      doc-type="{{manifest.docType}}"
+                      description="{{manifest.description}}"
+                      author="{{manifest.author}}"
+                      contributers="{{manifest.contributers}}"
+                      license="{{manifest.license}}"
+                      homepage="{{manifest.homepage}}"
+                      keywords="{{manifest.keywords}}"
+                      man="{{manifest.man}}"
+                      runnables="{{manifest.runnables}}"
+                      artifacts="{{manifest.artifacts}}"
         ></bde-manifest>
 
         <!-- App-wide components belong here -->
@@ -146,10 +156,10 @@
 
         <bde-help-page id="help"></bde-help-page>
 
-        <bde-application-settings id="settings"
-                                  settings="{{settings}}"
-                                  opened="{{settingsOpened}}">
-        </bde-application-settings>
+        <bde-store-settings id="storeSettings"
+                            settings="{{settings}}"
+                            opened="{{settingsOpened}}">
+        </bde-store-settings>
 
         <bde-repository-browser
                 id="browser"
@@ -163,16 +173,9 @@
         <!-- Application UI -->
         <paper-header-panel mode="seamed">
             <paper-toolbar id="bdeHeader">
-                <a href="#" class="brand"><iron-icon icon="bde:cubbles"></iron-icon> BDE</a>
-
-
-                <paper-icon-button id="settingsBtn"
-                                   title="Application Settings..."
-                                   aria-label="applicationSettings"
-                                   icon="settings"
-                                   on-tap="settingsBtnHandler"
-
-                ></paper-icon-button>
+                <a href="#" class="brand">
+                    <iron-icon icon="bde:cubbles"></iron-icon>
+                    BDE</a>
 
                 <paper-icon-button id="newWebpacakgeBtn"
                                    title="Create new webpackage..."
@@ -194,6 +197,15 @@
                                    aria-label="compounds"
                                    icon="icons:cloud-upload"
                 ></paper-icon-button>
+
+                <div class="storeSettingsZone" on-tap="storeSettingsBtnHandler">
+                    <span class="storeUrlText">[[settings.baseUrl]]/[[settings.store]]</span>
+                    <paper-icon-button id="storeBtn"
+                                       title="Change store..."
+                                       aria-label="store"
+                                       icon="icons:create"
+                    ></paper-icon-button>
+                </div>
 
                 <span class="flex"></span>
 
@@ -220,6 +232,7 @@
                                        class="route-buttons"
                     ></paper-icon-button>
                 </page-select-menu>
+
                 <paper-icon-button id="aboutBtn"
                                    title="About..."
                                    aria-label="about"

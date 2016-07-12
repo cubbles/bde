@@ -1,0 +1,85 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-form/iron-form.html">
+<link rel="import" href="../../vendor/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../../vendor/iron-pages/iron-pages.html">
+<link rel="import" href="../../vendor/paper-toast/paper-toast.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-button/paper-button.html">
+<link rel="import" href="../../vendor/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../app-data/app-data.html">
+
+<dom-module id="bde-store-settings">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            #dialog {
+                min-width: 500px;
+            }
+
+            .content {
+                padding-bottom: 20px;
+            }
+
+            fieldset {
+                border: 0;
+                margin: 0;
+                padding: 0;
+            }
+
+            paper-tabs {
+                background-color: var(--light-theme-background-color);
+                --paper-tabs-selection-bar-color: var(--accent-color);
+            }
+        </style>
+
+        <app-data key="settings" data="{{settings}}"></app-data>
+
+        <paper-toast id="toast" no-auto-focus></paper-toast>
+
+        <paper-dialog id="formDialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
+            <form is="iron-form" id="storeForm">
+                <h2>Change Store</h2>
+
+                <p class="description">
+                    Provide the data of the store you want to use to retrieve and upload the components.
+                </p>
+
+                <paper-input id="baseUrl"
+                             type="text"
+                             name="baseUrl"
+                             label="Base URL"
+                             pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
+                             value="[[_intermediate.baseUrl]]"
+                             error-message="Please provide a valid Store sase url, e.g. 'https://cubbles.world'"
+                             autofocus
+                             auto-validate>
+                </paper-input>
+
+                <paper-input id="storeName"
+                             type="text"
+                             name="store"
+                             label="Store Name"
+                             pattern="[a-zA-Z0-9-._~]+"
+                             value="[[_intermediate.store]]"
+                             error-message="Please provide a valid Store name, e.g. 'bde'"
+                             auto-validate>
+                </paper-input>
+
+                <p>
+                    <strong>Note: </strong> Changing the store will re-initialize the application. Any changes on the
+                    current active webpackage will be lost.
+                </p>
+            </form>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button on-tap="validateStoreSettings">Change</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+    <script src="bde-store-settings.js"></script>
+</dom-module>
