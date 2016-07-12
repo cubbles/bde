@@ -57,12 +57,21 @@
 
       selectedArtifact: {
         type: Object
+      },
+
+      loading: {
+        type: Boolean,
+        value: false
       }
 
     },
 
     listeners: {
-      'graph-needs-update': 'handleGraphUpdate'
+      'graph-needs-update': 'handleGraphUpdate',
+      'bde-manifest-loaded': 'handleLoaded',
+      'bde-manifest-loading': 'handleLoading',
+      'bde-member-loaded': 'handleLoaded',
+      'bde-member-loading': 'handleLoading'
     },
 
     attached: function () {
@@ -90,6 +99,14 @@
       } catch (e) {
         return '';
       }
+    },
+
+    handleLoading: function () {
+      this.loading = true;
+    },
+
+    handleLoaded: function () {
+      this.loading = false;
     },
 
     handleGraphUpdate: function () {

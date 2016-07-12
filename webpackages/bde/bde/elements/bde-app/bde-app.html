@@ -111,6 +111,12 @@
                 padding-left: 10px;
                 background-color: var(--paper-cyan-500);
             }
+
+            .spinner-wrapper {
+                @apply(--layout-fit);
+                @apply(--layout-vertical);
+                @apply(--layout-center-center);
+            }
         </style>
 
         <!-- Global application state -->
@@ -247,9 +253,13 @@
                                    on-tap="helpBtnHandler"
                 ></paper-icon-button>
             </paper-toolbar>
+            <div class="spinner-wrapper" hidden="[[!loading]]" style="background: red">
+                <paper-spinner id="spinner" active></paper-spinner>
+            </div>
 
             <paper-drawer-panel id="drawerPanel"
                                 drawer-width="300px"
+                                hidden="[[loading]]"
                                 force-narrow="[[!showExplorer]]"
                                 disable-swipe
                                 disable-edge-swipe>
