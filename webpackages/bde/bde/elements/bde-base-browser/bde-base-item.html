@@ -36,66 +36,12 @@
             <iron-icon icon="image:remove-red-eye" item-icon></iron-icon>
             <paper-item-body three-line>
                 <div>[[item.artifactId]]</div>
-                <div secondary>[[item.name]]</div>
+                <div secondary>[[_getWebpackageId(item)]]</div>
                 <div secondary>[[item.artifactDescription]]</div>
             </paper-item-body>
         </paper-icon-item>
 
     </template>
     <script src="../../vendor/inflection/inflection.min.js"></script>
-    <script>
-    Polymer({
-        is: 'bde-base-item',
-
-        properties: {
-
-            /**
-             * Object containing the couchDB data retrieved by the initial
-             * request to the Base via bde-repository-browser.
-             *
-             * @type Object
-             * @property item
-             */
-            item: {
-                type: Object
-            },
-
-            _settings: {
-                type: Object
-            }
-        },
-
-        addComponent: function() {
-            this.$.ajax.generateRequest();
-        },
-
-        handleResponse: function() {
-            var webpackage = this.$.ajax.lastResponse;
-            var artifact = webpackage
-                .artifacts[inflection.pluralize(this.item.artifactType)]
-                .find(artifact => artifact.artifactId === this.item.artifactId);
-
-            if (!artifact) {
-                throw new Error("Something went wrong finding our artifact in the webpackage");
-            }
-
-            artifact.artifactType = this.item.artifactType;
-            artifact.url = this._getItemUrl(this.item);
-            artifact.webpackageId = webpackage.name + '@'+ webpackage.version;
-            if (webpackage.groupId && webpackage.groupId.length > 0){
-                artifact.webpackageId = webpackage.groupId + '.' + artifact.webpackageId;
-            }
-
-            //this.fire('iron-select', artifact);
-            this.fire('bde-select-compound', artifact);
-        },
-
-        _getItemUrl: function(item) {
-            return this._settings.baseUrl.replace(/[/]?$/, '/') +
-                   this._settings.store + '/' + item.webpackageId + '/manifest.webpackage';
-        }
-
-
-    });
-    </script>
+    <script src="bde-base-item.js"></script>
 </dom-module>

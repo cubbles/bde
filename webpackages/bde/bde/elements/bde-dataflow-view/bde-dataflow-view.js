@@ -398,7 +398,7 @@
       this.$.graph.triggerFit();
     },
 
-    _addCubble: function(event) {
+    _addMember: function(event) {
       var item = event.detail.item;
       this.$.dialog.close();
 
