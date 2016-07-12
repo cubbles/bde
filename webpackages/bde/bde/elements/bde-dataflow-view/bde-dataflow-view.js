@@ -229,18 +229,6 @@
       }
     },
 
-    currentComponentMetadataChanged: function(currentComponentMetadata) {
-
-      if (!currentComponentMetadata || !currentComponentMetadata.manifest) { return; }
-
-      var manifest = currentComponentMetadata.manifest;
-      var artifact = manifest.localArtifacts.find(function(a) {
-        return a.artifactId === currentComponentMetadata.artifactId;
-      });
-
-      this.set('_artifact', artifact);
-    },
-
     handleAddNode: function(event) {
       var node = event.detail;
       // @TODO (fdu): Get the cubble component from dependencies
