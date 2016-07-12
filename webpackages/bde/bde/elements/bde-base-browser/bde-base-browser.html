@@ -28,27 +28,28 @@ Example:
 @demo ../elements/bde-base-browser/demo/index.html
 -->
 <dom-module id="bde-base-browser">
+    <style>
+        :host {
+            display: block;
+        }
+
+        #clearBtn {
+            color: var(--paper-grey-600);
+            width: 23px; /* 15px + 2*4px for padding */
+            height: 23px;
+            padding: 0px 4px;
+        }
+
+        iron-list {
+            @apply(--layout-flex);
+        }
+
+        :host #list {
+            border: 1px solid #e5e5e5;
+        }
+    </style>
+
     <template>
-        <style is="custon-style">
-            :host {
-                display: block;
-            }
-
-            #clearBtn {
-                color: var(--paper-grey-600);
-                width: 23px; /* 15px + 2*4px for padding */
-                height: 23px;
-                padding: 0px 4px;
-            }
-
-            iron-list {
-                @apply(--layout-flex);
-            }
-
-            :host #list{
-                border: 1px solid #e5e5e5;
-            }
-        </style>
 
         <app-data key="settings" data="{{_settings}}"></app-data>
 
@@ -75,7 +76,8 @@ Example:
 
         <iron-list id="list"
                    items="[[_filtered]]"
-                   multi-selection>
+                   multi-selection
+                   hidden="[[!_filtered.length]]">
             <template>
                 <bde-base-item item="{{item}}"></bde-base-item>
             </template>

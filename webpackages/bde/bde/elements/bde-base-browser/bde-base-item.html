@@ -8,17 +8,23 @@
 <link rel="import" href="../app-data/app-data.html">
 
 <dom-module id="bde-base-item">
-    <template>
-        <style is="custom-style">
+    <style is="custom-style">
         :host {
             display: block;
+            border-bottom: 1px solid #e5e5e5;
+            cursor: pointer;
+        }
+
+        :host:hover {
+            background: #e1e1e1;
         }
 
         paper-icon-item {
             @apply(--layout-horizontal);
         }
-        </style>
+    </style>
 
+    <template>
         <app-data key="settings" data="{{_settings}}"></app-data>
 
         <iron-ajax id="ajax"
@@ -26,14 +32,13 @@
             handle-as="json"
             on-response="handleResponse"></iron-ajax>
 
-        <paper-icon-item>
+        <paper-icon-item on-tap="addComponent">
             <iron-icon icon="image:remove-red-eye" item-icon></iron-icon>
             <paper-item-body three-line>
                 <div>[[item.artifactId]]</div>
                 <div secondary>[[item.name]]</div>
                 <div secondary>[[item.artifactDescription]]</div>
             </paper-item-body>
-            <paper-fab icon="icons:add" on-tap="addComponent" mini></paper-fab>
         </paper-icon-item>
 
     </template>

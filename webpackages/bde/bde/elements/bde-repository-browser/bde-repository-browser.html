@@ -105,7 +105,7 @@ Example:
                 </paper-icon-button>
             </paper-input>
 
-            <paper-dialog-scrollable id="scroll">
+            <paper-dialog-scrollable id="scroll" hidden="[[!filtered.length]]">
 
                 <iron-list id="list" class="flex" items="[[filtered]]" multi-selection>
                     <template>

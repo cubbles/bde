@@ -79,7 +79,10 @@ Polymer({
      * @private
      */
     _filtered: {
-      type: Array
+      type: Array,
+      value: function () {
+        return [];
+      }
     },
 
     /**
