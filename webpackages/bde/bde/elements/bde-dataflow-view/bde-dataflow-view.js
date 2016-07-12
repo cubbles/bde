@@ -88,9 +88,8 @@
       'artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
       'manifestChanged(currentComponentMetadata.manifest)',
       'membersChanged(_artifact.members.splices)',
-
-      '_handleSelectedNodesChanged(selectedNodes.splices)',
-      '_handleSelectedEdgesChanged(sselectedEdges.splices)',
+      'selectedNodesChanged(_selectedNodes.splices)',
+      'selectedEdgesChanged(_selectedEdges.splices)',
       'showPropertyEditorChanged(showPropertyEditor)'
     ],
 
@@ -130,10 +129,10 @@
 
       if (!manifest || !artifactId || !endpointId) { return; }
 
-      this.set('selectedNodes', Array());
-      this.set('selectedEdges', Array());
-      this.set('lastSelectedNode', void(0));
-      this.set('lastSelectedEdge', void(0));
+      this.set('_selectedNodes', Array());
+      this.set('_selectedEdges', Array());
+      this.set('_lastSelectedNode', void(0));
+      this.set('_lastSelectedEdge', void(0));
 
       var self = this;
       var settings = this.settings;
@@ -347,6 +346,42 @@
       this.$.graph.registerComponent(component, false);
     },
 
+    selectedEdgesChanged: function(changeRecord) {
+      var connections = this._selectedEdges.map(connectionForEdge.bind(this));
+      this.set('selectedConnections', connections);
+      this.set('lastSelectedConnection', connections[connections.length - 1]);
+      this.fire('iron-selected', { item: this._lastSelectedEdge, type: 'edge' });
+
+      // Show PropertyEditor
+      this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
+
+      function connectionForEdge(edge) {
+        return this._artifact.connections.find(function(connection) {
+          return edge.from.node === connection.source.memberIdRef &&
+                   edge.to.node === connection.destination.memberIdRef &&
+                 edge.from.port === connection.source.slot &&
+                   edge.to.port === connection.destination.slot;
+        });
+      }
+    },
+
+    selectedNodesChanged: function(changeRecord) {
+      var members = this._selectedNodes.map(memberForNode.bind(this));
+
+      this.set('selectedMembers', members);
+      this.set('lastSelectedMember', members[members.length - 1]);
+      this.fire('iron-selected', { item: this.lastSelectedMember, type: 'member' });
+
+      // Show PropertyEditor
+      this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
+
+      function memberForNode(node) {
+        return this._artifact.members.find(function(member) {
+          return member.memberIdRef === node.id;
+        });
+      }
+    },
+
     showPropertyEditorChanged: function(showPropertyEditor) {
       if (showPropertyEditor) {
         this.$.drawerPanel.openDrawer();
@@ -493,80 +528,6 @@
       this._graphHeight = height;
       this._graphOffsetX = offsetX;
       this._graphOffsetY = offsetY;
-    },
-
-    _handleSelectedNodesChanged: function() {
-      var selectedMembers = this.selectedNodes.map(this._memberForNode.bind(this));
-      this.set('selectedMembers', selectedMembers);
-      this.set('lastSelectedMember', this.selectedMembers[this.selectedMembers.length - 1]);
-      this.fire('iron-selected', { item: this.lastSelectedMember, type: 'member' });
-
-      // Show PropertyEditor
-      this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
-
-    },
-
-    _handleSelectedEdgesChanged: function() {
-      var selectedConnections = this.sselectedEdges.mao(this._connectionForEdge.bind(this));
-      this.set('selectedConnections', selectedConnections);
-      this.set('lastSelectedConnection', this.selectedConnections[this.selectedConnections.length - 1]);
-      this.fire('iron-selected', { item: this.lastSelectedEdge, type: 'edge' });
-
-      // Show PropertyEditor
-      this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
-    },
-
-    /**
-     * Parse the manifest and resolve all dependencies.
-     * Add them to the-graph library.
-     */
-    _manifestChanged: function(manifest) {
-      var dependencies = [];
-
-      manifest.artifacts.elementaryComponents.forEach(extractComponentInfo);
-      manifest.artifacts.compoundComponents.forEach(extractComponentInfo);
-
-      this.$.graph.library = dependencies;
-
-      function extractComponentInfo (artifact) {
-        dependencies.push({
-          name: artifact.artifactId,
-          description: artifact.description,
-          icon: 'cog',
-          inports: artifact.slots.filter(filterInslots).map(transformSlot),
-          outports: artifact.slots.filter(filterOutslots).map(transformSlot)
-        });
-      }
-
-      function filterInslots (slot) {
-        return (slot.direction.indexOf('input') !== -1);
-      }
-
-      function filterOutslots (slot) {
-        return (slot.direction.indexOf('output') !== -1);
-      }
-
-      function transformSlot (slot) {
-        return {
-          name: slot.slotId,
-          type: slot.type
-        }
-      }
-    },
-
-    _memberForNode: function(node) {
-      return this.artifact.members.find(function(member) {
-        return member.memberId === node.id;
-      });
-    },
-
-    _connectionForEdge: function(edge) {
-      return this.artifact.connections.find(function(connection) {
-        return edge.from.node === connection.source.memberIdRef &&
-               edge.to.node === connection.destination.memberIdRef &&
-               edge.from.port === connection.source.slot &&
-               edge.to.port === connection.destination.slot;
-      });
     }
   });
 })(this);
