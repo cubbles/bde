@@ -26,7 +26,7 @@ Polymer({
 
     selectedCompound: {
       type: Object,
-      notify: true
+      notify: true,
     },
 
     selectedElementary: {
@@ -97,6 +97,8 @@ Polymer({
       this.fire('bde_compound_select', this.selectedCompound.artifactId);
     }
   },
+
+
   addApp: function () {
     // this.$.addAppDialog.open();
   },

@@ -17,6 +17,11 @@
                     value: 'new-webpackage'
                 },
 
+                createCounter: {
+                    type: Number,
+                    value: 1
+                },
+
                 groupId: {
                     type: String,
                     notify: true
@@ -309,6 +314,7 @@
                 return manifest;
             },
             reset: function () {
+                var artifactId = this._createArtifactId();
                 this.set('name', 'new-webpackage');
                 this.set('groupId', null);
                 this.set('version', '1.0.0-SNAPSHOT');
@@ -328,7 +334,7 @@
                 this.set('artifacts', {
                     compoundComponents: [
                         {
-                            artifactId: 'new-compound',
+                            artifactId: artifactId,
                             description: 'component description...',
                             runnables: [
                                 {
@@ -357,6 +363,12 @@
                     ]
                 });
                 document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[ 0 ]);
+            },
+            _createArtifactId: function () {
+                var counter = this.get('createCounter');
+                var id = 'new-compound-' + counter++;
+                this.set('createCounter', counter);
+                return id;
             }
         });
     })();
