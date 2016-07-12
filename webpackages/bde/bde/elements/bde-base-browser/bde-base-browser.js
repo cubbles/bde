@@ -233,7 +233,8 @@ Polymer({
       description: artifact.description || '',
       metadata: {
         webpackageId: artifact.webpackageId,
-        artifactId: artifact.artifactId
+        artifactId: artifact.artifactId,
+        endpointId: artifact.endpoints[0].endpointId
       }
     };
 

@@ -404,7 +404,7 @@
 
       this.push('_artifact.members', item);
       this.push('_artifact.endpoints.#0.dependencies',
-        item.metadata.webpackageId + '/' + item.metadata.artifactId
+        item.metadata.webpackageId + '/' + item.metadata.artifactId + '/' + item.metadata.endpointId
       );
     },
 
