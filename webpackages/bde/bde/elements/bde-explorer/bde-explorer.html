@@ -237,12 +237,12 @@ Example:
                                     <paper-item-body>
                                         <div>[[endpoint.endpointId]]</div>
                                     </paper-item-body>
-                                    <!--<paper-tooltip for$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">-->
-                                    <paper-tooltip for$="hallo">
-                                        <div class="tooltip tooltip_title">[[endpoint.endpointId]] (Endpoint)</div>
-                                        <div class="tooltip tooltip_details">[[endpoint.description]]</div>
-                                    </paper-tooltip>
                                 </paper-item>
+                                <paper-tooltip
+                                    for$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">
+                                <div class="tooltip tooltip_title">[[endpoint.endpointId]] (Endpoint)</div>
+                                <div class="tooltip tooltip_details">[[endpoint.description]]</div>
+                            </paper-tooltip>
                             </template>
                         </paper-menu>
                     </paper-submenu>
@@ -252,7 +252,7 @@ Example:
             <paper-icon-item class="addItem" on-tap="addCompound">
                 <iron-icon icon="icons:add" item-icon></iron-icon>
                 <paper-item-body>
-                    <div>Add Compound Cubble</div>
+                    <div>Add new compound</div>
                 </paper-item-body>
             </paper-icon-item>
         </iron-collapse>

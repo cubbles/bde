@@ -214,7 +214,7 @@ Polymer({
   },
 
   selectEndpoint: function (endpointId) {
-    this.set('currentComponentMetadata.endpointId', endpointId.split('#')[1]);
+    this.set('currentComponentMetadata.endpointId', endpointId.split('_')[1]);
   },
 
   selectElementary: function (e) {
@@ -281,7 +281,7 @@ Polymer({
     return a === b;
   },
   _createEndpointMenuItemId: function (artifactId, endpointId) {
-    return artifactId + '#' + endpointId;
+    return artifactId + '_' + endpointId;
   },
   _createIdForEndpointsMenu: function (artifactId) {
     return 'endpoints_' + artifactId;
