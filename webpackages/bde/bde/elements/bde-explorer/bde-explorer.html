@@ -46,7 +46,6 @@ Example:
 
             .container > span {
                 color: var(--bde-explorer-heading-text-color, --primary-text-color);
-
                 @apply(--paper-font-body2);
             }
 
@@ -63,7 +62,7 @@ Example:
             }
 
             .endpoint-item {
-                padding-left: 55px;
+                padding-left: 53px;
 
             }
 
@@ -71,7 +70,7 @@ Example:
                 background-color: var(--explorer-background-color);
             }
 
-            paper-menu  paper-item, .endpoint-list-header{
+            .explorerItem, .endpoint-list-header{
                 min-height: 0 !important;
                 cursor: pointer;
                 font-family: 'Roboto', 'Noto', sans-serif;
@@ -94,7 +93,7 @@ Example:
             }
 
             .artifact {
-                margin-left: 15px;
+                margin-left: 13px;
             }
 
             .addItem {
@@ -181,22 +180,17 @@ Example:
         <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
             <template is="dom-repeat" id="appList"
                       items="{{manifest.artifacts.apps}}" as="app">
-                <paper-item on-tap="selectApp" toggles disabled>
-                    <paper-item-body two-line>
+                <paper-item on-tap="selectApp" toggles class="explorerItem artifact" id$="[[app.artifactId]]">
+                    <paper-item-body>
                         <div>[[app.artifactId]]</div>
-                        <div secondary>[[app.description]]</div>
                     </paper-item-body>
-                    <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings">-->
+                    <paper-tooltip for$="[[app.artifactId]]">
+                        <div class="tooltip tooltip_title">[[app.artifactId]]</div>
+                        <div class="tooltip tooltip_details">[[app.description]]</div>
+                    </paper-tooltip>
                     </paper-icon-button>
                 </paper-item>
             </template>
-
-            <!--<paper-icon-item class="addItem" on-tap="addApp">-->
-            <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
-            <!--<paper-item-body>-->
-            <!--<div>Add Application</div>-->
-            <!--</paper-item-body>-->
-            <!--</paper-icon-item>-->
 
             <array-selector id="appSelector"
                             items="{{manifest.artifacts.apps}}"
@@ -218,7 +212,7 @@ Example:
                           items="{{manifest.artifacts.compoundComponents}}" as="compound">
                     <paper-submenu data-artifact-id$="[[compound.artifactId]]">
                         <!--<paper-icon-item class="menu-trigger">-->
-                        <paper-item class="menu-trigger artifact" id$="[[compound.artifactId]]">
+                        <paper-item class="menu-trigger artifact explorerItem" id$="[[compound.artifactId]]">
                             <!--<iron-icon icon="icons:donut-small" item-icon></iron-icon>-->
                             <paper-item-body>
                                 <div>[[compound.artifactId]]</div>
@@ -238,7 +232,7 @@ Example:
                                     on-iron-select="explorerItemSelected" >
                             <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint" id$="[[_createIdForEndpointsMenuTemplate(compound.artifactId)]]">
                                 <paper-item data-endpoint-id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]"
-                                            class="endpoint-item"
+                                            class="endpoint-item explorerItem"
                                             id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">
                                     <paper-item-body>
                                         <div>[[endpoint.endpointId]]</div>
@@ -272,21 +266,16 @@ Example:
         <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
             <template is="dom-repeat" id="elementaryList"
                       items="{{manifest.artifacts.elementaryComponents}}" as="elementary">
-                <paper-item on-tap="selectElementary" toggles disabled>
-                    <paper-item-body two-line>
+                <paper-item on-tap="selectElementary" toggles  class="explorerItem artifact" id$="[[elementary.artifactId]]">
+                    <paper-item-body>
                         <div>[[elementary.artifactId]]</div>
-                        <div secondary>[[elementary.description]]</div>
                     </paper-item-body>
-                    <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
+                    <paper-tooltip for$="[[elementary.artifactId]]">
+                        <div class="tooltip tooltip_title">[[elementary.artifactId]]</div>
+                        <div class="tooltip tooltip_details">[[elementary.description]]</div>
+                    </paper-tooltip>
                 </paper-item>
             </template>
-
-            <!--<paper-icon-item class="addItem" on-tap="addElementary">-->
-            <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
-            <!--<paper-item-body>-->
-            <!--<div>Add Elementary Cubble</div>-->
-            <!--</paper-item-body>-->
-            <!--</paper-icon-item>-->
 
             <array-selector id="elementarySelector"
                             items="{{manifest.artifacts.elementaryComponents}}"
@@ -303,21 +292,17 @@ Example:
         <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
             <template is="dom-repeat" id="utilityList"
                       items="{{manifest.artifacts.utilities}}" as="utility">
-                <paper-item on-tap="selectUtility" toggles disabled>
-                    <paper-item-body two-line>
+                <paper-item on-tap="selectUtility" toggles class="explorerItem artifact" id$="[[utility.artifactId]]">
+                    <paper-item-body>
                         <div>[[utility.artifactId]]</div>
-                        <div secondary>[[utility.description]]</div>
                     </paper-item-body>
+                    <paper-tooltip for$="[[utility.artifactId]]">
+                        <div class="tooltip tooltip_title">[[utility.artifactId]]</div>
+                        <div class="tooltip tooltip_details">[[utility.description]]</div>
+                    </paper-tooltip>
                     <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
                 </paper-item>
             </template>
-
-            <!--<paper-icon-item class="addItem" on-tap="addUtility">-->
-            <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
-            <!--<paper-item-body>-->
-            <!--<div>Add Utility</div>-->
-            <!--</paper-item-body>-->
-            <!--</paper-icon-item>-->
 
             <array-selector id="utilitySelector"
                             items="{{manifest.artifacts.utilities}}"
