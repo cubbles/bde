@@ -118,8 +118,8 @@
     _concatArray: function () {
       return [].concat.apply(this, arguments);
     },
-    settingsBtnHandler: function () {
-      this.$.settings.opened = !this.$.settings.opened;
+    storeSettingsBtnHandler: function () {
+      this.$.storeSettings.opened = !this.$.storeSettings.opened;
     },
     aboutBtnHandler: function () {
       this.$.about.opened = !this.$.about.opened;
@@ -130,6 +130,10 @@
     },
 
     newWebpackageBtnHandler: function () {
+      this.resetBDE();
+    },
+
+    resetBDE: function () {
       document.querySelector('#manifest').reset();
     },
 
