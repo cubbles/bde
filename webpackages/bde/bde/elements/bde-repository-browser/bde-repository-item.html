@@ -32,6 +32,12 @@ Example:
   <style>
       :host {
           display: block;
+          border-bottom: 1px solid #e5e5e5;
+          cursor: pointer;
+      }
+
+      :host:hover {
+          background: #e1e1e1;
       }
 
   </style>
@@ -45,7 +51,7 @@ Example:
       on-response="handleResponse">
     </iron-ajax>
 
-    <paper-icon-item class="layout horizontal">
+    <paper-icon-item class="layout horizontal row" on-tap="addComponent">
       <iron-icon icon="image:remove-red-eye" item-icon></iron-icon>
 
       <paper-item-body three-line>
@@ -57,9 +63,6 @@ Example:
         <div secondary>[[item.artifactDescription]]</div>
 
       </paper-item-body>
-
-      <paper-fab icon="add" on-tap="addComponent" mini></paper-fab>
-
     </paper-icon-item>
 
   </template>
