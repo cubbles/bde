@@ -50,6 +50,10 @@
         notify: true
       },
 
+      _artifact: {
+        type: Object
+      },
+
       _graphWidth: {
         type: Number
       },
@@ -83,6 +87,7 @@
     observers: [
       'artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
       'manifestChanged(currentComponentMetadata.manifest)',
+      'membersChanged(_artifact.members.splices)',
 
       '_handleSelectedNodesChanged(selectedNodes.splices)',
       '_handleSelectedEdgesChanged(sselectedEdges.splices)',
@@ -139,6 +144,9 @@
         return endpoint.endpointId === endpointId;
       });
 
+      this.set('_artifact', artifact);
+      this.notifyPath('currentComponentMetadata.manifest', this.currentComponentMetadata.manifest);
+
       // Go through all dependencies and resolve,
       // either from the same webpackage or by requesting the base
       Promise.all(endpoint.dependencies.map(resolveDependency))
@@ -162,8 +170,8 @@
             name: artifact.displayName || artifact.artifactId,
             description: artifact.description,
             icon: 'cog',
-            inports: artifact.slots.filter(filterInslots).map(transformSlot),
-            outports: artifact.slots.filter(filterOutslots).map(transformSlot)
+            inports: artifact.slot ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
+            outports: artifact.slot ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
           }
         };
       }
@@ -221,6 +229,18 @@
       }
     },
 
+    currentComponentMetadataChanged: function(currentComponentMetadata) {
+
+      if (!currentComponentMetadata || !currentComponentMetadata.manifest) { return; }
+
+      var manifest = currentComponentMetadata.manifest;
+      var artifact = manifest.localArtifacts.find(function(a) {
+        return a.artifactId === currentComponentMetadata.artifactId;
+      });
+
+      this.set('_artifact', artifact);
+    },
+
     handleAddNode: function(event) {
       var node = event.detail;
       // @TODO (fdu): Get the cubble component from dependencies
@@ -231,17 +251,17 @@
     handleRemoveNode: function(event) {
       var node = event.detail;
       var memberIdx = this.artifact.members.findIndex(m => m.memberId === node.id);
-      this.splice('artifact.members', memberIdx, 1);
+      this.splice('_artifact.members', memberIdx, 1);
     },
 
     handleAddInport: function(event, port) {
       var inport = this.$.graph.nofloGraph.inports[port];
-      this.push('artifact.slots', {
+      this.push('_artifact.slots', {
         slotId: port,
         type: 'all', // @TODO (fdu): Fix this to be type of source slot
         direction: ['input']
       });
-      this.push('artifact.connections', {
+      this.push('_artifact.connections', {
         connectionId: Math.random().toString(36).substring(7),
         source: {
           slot: port
@@ -258,20 +278,20 @@
       this.artifact.connections.forEach(function(connection, connectionIdx) {
           if (!connection.source.memberIdRef &&
                connection.source.slot === port) {
-            this.splice('artifact.connections', connectionIdx, 1)
+            this.splice('_artifact.connections', connectionIdx, 1)
           }
         }, this);
-      this.splice('artifact.slots', slotIdx, 1);
+      this.splice('_artifact.slots', slotIdx, 1);
     },
 
     handleAddOutport: function(event, port) {
       var outport = this.$.graph.nofloGraph.outports[port];
-      this.push('artifact.slots', {
+      this.push('_artifact.slots', {
         slotId: port,
         type: 'all', // @TODO (fdu): Fix this to be type of source slot
         direction: ['output']
       });
-      this.push('artifact.connections', {
+      this.push('_artifact.connections', {
         connectionId: Math.random().toString(36).substring(7),
         source: {
           memberIdRef: outport.process,
@@ -288,16 +308,16 @@
       this.artifact.connections.forEach(function(connection, connectionIdx) {
           if (!connection.destination.memberIdRef &&
                connection.destination.slot === port) {
-            this.splice('artifact.connections', connectionIdx, 1)
+            this.splice('_artifact.connections', connectionIdx, 1)
           }
         }, this);
-      this.splice('artifact.slots', slotIdx, 1);
+      this.splice('_artifact.slots', slotIdx, 1);
     },
 
     handleAddEdge: function(event) {
       var edge = event.detail;
 
-      this.push('artifact.connections', {
+      this.push('_artifact.connections', {
         connectionId: Math.random().toString(36).substring(7),
         source: {
           memberIdRef: edge.from.node,
@@ -319,7 +339,7 @@
           connection.destination.slit === edge.to.port;
       });
 
-      this.splice('artifact.connections', cIdx, 1);
+      this.splice('_artifact.connections', cIdx, 1);
     },
 
     membersChanged: function(changeRecord) {
@@ -358,8 +378,9 @@
     _addCubble: function(event) {
       var item = event.detail.item;
       this.$.dialog.close();
-      this.push('artifact.members', item);
-      this.push('artifact.endpoints.#0.dependencies',
+
+      this.push('_artifact.members', item);
+      this.push('_artifact.endpoints.#0.dependencies',
         item.metadata.webpackageId + '/' + item.metadata.artifactId
       );
     },
