@@ -16,6 +16,11 @@ Polymer({
 
     requestSuccess: {
       type: Boolean
+    },
+
+    validSettings: {
+      type: Boolean,
+      value: true
     }
 
   },
@@ -26,6 +31,7 @@ Polymer({
 
   handleOpened: function () {
     this.set('_intermediate', JSON.parse(JSON.stringify(this.settings)));
+    this.set('validSettings', true);
   },
 
   validateStoreSettings: function (e) {
@@ -43,13 +49,13 @@ Polymer({
           if (this.requestSuccess) {
             this.changeStore(changeBaseUrl, changeStoreName);
             this.$.formDialog.close();
-            this.showMessage('Store changed');
+            this.showNotification('Store changed');
           } else {
-            this.showMessage('Store url is not valid. The connection test was unsuccessful');
+            this.showErrorMessage('Store url is not valid. The connection test was unsuccessful');
           }
         }.bind(this));
       } else {
-        this.showMessage('The provided Store url is the same as the current one');
+        this.showErrorMessage('The provided Store url is the same as the current one');
       }
     }
   },
@@ -64,7 +70,12 @@ Polymer({
     document.querySelector('bde-app').resetBDE();
   },
 
-  showMessage: function (message) {
+  showErrorMessage: function (message) {
+    this.$.errorMessageDiv.innerHTML = message;
+    this.set('validSettings', false);
+  },
+
+  showNotification: function (message) {
     this.$.toast.text = message;
     this.$.toast.open();
   },

@@ -34,6 +34,12 @@
                 background-color: var(--light-theme-background-color);
                 --paper-tabs-selection-bar-color: var(--accent-color);
             }
+
+            .errorMessage{
+                background: #EEEEEE;
+                color: #DD2C00;
+                padding: 20px;
+            }
         </style>
 
         <paper-toast id="toast" no-auto-focus></paper-toast>
@@ -41,6 +47,8 @@
         <paper-dialog id="formDialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
             <form is="iron-form" id="storeForm">
                 <h2>Change Store</h2>
+
+                <div class="errorMessage" id="errorMessageDiv" hidden="[[validSettings]]"></div>
 
                 <p class="description">
                     Provide the data of the store you want to use to retrieve and upload the components.
