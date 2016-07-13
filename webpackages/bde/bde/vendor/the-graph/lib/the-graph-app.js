@@ -393,6 +393,9 @@
       });
     },
     keyDown: function (event) {
+      // Keydown events from dialogs confuse the graph
+      if (event.target !== document.body) { return; }
+
       // HACK metaKey global for taps https://github.com/Polymer/PointerGestures/issues/29
       if (event.metaKey || event.ctrlKey) {
         TheGraph.metaKeyPressed = true;
