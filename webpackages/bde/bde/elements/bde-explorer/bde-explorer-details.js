@@ -15,6 +15,10 @@ Polymer({
     artifactType: {
       type: String,
       value: 'compoundComponent'
+    },
+
+    artifactIndex: {
+      type: Number
     }
   },
 
@@ -45,11 +49,11 @@ Polymer({
   },
 
   _artifactIsUtility: function (artifact) {
-    return this.artifactType == 'utilityComponent';
+    return this.artifactType === 'utilityComponent';
   },
 
   _idForCollapse: function (index, prefix) {
-    prefix = prefix || ''
+    prefix = prefix || '';
     return prefix + 'collapse' + index;
   },
 
@@ -62,7 +66,7 @@ Polymer({
   },
   _isInputSlot: function (slot) {
     for (var i = 0; i < slot.direction.length; i++) {
-      if (slot.direction[ i ] === 'input') {
+      if (slot.direction[i] === 'input') {
         return true;
       }
     }
@@ -70,88 +74,60 @@ Polymer({
   },
   _isOutputSlot: function (slot) {
     for (var i = 0; i < slot.direction.length; i++) {
-      if (slot.direction[ i ] === 'output') {
+      if (slot.direction[i] === 'output') {
         return true;
       }
     }
     return false;
   },
-  addRunnable: function () {
-    var newIndex = this.artifact.runnables.length;
-    this.push(
-      'artifact.runnables',
-      {
-        name: 'runnable' + newIndex,
-        path: '',
-        description: ''
-      });
-  },
-  addEndpoint: function () {
-    this.push(
-      'artifact.endpoints',
-      {
-        endpointId: 'endpoint' + this.artifact.endpoints.length,
-        description: '',
-        resources: [ { prod: '', dev: '' } ],
-        dependencies: []
-      });
-  },
-  addEndpointResource: function (e) {
-    var endpointId = e.currentTarget.dataset.endpointId;
-    var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
-    this.push('artifact.endpoints.' + i + '.resources', { prod: '', dev: '' });
-  },
-  addEndpointDependency: function (e) {
-    var endpointId = e.currentTarget.dataset.endpointId;
-    var i = this.indexOfItemByProperty(this.artifact.endpoints, 'endpointId', endpointId);
-    this.push('artifact.endpoints.' + i + '.dependencies', '');
-  },
-  addSlot: function () {
-    this.push(
-      'artifact.slots',
-      {
-        slotId: 'slot' + this.artifact.slots.length,
-        type: '',
-        direction: [],
-        description: ''
-      });
-  },
-  addMember: function () {
-    this.push(
-      'artifact.members',
-      {
-        memberId: 'member' + this.artifact.members.length,
-        componentId: '',
-        displayName: '',
-        description: ''
-      });
-  },
-  addConnection: function () {
-    this.push(
-      'artifact.connections',
-      {
-        connectionId: 'connection' + this.artifact.connections.length,
-        source: { memberIdRef: '', slot: '' },
-        destination: { memberIdRef: '', slot: '' },
-        copyValue: false,
-        repeatedValues: false,
-        hookFunction: '',
-        description: ''
-      }
-    );
-  },
-  addInit: function () {
-    this.push('artifact.inits', { memberIdRef: '', slot: '', value: '', description: '' });
-  },
-  indexOfItemByProperty: function (list, property, value) {
-    for (var i = 0; i < list.length; i++) {
-      if (list[ i ][ property ] === value) {
-        return i;
-      }
+  _createItem: function (itemName) {
+    switch (itemName) {
+      case '':
+        return {};
+      case 'runnable':
+        return {name: 'Runnable ' + this.artifact.runnables.length, path: '', description: ''};
+      case 'endpoint':
+        return {
+          endpointId: 'endpoint' + this.artifact.endpoints.length,
+          description: '',
+          resources: [{prod: '', dev: ''}],
+          dependencies: []
+        };
+      case 'endpointResource':
+        return {prod: '', dev: ''};
+      case 'endpointDependency':
+        return '';
+      case 'slot':
+        return {
+          slotId: 'slot' + this.artifact.slots.length,
+          type: '',
+          direction: [],
+          description: ''
+        };
+      case 'member':
+        return {
+          memberId: 'member' + this.artifact.members.length,
+          componentId: '',
+          displayName: '',
+          description: ''
+        };
+      case 'connection':
+        return {
+          connectionId: 'connection' + this.artifact.connections.length,
+          source: {memberIdRef: '', slot: ''},
+          destination: {memberIdRef: '', slot: ''},
+          copyValue: false,
+          repeatedValues: false,
+          hookFunction: '',
+          description: ''
+        };
+      case 'init':
+        return {memberIdRef: '', slot: '', value: '', description: ''};
+      default:
+        return {};
     }
-    return -1;
   },
-  _createPath: function () {
+  _joinPath: function () {
     var path = Array.prototype.slice.call(arguments).join('.');
     return 'artifact.' + path;
   },
@@ -159,5 +135,13 @@ Polymer({
     var itemIndex = e.currentTarget.dataset.itemIndex;
     var path = e.currentTarget.dataset.path;
     this.splice(path, itemIndex, 1);
+  },
+  addNewItem: function (e) {
+    var path = e.currentTarget.dataset.path;
+    if (!this.get(path)) {
+      this.set(path, []);
+    }
+    var item = this._createItem(e.currentTarget.dataset.itemName);
+    this.push(path, item);
   }
 });

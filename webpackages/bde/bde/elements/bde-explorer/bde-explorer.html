@@ -225,6 +225,7 @@ Example:
                             <paper-icon-button icon="icons:settings" alt="Settings"
                                                on-tap="openCompoundDetails"
                                                disabled$="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]"
+                                               data-index$="[[index]]"
                                                class="menuIconButton">
                             </paper-icon-button>
                         </paper-item>

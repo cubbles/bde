@@ -110,6 +110,7 @@ Polymer({
   openCompoundDetails: function (e) {
     e.stopPropagation();
     this.$.explorerDetails.set('artifactType', 'compoundComponent');
+    this.$.explorerDetails.set('artifactIndex', parseInt(e.currentTarget.dataset.index));
     this.$.explorerDetails.open();
   },
 

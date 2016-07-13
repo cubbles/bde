@@ -76,6 +76,7 @@
                                 value="{{artifact.description}}">
                 </paper-textarea>
 
+                <!-- Runnables -->
                 <div tabindex="0"
                      on-tap="toggleCollapse"
                      data-collapse-id="runnablesCollapse"
@@ -101,7 +102,7 @@
                                 <iron-collapse id$="[[_idForCollapse(runnablei, 'runnable_')]]">
                                     <paper-icon-item class="addItem"
                                                      on-tap="removeItem"
-                                                     data-path$="[[_createPath('runnables')]]"
+                                                     data-path$="[[_joinPath('runnables')]]"
                                                      data-item-index$="[[runnablei]]">
                                         <iron-icon icon="icons:remove" item-icon></iron-icon>
                                         <paper-item-body>
@@ -129,7 +130,10 @@
                                 </iron-collapse>
                             </div>
                         </template>
-                        <paper-icon-item class="addItem" on-tap="addRunnable">
+                        <paper-icon-item class="addItem"
+                                         on-tap="addNewItem"
+                                         data-path$="[[_joinPath('runnables')]]"
+                                         data-item-name="runnable">
                             <iron-icon icon="icons:add" item-icon></iron-icon>
                             <paper-item-body>
                                 <div>Add Runnable</div>
@@ -165,7 +169,7 @@
                                         <div class="collapse-content">
                                             <paper-icon-item class="addItem"
                                                              on-tap="removeItem"
-                                                             data-path$="[[_createPath('endpoints')]]"
+                                                             data-path$="[[_joinPath('endpoints')]]"
                                                              data-item-index$="[[endpointi]]">
                                                 <iron-icon icon="icons:remove" item-icon></iron-icon>
                                                 <paper-item-body>
@@ -200,7 +204,7 @@
                                                         <div class="list-item-container">
                                                             <paper-icon-item class="addItem"
                                                                              on-tap="removeItem"
-                                                                             data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
+                                                                             data-path$="[[_joinPath('endpoints', endpointi, 'resources')]]"
                                                                              data-item-index$="[[resourcei]]">
                                                                 <iron-icon icon="icons:remove" item-icon></iron-icon>
                                                                 <paper-item-body>
@@ -228,8 +232,9 @@
                                                         </div>
                                                     </template>
                                                     <paper-icon-item class="addItem"
-                                                                     on-tap="addEndpointResource"
-                                                                     data-endpoint-id$="[[endpoint.endpointId]]">
+                                                                     on-tap="addNewItem"
+                                                                     data-path$="[[_joinPath('endpoints', endpointi, 'resources')]]"
+                                                                     data-item-name="endpointResource">
                                                         <iron-icon icon="icons:add" item-icon></iron-icon>
                                                         <paper-item-body>
                                                             <div>Add Resource</div>
@@ -258,7 +263,7 @@
                                                         <div class="list-item-container">
                                                             <paper-icon-item class="addItem"
                                                                              on-tap="removeItem"
-                                                                             data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
+                                                                             data-path$="[[_joinPath('endpoints', endpointi, 'dependencies')]]"
                                                                              data-item-index$="[[dependencyi]]">
                                                                 <iron-icon icon="icons:remove" item-icon></iron-icon>
                                                                 <paper-item-body>
@@ -273,8 +278,9 @@
                                                         </div>
                                                     </template>
                                                     <paper-icon-item class="addItem"
-                                                                     on-tap="addEndpointDependency"
-                                                                     data-endpoint-id$="[[endpoint.endpointId]]">
+                                                                     on-tap="addNewItem"
+                                                                     data-path$="[[_joinPath('endpoints', endpointi, 'dependencies')]]"
+                                                                     data-item-name="endpointDependency">
                                                         <iron-icon icon="icons:add" item-icon></iron-icon>
                                                         <paper-item-body>
                                                             <div>Add Dependency</div>
@@ -286,7 +292,10 @@
                                     </iron-collapse>
                                 </div>
                             </template>
-                            <paper-icon-item class="addItem" on-tap="addEndpoint">
+                            <paper-icon-item class="addItem"
+                                             on-tap="addNewItem"
+                                             data-path$="[[_joinPath('endpoints')]]"
+                                             data-item-name="endpoint">
                                 <iron-icon icon="icons:add" item-icon></iron-icon>
                                 <paper-item-body>
                                     <div>Add Endpoint</div>
@@ -321,7 +330,7 @@
                                         <div class="collapse-content">
                                             <paper-icon-item class="addItem"
                                                              on-tap="removeItem"
-                                                             data-path$="[[_createPath('slots')]]"
+                                                             data-path$="[[_joinPath('slots')]]"
                                                              data-item-index$="[[sloti]]">
                                                 <iron-icon icon="icons:remove" item-icon></iron-icon>
                                                 <paper-item-body>
@@ -360,7 +369,10 @@
                                     </iron-collapse>
                                 </div>
                             </template>
-                            <paper-icon-item class="addItem" on-tap="addSlot">
+                            <paper-icon-item class="addItem"
+                                             on-tap="addNewItem"
+                                             data-path$="[[_joinPath('slots')]]"
+                                             data-item-name="slot">
                                 <iron-icon icon="icons:add" item-icon></iron-icon>
                                 <paper-item-body>
                                     <div>Add Slot</div>
@@ -397,7 +409,7 @@
                                         <div class="collapse-content">
                                             <paper-icon-item class="addItem"
                                                              on-tap="removeItem"
-                                                             data-path$="[[_createPath('members')]]"
+                                                             data-path$="[[_joinPath('members')]]"
                                                              data-item-index$="[[memberi]]">
                                                 <iron-icon icon="icons:remove" item-icon></iron-icon>
                                                 <paper-item-body>
@@ -428,7 +440,10 @@
                                     </iron-collapse>
                                 </div>
                             </template>
-                            <paper-icon-item class="addItem" on-tap="addMember">
+                            <paper-icon-item class="addItem"
+                                             on-tap="addNewItem"
+                                             data-path$="[[_joinPath('members')]]"
+                                             data-item-name="member">
                                 <iron-icon icon="icons:add" item-icon></iron-icon>
                                 <paper-item-body>
                                     <div>Add Member</div>
@@ -463,7 +478,7 @@
                                         <div class="collapse-content">
                                             <paper-icon-item class="addItem"
                                                              on-tap="removeItem"
-                                                             data-path$="[[_createPath('connections')]]"
+                                                             data-path$="[[_joinPath('connections')]]"
                                                              data-item-index$="[[connectioni]]">
                                                 <iron-icon icon="icons:remove" item-icon></iron-icon>
                                                 <paper-item-body>
@@ -522,7 +537,10 @@
                                     </iron-collapse>
                                 </div>
                             </template>
-                            <paper-icon-item class="addItem" on-tap="addConnection">
+                            <paper-icon-item class="addItem"
+                                             on-tap="addNewItem"
+                                             data-path$="[[_joinPath('connections')]]"
+                                             data-item-name="connection">
                                 <iron-icon icon="icons:add" item-icon></iron-icon>
                                 <paper-item-body>
                                     <div>Add Connection</div>
@@ -555,7 +573,7 @@
                                         <div class="collapse-content">
                                             <paper-icon-item class="addItem"
                                                              on-tap="removeItem"
-                                                             data-path$="[[_createPath('inits')]]"
+                                                             data-path$="[[_joinPath('inits')]]"
                                                              data-item-index$="[[initi]]">
                                                 <iron-icon icon="icons:remove" item-icon></iron-icon>
                                                 <paper-item-body>
@@ -584,7 +602,10 @@
                                     </iron-collapse>
                                 </div>
                             </template>
-                            <paper-icon-item class="addItem" on-tap="addInit">
+                            <paper-icon-item class="addItem"
+                                             on-tap="addNewItem"
+                                             data-path$="[[_joinPath('inits')]]"
+                                             data-item-name="init">
                                 <iron-icon icon="icons:add" item-icon></iron-icon>
                                 <paper-item-body>
                                     <div>Add Init</div>
