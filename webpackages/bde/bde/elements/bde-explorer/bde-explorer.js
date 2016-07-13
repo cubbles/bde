@@ -26,7 +26,7 @@ Polymer({
 
     selectedCompound: {
       type: Object,
-      notify: true,
+      notify: true
     },
 
     selectedElementary: {

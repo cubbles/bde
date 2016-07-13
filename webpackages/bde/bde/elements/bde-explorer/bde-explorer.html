@@ -167,7 +167,9 @@ Example:
         <bde-compound-creator id="compoundCreator"
                               on-last-artifact-changed="handleNewCompound"></bde-compound-creator>
         <bde-explorer-details id="explorerDetails"
-                              artifact="{{selectedCompound}}"></bde-explorer-details>
+                              artifact="{{selectedCompound}}"
+                              manifest="{{manifest}}">
+        </bde-explorer-details>
         <bde-webpackage-meta-info id="webpackageMetaInfo"
                                   manifest="{{manifest}}"></bde-webpackage-meta-info>
 

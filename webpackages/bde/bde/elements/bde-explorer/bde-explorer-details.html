@@ -53,586 +53,643 @@
             .addItem {
                 cursor: pointer;
             }
+
+            .errorMessage{
+                background: #EEEEEE;
+                color: #DD2C00;
+                padding: 20px;
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}">
 
-            <h2><span>[[artifact.artifactId]]</span></h2>
+            <h2><span>[[_editingArtifact.artifactId]]</span></h2>
 
-            <paper-input tabindex="-1"
-                         label="Artifact id"
-                         pattern="^[a-z0-9]+(-[a-z0-9]+)+"
-                         placeholder="A name for this artifact - unique within the webpackage."
-                         required
-                         auto-validate
-                         value="{{artifact.artifactId}}">
-            </paper-input>
+            <div class="errorMessage" hidden="[[validForm]]">Please correct the errors in the form</div>
 
             <paper-dialog-scrollable>
-                <!-- Description -->
-                <paper-textarea tabindex="-1"
-                                label="description"
-                                placeholder="Description of this artifact: responsibility, usage scenarios."
-                                value="{{artifact.description}}">
-                </paper-textarea>
+                <form is="iron-form" id="artifactForm">
+                    <!-- artifactId -->
+                    <paper-input tabindex="-1"
+                                 label="Artifact id"
+                                 pattern="^[a-z0-9]+(-[a-z0-9]+)+"
+                                 placeholder="A name for this artifact - unique within the webpackage."
+                                 required
+                                 auto-validate
+                                 error-message="The artifact id shoudld be lowercase and separated  by '-'. (e.g. 'my-artifact')"
+                                 value="{{_editingArtifact.artifactId}}">
+                    </paper-input>
+                    <!-- description -->
+                    <paper-textarea tabindex="-1"
+                                    label="description"
+                                    placeholder="Description of this artifact: responsibility, usage scenarios."
+                                    value="{{_editingArtifact.description}}">
+                    </paper-textarea>
 
-                <!-- Runnables -->
-                <div tabindex="0"
-                     on-tap="toggleCollapse"
-                     data-collapse-id="runnablesCollapse"
-                     class="main-collapse-header collapse-header">
-                    <span title="Resources that are actually runnable in a user webbrowser.">Runnables</span>
-                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                </div>
-                <iron-collapse id="runnablesCollapse">
-                    <div class="collapse-content">
-                        <template is="dom-repeat"
-                                  id="runnables"
-                                  items="{{artifact.runnables}}"
-                                  as="runnable"
-                                  index-as="runnablei">
-                            <div>
-                                <div tabindex="0"
-                                     on-tap="toggleCollapse"
-                                     class="collapse-header"
-                                     data-collapse-id$="[[_idForCollapse(runnablei, 'runnable_')]]">
-                                    <span>[[runnable.name]]</span>
-                                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                                </div>
-                                <iron-collapse id$="[[_idForCollapse(runnablei, 'runnable_')]]">
-                                    <paper-icon-item class="addItem"
-                                                     on-tap="removeItem"
-                                                     data-path$="[[_joinPath('runnables')]]"
-                                                     data-item-index$="[[runnablei]]">
-                                        <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                        <paper-item-body>
-                                            <div>Remove</div>
-                                        </paper-item-body>
-                                    </paper-icon-item>
-                                    <div class="collapse-content">
-                                        <paper-input label="Name"
-                                                     placeholder="A (short) name for the runnable."
-                                                     pattern="^(.)+"
-                                                     required
-                                                     value="{{runnable.name}}">
-                                        </paper-input>
-                                        <paper-input label="Path"
-                                                     placeholder="Path to the 'runnable' resource - relative to the webpackage itself (e.g. '/doc/index.html')."
-                                                     pattern="^/(.)+"
-                                                     required
-                                                     value="{{runnable.path}}">
-                                        </paper-input>
-                                        <paper-textarea label="Description"
-                                                        placeholder="Short description of the runnable: short content description, target group etc."
-                                                        value="{{runnable.label}}">
-                                        </paper-textarea>
-                                    </div>
-                                </iron-collapse>
-                            </div>
-                        </template>
-                        <paper-icon-item class="addItem"
-                                         on-tap="addNewItem"
-                                         data-path$="[[_joinPath('runnables')]]"
-                                         data-item-name="runnable">
-                            <iron-icon icon="icons:add" item-icon></iron-icon>
-                            <paper-item-body>
-                                <div>Add Runnable</div>
-                            </paper-item-body>
-                        </paper-icon-item>
-                    </div>
-                </iron-collapse>
-                <div hidden$="[[!_artifactIsCompound(artifact)]]">
-                <!--<template is="dom-if" if="[[artifactType]]">-->
+                    <!-- runnables -->
                     <div tabindex="0"
                          on-tap="toggleCollapse"
-                         data-collapse-id="endpointsCollapse"
+                         data-collapse-id="runnablesCollapse"
                          class="main-collapse-header collapse-header">
-                        <span title="1..n endpoints other artifacts can refer to. A 'main' -artifactEndpoint is required.">Endpoints</span>
+                        <span title="Resources that are actually runnable in a user webbrowser.">Runnables</span>
                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                     </div>
-                    <iron-collapse id="endpointsCollapse">
+                    <iron-collapse id="runnablesCollapse">
                         <div class="collapse-content">
                             <template is="dom-repeat"
-                                      id="endpoints"
-                                      items="[[artifact.endpoints]]"
-                                      index-as="endpointi"
-                                      as="endpoint">
+                                      id="runnables"
+                                      items="{{_editingArtifact.runnables}}"
+                                      as="runnable"
+                                      index-as="runnablei">
                                 <div>
                                     <div tabindex="0"
                                          on-tap="toggleCollapse"
                                          class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_')]]">
-                                        <span>[[endpoint.endpointId]]</span>
+                                         data-collapse-id$="[[_idForCollapse(runnablei, 'runnable_')]]">
+                                        <span>[[runnable.name]]</span>
                                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                     </div>
-                                    <iron-collapse id$="[[_idForCollapse(endpointi, 'endpoint_')]]">
+                                    <iron-collapse id$="[[_idForCollapse(runnablei, 'runnable_')]]">
+                                        <paper-icon-item class="addItem"
+                                                         on-tap="removeItem"
+                                                         data-path$="[[_createPath('runnables')]]"
+                                                         data-item-index$="[[runnablei]]">
+                                            <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                            <paper-item-body>
+                                                <div>Remove</div>
+                                            </paper-item-body>
+                                        </paper-icon-item>
                                         <div class="collapse-content">
-                                            <paper-icon-item class="addItem"
-                                                             on-tap="removeItem"
-                                                             data-path$="[[_joinPath('endpoints')]]"
-                                                             data-item-index$="[[endpointi]]">
-                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                <paper-item-body>
-                                                    <div>Remove</div>
-                                                </paper-item-body>
-                                            </paper-icon-item>
-                                            <paper-input label="Endpoint Id"
-                                                         placeholder="Identifier for this slot item - unique within this component."
-                                                         pattern="^[a-z0-9-]+"
+                                            <paper-input label="Name"
+                                                         placeholder="A (short) name for the runnable."
+                                                         pattern="^(.)+"
                                                          required
-                                                         value="{{endpoint.endpointId}}">
+                                                         auto-validate
+                                                         error-message="The runnable name is required. (e.g. 'demo')"
+                                                         value="{{runnable.name}}">
+                                            </paper-input>
+                                            <paper-input label="Path"
+                                                         placeholder="Path to the 'runnable' resource - relative to the webpackage itself (e.g. '/doc/index.html')."
+                                                         pattern="^/(.)+"
+                                                         required
+                                                         auto-validate
+                                                         error-message="The runnable path is required. (e.g. '/doc/index.html')"
+                                                         value="{{runnable.path}}">
                                             </paper-input>
                                             <paper-textarea label="Description"
-                                                            placeholder="Description of this endpoint: What does the endpoint provide? When to use? etc."
-                                                            value="{{endpoint.description}}">
+                                                            placeholder="Short description of the runnable: short content description, target group etc."
+                                                            value="{{runnable.label}}">
                                             </paper-textarea>
+                                        </div>
+                                    </iron-collapse>
+                                </div>
+                            </template>
+                            <paper-icon-item class="addItem"
+                                             on-tap="addNewItem"
+                                             data-path$="[[_createPath('runnables')]]"
+                                             data-item-name="runnable">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                <paper-item-body>
+                                    <div>Add Runnable</div>
+                                </paper-item-body>
+                            </paper-icon-item>
+                        </div>
+                    </iron-collapse>
 
-                                            <div tabindex="0"
-                                                 on-tap="toggleCollapse"
-                                                 class="collapse-header"
-                                                 data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_resources_')]]">
-                                                <span title="Contains the first-level resources of this endpoint.">Resources</span>
-                                                <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                                            </div>
-                                            <iron-collapse id="[[_idForCollapse(endpointi, 'endpoint_resources_')]]">
-                                                <div class="collapse-content">
-                                                    <template is="dom-repeat"
-                                                              id="resources"
-                                                              items="[[endpoint.resources]]"
-                                                              index-as="resourcei"
-                                                              as="resource">
-                                                        <div class="list-item-container">
-                                                            <paper-icon-item class="addItem"
-                                                                             on-tap="removeItem"
-                                                                             data-path$="[[_joinPath('endpoints', endpointi, 'resources')]]"
-                                                                             data-item-index$="[[resourcei]]">
-                                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                                <paper-item-body>
-                                                                    <div>Remove</div>
-                                                                </paper-item-body>
-                                                            </paper-icon-item>
-                                                            <template is="dom-if" if="[[_isObject(resource)]]">
-                                                                <paper-input label="Prod"
-                                                                             placeholder="Path to potentially optimized resource."
-                                                                             required
-                                                                             value="{{resource.prod}}">
-                                                                </paper-input>
-                                                                <paper-input label="Dev"
-                                                                             placeholder="Path to resource for development."
-                                                                             required
-                                                                             value="{{resource.dev}}">
-                                                                </paper-input>
-                                                            </template>
-                                                            <template is="dom-if" if="[[!_isObject(resource)]]">
-                                                                <paper-input value="{{resource}}"
-                                                                             placeholder="Path to resource. This resource will be used for both runtimeMode 'prod' and 'dev'."
-                                                                             no-label-float>
-                                                                </paper-input>
-                                                            </template>
-                                                        </div>
-                                                    </template>
-                                                    <paper-icon-item class="addItem"
-                                                                     on-tap="addNewItem"
-                                                                     data-path$="[[_joinPath('endpoints', endpointi, 'resources')]]"
-                                                                     data-item-name="endpointResource">
-                                                        <iron-icon icon="icons:add" item-icon></iron-icon>
-                                                        <paper-item-body>
-                                                            <div>Add Resource</div>
-                                                        </paper-item-body>
-                                                    </paper-icon-item>
+                    <div hidden$="[[!_artifactIsCompound(artifact)]]">
+                        <!--<template is="dom-if" if="[[artifactType]]">-->
+                        <!-- endpoints -->
+                        <div tabindex="0"
+                             on-tap="toggleCollapse"
+                             data-collapse-id="endpointsCollapse"
+                             class="main-collapse-header collapse-header">
+                            <span title="1..n endpoints other artifacts can refer to. A 'main' -artifactEndpoint is required.">Endpoints</span>
+                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                        </div>
+                        <iron-collapse id="endpointsCollapse">
+                            <div class="collapse-content">
+                                <template is="dom-repeat"
+                                          id="endpoints"
+                                          items="[[_editingArtifact.endpoints]]"
+                                          index-as="endpointi"
+                                          as="endpoint">
+                                    <div>
+                                        <div tabindex="0"
+                                             on-tap="toggleCollapse"
+                                             class="collapse-header"
+                                             data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_')]]">
+                                            <span>[[endpoint.endpointId]]</span>
+                                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                        </div>
+                                        <iron-collapse id$="[[_idForCollapse(endpointi, 'endpoint_')]]">
+                                            <div class="collapse-content">
+                                                <paper-icon-item class="addItem"
+                                                                 on-tap="removeItem"
+                                                                 data-path$="[[_createPath('endpoints')]]"
+                                                                 data-item-index$="[[endpointi]]">
+                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                    <paper-item-body>
+                                                        <div>Remove</div>
+                                                    </paper-item-body>
+                                                </paper-icon-item>
+                                                <paper-input label="Endpoint Id"
+                                                             placeholder="Identifier for this slot item - unique within this component."
+                                                             pattern="^[a-z0-9-]+"
+                                                             required
+                                                             error-message="The endpoint id should be lowercase. It can contain numbers and '-'. (e.g. 'my-endpoint-1')"
+                                                             auto-validate
+                                                             value="{{endpoint.endpointId}}">
+                                                </paper-input>
+                                                <paper-textarea label="Description"
+                                                                placeholder="Description of this endpoint: What does the endpoint provide? When to use? etc."
+                                                                value="{{endpoint.description}}">
+                                                </paper-textarea>
+
+                                                <!-- endpoint resources -->
+                                                <div tabindex="0"
+                                                     on-tap="toggleCollapse"
+                                                     class="collapse-header"
+                                                     data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_resources_')]]">
+                                                    <span title="Contains the first-level resources of this endpoint.">Resources</span>
+                                                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                                 </div>
-                                            </iron-collapse>
+                                                <iron-collapse
+                                                        id="[[_idForCollapse(endpointi, 'endpoint_resources_')]]">
+                                                    <div class="collapse-content">
+                                                        <template is="dom-repeat"
+                                                                  id="resources"
+                                                                  items="[[endpoint.resources]]"
+                                                                  index-as="resourcei"
+                                                                  as="resource">
+                                                            <div class="list-item-container">
+                                                                <paper-icon-item class="addItem"
+                                                                                 on-tap="removeItem"
+                                                                                 data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
+                                                                                 data-item-index$="[[resourcei]]">
+                                                                    <iron-icon icon="icons:remove"
+                                                                               item-icon></iron-icon>
+                                                                    <paper-item-body>
+                                                                        <div>Remove</div>
+                                                                    </paper-item-body>
+                                                                </paper-icon-item>
+                                                                <template is="dom-if" if="[[_isObject(resource)]]">
+                                                                    <paper-input label="Development Path"
+                                                                                 placeholder="Path to resource for development."
+                                                                                 required
+                                                                                 auto-validate
+                                                                                 error-message="The path to the resource is required. (e.g. '/demo/index.html')"
+                                                                                 value="{{resource.dev}}">
+                                                                    </paper-input>
+                                                                    <paper-input label="Production Path"
+                                                                                 placeholder="Path to potentially optimized resource."
+                                                                                 required
+                                                                                 auto-validate
+                                                                                 error-message="The path to the resource is required. It can be same as Development path. (e.g. '/demo/index.html')"
+                                                                                 value="{{resource.prod}}">
+                                                                    </paper-input>
+                                                                </template>
+                                                                <template is="dom-if" if="[[!_isObject(resource)]]">
+                                                                    <paper-input value="{{resource}}"
+                                                                                 placeholder="Path to resource. This resource will be used for both runtimeMode 'prod' and 'dev'."
+                                                                                 no-label-float>
+                                                                    </paper-input>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                        <paper-icon-item class="addItem"
+                                                                         on-tap="addNewItem"
+                                                                         data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
+                                                                         data-item-name="endpointResource">
+                                                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                                                            <paper-item-body>
+                                                                <div>Add Resource</div>
+                                                            </paper-item-body>
+                                                        </paper-icon-item>
+                                                    </div>
+                                                </iron-collapse>
 
-                                            <div tabindex="0"
-                                                 on-tap="toggleCollapse"
-                                                 class="collapse-header"
-                                                 data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]">
+                                                <!-- endpoint dependencies -->
+                                                <div tabindex="0"
+                                                     on-tap="toggleCollapse"
+                                                     class="collapse-header"
+                                                     data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]">
                                                     <span title="0..n other artifacts-endpoints this artifact-endpoint needs to work properly. Note: 'webpackage': 'this' refers artifact(s) of the this webpackage.">
                                                         Dependencies
                                                     </span>
-                                                <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                                            </div>
-                                            <iron-collapse id="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]">
-                                                <div class="collapse-content">
-                                                    <template is="dom-repeat"
-                                                              id="dependencies"
-                                                              is="dom-repeat"
-                                                              items="{{endpoint.dependencies}}"
-                                                              index-as="dependencyi"
-                                                              as="dependency">
-                                                        <div class="list-item-container">
-                                                            <paper-icon-item class="addItem"
-                                                                             on-tap="removeItem"
-                                                                             data-path$="[[_joinPath('endpoints', endpointi, 'dependencies')]]"
-                                                                             data-item-index$="[[dependencyi]]">
-                                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                                <paper-item-body>
-                                                                    <div>Remove</div>
-                                                                </paper-item-body>
-                                                            </paper-icon-item>
-                                                            <paper-input
-                                                                    pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+"
-                                                                    no-label-float
-                                                                    value="{{dependency}}">
-                                                            </paper-input>
-                                                        </div>
-                                                    </template>
-                                                    <paper-icon-item class="addItem"
-                                                                     on-tap="addNewItem"
-                                                                     data-path$="[[_joinPath('endpoints', endpointi, 'dependencies')]]"
-                                                                     data-item-name="endpointDependency">
-                                                        <iron-icon icon="icons:add" item-icon></iron-icon>
-                                                        <paper-item-body>
-                                                            <div>Add Dependency</div>
-                                                        </paper-item-body>
-                                                    </paper-icon-item>
+                                                    <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                                 </div>
-                                            </iron-collapse>
-                                        </div>
-                                    </iron-collapse>
-                                </div>
-                            </template>
-                            <paper-icon-item class="addItem"
-                                             on-tap="addNewItem"
-                                             data-path$="[[_joinPath('endpoints')]]"
-                                             data-item-name="endpoint">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>
-                                <paper-item-body>
-                                    <div>Add Endpoint</div>
-                                </paper-item-body>
-                            </paper-icon-item>
-                        </div>
-                    </iron-collapse>
-
-                    <div tabindex="0"
-                         on-tap="toggleCollapse"
-                         data-collapse-id="slotsCollapse"
-                         class="main-collapse-header collapse-header">
-                        <span title="1..n slots to exchange data with other elementaries or compounds.">Slots</span>
-                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                    </div>
-                    <iron-collapse id="slotsCollapse">
-                        <div class="collapse-content">
-                            <template is="dom-repeat"
-                                      id="slots"
-                                      items="[[artifact.slots]]"
-                                      index-as="sloti"
-                                      as="slot">
-                                <div>
-                                    <div tabindex="0"
-                                         on-tap="toggleCollapse"
-                                         class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(sloti, 'slot_')]]">
-                                        <span>[[slot.slotId]]</span>
-                                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                                <iron-collapse
+                                                        id="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]">
+                                                    <div class="collapse-content">
+                                                        <template is="dom-repeat"
+                                                                  id="dependencies"
+                                                                  is="dom-repeat"
+                                                                  items="{{endpoint.dependencies}}"
+                                                                  index-as="dependencyi"
+                                                                  as="dependency">
+                                                            <div class="list-item-container">
+                                                                <paper-icon-item class="addItem"
+                                                                                 on-tap="removeItem"
+                                                                                 data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
+                                                                                 data-item-index$="[[dependencyi]]">
+                                                                    <iron-icon icon="icons:remove"
+                                                                               item-icon></iron-icon>
+                                                                    <paper-item-body>
+                                                                        <div>Remove</div>
+                                                                    </paper-item-body>
+                                                                </paper-icon-item>
+                                                                <paper-input
+                                                                        pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+"
+                                                                        no-label-float
+                                                                        auto-validate
+                                                                        error-message="The dependecy should be: 'webpackageGroupId.webpackageName@version/endpointId' or 'this/endpointId', (e.g. 'org.example.my-package@1.0/my-component/main' or 'this/my-component/main')"
+                                                                        value="{{dependency}}">
+                                                                </paper-input>
+                                                            </div>
+                                                        </template>
+                                                        <paper-icon-item class="addItem"
+                                                                         on-tap="addNewItem"
+                                                                         data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
+                                                                         data-item-name="endpointDependency">
+                                                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                                                            <paper-item-body>
+                                                                <div>Add Dependency</div>
+                                                            </paper-item-body>
+                                                        </paper-icon-item>
+                                                    </div>
+                                                </iron-collapse>
+                                            </div>
+                                        </iron-collapse>
                                     </div>
-                                    <iron-collapse id$="[[_idForCollapse(sloti, 'slot_')]]">
-                                        <div class="collapse-content">
-                                            <paper-icon-item class="addItem"
-                                                             on-tap="removeItem"
-                                                             data-path$="[[_joinPath('slots')]]"
-                                                             data-item-index$="[[sloti]]">
-                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                <paper-item-body>
-                                                    <div>Remove</div>
-                                                </paper-item-body>
-                                            </paper-icon-item>
-                                            <paper-input label="Slot Id"
-                                                         placeholder="Identifier for this slot item - unique within this component."
-                                                         pattern="^[a-z][a-zA-Z0-9-]*"
-                                                         required
-                                                         value="{{slot.slotId}}">
-                                            </paper-input>
-                                            <paper-input label="Type" list="slotTypes"
-                                                         placeholder="Data type of the slot."
-                                                         required
-                                                         value="{{slot.type}}">
-                                            </paper-input>
-                                            <datalist id="slotTypes">
-                                                <option value="boolean"></option>
-                                                <option value="string"></option>
-                                                <option value="number"></option>
-                                                <option value="object"></option>
-                                                <option value="array"></option>
-                                            </datalist>
-                                            <paper-textarea label="description"
-                                                            placeholder="Description of this slot: responsibility, expected data-structure etc.">
-                                            </paper-textarea>
-                                            <label title="A slot can be public accessible as input-slot (receive data), output-slot (propagate data) or both. If this attribute not exist, is the slot bidirectional">
-                                                Direction
-                                            </label>
-                                            <paper-checkbox checked="[[_isInputSlot(slot)]]">Input
-                                            </paper-checkbox>
-                                            <paper-checkbox checked="[[_isOutputSlot(slot)]]">Output
-                                            </paper-checkbox>
-                                        </div>
-                                    </iron-collapse>
-                                </div>
-                            </template>
-                            <paper-icon-item class="addItem"
-                                             on-tap="addNewItem"
-                                             data-path$="[[_joinPath('slots')]]"
-                                             data-item-name="slot">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>
-                                <paper-item-body>
-                                    <div>Add Slot</div>
-                                </paper-item-body>
-                            </paper-icon-item>
-                        </div>
-                    </iron-collapse>
+                                </template>
+                                <paper-icon-item class="addItem"
+                                                 on-tap="addNewItem"
+                                                 data-path$="[[_createPath('endpoints')]]"
+                                                 data-item-name="endpoint">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    <paper-item-body>
+                                        <div>Add Endpoint</div>
+                                    </paper-item-body>
+                                </paper-icon-item>
+                            </div>
+                        </iron-collapse>
 
-                    <div tabindex="0"
-                         on-tap="toggleCollapse"
-                         data-collapse-id="membersCollapse"
-                         class="main-collapse-header collapse-header">
+                        <!-- slots -->
+                        <div tabindex="0"
+                             on-tap="toggleCollapse"
+                             data-collapse-id="slotsCollapse"
+                             class="main-collapse-header collapse-header">
+                            <span title="1..n slots to exchange data with other elementaries or compounds.">Slots</span>
+                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                        </div>
+                        <iron-collapse id="slotsCollapse">
+                            <div class="collapse-content">
+                                <template is="dom-repeat"
+                                          id="slots"
+                                          items="[[_editingArtifact.slots]]"
+                                          index-as="sloti"
+                                          as="slot">
+                                    <div>
+                                        <div tabindex="0"
+                                             on-tap="toggleCollapse"
+                                             class="collapse-header"
+                                             data-collapse-id$="[[_idForCollapse(sloti, 'slot_')]]">
+                                            <span>[[slot.slotId]]</span>
+                                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                        </div>
+                                        <iron-collapse id$="[[_idForCollapse(sloti, 'slot_')]]">
+                                            <div class="collapse-content">
+                                                <paper-icon-item class="addItem"
+                                                                 on-tap="removeItem"
+                                                                 data-path$="[[_createPath('slots')]]"
+                                                                 data-item-index$="[[sloti]]">
+                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                    <paper-item-body>
+                                                        <div>Remove</div>
+                                                    </paper-item-body>
+                                                </paper-icon-item>
+                                                <paper-input label="Slot Id"
+                                                             placeholder="Identifier for this slot item - unique within this component."
+                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             required
+                                                             error-message="The slot id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'my-endpoint-1' or 'myEndpoint1')"
+                                                             auto-validate
+                                                             value="{{slot.slotId}}">
+                                                </paper-input>
+                                                <paper-input label="Type" list="slotTypes"
+                                                             placeholder="Data type of the slot."
+                                                             required
+                                                             auto-validate
+                                                             error-message="The slot type is required"
+                                                             value="{{slot.type}}">
+                                                </paper-input>
+                                                <datalist id="slotTypes">
+                                                    <option value="boolean"></option>
+                                                    <option value="string"></option>
+                                                    <option value="number"></option>
+                                                    <option value="object"></option>
+                                                    <option value="array"></option>
+                                                </datalist>
+                                                <paper-textarea label="Description"
+                                                                placeholder="Description of this slot: responsibility, expected data-structure etc.">
+                                                </paper-textarea>
+                                                <label title="A slot can be public accessible as input-slot (receive data), output-slot (propagate data) or both. If this attribute not exist, is the slot bidirectional">
+                                                    Direction
+                                                </label>
+                                                <paper-checkbox checked="[[_isInputSlot(slot)]]">Input
+                                                </paper-checkbox>
+                                                <paper-checkbox checked="[[_isOutputSlot(slot)]]">Output
+                                                </paper-checkbox>
+                                            </div>
+                                        </iron-collapse>
+                                    </div>
+                                </template>
+                                <paper-icon-item class="addItem"
+                                                 on-tap="addNewItem"
+                                                 data-path$="[[_createPath('slots')]]"
+                                                 data-item-name="slot">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    <paper-item-body>
+                                        <div>Add Slot</div>
+                                    </paper-item-body>
+                                </paper-icon-item>
+                            </div>
+                        </iron-collapse>
+
+                        <!-- members -->
+                        <div tabindex="0"
+                             on-tap="toggleCollapse"
+                             data-collapse-id="membersCollapse"
+                             class="main-collapse-header collapse-header">
                         <span title="Referenced components (elementaries or compounds) acting as members of this compound component.">
                             Members
                         </span>
-                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                    </div>
-                    <iron-collapse id="membersCollapse">
-                        <div class="collapse-content">
-                            <template is="dom-repeat"
-                                      id="members"
-                                      items="[[artifact.members]]"
-                                      index-as="memberi"
-                                      as="member">
-                                <div>
-                                    <div tabindex="0"
-                                         on-tap="toggleCollapse"
-                                         class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(memberi, 'member_')]]">
-                                        <span>[[member.memberId]]</span>
-                                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                                    </div>
-                                    <iron-collapse id$="[[_idForCollapse(memberi, 'member_')]]">
-                                        <div class="collapse-content">
-                                            <paper-icon-item class="addItem"
-                                                             on-tap="removeItem"
-                                                             data-path$="[[_joinPath('members')]]"
-                                                             data-item-index$="[[memberi]]">
-                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                <paper-item-body>
-                                                    <div>Remove</div>
-                                                </paper-item-body>
-                                            </paper-icon-item>
-                                            <paper-input label="Member Id"
-                                                         placeholder="Identifier for this member item - unique within this compound component."
-                                                         pattern="^[a-z][a-zA-Z0-9-]*"
-                                                         required
-                                                         value="{{member.memberId}}">
-                                            </paper-input>
-                                            <paper-input label="Component Id"
-                                                         placeholder="Id of the component for this member item (e.g. 'org.example.my-package@1.0/artifact1')"
-                                                         pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*[@](\d+)(\.[\d]+)*(-SNAPSHOT)?||(this)/([a-z0-9-]+)"
-                                                         required
-                                                         value="{{member.componentId}}">
-                                            </paper-input>
-                                            <paper-textarea label="Description"
-                                                            placeholder="Description of this member: responsibility, usage notes etc."
-                                                            value="{{member.description}}">
-                                            </paper-textarea>
-                                            <paper-input label="DisplayName"
-                                                         placeholder="Display name of the referenced member for design view of the BDE"
-                                                         value="{{member.displayName}}">
-                                            </paper-input>
-                                        </div>
-                                    </iron-collapse>
-                                </div>
-                            </template>
-                            <paper-icon-item class="addItem"
-                                             on-tap="addNewItem"
-                                             data-path$="[[_joinPath('members')]]"
-                                             data-item-name="member">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>
-                                <paper-item-body>
-                                    <div>Add Member</div>
-                                </paper-item-body>
-                            </paper-icon-item>
+                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                         </div>
-                    </iron-collapse>
+                        <iron-collapse id="membersCollapse">
+                            <div class="collapse-content">
+                                <template is="dom-repeat"
+                                          id="members"
+                                          items="[[_editingArtifact.members]]"
+                                          index-as="memberi"
+                                          as="member">
+                                    <div>
+                                        <div tabindex="0"
+                                             on-tap="toggleCollapse"
+                                             class="collapse-header"
+                                             data-collapse-id$="[[_idForCollapse(memberi, 'member_')]]">
+                                            <span>[[member.memberId]]</span>
+                                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                        </div>
+                                        <iron-collapse id$="[[_idForCollapse(memberi, 'member_')]]">
+                                            <div class="collapse-content">
+                                                <paper-icon-item class="addItem"
+                                                                 on-tap="removeItem"
+                                                                 data-path$="[[_createPath('members')]]"
+                                                                 data-item-index$="[[memberi]]">
+                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                    <paper-item-body>
+                                                        <div>Remove</div>
+                                                    </paper-item-body>
+                                                </paper-icon-item>
+                                                <paper-input label="Member Id"
+                                                             placeholder="Identifier for this member item - unique within this compound component."
+                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             required
+                                                             error-message="The slot id can contain letters, numbers or '-'. (e.g. 'my-member-1' or 'myMember1)"
+                                                             auto-validate
+                                                             value="{{member.memberId}}">
+                                                </paper-input>
+                                                <paper-input label="Component Id"
+                                                             placeholder="Id of the component for this member item (e.g. 'org.example.my-package@1.0/artifact1')"
+                                                             pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*[@](\d+)(\.[\d]+)*(-SNAPSHOT)?||(this)/([a-z0-9-]+)"
+                                                             required
+                                                             auto-validate
+                                                             error-message="The component id should follow the pattern: 'webpackageGroupId.webpackageName@version/artifactId' or 'this/artifactId'. (e.g. 'org.example.my-package@1.0/my-component' or 'this/my-component')"
+                                                             value="{{member.componentId}}">
+                                                </paper-input>
+                                                <paper-textarea label="Description"
+                                                                placeholder="Description of this member: responsibility, usage notes etc."
+                                                                value="{{member.description}}">
+                                                </paper-textarea>
+                                                <paper-input label="Display Name"
+                                                             placeholder="Display name of the referenced member for design view of the BDE"
+                                                             value="{{member.displayName}}">
+                                                </paper-input>
+                                            </div>
+                                        </iron-collapse>
+                                    </div>
+                                </template>
+                                <paper-icon-item class="addItem"
+                                                 on-tap="addNewItem"
+                                                 data-path$="[[_createPath('members')]]"
+                                                 data-item-name="member">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    <paper-item-body>
+                                        <div>Add Member</div>
+                                    </paper-item-body>
+                                </paper-icon-item>
+                            </div>
+                        </iron-collapse>
 
-                    <div tabindex="0"
-                         on-tap="toggleCollapse"
-                         data-collapse-id="connectionsCollapse"
-                         class="main-collapse-header collapse-header">
+                        <!-- connections -->
+                        <div tabindex="0"
+                             on-tap="toggleCollapse"
+                             data-collapse-id="connectionsCollapse"
+                             class="main-collapse-header collapse-header">
                         <span title="List of designed connection between the members and between members and this compound component.">
                             Connections
                         </span>
-                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                    </div>
-                    <iron-collapse id="connectionsCollapse">
-                        <div class="collapse-content">
-                            <template is="dom-repeat"
-                                      id="connections"
-                                      items="[[artifact.connections]]"
-                                      index-as="connectioni"
-                                      as="connection">
-                                <div>
-                                    <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(connectioni, 'connection_')]]">
-                                        <span>[[connection.connectionId]]</span>
-                                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                                    </div>
-                                    <iron-collapse id$="[[_idForCollapse(connectioni, 'connection_')]]">
-                                        <div class="collapse-content">
-                                            <paper-icon-item class="addItem"
-                                                             on-tap="removeItem"
-                                                             data-path$="[[_joinPath('connections')]]"
-                                                             data-item-index$="[[connectioni]]">
-                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                <paper-item-body>
-                                                    <div>Remove</div>
-                                                </paper-item-body>
-                                            </paper-icon-item>
-                                            <paper-input label="Connection Id"
-                                                         placeholder="Identifier for this connection item - unique within this compound component."
-                                                         pattern="^[a-z][a-zA-Z0-9-:]*"
-                                                         required
-                                                         value="{{connection.connectionId}}">
-                                            </paper-input>
-                                            <paper-textarea label="Description"
-                                                            placeholder="A short description of this connection: responsibility etc."
-                                                            value="{{connection.description}}">
-                                            </paper-textarea>
-                                            <paper-textarea label="Hook Function"
-                                                            placeholder="A function declaration as a string or a global function name. This function will called, before a connection destination model variable setted."
-                                                            value="{{connection.hookFunction}}">
-                                            </paper-textarea>
-                                            <paper-checkbox
-                                                    title="If repeatedValues is true, the same value consecutively will propagated, otherwise not. The default value is false."
-                                                    checked="{{connection.repeatedValues}}">
-                                                Repeated Values
-                                            </paper-checkbox>
-                                            <paper-checkbox
-                                                    title="Indicate to copy or not to copy the payload (inc case the payload is an object). true: make a copy, false: do not make a copy - pass by reference. (default == true)"
-                                                    checked="{{connection.copyValue}}">
-                                                Copy Value
-                                            </paper-checkbox>
-                                            <div class="list-item-container">
-                                                <strong>Source</strong>
-                                                <paper-input label="Member Id Reference"
-                                                             placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
-                                                             pattern="^[a-z][a-zA-Z0-9-]*"
-                                                             value="{{connection.source.memberIdRef}}">
-                                                </paper-input>
-                                                <paper-input label="Slot"
-                                                             placeholder="The name of the slot."
+                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                        </div>
+                        <iron-collapse id="connectionsCollapse">
+                            <div class="collapse-content">
+                                <template is="dom-repeat"
+                                          id="connections"
+                                          items="[[_editingArtifact.connections]]"
+                                          index-as="connectioni"
+                                          as="connection">
+                                    <div>
+                                        <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
+                                             data-collapse-id$="[[_idForCollapse(connectioni, 'connection_')]]">
+                                            <span>[[connection.connectionId]]</span>
+                                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                        </div>
+                                        <iron-collapse id$="[[_idForCollapse(connectioni, 'connection_')]]">
+                                            <div class="collapse-content">
+                                                <paper-icon-item class="addItem"
+                                                                 on-tap="removeItem"
+                                                                 data-path$="[[_createPath('connections')]]"
+                                                                 data-item-index$="[[connectioni]]">
+                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                    <paper-item-body>
+                                                        <div>Remove</div>
+                                                    </paper-item-body>
+                                                </paper-icon-item>
+                                                <paper-input label="Connection Id"
+                                                             placeholder="Identifier for this connection item - unique within this compound component."
+                                                             pattern="^[a-z][a-zA-Z0-9-:]*"
                                                              required
-                                                             value="{{connection.source.slot}}">
+                                                             error-message="The connection id can contain letters, numbers, '-' or ':'. It should begin with a lowercase letter. (e.g. 'slot-a:slot-b')"
+                                                             auto-validate
+                                                             value="{{connection.connectionId}}">
                                                 </paper-input>
-                                                <strong>Destination</strong>
-                                                <paper-input label="Member Id Reference"
-                                                             placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
-                                                             pattern="^[a-z][a-zA-Z0-9-]*"
-                                                             value="{{connection.destination.memberIdRef}}">
-                                                </paper-input>
-                                                <paper-input label="Slot"
-                                                             placeholder="The name of the slot."
-                                                             required
-                                                             value="{{connection.destination.slot}}">
-                                                </paper-input>
+                                                <paper-textarea label="Description"
+                                                                placeholder="A short description of this connection: responsibility etc."
+                                                                value="{{connection.description}}">
+                                                </paper-textarea>
+                                                <paper-textarea label="Hook Function"
+                                                                placeholder="A function declaration as a string or a global function name. This function will called, before a connection destination model variable setted."
+                                                                value="{{connection.hookFunction}}">
+                                                </paper-textarea>
+                                                <paper-checkbox
+                                                        title="If repeatedValues is true, the same value consecutively will propagated, otherwise not. The default value is false."
+                                                        checked="{{connection.repeatedValues}}">
+                                                    Repeated Values
+                                                </paper-checkbox>
+                                                <paper-checkbox
+                                                        title="Indicate to copy or not to copy the payload (inc case the payload is an object). true: make a copy, false: do not make a copy - pass by reference. (default == true)"
+                                                        checked="{{connection.copyValue}}">
+                                                    Copy Value
+                                                </paper-checkbox>
+                                                <div class="list-item-container">
+                                                    <strong>Source</strong>
+                                                    <paper-input label="Member Id Reference"
+                                                                 placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
+                                                                 pattern="^[a-z][a-zA-Z0-9-]*"
+                                                                 error-message="The member id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'myMember')"
+                                                                 auto-validate
+                                                                 value="{{connection.source.memberIdRef}}">
+                                                    </paper-input>
+                                                    <paper-input label="Slot Name"
+                                                                 placeholder="The name of the slot."
+                                                                 required
+                                                                 error-message="The slot name is required"
+                                                                 auto-validate
+                                                                 value="{{connection.source.slot}}">
+                                                    </paper-input>
+                                                    <strong>Destination</strong>
+                                                    <paper-input label="Member Id Reference"
+                                                                 placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
+                                                                 pattern="^[a-z][a-zA-Z0-9-]*"
+                                                                 error-message="The member id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'myMember')"
+                                                                 auto-validate
+                                                                 value="{{connection.destination.memberIdRef}}">
+                                                    </paper-input>
+                                                    <paper-input label="Slot"
+                                                                 placeholder="The name of the slot."
+                                                                 required
+                                                                 error-message="The slot name is required"
+                                                                 auto-validate
+                                                                 value="{{connection.destination.slot}}">
+                                                    </paper-input>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </iron-collapse>
-                                </div>
-                            </template>
-                            <paper-icon-item class="addItem"
-                                             on-tap="addNewItem"
-                                             data-path$="[[_joinPath('connections')]]"
-                                             data-item-name="connection">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>
-                                <paper-item-body>
-                                    <div>Add Connection</div>
-                                </paper-item-body>
-                            </paper-icon-item>
-                        </div>
-                    </iron-collapse>
-
-                    <div tabindex="0"
-                         on-tap="toggleCollapse"
-                         data-collapse-id="initsCollapse"
-                         class="main-collapse-header collapse-header">
-                        <span title="List of slot initializations of the compound and member component(s).">Inits</span>
-                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
-                    </div>
-                    <iron-collapse id="initsCollapse">
-                        <div class="collapse-content">
-                            <template is="dom-repeat"
-                                      id="inits"
-                                      items="[[artifact.inits]]"
-                                      index-as="initi"
-                                      as="init">
-                                <div>
-                                    <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
-                                         data-collapse-id$="[[_idForCollapse(initi, 'init_')]]">
-                                        <span>[[initi]]</span>
-                                        <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                        </iron-collapse>
                                     </div>
-                                    <iron-collapse id$="[[_idForCollapse(initi, 'init_')]]">
-                                        <div class="collapse-content">
-                                            <paper-icon-item class="addItem"
-                                                             on-tap="removeItem"
-                                                             data-path$="[[_joinPath('inits')]]"
-                                                             data-item-index$="[[initi]]">
-                                                <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                <paper-item-body>
-                                                    <div>Remove</div>
-                                                </paper-item-body>
-                                            </paper-icon-item>
-                                            <paper-input label="Member Id Reference"
-                                                         placeholder="The 'memberId' value of the member item, the slot belongs to. If the property is missed, it refers to an own slot of the compound component."
-                                                         pattern="^[a-z][a-zA-Z0-9-]*"
-                                                         value="{{init.memberIdRef}}">
-                                            </paper-input>
-                                            <paper-input label="Slot"
-                                                         placeholder="Name of the slot to be initialized."
-                                                         required
-                                                         value="{{init.slot}}">
-                                            </paper-input>
-                                            <paper-textarea label="Value"
-                                                            placeholder="The value to init the slot with."
-                                                            value="{{init.value}}">
-                                            </paper-textarea>
-                                            <paper-textarea label="Description"
-                                                            placeholder="A short description of this init item: responsibility etc."
-                                                            value="{{init.description}}">
-                                            </paper-textarea>
-                                        </div>
-                                    </iron-collapse>
-                                </div>
-                            </template>
-                            <paper-icon-item class="addItem"
-                                             on-tap="addNewItem"
-                                             data-path$="[[_joinPath('inits')]]"
-                                             data-item-name="init">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>
-                                <paper-item-body>
-                                    <div>Add Init</div>
-                                </paper-item-body>
-                            </paper-icon-item>
+                                </template>
+                                <paper-icon-item class="addItem"
+                                                 on-tap="addNewItem"
+                                                 data-path$="[[_createPath('connections')]]"
+                                                 data-item-name="connection">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    <paper-item-body>
+                                        <div>Add Connection</div>
+                                    </paper-item-body>
+                                </paper-icon-item>
+                            </div>
+                        </iron-collapse>
+
+                        <!-- inits -->
+                        <div tabindex="0"
+                             on-tap="toggleCollapse"
+                             data-collapse-id="initsCollapse"
+                             class="main-collapse-header collapse-header">
+                            <span title="List of slot initializations of the compound and member component(s).">Inits</span>
+                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                         </div>
-                    </iron-collapse>
-                <!--</template>-->
-                </div>
+                        <iron-collapse id="initsCollapse">
+                            <div class="collapse-content">
+                                <template is="dom-repeat"
+                                          id="inits"
+                                          items="[[_editingArtifact.inits]]"
+                                          index-as="initi"
+                                          as="init">
+                                    <div>
+                                        <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
+                                             data-collapse-id$="[[_idForCollapse(initi, 'init_')]]">
+                                            <span>[[initi]]</span>
+                                            <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                        </div>
+                                        <iron-collapse id$="[[_idForCollapse(initi, 'init_')]]">
+                                            <div class="collapse-content">
+                                                <paper-icon-item class="addItem"
+                                                                 on-tap="removeItem"
+                                                                 data-path$="[[_createPath('inits')]]"
+                                                                 data-item-index$="[[initi]]">
+                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
+                                                    <paper-item-body>
+                                                        <div>Remove</div>
+                                                    </paper-item-body>
+                                                </paper-icon-item>
+                                                <paper-input label="Member Id Reference"
+                                                             placeholder="The 'memberId' value of the member item, the slot belongs to. If the property is missed, it refers to an own slot of the compound component."
+                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             error-message="The member id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'my-member-1' or 'myMember1')"
+                                                             auto-validate
+                                                             value="{{init.memberIdRef}}">
+                                                </paper-input>
+                                                <paper-input label="Slot Name"
+                                                             placeholder="Name of the slot to be initialized."
+                                                             required
+                                                             auto-validate
+                                                             error-message="The slot name is required"
+                                                             value="{{init.slot}}">
+                                                </paper-input>
+                                                <paper-textarea label="Value"
+                                                                placeholder="The value to init the slot with."
+                                                                value="{{init.value}}">
+                                                </paper-textarea>
+                                                <paper-textarea label="Description"
+                                                                placeholder="A short description of this init item: responsibility etc."
+                                                                value="{{init.description}}">
+                                                </paper-textarea>
+                                            </div>
+                                        </iron-collapse>
+                                    </div>
+                                </template>
+                                <paper-icon-item class="addItem"
+                                                 on-tap="addNewItem"
+                                                 data-path$="[[_createPath('inits')]]"
+                                                 data-item-name="init">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    <paper-item-body>
+                                        <div>Add Init</div>
+                                    </paper-item-body>
+                                </paper-icon-item>
+                            </div>
+                        </iron-collapse>
+                        <!--</template>-->
+                    </div>
 
-                <template is="dom-if" if="[[_artifactIsElementary(artifact)]]">
+                    <template is="dom-if" if="[[_artifactIsElementary(artifact)]]">
 
-                </template>
+                    </template>
 
-                <template is="dom-if" if="[[_artifactIsUtility(artifact)]]">
+                    <template is="dom-if" if="[[_artifactIsUtility(artifact)]]">
 
-                </template>
+                    </template>
 
-                <template is="dom-if" if="[[_artifactIsApp(artifact)]]">
+                    <template is="dom-if" if="[[_artifactIsApp(artifact)]]">
 
-                </template>
+                    </template>
+                </form>
             </paper-dialog-scrollable>
 
             <div class="buttons">
-                <paper-button raised dialog-dismiss>Close</paper-button>
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button on-tap="validateEditingArtifact">Save</paper-button>
             </div>
-
         </paper-dialog>
 
 
