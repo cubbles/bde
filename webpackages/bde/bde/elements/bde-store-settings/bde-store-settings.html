@@ -45,7 +45,7 @@
         <paper-toast id="toast" no-auto-focus></paper-toast>
 
         <paper-dialog id="formDialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
-            <form is="iron-form" id="storeForm">
+
                 <h2>Change Store</h2>
 
                 <div class="errorMessage" id="errorMessageDiv" hidden="[[validSettings]]"></div>
@@ -54,6 +54,7 @@
                     Provide the data of the store you want to use to retrieve and upload the components.
                 </p>
 
+            <form is="iron-form" id="storeForm">
                 <paper-input id="baseUrl"
                              type="text"
                              name="baseUrl"
