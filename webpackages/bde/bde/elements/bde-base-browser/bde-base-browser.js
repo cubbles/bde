@@ -152,55 +152,64 @@ Polymer({
       }
 
       filtered = filtered.filter((i) => i.artifactId.indexOf(searchTerm) !== -1 || i.name.indexOf(searchTerm) !== -1);
-      var sorted = filtered.sort(function (a, b) {
-        if (a.name < b.name) {
-          return -1;
-        }
-        if (a.name > b.name) {
-          return 1;
-        }
-        // Cut SNAPSHOT
-        var aVersion = a.version;
 
-        if (a.version.indexOf('-SNAPSHOT') > -1) {
-          aVersion = a.version.substring(0, a.version.indexOf('-SNAPSHOT'));
-        }
-        var bVersion = b.version;
-
-        if (b.version.indexOf('-SNAPSHOT') > -1) {
-          bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
-        }
-        // Without SNAPSHOT descending
-        if (aVersion > bVersion) {
-          return -1;
-        }
-        if (aVersion < bVersion) {
-          return 1;
-        }
-        // whit SNAPSHOT Version (ascending)
-        if (a.version < b.version) {
-          return -1;
-        }
-        if (a.version > b.version) {
-          return 1;
-        }
-        if (a.artifactId < b.artifactId) {
-          return -1;
-        }
-        if (a.artifactId > b.artifactId) {
-          return 1;
-        }
-        return 0;
-      });
-
-      filtered = filtered.sort(sorted);
+      filtered = filtered.sort(this._sortArtifacts);
 
       this.set('_filtered', filtered);
 
       this.async(() => this.$.list.fire('iron-resize'));
     }.bind(this), 125);
   },
+  _sortArtifacts: function (a, b) {
+    if (a.artifactId < b.artifactId) {
+      return -1;
+    }
+    if (a.artifactId > b.artifactId) {
+      return 1;
+    }
+    // fill qualified webpackageName
+    var aWebpackageName = a.name;
+    var bWebpacakgeName = b.name;
+    if (a.groupId && a.groupId.length > 0) {
+      aWebpackageName = a.groupId + '.' + aWebpackageName;
+    }
+    if (b.groupId && b.groupId.length > 0) {
+      bWebpacakgeName = b.groupId + '.' + bWebpacakgeName;
+    }
+    if (aWebpackageName < bWebpacakgeName) {
+      return -1;
+    }
+    if (aWebpackageName > bWebpacakgeName) {
+      return 1;
+    }
+    // Cut SNAPSHOT
+    var aVersion = a.version;
 
+    if (a.version.indexOf('-SNAPSHOT') > -1) {
+      aVersion = a.version.substring(0, a.version.indexOf('-SNAPSHOT'));
+    }
+    var bVersion = b.version;
+
+    if (b.version.indexOf('-SNAPSHOT') > -1) {
+      bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
+    }
+    // Without SNAPSHOT descending
+    if (aVersion > bVersion) {
+      return -1;
+    }
+    if (aVersion < bVersion) {
+      return 1;
+    }
+    // whit SNAPSHOT Version (ascending)
+    if (aVersion === bVersion && a.version < b.version) {
+      return -1;
+    }
+    if (aVersion === bVersion && a.version > b.version) {
+      return 1;
+    }
+
+    return 0;
+  },
   /**
    * Item was selected from the list of results
    */
@@ -209,7 +218,7 @@ Polymer({
     var artifact = event.detail;
     var parts = artifact.webpackageId.match(/([^.]+)@/);
     var component = {
-      name: parts[1] + '/' + artifact.artifactId,
+      name: parts[ 1 ] + '/' + artifact.artifactId,
       icon: 'cog',
       description: artifact.description || '',
       inports: [],
@@ -240,20 +249,20 @@ Polymer({
 
     var member = {
       memberId: artifact.artifactId + '_' + Math.random().toString(36).substring(7),
-      componentId: parts[1] + '/' + artifact.artifactId,
+      componentId: parts[ 1 ] + '/' + artifact.artifactId,
       displayName: artifact.artifactId,
       description: artifact.description || '',
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId,
-        endpointId: artifact.endpoints[0].endpointId
+        endpointId: artifact.endpoints[ 0 ].endpointId
       }
     };
 
     this.selected = event.detail;
-    this.fire('library-update-required', {item: component});
-    this.fire('iron-selected', {item: member});
-    this.fire('bde-member-loaded', {item: member});
+    this.fire('library-update-required', { item: component });
+    this.fire('iron-selected', { item: member });
+    this.fire('bde-member-loaded', { item: member });
   },
 
   /**
@@ -262,11 +271,9 @@ Polymer({
    * @method handleResponse
    * @param  {[Event]} event [Response of AJAX call.]
    */
-  // TODO (ene): use couchDB functionality for filtering certain document-attributes, like modelVersion...
   handleResponse: function () {
     var cubbles = this.$.ajax.lastResponse.filter((item) => item.modelVersion.match(/8.3/))
       .filter((item) => item.artifactType === 'compoundComponent' || item.artifactType === 'elementaryComponent');
-
     this.set('_cubbles', cubbles);
   },
 

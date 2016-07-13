@@ -148,57 +148,67 @@ Polymer({
       }
 
       if (this.compoundOnly) {
-        filtered = filtered.filter(i => i.artifactType == "compoundComponent");
+        filtered = filtered.filter((i) => i.artifactType === 'compoundComponent');
       }
 
-      filtered = filtered.filter(i => -1 != i.artifactId.indexOf(searchTerm));
+      filtered = filtered.filter((i) => i.artifactId.indexOf(searchTerm) !== -1);
 
-      var sorted = filtered.sort(function (a, b) {
-        if (a.name < b.name) {
-          return -1;
-        }
-        if (a.name > b.name) {
-          return 1;
-        }
-        // Cut SNAPSHOT
-        var aVersion = a.version;
-
-        if (a.version.indexOf('-SNAPSHOT') > -1) {
-          aVersion = a.version.substring(0, a.version.indexOf('-SNAPSHOT'));
-        }
-        var bVersion = b.version;
-
-        if (b.version.indexOf('-SNAPSHOT') > -1) {
-          bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
-        }
-        // Without SNAPSHOT descending
-        if (aVersion > bVersion) {
-          return -1;
-        }
-        if (aVersion < bVersion) {
-          return 1;
-        }
-        // whit SNAPSHOT Version (ascending)
-        if (a.version < b.version) {
-          return -1;
-        }
-        if (a.version > b.version) {
-          return 1;
-        }
-        if (a.artifactId < b.artifactId) {
-          return -1;
-        }
-        if (a.artifactId > b.artifactId) {
-          return 1;
-        }
-        return 0;
-      });
+      var sorted = filtered.sort(this._sortArtifacts);
       this.set('filtered', sorted);
 
       this.$.list.fire('iron-resize');
     }.bind(this), 125);
   },
+  _sortArtifacts: function (a, b) {
+    if (a.artifactId < b.artifactId) {
+      return -1;
+    }
+    if (a.artifactId > b.artifactId) {
+      return 1;
+    }
+    // fill qualified webpackageName
+    var aWebpackageName = a.name;
+    var bWebpacakgeName = b.name;
+    if (a.groupId && a.groupId.length > 0) {
+      aWebpackageName = a.groupId + '.' + aWebpackageName;
+    }
+    if (b.groupId && b.groupId.length > 0) {
+      bWebpacakgeName = b.groupId + '.' + bWebpacakgeName;
+    }
+    if (aWebpackageName < bWebpacakgeName) {
+      return -1;
+    }
+    if (aWebpackageName > bWebpacakgeName) {
+      return 1;
+    }
+    // Cut SNAPSHOT
+    var aVersion = a.version;
 
+    if (a.version.indexOf('-SNAPSHOT') > -1) {
+      aVersion = a.version.substring(0, a.version.indexOf('-SNAPSHOT'));
+    }
+    var bVersion = b.version;
+
+    if (b.version.indexOf('-SNAPSHOT') > -1) {
+      bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
+    }
+    // Without SNAPSHOT descending
+    if (aVersion > bVersion) {
+      return -1;
+    }
+    if (aVersion < bVersion) {
+      return 1;
+    }
+    // whit SNAPSHOT Version (ascending)
+    if (aVersion === bVersion && a.version < b.version) {
+      return -1;
+    }
+    if (aVersion === bVersion && a.version > b.version) {
+      return 1;
+    }
+
+    return 0;
+  },
   /**
    * Handles the initial AJAX response and applies a prefiltering of the result list.
    *
@@ -211,7 +221,7 @@ Polymer({
       this.set('cubbles', []);
     } else {
       this.set('cubbles', this.$.webblebase.lastResponse
-        .filter(i => i.modelVersion.match(/8.3/) &&
+        .filter((i) => i.modelVersion.match(/8.3/) &&
         (i.artifactType === 'compoundComponent' ||
         i.artifactType === 'elementaryComponent')));
     }
@@ -228,11 +238,9 @@ Polymer({
     this.$.baseSearch.focus();
   },
   baseUrlChanged: function (baseUrl) {
-    console.log('baseUrl changed to', baseUrl);
     this.resetSearch();
   },
   storeChanged: function (store) {
-    console.log('store changed to', store);
     this.resetSearch();
   },
   resetSearch: function () {
