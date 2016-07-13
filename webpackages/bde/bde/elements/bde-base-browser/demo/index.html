@@ -6,16 +6,13 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>bde-base-browser Demo</title>
     <script src="/vendor/webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../../app-data/app-data.html">
     <link rel="import" href="../bde-base-browser.html">
   </head>
   <body unresolved>
 
     <p>An example of <code>&lt;bde-base-browser&gt;</code>:</p>
 
-    <app-data key="settings" data="{'baseUrl': 'https://cubbles.world', 'store': 'sandbox'}"></app-data>
-
-    <bde-base-browser id="browser" selected="{{selected}}"></bde-base-browser>
+    <bde-base-browser id="browser" selected="{{selected}}" settings="{'baseUrl': 'https://cubbles.world', 'store': 'sandbox'}"></bde-base-browser>
 
     <script></script>
 
