@@ -33,10 +33,10 @@ Polymer({
       var changeBaseUrl;
       var changeStoreName;
       if (this.settings.store !== this.$.storeName.value) {
-        changeBaseUrl = true;
+        changeStoreName = true;
       }
       if (this.settings.baseUrl !== this.$.baseUrl.value) {
-        changeStoreName = true;
+        changeBaseUrl = true;
       }
       if (changeBaseUrl || changeStoreName) {
         this.testStoreConnection(function () {
@@ -55,10 +55,10 @@ Polymer({
   },
 
   changeStore: function (changeBaseUrl, changeStoreName) {
-    if (changeBaseUrl) {
+    if (changeStoreName) {
       this.set('settings.' + this.$.storeName.name, this.$.storeName.value);
     }
-    if (changeStoreName) {
+    if (changeBaseUrl) {
       this.set('settings.' + this.$.baseUrl.name, this.$.baseUrl.value);
     }
     document.querySelector('bde-app').resetBDE();

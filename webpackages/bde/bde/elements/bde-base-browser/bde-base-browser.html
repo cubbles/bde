@@ -51,14 +51,15 @@ Example:
 
     <template>
 
-        <app-data key="settings" data="{{_settings}}"></app-data>
+        <!--<app-data key="settings" data="{{settings}}"></app-data>-->
 
         <iron-ajax id="ajax"
-                   url="[[_computeBaseUrl(_settings.baseUrl, _settings.store)]]"
+                   auto
                    handle-as="json"
                    on-response="handleResponse"
                    auto
         ></iron-ajax>
+                   <!--url="[[_computeBaseUrl(settings.baseUrl, settings.store)]]"-->
 
         <paper-input id="search"
                      label="Search components in the base..."
@@ -79,7 +80,7 @@ Example:
                    multi-selection
                    hidden="[[!_filtered.length]]">
             <template>
-                <bde-base-item item="{{item}}"></bde-base-item>
+                <bde-base-item item="{{item}}" settings="[[settings]]"></bde-base-item>
             </template>
         </iron-list>
     </template>

@@ -1,3 +1,4 @@
+/*globals inflection*/
 Polymer({
   is: 'bde-base-item',
 
@@ -14,7 +15,7 @@ Polymer({
       type: Object
     },
 
-    _settings: {
+    settings: {
       type: Object
     }
   },
@@ -27,29 +28,29 @@ Polymer({
     var webpackage = this.$.ajax.lastResponse;
     var artifact = webpackage
       .artifacts[ inflection.pluralize(this.item.artifactType) ]
-      .find(artifact => artifact.artifactId === this.item.artifactId);
+      .find((artifact) => artifact.artifactId === this.item.artifactId);
 
     if (!artifact) {
-      throw new Error("Something went wrong finding our artifact in the webpackage");
+      throw new Error('Something went wrong finding our artifact in the webpackage');
     }
 
     artifact.artifactType = this.item.artifactType;
     artifact.url = this._getItemUrl(this.item);
-    artifact.webpackageId = this._getWebpackageId({ groupId: webpackage.groupId, name: webpackage.name, version:webpackage.version});
+    artifact.webpackageId = this._getWebpackageId({groupId: webpackage.groupId, name: webpackage.name, version: webpackage.version});
 
-    //this.fire('iron-select', artifact);
+    // this.fire('iron-select', artifact);
     this.fire('bde-select-compound', artifact);
   },
 
   _getItemUrl: function (item) {
-    return this._settings.baseUrl.replace(/[/]?$/, '/') +
-      this._settings.store + '/' + item.webpackageId + '/manifest.webpackage';
+    return this.settings.baseUrl.replace(/[/]?$/, '/') +
+      this.settings.store + '/' + item.webpackageId + '/manifest.webpackage';
   },
 
-  _getWebpackageId: function(item) {
-    var webpackageId = item.name + '@' +item.version;
-    if (item.groupId && item.groupId.length > 0){
-      webpackageId = item.groupId + '.'+ webpackageId;
+  _getWebpackageId: function (item) {
+    var webpackageId = item.name + '@' + item.version;
+    if (item.groupId && item.groupId.length > 0) {
+      webpackageId = item.groupId + '.' + webpackageId;
     }
     return webpackageId;
   }

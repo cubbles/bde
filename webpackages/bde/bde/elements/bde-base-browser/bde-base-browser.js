@@ -91,7 +91,7 @@ Polymer({
      * @type {Object}
      * @private
      */
-    _settings: {
+    settings: {
       type: Object
     }
   },
@@ -99,6 +99,10 @@ Polymer({
   listeners: {
     'bde-select-compound': 'handleItemSelect'
   },
+
+  observers: [
+    'settingsChanged(settings.baseUrl,settings.store)'
+  ],
 
   /**
    * Clear the input of the search field on button click.
@@ -132,32 +136,22 @@ Polymer({
       }
 
       if (this.appsOnly) {
-        filtered = filtered.filter(i = > i.artifactType == 'app'
-      )
-        ;
+        filtered = filtered.filter((i) => i.artifactType === 'app');
       }
 
       if (this.elementariesOnly) {
-        filtered = filtered.filter(i = > i.artifactType == 'elementaryComponent'
-      )
-        ;
+        filtered = filtered.filter((i) => i.artifactType === 'elementaryComponent');
       }
 
       if (this.compoundsOnly) {
-        filtered = filtered.filter(i = > i.artifactType == 'compoundComponent'
-      )
-        ;
+        filtered = filtered.filter((i) => i.artifactType === 'compoundComponent');
       }
 
       if (this.utilitiesOnly) {
-        filtered = filtered.filter(i = > i.artifactType == 'utility'
-      )
-        ;
+        filtered = filtered.filter((i) => i.artifactType === 'utility');
       }
 
-      filtered = filtered.filter(i = > -1 != i.artifactId.indexOf(searchTerm) || -1 != i.name.indexOf(searchTerm)
-      )
-      ;
+      filtered = filtered.filter((i) => i.artifactId.indexOf(searchTerm) !== -1 || i.name.indexOf(searchTerm) !== -1);
       var sorted = filtered.sort(function (a, b) {
         if (a.name < b.name) {
           return -1;
@@ -203,9 +197,7 @@ Polymer({
 
       this.set('_filtered', filtered);
 
-      this.async(() = > this.$.list.fire('iron-resize')
-      )
-      ;
+      this.async(() => this.$.list.fire('iron-resize'));
     }.bind(this), 125);
   },
 
@@ -232,7 +224,7 @@ Polymer({
         return {
           name: slot.slotId,
           type: slot.type
-        }
+        };
       });
 
     component.outports = artifact.slots
@@ -243,7 +235,7 @@ Polymer({
         return {
           name: slot.slotId,
           type: slot.type
-        }
+        };
       });
 
     var member = {
@@ -272,19 +264,18 @@ Polymer({
    */
   // TODO (ene): use couchDB functionality for filtering certain document-attributes, like modelVersion...
   handleResponse: function () {
-    var cubbles = this.$.ajax.lastResponse
-        .filter(item = > item.modelVersion.match(/8.3/)
-    )
-    .
-    filter(item = > item.artifactType == 'compoundComponent' ||
-    item.artifactType == 'elementaryComponent'
-    )
-    ;
+    var cubbles = this.$.ajax.lastResponse.filter((item) => item.modelVersion.match(/8.3/))
+      .filter((item) => item.artifactType === 'compoundComponent' || item.artifactType === 'elementaryComponent');
 
     this.set('_cubbles', cubbles);
   },
 
   _computeBaseUrl: function (baseUrl, store) {
     return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
+  },
+
+  settingsChanged: function () {
+    this.$.ajax.set('url', this._computeBaseUrl(this.settings.baseUrl, this.settings.store));
+    this.clearInput();
   }
 });
