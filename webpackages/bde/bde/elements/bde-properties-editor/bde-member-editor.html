@@ -16,53 +16,11 @@
 
     <div class="listbox" hidden$="[[_hasEntries(member.inports)]]">
       <template is="dom-repeat" items="[[member.slots]]" filter="_filterInslots" as="slot">
-        <bde-slot-editor slot="{{slot}}" direction="input" initialiser="[[_getInit(slot)]]" on-change="handleInSlotChange"></bde-slot-editor>
+        <bde-slot-editor slot="{{slot}}" direction="input" initialiser="[[_getInit(slot)]]" on-change="onInSlotChange"></bde-slot-editor>
       </template>
 
       <template is="dom-repeat" items="[[member.slots]]" filter="_filterOutslots" as="slot">
-        <bde-slot-editor slot="{{slot}}" direction="output" on-change="handleInSlotChange"></bde-slot-editor>
-      </template>
-
-
-      <template is="dom-repeat" items="[[member.inports]]" as="slot">
-        <paper-icon-item class="slot in">
-          <iron class="icon" icon="bde:inslot" item-icon></iron>
-          <paper-item-body class="slot-body" three-line>
-            <div>[[slot.slotId]]</div>
-            <div hidden$="[[!slot.description]]" secondary>[[slot.description]]</div>
-            <div secondary>[[slot.type]]</div>
-          </paper-item-body>
-
-          <template is="dom-if" if="[[_slotIsNumber(slot)]]">
-            <paper-input id$="slot-[[slot.slotId]]"
-              label="Value"
-              type="Number"
-              value="[[_getSlotValue(slot)]]"
-              placeholder="Slot default value"
-              on-change="handleSlotChange"
-            ></paper-input>
-          </template>
-
-          <template is="dom-if" if="[[_slotIsText(slot)]]"></template>
-
-          <template is="dom-if" if="[[_slotIsBoolean(slot)]]"></template>
-
-          <template is="dom-if" if="[[_slotIsOther(slot)]]"></template>
-
-        </paper-icon-item>
-      </template>
-    </div>
-
-    <div class="listbox" hidden$="[[_hasEntries(member.outslots)]]">
-      <template is="dom-repeat" items="[[member.outslots]]" as="slot">
-        <paper-icon-item class="slot out">
-          <iron class="icon" icon="bde:outslot" item-icon></iron>
-          <paper-item-body class="slot-body" three-line>
-            <div>[[slot.slotId]]</div>
-            <div hidden$="[[!slot.description]]" secondary>[[slot.description]]</div>
-            <div secondary>[[slot.type]]</div>
-          </paper-item-body>
-        </paper-icon-item>
+        <bde-slot-editor slot="{{slot}}" direction="output" on-change="onOutSlotChange"></bde-slot-editor>
       </template>
     </div>
 
@@ -123,6 +81,14 @@
 
     onDescriptionChange: function(event) {
       this.set('member.description', event.target.textContent);
+    },
+
+    onInSlotChange: function(event) {
+
+    },
+
+    onOutSlotChange: function(event) {
+
     },
 
     onNameChange: function(event) {
