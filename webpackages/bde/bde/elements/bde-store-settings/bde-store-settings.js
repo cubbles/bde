@@ -1,4 +1,3 @@
-/*global XMLHttpRequest*/
 Polymer({
   is: 'bde-store-settings',
 

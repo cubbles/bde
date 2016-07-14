@@ -1,869 +1,533 @@
 {
-  "endpointId":"main",
-  "artifactId": "travel-planner",
-  "manifest": {
-    "_id": "com.incowia.demo.travel-planner@0.1.0-SNAPSHOT",
-    "_rev": "1030-cb4a0a0d53d5459f86ff3f5bd46a6ae2",
-    "name": "travel-planner",
-    "groupId": "com.incowia.demo",
-    "version": "0.1.0-SNAPSHOT",
-    "modelVersion": "8.3.0",
-    "docType": "webpackage",
-    "author": {
-      "name": "Philipp Wagner",
-      "email": "philipp.wagner@incowia.com"
-    },
-    "license": "MIT",
-    "keywords": [ ],
-    "man": [ ],
-    "artifacts": {
-      "apps": [
-        {
-          "artifactId": "docs",
-          "description": "Structure and dataflow viewer for this webpackage",
-          "runnables": [
-            {
-              "name": "travel-planner docs",
-              "path": "/index.html",
-              "description": "Call this app as a simple demo."
-            }
-          ]
-        }
-      ],
-      "elementaryComponents": [
-        {
-          "artifactId": "category-value-select",
-          "description": "Select the value for a given category",
-          "runnables": [
-            {
-              "name": "demo",
-              "path": "/demo/index.html",
-              "description": "Demo app for <category-value-select> component."
-            }
-          ],
-          "endpoints": [
-            {
-              "endpointId": "main",
-              "description": "This is recommended for you use with webcomponents.",
-              "resources": [
-                "category-value-select.html"
-              ],
-              "dependencies": [
-                "cubx.core.rte@1.8.0-SNAPSHOT/cubxpolymer/main",
-                "bootstrap-3.3.5@1.0.3/bootstrap/html-import"
-              ]
-            }
-          ],
-          "slots": [
-            {
-              "slotId": "category",
-              "type": "object",
-              "direction": [
-                "input",
-                "output"
-              ]
-            },
-            {
-              "slotId": "visible",
-              "type": "boolean",
-              "direction": [
-                "input"
-              ]
-            }
-          ]
-        },
-        {
-          "artifactId": "main-nav",
-          "description": "The main navigation for switching between categories",
-          "runnables": [
-            {
-              "name": "demo",
-              "path": "/demo/index.html",
-              "description": "Demo app for <main-nav> component"
-            }
-          ],
-          "endpoints": [
-            {
-              "endpointId": "main",
-              "description": "This is recommended for you use with webcomponents.",
-              "resources": [
-                "main-nav.html"
-              ],
-              "dependencies": [
-                "cubx.core.rte@1.8.0-SNAPSHOT/cubxpolymer/main",
-                "bootstrap-3.3.5@1.0.3/bootstrap/html-import"
-              ]
-            }
-          ],
-          "slots": [
-            {
-              "slotId": "selectedCategory",
-              "type": "object",
-              "direction": [
-                "output"
-              ]
-            },
-            {
-              "slotId": "updateCategory",
-              "type": "object",
-              "direction": [
-                "input"
-              ]
-            },
-            {
-              "slotId": "catSelectVisible",
-              "type": "boolean",
-              "direction": [
-                "output"
-              ]
-            },
-            {
-              "slotId": "evaluationVisible",
-              "type": "boolean",
-              "direction": [
-                "output"
-              ]
-            },
-            {
-              "slotId": "selections",
-              "type": "object",
-              "direction": [
-                "output"
-              ]
-            }
-          ]
-        },
-        {
-          "artifactId": "travel-evaluation",
-          "description": "Evaluates the selected options in the travel planner categories",
-          "runnables": [
-            {
-              "name": "demo",
-              "path": "/demo/index.html",
-              "description": "Demo app..."
-            }
-          ],
-          "endpoints": [
-            {
-              "endpointId": "main",
-              "description": "This is recommended for you use with webcomponents.",
-              "resources": [
-                "travel-evaluation.html"
-              ],
-              "dependencies": [
-                "cubx.core.rte@1.8.0-SNAPSHOT/cubxpolymer/main",
-                "bootstrap-3.3.5@1.0.3/bootstrap/html-import"
-              ]
-            }
-          ],
-          "slots": [
-            {
-              "slotId": "selections",
-              "type": "object",
-              "direction": [
-                "input"
-              ]
-            },
-            {
-              "slotId": "visible",
-              "type": "boolean",
-              "direction": [
-                "input"
-              ]
-            }
-          ]
-        },
-        {
-          "artifactId": "co2-footprint",
-          "description": "Shows the co2 footprint using an svg scale",
-          "runnables": [
-            {
-              "name": "demo",
-              "path": "/demo/index.html",
-              "description": "Demo app..."
-            }
-          ],
-          "endpoints": [
-            {
-              "endpointId": "main",
-              "description": "This is recommended for you use with webcomponents.",
-              "resources": [
-                "co2-footprint.html"
-              ],
-              "dependencies": [
-                "cubx.core.rte@1.8.0-SNAPSHOT/cubxpolymer/main"
-              ]
-            }
-          ],
-          "slots": [
-            {
-              "slotId": "value",
-              "type": "number",
-              "direction": [
-                "input"
-              ]
-            }
-          ]
-        }
-      ],
-      "compoundComponents": [
-        {
-          "artifactId": "travel-planner",
-          "description": "Tavel planner cubbles component",
-          "runnables": [
-            {
-              "name": "demo",
-              "path": "/demo/index.html",
-              "description": "Travel planner component in action"
-            },
-            {
-              "name": "docs",
-              "path": "/docs/index.html",
-              "description": "Dataflow of the component"
-            }
-          ],
-          "endpoints": [
-            {
-              "endpointId": "main",
-              "resources": [
-                "css/travel-planner.css",
-                "travel-planner.html",
-                "jsFunctions.js"
-              ],
-              "dependencies": [
-                "bootstrap-3.3.5@1.0.3/bootstrap/html-import",
-                "this/main-nav/main",
-                "this/category-value-select/main",
-                "this/travel-evaluation/main",
-                "this/co2-footprint/main"
-              ]
-            }
-          ],
-          "slots": [ ],
-          "members": [
-            {
-              "memberId": "mainNav",
-              "componentId": "this/main-nav"
-            },
-            {
-              "memberId": "catValueSelect",
-              "componentId": "this/category-value-select"
-            },
-            {
-              "memberId": "evaluation",
-              "componentId": "this/travel-evaluation"
-            },
-            {
-              "memberId": "footprint",
-              "componentId": "this/co2-footprint"
-            }
-          ],
-          "connections": [
-            {
-              "connectionId": "mainNavToCategorySelect",
-              "source": {
-                "memberIdRef": "mainNav",
-                "slot": "selectedCategory"
-              },
-              "destination": {
-                "memberIdRef": "catValueSelect",
-                "slot": "category"
+  "currentComponentMetadata": {
+    "manifest": {
+      "name": "travel-planner",
+      "groupId": "com.incowia.demo",
+      "version": "0.2.0-SNAPSHOT",
+      "modelVersion": "8.3.0",
+      "docType": "webpackage",
+      "author": {
+        "name": "Philipp Wagner",
+        "email": "philipp.wagner@incowia.com"
+      },
+      "license": "MIT",
+      "keywords": [],
+      "man": [],
+      "artifacts": {
+        "apps": [
+          {
+            "artifactId": "docs",
+            "description": "Structure and dataflow viewer for this webpackage",
+            "runnables": [
+              {
+                "name": "docs",
+                "path": "/index.html",
+                "description": "Call this app as a simple demo."
               }
-            },
-            {
-              "connectionId": "categorySelectToMainNav",
-              "source": {
-                "memberIdRef": "catValueSelect",
-                "slot": "category"
+            ]
+          }
+        ],
+        "elementaryComponents": [
+          {
+            "artifactId": "category-value-select",
+            "description": "Select the value for a given category",
+            "runnables": [
+              {
+                "name": "demo",
+                "path": "/demo/index.html",
+                "description": "Demo app for <category-value-select> component."
               },
-              "destination": {
-                "memberIdRef": "mainNav",
-                "slot": "updateCategory"
+              {
+                "name": "docs",
+                "path": "/docs/index.html",
+                "description": "Interface of the component"
               }
-            },
-            {
-              "connectionId": "catSelectVisibility",
-              "source": {
-                "memberIdRef": "mainNav",
-                "slot": "catSelectVisible"
-              },
-              "destination": {
-                "memberIdRef": "catValueSelect",
-                "slot": "visible"
+            ],
+            "endpoints": [
+              {
+                "endpointId": "main",
+                "description": "This is recommended for you use with webcomponents.",
+                "resources": [
+                  "category-value-select.html"
+                ],
+                "dependencies": [
+                  "cubx.core.rte@1.9.0/cubxpolymer/main",
+                  "bootstrap-3.3.5@1.0.3/bootstrap/html-import"
+                ]
               }
-            },
-            {
-              "connectionId": "evaluationVisibility",
-              "source": {
-                "memberIdRef": "mainNav",
-                "slot": "evaluationVisible"
+            ],
+            "slots": [
+              {
+                "slotId": "category",
+                "type": "object",
+                "direction": [
+                  "input",
+                  "output"
+                ]
               },
-              "destination": {
+              {
+                "slotId": "visible",
+                "type": "boolean",
+                "direction": [
+                  "input"
+                ]
+              }
+            ]
+          },
+          {
+            "artifactId": "main-nav",
+            "description": "The main navigation for switching between categories",
+            "runnables": [
+              {
+                "name": "demo",
+                "path": "/demo/index.html",
+                "description": "Demo app for <main-nav> component"
+              },
+              {
+                "name": "docs",
+                "path": "/docs/index.html",
+                "description": "Interface of the component"
+              }
+            ],
+            "endpoints": [
+              {
+                "endpointId": "main",
+                "description": "This is recommended for you use with webcomponents.",
+                "resources": [
+                  "main-nav.html"
+                ],
+                "dependencies": [
+                  "cubx.core.rte@1.9.0/cubxpolymer/main",
+                  "bootstrap-3.3.5@1.0.3/bootstrap/html-import"
+                ]
+              }
+            ],
+            "slots": [
+              {
+                "slotId": "selectedCategory",
+                "type": "object",
+                "direction": [
+                  "output"
+                ]
+              },
+              {
+                "slotId": "updateCategory",
+                "type": "object",
+                "direction": [
+                  "input"
+                ]
+              },
+              {
+                "slotId": "catSelectVisible",
+                "type": "boolean",
+                "direction": [
+                  "output"
+                ]
+              },
+              {
+                "slotId": "evaluationVisible",
+                "type": "boolean",
+                "direction": [
+                  "output"
+                ]
+              },
+              {
+                "slotId": "selections",
+                "type": "object",
+                "direction": [
+                  "output"
+                ]
+              }
+            ]
+          },
+          {
+            "artifactId": "travel-evaluation",
+            "description": "Evaluates the selected options in the travel planner categories",
+            "runnables": [
+              {
+                "name": "demo",
+                "path": "/demo/index.html",
+                "description": "Demo app..."
+              },
+              {
+                "name": "docs",
+                "path": "/docs/index.html",
+                "description": "Interface of the component"
+              }
+            ],
+            "endpoints": [
+              {
+                "endpointId": "main",
+                "description": "This is recommended for you use with webcomponents.",
+                "resources": [
+                  "travel-evaluation.html"
+                ],
+                "dependencies": [
+                  "cubx.core.rte@1.9.0/cubxpolymer/main",
+                  "bootstrap-3.3.5@1.0.3/bootstrap/html-import"
+                ]
+              }
+            ],
+            "slots": [
+              {
+                "slotId": "selections",
+                "type": "object",
+                "direction": [
+                  "input"
+                ]
+              },
+              {
+                "slotId": "visible",
+                "type": "boolean",
+                "direction": [
+                  "input"
+                ]
+              }
+            ]
+          },
+          {
+            "artifactId": "co2-footprint",
+            "description": "Shows the co2 footprint using an svg scale",
+            "runnables": [
+              {
+                "name": "demo",
+                "path": "/demo/index.html",
+                "description": "Demo app..."
+              },
+              {
+                "name": "docs",
+                "path": "/docs/index.html",
+                "description": "Interface of the component"
+              }
+            ],
+            "endpoints": [
+              {
+                "endpointId": "main",
+                "description": "This is recommended for you use with webcomponents.",
+                "resources": [
+                  "co2-footprint.html"
+                ],
+                "dependencies": [
+                  "cubx.core.rte@1.9.0/cubxpolymer/main"
+                ]
+              }
+            ],
+            "slots": [
+              {
+                "slotId": "value",
+                "type": "number",
+                "direction": [
+                  "input"
+                ]
+              }
+            ]
+          }
+        ],
+        "compoundComponents": [
+          {
+            "artifactId": "travel-planner",
+            "artifactType": "compoundComponent",
+            "description": "Travel planner cubbles component",
+            "runnables": [
+              {
+                "name": "demo",
+                "path": "/demo/index.html",
+                "description": "Travel planner component in action"
+              },
+              {
+                "name": "docs",
+                "path": "/docs/index.html",
+                "description": "Dataflow of the component"
+              }
+            ],
+            "endpoints": [
+              {
+                "endpointId": "main",
+                "resources": [
+                  "css/travel-planner.css",
+                  "travel-planner.html",
+                  "jsFunctions.js"
+                ],
+                "dependencies": [
+                  "bootstrap-3.3.5@1.0.3/bootstrap/html-import",
+                  "this/main-nav/main",
+                  "this/category-value-select/main",
+                  "this/travel-evaluation/main",
+                  "this/co2-footprint/main"
+                ]
+              }
+            ],
+            "slots": [],
+            "members": [
+              {
+                "memberId": "mainNav",
+                "componentId": "this/main-nav"
+              },
+              {
+                "memberId": "catValueSelect",
+                "componentId": "this/category-value-select"
+              },
+              {
+                "memberId": "evaluation",
+                "componentId": "this/travel-evaluation"
+              },
+              {
+                "memberId": "footprint",
+                "componentId": "this/co2-footprint"
+              }
+            ],
+            "connections": [
+              {
+                "connectionId": "mainNavToCategorySelect",
+                "source": {
+                  "memberIdRef": "mainNav",
+                  "slot": "selectedCategory"
+                },
+                "destination": {
+                  "memberIdRef": "catValueSelect",
+                  "slot": "category"
+                }
+              },
+              {
+                "connectionId": "categorySelectToMainNav",
+                "source": {
+                  "memberIdRef": "catValueSelect",
+                  "slot": "category"
+                },
+                "destination": {
+                  "memberIdRef": "mainNav",
+                  "slot": "updateCategory"
+                }
+              },
+              {
+                "connectionId": "catSelectVisibility",
+                "source": {
+                  "memberIdRef": "mainNav",
+                  "slot": "catSelectVisible"
+                },
+                "destination": {
+                  "memberIdRef": "catValueSelect",
+                  "slot": "visible"
+                }
+              },
+              {
+                "connectionId": "evaluationVisibility",
+                "source": {
+                  "memberIdRef": "mainNav",
+                  "slot": "evaluationVisible"
+                },
+                "destination": {
+                  "memberIdRef": "evaluation",
+                  "slot": "visible"
+                }
+              },
+              {
+                "connectionId": "mainNavToEvaluation",
+                "source": {
+                  "memberIdRef": "mainNav",
+                  "slot": "selections"
+                },
+                "destination": {
+                  "memberIdRef": "evaluation",
+                  "slot": "selections"
+                }
+              },
+              {
+                "connectionId": "mainNavToFootprint",
+                "source": {
+                  "memberIdRef": "mainNav",
+                  "slot": "selections"
+                },
+                "destination": {
+                  "memberIdRef": "footprint",
+                  "slot": "value"
+                },
+                "hookFunction": "com_incowia_demo_travel_planner.determineCO2Value"
+              }
+            ],
+            "inits": [
+              {
                 "memberIdRef": "evaluation",
-                "slot": "visible"
-              }
-            },
-            {
-              "connectionId": "mainNavToEvaluation",
-              "source": {
-                "memberIdRef": "mainNav",
-                "slot": "selections"
+                "slot": "visible",
+                "value": false
               },
-              "destination": {
-                "memberIdRef": "evaluation",
-                "slot": "selections"
-              }
-            },
-            {
-              "connectionId": "mainNavToFootprint",
-              "source": {
-                "memberIdRef": "mainNav",
-                "slot": "selections"
+              {
+                "memberIdRef": "catValueSelect",
+                "slot": "visible",
+                "value": true
               },
-              "destination": {
+              {
                 "memberIdRef": "footprint",
-                "slot": "value"
-              },
-              "hookFunction": "com_incowia_demo_travel_planner.determineCO2Value"
-            }
-          ],
-          "inits": [
-            {
-              "memberIdRef": "evaluation",
-              "slot": "visible",
-              "value": false
-            },
-            {
-              "memberIdRef": "catValueSelect",
-              "slot": "visible",
-              "value": true
-            },
-            {
-              "memberIdRef": "footprint",
-              "slot": "value",
-              "value": 0
-            }
-          ],
-          "artifactType": "compoundComponent",
-          "url": "https://www.cubbles.world/sandbox/com.incowia.demo.travel-planner@0.1.0-SNAPSHOT",
-          "webpackageId": "com.incowia.demo.travel-planner@0.1.0-SNAPSHOT",
-          "is": "compound"
+                "slot": "value",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "endpointId": "main",
+    "artifactId": "travel-planner"
+  },
+  "selectedCompound": {
+    "artifactId": "travel-planner",
+    "artifactType": "compoundComponent",
+    "description": "Travel planner cubbles component",
+    "runnables": [
+      {
+        "name": "demo",
+        "path": "/demo/index.html",
+        "description": "Travel planner component in action"
+      },
+      {
+        "name": "docs",
+        "path": "/docs/index.html",
+        "description": "Dataflow of the component"
+      }
+    ],
+    "endpoints": [
+      {
+        "endpointId": "main",
+        "resources": [
+          {"prod": "css/travel-planner.css",  "dev": "css/travel-planner.css"},
+          "css/travel-planner.css",
+          "travel-planner.html",
+          "jsFunctions.js"
+        ],
+        "dependencies": [
+          "bootstrap-3.3.5@1.0.3/bootstrap/html-import",
+          "this/main-nav/main",
+          "this/category-value-select/main",
+          "this/travel-evaluation/main",
+          "this/co2-footprint/main"
+        ]
+      }
+    ],
+    "slots": [
+      {
+        "slotId": "id",
+        "type": "string",
+        "direction": [
+          "input"
+        ]
+      },
+      {
+        "slotId": "value",
+        "type": "string",
+        "direction": [
+          "input",
+          "output"
+        ]
+      }
+    ],
+    "members": [
+      {
+        "memberId": "mainNav",
+        "componentId": "this/main-nav"
+      },
+      {
+        "memberId": "catValueSelect",
+        "componentId": "this/category-value-select"
+      },
+      {
+        "memberId": "evaluation",
+        "componentId": "this/travel-evaluation"
+      },
+      {
+        "memberId": "footprint",
+        "componentId": "this/co2-footprint"
+      }
+    ],
+    "connections": [
+      {
+        "connectionId": "mainNavToCategorySelect",
+        "source": {
+          "memberIdRef": "mainNav",
+          "slot": "selectedCategory"
+        },
+        "destination": {
+          "memberIdRef": "catValueSelect",
+          "slot": "category"
         }
-      ]
-    },
-    "baseContext": {
-      "uploadInfos": {
-        "target": "www.cubbles.world/sandbox",
-        "date": "2016-05-17T14:31:13.765Z",
-        "user": "8",
-        "client": "cubx-webpackage-uploader-3.1.1"
+      },
+      {
+        "connectionId": "categorySelectToMainNav",
+        "source": {
+          "memberIdRef": "catValueSelect",
+          "slot": "category"
+        },
+        "destination": {
+          "memberIdRef": "mainNav",
+          "slot": "updateCategory"
+        }
+      },
+      {
+        "connectionId": "catSelectVisibility",
+        "source": {
+          "memberIdRef": "mainNav",
+          "slot": "catSelectVisible"
+        },
+        "destination": {
+          "memberIdRef": "catValueSelect",
+          "slot": "visible"
+        }
+      },
+      {
+        "connectionId": "evaluationVisibility",
+        "source": {
+          "memberIdRef": "mainNav",
+          "slot": "evaluationVisible"
+        },
+        "destination": {
+          "memberIdRef": "evaluation",
+          "slot": "visible"
+        }
+      },
+      {
+        "connectionId": "mainNavToEvaluation",
+        "source": {
+          "memberIdRef": "mainNav",
+          "slot": "selections"
+        },
+        "destination": {
+          "memberIdRef": "evaluation",
+          "slot": "selections"
+        }
+      },
+      {
+        "connectionId": "mainNavToFootprint",
+        "source": {
+          "memberIdRef": "mainNav",
+          "slot": "selections"
+        },
+        "destination": {
+          "memberIdRef": "footprint",
+          "slot": "value"
+        },
+        "hookFunction": "com_incowia_demo_travel_planner.determineCO2Value"
       }
-    },
-    "_attachments": {
-      "category-value-select/demo/index.html": {
-        "content_type": "text/html",
-        "revpos": 1029,
-        "digest": "md5-i7GMRUP4ZbY4QQ9sZ+Wviw==",
-        "length": 1841,
-        "stub": true
-      },
-      "category-value-select/img/option_unchecked_focus.png": {
-        "content_type": "image/png",
-        "revpos": 1028,
-        "digest": "md5-+m3XFaIqf+3CBQ8imtHvtQ==",
-        "length": 434,
-        "stub": true
-      },
-      "category-value-select/img/option_unchecked.png": {
-        "content_type": "image/png",
-        "revpos": 1027,
-        "digest": "md5-Jkgub6fkF0yS/GafhgI8Pw==",
-        "length": 398,
-        "stub": true
-      },
-      "category-value-select/img/option_checked.png": {
-        "content_type": "image/png",
-        "revpos": 1026,
-        "digest": "md5-pL+hXXovN5NFj2rqzZkHCg==",
-        "length": 408,
-        "stub": true
-      },
-      "category-value-select/category-value-select.js": {
-        "content_type": "application/javascript",
-        "revpos": 1025,
-        "digest": "md5-pwV1HpRltNfW1gvsSQ2IgQ==",
-        "length": 2797,
-        "stub": true
-      },
-      "category-value-select/category-value-select.html": {
-        "content_type": "text/html",
-        "revpos": 1024,
-        "digest": "md5-r7BuzdZ041J2aBJ3R34gtQ==",
-        "length": 862,
-        "stub": true
-      },
-      "category-value-select/category-value-select-style.html": {
-        "content_type": "text/html",
-        "revpos": 1023,
-        "digest": "md5-3jTqMwRtnxlyuSW/TcNsKw==",
-        "length": 1017,
-        "stub": true
-      },
-      "co2-footprint/demo/index.html": {
-        "content_type": "text/html",
-        "revpos": 1022,
-        "digest": "md5-mF9n/AG70C1DxhZ28Fsaaw==",
-        "length": 1495,
-        "stub": true
-      },
-      "co2-footprint/co2-footprint.js": {
-        "content_type": "application/javascript",
-        "revpos": 1021,
-        "digest": "md5-vNAEQ4yvsJCHVMRB4aHZsA==",
-        "length": 1891,
-        "stub": true
-      },
-      "co2-footprint/co2-footprint.html": {
-        "content_type": "text/html",
-        "revpos": 1020,
-        "digest": "md5-tyVxqvE1/4/anlgJry6iwQ==",
-        "length": 4539,
-        "stub": true
-      },
-      "co2-footprint/co2-footprint-style.html": {
-        "content_type": "text/html",
-        "revpos": 1019,
-        "digest": "md5-vhiTx/POh3wanLOkPZG9BA==",
-        "length": 371,
-        "stub": true
-      },
-      "docs/index.html": {
-        "content_type": "text/html",
-        "revpos": 1018,
-        "digest": "md5-ecvdfab71sbuj8+j/13Z0g==",
-        "length": 1537,
-        "stub": true
-      },
-      "main-nav/demo/index.html": {
-        "content_type": "text/html",
-        "revpos": 1017,
-        "digest": "md5-TxCoE4x8Q0BiDqxw5HzNNw==",
-        "length": 1014,
-        "stub": true
-      },
-      "main-nav/img/result_unset.png": {
-        "content_type": "image/png",
-        "revpos": 1016,
-        "digest": "md5-mew5xN6MRIEqAirjrwnHBg==",
-        "length": 641,
-        "stub": true
-      },
-      "main-nav/img/result_set.png": {
-        "content_type": "image/png",
-        "revpos": 1015,
-        "digest": "md5-SZXwh0fWr4z30fQsB0QR4A==",
-        "length": 508,
-        "stub": true
-      },
-      "main-nav/img/icons_unset.png": {
-        "content_type": "image/png",
-        "revpos": 1014,
-        "digest": "md5-GYzCQcqlhRzZXO38KhndSA==",
-        "length": 6456,
-        "stub": true
-      },
-      "main-nav/img/cat5_unset.png": {
-        "content_type": "image/png",
-        "revpos": 1013,
-        "digest": "md5-T59sxQENMBJDwJQA1jEaOA==",
-        "length": 1420,
-        "stub": true
-      },
-      "main-nav/img/cat5_set.png": {
-        "content_type": "image/png",
-        "revpos": 1012,
-        "digest": "md5-oqfUmJMLlp1H8l4ZmTmpwQ==",
-        "length": 1430,
-        "stub": true
-      },
-      "main-nav/img/cat4_unset.png": {
-        "content_type": "image/png",
-        "revpos": 1011,
-        "digest": "md5-ysTCSG2AFEqKbTHu8WFOtg==",
-        "length": 1396,
-        "stub": true
-      },
-      "main-nav/img/cat4_set.png": {
-        "content_type": "image/png",
-        "revpos": 1010,
-        "digest": "md5-fzJCUJcyHtgq6aMtkBP2kg==",
-        "length": 1211,
-        "stub": true
-      },
-      "main-nav/img/cat3_unset.png": {
-        "content_type": "image/png",
-        "revpos": 1009,
-        "digest": "md5-H8t/JcqUOnkuurCfM/9w3A==",
-        "length": 1224,
-        "stub": true
-      },
-      "main-nav/img/cat3_set.png": {
-        "content_type": "image/png",
-        "revpos": 1008,
-        "digest": "md5-zW+BFUrmVl/29iV8afZ6uQ==",
-        "length": 1096,
-        "stub": true
-      },
-      "main-nav/img/cat2_unset.png": {
-        "content_type": "image/png",
-        "revpos": 1007,
-        "digest": "md5-eZxz4dd+sfIz41ZQFCtR+Q==",
-        "length": 1028,
-        "stub": true
-      },
-      "main-nav/img/cat2_set.png": {
-        "content_type": "image/png",
-        "revpos": 1006,
-        "digest": "md5-PnbPph8wceWsZ5qDUMvSuw==",
-        "length": 1010,
-        "stub": true
-      },
-      "main-nav/img/cat1_unset.png": {
-        "content_type": "image/png",
-        "revpos": 1005,
-        "digest": "md5-H9Dx1ZefWPNprEOkC1NI4g==",
-        "length": 791,
-        "stub": true
-      },
-      "main-nav/img/cat1_set.png": {
-        "content_type": "image/png",
-        "revpos": 1004,
-        "digest": "md5-WkDdmyBDtWoj7F4OSmweKw==",
-        "length": 1015,
-        "stub": true
-      },
-      "main-nav/main-nav.js": {
-        "content_type": "application/javascript",
-        "revpos": 1003,
-        "digest": "md5-aNW8c3asPOg/TSbsSdcE3A==",
-        "length": 12473,
-        "stub": true
-      },
-      "main-nav/main-nav.html": {
-        "content_type": "text/html",
-        "revpos": 1002,
-        "digest": "md5-OMVHs0zbs25ZJMDZnrjZDQ==",
-        "length": 2759,
-        "stub": true
-      },
-      "main-nav/main-nav-style.html": {
-        "content_type": "text/html",
-        "revpos": 1001,
-        "digest": "md5-77x6HJr89wf9p38cbbIlew==",
-        "length": 1972,
-        "stub": true
-      },
-      "travel-evaluation/demo/index.html": {
-        "content_type": "text/html",
-        "revpos": 1000,
-        "digest": "md5-XxfDH8HgGeJNwiBHp/OVKg==",
-        "length": 1028,
-        "stub": true
-      },
-      "travel-evaluation/travel-evaluation.js": {
-        "content_type": "application/javascript",
-        "revpos": 999,
-        "digest": "md5-4IsZUgmm5QYPlsliCUtMMg==",
-        "length": 6411,
-        "stub": true
-      },
-      "travel-evaluation/travel-evaluation.html": {
-        "content_type": "text/html",
-        "revpos": 998,
-        "digest": "md5-PpNR1CHy56HraxecdvQ6UA==",
-        "length": 861,
-        "stub": true
-      },
-      "travel-evaluation/travel-evaluation-style.html": {
-        "content_type": "text/html",
-        "revpos": 997,
-        "digest": "md5-sIKYX3rNeTLXNqcwNbHAvQ==",
-        "length": 683,
-        "stub": true
-      },
-      "travel-planner/css/travel-planner.css": {
-        "content_type": "text/css",
-        "revpos": 996,
-        "digest": "md5-OGBaefWhJmTH2vNBZ2yIhg==",
-        "length": 5432,
-        "stub": true
-      },
-      "travel-planner/demo/index.html": {
-        "content_type": "text/html",
-        "revpos": 995,
-        "digest": "md5-p0TnIB6GTVETxD/2Rn5aGw==",
-        "length": 1244,
-        "stub": true
-      },
-      "travel-planner/docs/index.html": {
-        "content_type": "text/html",
-        "revpos": 994,
-        "digest": "md5-VryGNfJvTQUcUa62Aq2jwg==",
-        "length": 1909,
-        "stub": true
-      },
-      "travel-planner/img/skala-hintergrund.png": {
-        "content_type": "image/png",
-        "revpos": 993,
-        "digest": "md5-HwPrt1/MpEPe7B7PVwDvBg==",
-        "length": 2611,
-        "stub": true
-      },
-      "travel-planner/img/heading.png": {
-        "content_type": "image/png",
-        "revpos": 992,
-        "digest": "md5-t+auQ3t+V6evS6wfBXQMHQ==",
-        "length": 5224,
-        "stub": true
-      },
-      "travel-planner/img/6.png": {
-        "content_type": "image/png",
-        "revpos": 991,
-        "digest": "md5-z9BlxGee2MwVRRn1S6ZEYg==",
-        "length": 186212,
-        "stub": true
-      },
-      "travel-planner/img/5.png": {
-        "content_type": "image/png",
-        "revpos": 990,
-        "digest": "md5-UMcHGjOo+35S3PocXoktjA==",
-        "length": 189790,
-        "stub": true
-      },
-      "travel-planner/img/4h.png": {
-        "content_type": "image/png",
-        "revpos": 989,
-        "digest": "md5-YvPA8lG10KW8GXntwfs/Bw==",
-        "length": 251993,
-        "stub": true
-      },
-      "travel-planner/img/4g.png": {
-        "content_type": "image/png",
-        "revpos": 988,
-        "digest": "md5-J7/yvTmrcDE6Xr7GTVKXzQ==",
-        "length": 188023,
-        "stub": true
-      },
-      "travel-planner/img/4f.png": {
-        "content_type": "image/png",
-        "revpos": 987,
-        "digest": "md5-507TQH12i/F8F1TyP2rRuw==",
-        "length": 163417,
-        "stub": true
-      },
-      "travel-planner/img/4e.png": {
-        "content_type": "image/png",
-        "revpos": 986,
-        "digest": "md5-3i8EPsK1/KUz+toynVzxLg==",
-        "length": 212648,
-        "stub": true
-      },
-      "travel-planner/img/4d.png": {
-        "content_type": "image/png",
-        "revpos": 985,
-        "digest": "md5-hMPQGyzQxlA6DHrzVNWYJQ==",
-        "length": 246603,
-        "stub": true
-      },
-      "travel-planner/img/4c.png": {
-        "content_type": "image/png",
-        "revpos": 984,
-        "digest": "md5-dzOtENS5IxvdHFFbPRk+1w==",
-        "length": 257102,
-        "stub": true
-      },
-      "travel-planner/img/4b.png": {
-        "content_type": "image/png",
-        "revpos": 983,
-        "digest": "md5-6JDuMEX2df09zehmTd6H/w==",
-        "length": 211882,
-        "stub": true
-      },
-      "travel-planner/img/4a.png": {
-        "content_type": "image/png",
-        "revpos": 982,
-        "digest": "md5-9Vqj03naCS3kxUo5BhG7BQ==",
-        "length": 218572,
-        "stub": true
-      },
-      "travel-planner/img/3d.png": {
-        "content_type": "image/png",
-        "revpos": 981,
-        "digest": "md5-Cuz/YeWEqImJvhz4P0ltfw==",
-        "length": 204018,
-        "stub": true
-      },
-      "travel-planner/img/3c.png": {
-        "content_type": "image/png",
-        "revpos": 980,
-        "digest": "md5-uV5HViB+ri6dbzCXpYYYiw==",
-        "length": 192334,
-        "stub": true
-      },
-      "travel-planner/img/3b.png": {
-        "content_type": "image/png",
-        "revpos": 979,
-        "digest": "md5-LtdABOwl55iADegAJmJ3tQ==",
-        "length": 277277,
-        "stub": true
-      },
-      "travel-planner/img/3a.png": {
-        "content_type": "image/png",
-        "revpos": 978,
-        "digest": "md5-DHs4K+HNS866p3ZewVFgpQ==",
-        "length": 248067,
-        "stub": true
-      },
-      "travel-planner/img/2g.png": {
-        "content_type": "image/png",
-        "revpos": 977,
-        "digest": "md5-CbwiaACW5Ubo3+NGgEOXzw==",
-        "length": 226533,
-        "stub": true
-      },
-      "travel-planner/img/2f.png": {
-        "content_type": "image/png",
-        "revpos": 976,
-        "digest": "md5-TEKf+xlxdH4yLVTcyf0dLg==",
-        "length": 218427,
-        "stub": true
-      },
-      "travel-planner/img/2e.png": {
-        "content_type": "image/png",
-        "revpos": 975,
-        "digest": "md5-5RsBF+9BY/a30odNIW3uJA==",
-        "length": 160507,
-        "stub": true
-      },
-      "travel-planner/img/2d.png": {
-        "content_type": "image/png",
-        "revpos": 974,
-        "digest": "md5-yqEtUzD6Y1WLBl75B6BeVA==",
-        "length": 248766,
-        "stub": true
-      },
-      "travel-planner/img/2c.png": {
-        "content_type": "image/png",
-        "revpos": 973,
-        "digest": "md5-jhZVLRJ1XxbVjqsu0cXqNg==",
-        "length": 227764,
-        "stub": true
-      },
-      "travel-planner/img/2b.png": {
-        "content_type": "image/png",
-        "revpos": 972,
-        "digest": "md5-GfTUX/ePKwiFPIsy6VPjfw==",
-        "length": 757933,
-        "stub": true
-      },
-      "travel-planner/img/2a.png": {
-        "content_type": "image/png",
-        "revpos": 971,
-        "digest": "md5-v0lawg7p4mgqKxfIWH0Mqw==",
-        "length": 225911,
-        "stub": true
-      },
-      "travel-planner/img/1g.png": {
-        "content_type": "image/png",
-        "revpos": 970,
-        "digest": "md5-E0SGKSZz0pHZF1DX/jbjaA==",
-        "length": 213661,
-        "stub": true
-      },
-      "travel-planner/img/1f.png": {
-        "content_type": "image/png",
-        "revpos": 969,
-        "digest": "md5-77x46zzo5dQHrwDSTWOXjw==",
-        "length": 203303,
-        "stub": true
-      },
-      "travel-planner/img/1e.png": {
-        "content_type": "image/png",
-        "revpos": 968,
-        "digest": "md5-z1ZIw8Ip4nZsA/Bii4MZxg==",
-        "length": 259571,
-        "stub": true
-      },
-      "travel-planner/img/1d.png": {
-        "content_type": "image/png",
-        "revpos": 967,
-        "digest": "md5-sW66Ey8ETsnwMpUJY1+Dbw==",
-        "length": 182052,
-        "stub": true
-      },
-      "travel-planner/img/1c.png": {
-        "content_type": "image/png",
-        "revpos": 966,
-        "digest": "md5-kDpuKzToL5Pz9aqRZ5ndhw==",
-        "length": 163562,
-        "stub": true
-      },
-      "travel-planner/img/1b.png": {
-        "content_type": "image/png",
-        "revpos": 965,
-        "digest": "md5-HTGx0cEvSaDkQVjPwI6fuQ==",
-        "length": 250156,
-        "stub": true
-      },
-      "travel-planner/img/1a.png": {
-        "content_type": "image/png",
-        "revpos": 964,
-        "digest": "md5-GtMbQ3/flX/taaROU4mSVQ==",
-        "length": 213381,
-        "stub": true
-      },
-      "travel-planner/travel-planner.html": {
-        "content_type": "text/html",
-        "revpos": 963,
-        "digest": "md5-DT8oiFF1DelDY4auTbXkxQ==",
-        "length": 770,
-        "stub": true
-      },
-      "travel-planner/jsFunctions.js": {
-        "content_type": "application/javascript",
-        "revpos": 962,
-        "digest": "md5-l5sAxyMGpWSF3kMtw45yeQ==",
-        "length": 1284,
-        "stub": true
-      },
-      "manifest.webpackage": {
-        "content_type": "application/octet-stream",
-        "revpos": 961,
-        "digest": "md5-PirawqVEfua6eKCJSueDaQ==",
-        "length": 9170,
-        "stub": true
-      },
-      ".webpackage": {
-        "content_type": "application/octet-stream",
-        "revpos": 960,
-        "digest": "md5-H2V8QaiJVnywK33/q38H8g==",
-        "length": 252,
-        "stub": true
-      },
-      ".eslintrc": {
-        "content_type": "application/octet-stream",
-        "revpos": 959,
-        "digest": "md5-dvZvDkQEhJAvyjggGPU07A==",
-        "length": 585,
-        "stub": true
-      },
-      ".bowerrc": {
-        "content_type": "application/octet-stream",
-        "revpos": 958,
-        "digest": "md5-mXu9KIVEMQbAavzinxwDqg==",
-        "length": 22,
-        "stub": true
+    ],
+    "inits": [
+      {
+        "memberIdRef": "evaluation",
+        "slot": "visible",
+        "value": false
+      },
+      {
+        "memberIdRef": "catValueSelect",
+        "slot": "visible",
+        "value": true
+      },
+      {
+        "memberIdRef": "footprint",
+        "slot": "value",
+        "value": 0
       }
-    }
+    ]
+  },
+  "bdeVersion": "1.4.0",
+  "settings": {
+    "baseUrl": "https://cubbles.world",
+    "store": "sandbox"
   }
 }

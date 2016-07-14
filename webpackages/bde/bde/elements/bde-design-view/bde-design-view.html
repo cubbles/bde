@@ -1,4 +1,5 @@
 <link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../bde-flexbox-layouter/bde-flexbox-layouter.html">
 
 <!--
 `bde-design-view` is the editor for compound templates
@@ -12,78 +13,11 @@
                 display: block;
             }
         </style>
-        <content></content>
+        <bde-flexbox-layouter bde-version="[[bdeVersion]]"
+                              settings="[[settings]]"
+                              current-component-metadata="[[currentComponentMetadata]]"
+                              selected-compound="[[selectedCompound]]">
+        </bde-flexbox-layouter>
     </template>
-    <script>
-        Polymer({
-            is: 'bde-design-view',
-            properties: {
-                blobRegistry: {
-                    type: Object,
-                    notify: true
-                },
-                currentComponentMetadata: {
-                    type: Object,
-                    notify: true
-                }
-            },
-            ready: function(){
-                this.parentNode.addEventListener('iron-deselect', this.leaveHandler);
-            },
-            leaveHandler: function(e){
-                // TODO mapping für blob URL zu webpackage Generierung erstellen und global verwalten
-                var designView = e.detail.item;
-                if (designView.id !== 'designView'){
-                    return;
-                }
-                var template = designView.querySelector('bde-flexbox-layouter').getTemplate();
-                if (designView.isEmptyTemplate(template.content)) {
-                    return;
-                }
-                template.setAttribute('id', designView.currentComponentMetadata.artifactId);
-                window.URL = window.URL || window.webkitURL;
-                var blob = new Blob([template.outerHTML], {type: 'text/html'});
-                var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
-                designView.blobRegistry[templateBlobUrl] = template.outerHTML;
-                var artifactId = designView.currentComponentMetadata.artifactId;
-                var compound;
-                designView.currentComponentMetadata.manifest.artifacts.compoundComponents.forEach(function (item) {
-                  if (item.artifactId == artifactId) {
-                      compound = item;
-                  }
-                });
-                var endpointId = designView.currentComponentMetadata.endpointId;
-                var endpoint;
-                compound.endpoints.forEach(function(item){
-                    if(item.endpointId === endpointId){
-                        endpoint = item;
-                    }
-                });
-                var listToDelete = [];
-                endpoint.resources.forEach(function(item){
-                    if (item.indexOf('.html')> -1 || item.indexOf('?type=html')> -1){
-                        listToDelete.push(item);
-                    }
-                });
-                listToDelete.forEach(function(item){
-                    endpoint.resources.splice(endpoint.resources.indexOf(item), 1);
-                });
-
-                endpoint.resources.push(templateBlobUrl);
-
-            },
-
-            isEmptyTemplate: function(template){
-                if (template.children.length === 0){
-                    return true;
-                }
-                if (template.children.length === 1 && template.children[0].tagName === 'DIV' && template.children[0].children.length === 0){
-                    return true;
-                }
-                return false;
-            }
-
-
-        });
-    </script>
+    <script src="bde-design-view.js"></script>
 </dom-module>

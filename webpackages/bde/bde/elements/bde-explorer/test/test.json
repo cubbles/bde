@@ -751,7 +751,7 @@
       }
     },
     "endpointId": "main",
-    "artifactId": "my-travel-planner"
+    "artifactId": "travel-planner"
   },
   "selectedCompound": {
     "artifactId": "travel-planner",

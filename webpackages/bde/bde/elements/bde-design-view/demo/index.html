@@ -53,19 +53,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <demo-snippet>
             <template is="dom-bind" id="app">
-                <iron-ajax auto url="../test/test.json"
+                <iron-ajax auto url="../test/test-bde-template.json"
                     handle-as="json" last-response="{{metadata}}">
                 </iron-ajax>
 
-                <bde-design-view id="designView">
-                    <bde-flexbox-layouter
-                            id="flexbox"
-                            current-component-metadata = '{{metadata}}'
-                            >
-                    </bde-flexbox-layouter>
+                <bde-design-view id="designView"
+                                 blob-registry="{{blobRegistry}}"
+                                 current-component-metadata="[[metadata.currentComponentMetadata]]"
+                                 bde-version="[[metadata.bdeVersion]]"
+                                 settings="[[metadata.settings]]">
                 </bde-design-view>
-
-
 
                 <h4>Selected Artifact</h4>
                 <code id="code" class="json"></code>

@@ -1,0 +1,179 @@
+{
+  "currentComponentMetadata": {
+    "manifest": {
+      "name": "test-webpackage",
+      "groupId": "",
+      "version": "0.1.0-SNAPSHOT",
+      "modelVersion": "8.3.1",
+      "docType": "webpackage",
+      "author": {
+        "name": "Edwin Gamboa",
+        "email": "edwin.gamboa@incowia.com"
+      },
+      "license": "MIT",
+      "keywords": [],
+      "man": [],
+      "artifacts": {
+        "apps": [],
+        "elementaryComponents": [
+        ],
+        "compoundComponents": [
+          {
+            "artifactId": "compound-with-bde-template",
+            "description": "This is a cubbles-compound-component.",
+            "runnables": [
+              {
+                "name": "demo",
+                "path": "/demo/index.html",
+                "description": "Demo app..."
+              },
+              {
+                "name": "docs",
+                "path": "/index.html",
+                "description": "Show the interface and dataflow of this component."
+              }
+            ],
+            "endpoints": [
+              {
+                "endpointId": "main",
+                "resources": [
+                  "css/compound-with-bde-template.css"
+                ],
+                "dependencies": [
+                  "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-date-input/main",
+                  "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-textarea/main",
+                  "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-button/main"
+                ]
+              },
+              {
+                "endpointId": "bde-template",
+                "resources": [
+                  "css/compound-with-bde-template.css",
+                  "template.html"
+                ],
+                "dependencies": [
+                  "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-date-input/main",
+                  "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-textarea/main",
+                  "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-button/main"
+                ]
+              }
+            ],
+            "slots": [],
+            "members": [
+              {
+                "memberId": "date",
+                "componentId": "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-date-input"
+              },
+              {
+                "memberId": "textarea",
+                "componentId": "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-textarea"
+              },
+              {
+                "memberId": "button",
+                "componentId": "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-button"
+              },
+              {
+                "memberId": "hiddenButton",
+                "componentId": "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-button"
+              }
+            ],
+            "connections": [],
+            "inits": [
+              {
+                "memberIdRef": "button",
+                "slot": "text",
+                "value": "Button Text"
+              },
+              {
+                "memberIdRef": "hiddenButton",
+                "slot": "text",
+                "value": "Hidden Button Text"
+              }
+            ]
+          }
+        ],
+        "utilities": []
+      }
+    },
+    "endpointId": "bde-template",
+    "artifactId": "compound-with-bde-template"
+  },
+  "selectedCompound": {
+    "artifactId": "compound-with-bde-template",
+    "description": "This is a cubbles-compound-component.",
+    "runnables": [
+      {
+        "name": "demo",
+        "path": "/demo/index.html",
+        "description": "Demo app..."
+      },
+      {
+        "name": "docs",
+        "path": "/index.html",
+        "description": "Show the interface and dataflow of this component."
+      }
+    ],
+    "endpoints": [
+      {
+        "endpointId": "main",
+        "resources": [
+          "css/compound-with-bde-template.css"
+        ],
+        "dependencies": [
+          "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-date-input/main",
+          "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-textarea/main",
+          "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-button/main"
+        ]
+      },
+      {
+        "endpointId": "bde-template",
+        "resources": [
+          "css/compound-with-bde-template.css",
+          "template.html"
+        ],
+        "dependencies": [
+          "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-date-input/main",
+          "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-textarea/main",
+          "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-button/main"
+        ]
+      }
+    ],
+    "slots": [],
+    "members": [
+      {
+        "memberId": "date",
+        "componentId": "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-date-input"
+      },
+      {
+        "memberId": "textarea",
+        "componentId": "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-textarea"
+      },
+      {
+        "memberId": "button",
+        "componentId": "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-button"
+      },
+      {
+        "memberId": "hiddenButton",
+        "componentId": "com.incowia.basic-html-components@0.1.0-SNAPSHOT/cubx-button"
+      }
+    ],
+    "connections": [],
+    "inits": [
+      {
+        "memberIdRef": "button",
+        "slot": "text",
+        "value": "Button Text"
+      },
+      {
+        "memberIdRef": "hiddenButton",
+        "slot": "text",
+        "value": "Hidden Button Text"
+      }
+    ]
+  },
+  "bdeVersion": "1.4.0",
+  "settings": {
+    "baseUrl": "https://cubbles.world",
+    "store": "sandbox"
+  }
+}
