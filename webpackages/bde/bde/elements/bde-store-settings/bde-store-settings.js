@@ -84,12 +84,14 @@ Polymer({
     var xhr = new XMLHttpRequest();
     var self = this;
     xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        self.requestSuccess = true;
-      } else {
-        self.requestSuccess = false;
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          self.requestSuccess = true;
+        } else {
+          self.requestSuccess = false;
+        }
+        callback.apply(xhr);
       }
-      callback.apply(xhr);
     };
     xhr.open('GET', this.$.baseUrl.value + '/' + this.$.storeName.value, true);
     xhr.send();
