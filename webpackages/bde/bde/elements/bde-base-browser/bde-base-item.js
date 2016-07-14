@@ -50,6 +50,9 @@ Polymer({
   },
 
   _getWebpackageId: function (item) {
+    if (item.webpackageId === 'this') {
+      return item.webpackageId;
+    }
     var webpackageId = item.name + '@' + item.version;
     if (item.groupId && item.groupId.length > 0) {
       webpackageId = item.groupId + '.' + webpackageId;

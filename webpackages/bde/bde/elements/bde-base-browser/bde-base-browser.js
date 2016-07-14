@@ -81,8 +81,16 @@ Polymer({
       type: Array
     },
 
-    dialogOpened: {
-      type: Boolean
+    manifest: {
+      type: Object,
+      observer: 'manifestChanged'
+    },
+
+    ownComponents: {
+      type: Array,
+      value: function () {
+        return [];
+      }
     },
     /**
      * All cubbles in the base
@@ -142,6 +150,9 @@ Polymer({
     this.$.search.focus();
   },
 
+  manifestChanged: function () {
+    this.set('ownComponents', this._currentManifestComponents());
+  },
   /**
    * Handles the input of a search term in the input field
    * and returns the filtered array matching the expression in the input.
@@ -153,6 +164,7 @@ Polymer({
     this.debounce('handleInput', function () {
       var searchTerm = event.target.value.replace(/[*,?]/g, '');
       var filtered = JSON.parse(JSON.stringify(this._cubbles || []));
+
 
       // Scroll to top of the list
       this.$.list.scrollTarget.scrollTop = 0;
@@ -182,67 +194,21 @@ Polymer({
 
       filtered = filtered.sort(this._sortArtifacts);
 
+      this.ownComponents.forEach(function (elem) {
+        filtered.unshift(elem);
+      });
       this.set('_filtered', filtered);
 
       this.async(() => this.$.list.fire('iron-resize'));
     }.bind(this), 125);
   },
-  _sortArtifacts: function (a, b) {
-    if (a.artifactId < b.artifactId) {
-      return -1;
-    }
-    if (a.artifactId > b.artifactId) {
-      return 1;
-    }
-    // fill qualified webpackageName
-    var aWebpackageName = a.name;
-    var bWebpackageName = b.name;
-    if (a.groupId && a.groupId.length > 0) {
-      aWebpackageName = a.groupId + '.' + aWebpackageName;
-    }
-    if (b.groupId && b.groupId.length > 0) {
-      bWebpackageName = b.groupId + '.' + bWebpackageName;
-    }
-    if (aWebpackageName < bWebpackageName) {
-      return -1;
-    }
-    if (aWebpackageName > bWebpackageName) {
-      return 1;
-    }
-    // Cut SNAPSHOT
-    var aVersion = a.version;
 
-    if (a.version.indexOf('-SNAPSHOT') > -1) {
-      aVersion = a.version.substring(0, a.version.indexOf('-SNAPSHOT'));
-    }
-    var bVersion = b.version;
-
-    if (b.version.indexOf('-SNAPSHOT') > -1) {
-      bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
-    }
-    // Without SNAPSHOT descending
-    if (aVersion > bVersion) {
-      return -1;
-    }
-    if (aVersion < bVersion) {
-      return 1;
-    }
-    // whit SNAPSHOT Version (ascending)
-    if (aVersion === bVersion && a.version < b.version) {
-      return -1;
-    }
-    if (aVersion === bVersion && a.version > b.version) {
-      return 1;
-    }
-
-    return 0;
-  },
   /**
    * Item was selected from the list of results
    */
   handleItemSelect: function (event) {
     var artifact = event.detail;
-    this.set('selected',artifact);
+    this.set('selected', artifact);
     if (artifact.endpoints.length > 1) {
       var dialog = this.$.endpointsDialog;
       dialog.open();
@@ -297,14 +263,13 @@ Polymer({
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId,
+        description: artifact.description,
         endpointId: endpointId
       }
     };
 
-
     this.fire('library-update-required', { item: component });
     this.fire('iron-selected', { item: member });
-
   },
   /**
    * Handles the initial AJAX response and applies a prefiltering of the result list.
@@ -317,7 +282,72 @@ Polymer({
       .filter((item) => item.artifactType === 'compoundComponent' || item.artifactType === 'elementaryComponent');
     this.set('_cubbles', cubbles);
   },
+  _currentManifestComponents: function () {
+    var components = [];
+    if (this.manifest) {
+      var compounds = this.manifest.artifacts.compoundComponents;
+      compounds.forEach(function (item) {
+        var newReference = {
+          artifactId: item.artifactId,
+          webpackageId: 'this',
+          endpoints: item.endpoints
+        };
+        components.push(newReference);
+      });
+    }
+    components.sort((a, b) => a.artifactId < b.artifactId ? -1 : a.attifactId > b.artifactId ? 1 : 0);
+    return components;
+  },
+  _sortArtifacts: function (a, b) {
+    if (a.artifactId < b.artifactId) {
+      return -1;
+    }
+    if (a.artifactId > b.artifactId) {
+      return 1;
+    }
+    // fill qualified webpackageName
+    var aWebpackageName = a.name;
+    var bWebpackageName = b.name;
+    if (a.groupId && a.groupId.length > 0) {
+      aWebpackageName = a.groupId + '.' + aWebpackageName;
+    }
+    if (b.groupId && b.groupId.length > 0) {
+      bWebpackageName = b.groupId + '.' + bWebpackageName;
+    }
+    if (aWebpackageName < bWebpackageName) {
+      return -1;
+    }
+    if (aWebpackageName > bWebpackageName) {
+      return 1;
+    }
+    // Cut SNAPSHOT
+    var aVersion = a.version;
 
+    if (a.version.indexOf('-SNAPSHOT') > -1) {
+      aVersion = a.version.substring(0, a.version.indexOf('-SNAPSHOT'));
+    }
+    var bVersion = b.version;
+
+    if (b.version.indexOf('-SNAPSHOT') > -1) {
+      bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
+    }
+    // Without SNAPSHOT descending
+    if (aVersion > bVersion) {
+      return -1;
+    }
+    if (aVersion < bVersion) {
+      return 1;
+    }
+    // whit SNAPSHOT Version (ascending)
+    if (aVersion === bVersion && a.version < b.version) {
+      return -1;
+    }
+    if (aVersion === bVersion && a.version > b.version) {
+      return 1;
+    }
+
+    return 0;
+  },
   _computeBaseUrl: function (baseUrl, store) {
     return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
   },
