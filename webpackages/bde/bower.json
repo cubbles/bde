@@ -31,7 +31,7 @@
     "inflection": "^1.10.0",
     "Sortable": "^1.4.2",
     "highlightjs": "^9.4.0",
-    "the-graph": "cubbles/bde.the-graph",
+    "the-graph": "cubbles/bde.the-graph#^1.0.1",
     "klayjs": "^0.4.1",
     "fetch": "^1.0.0"
   },
