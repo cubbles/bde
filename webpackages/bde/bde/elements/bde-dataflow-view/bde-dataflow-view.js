@@ -70,6 +70,11 @@
         type: Number
       },
 
+      _resolutions: {
+        type: Object,
+        notify: true
+      },
+
       _selectedNodes: {
         type: Array
       },
@@ -86,7 +91,6 @@
 
     observers: [
       'artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
-      'manifestChanged(currentComponentMetadata.manifest)',
       'membersChanged(_artifact.members.splices)',
       'selectedNodesChanged(_selectedNodes.splices)',
       'selectedEdgesChanged(_selectedEdges.splices)',
@@ -149,15 +153,24 @@
       // Go through all dependencies and resolve,
       // either from the same webpackage or by requesting the base
       Promise.all(endpoint.dependencies.map(resolveDependency))
-        .then(function(resolutions) {
+        .then(function(artifacts) {
+          // We need to create a library for the graph
+          // and a library for the property-editor here.
           var newLibrary = {};
+          var newResolutions = {};
 
-          resolutions.forEach(function(resolution) {
-            newLibrary[resolution.artifactId] = resolution.definition;
-          });
+           artifacts.forEach(function(artifact) {
+             newResolutions[artifact.artifactId] = artifact;
+           });
+
+           artifacts.map(artifactToComponent)
+            .forEach(function(resolution) {
+              newLibrary[resolution.artifactId] = resolution.definition;
+            });
 
           // We are done, load the graph
           self.set('library', newLibrary);
+          self.set('resolutions', newResolutions);
           self.set('graph', self._graphFromArtifact(artifact));
           self.triggerAutolayout();
         });
@@ -169,8 +182,8 @@
             name: artifact.displayName || artifact.artifactId,
             description: artifact.description,
             icon: 'cog',
-            inports: artifact.slot ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
-            outports: artifact.slot ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
+            inports: artifact.slots ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
+            outports: artifact.slots ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
           }
         };
       }
@@ -198,17 +211,17 @@
 
       function resolveDependency(dependency) {
         return new Promise(function(resolve, reject) {
-          if (dependency.startsWith('this')) { // Resolve local dependency
+          if (dependency.startsWith('this')) {
+            // Resolve local dependency
             var artifact = findInManifest(manifest, dependency);
-
-            resolve(artifactToComponent(artifact));
-          } else { // Resolve remote dependency
+            resolve(artifact);
+          } else {
+            // Resolve remote dependency
             fetch(urlFor(dependency))
               .then(function(response) { return response.json() })
               .then(function(manifest) {
                 var artifact = findInManifest(manifest, dependency);
-
-                resolve(artifactToComponent(artifact));
+                resolve(artifact);
               });
           }
         });
@@ -333,9 +346,13 @@
       if (!changeRecord) { return; }
 
       changeRecord.indexSplices.forEach(function(s) {
-        // @TODO (fdu) removed.forEach(...)
+        s.removed.forEach(function(member) {
+          this.$.graph.removeMember(member);
+        }, this);
 
         for(var i = 0; i < s.addedCount; i++) {
+          // Resolve the newly added member here and add
+          // definition to resolutions
           this.$.graph.addMember(s.object[s.index + i]);
         }
       }, this);
@@ -378,7 +395,7 @@
 
       function memberForNode(node) {
         return this._artifact.members.find(function(member) {
-          return member.memberIdRef === node.id;
+          return member.memberId === node.id;
         });
       }
     },

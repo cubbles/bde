@@ -459,6 +459,11 @@
         this.$.graph.registerComponent(definition, generated);
       },
 
+      removeMember: function(member) {
+        var node = this._nodeForMember(member);
+        thi.$.graph.removeNode(node.id);
+      },
+
       rerender: function() {
         this.$.graph.rerender();
       },

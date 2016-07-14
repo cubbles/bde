@@ -60,7 +60,8 @@
       #drawerPanel {
         --paper-drawer-panel-right-drawer-container: {
           background-color: var(--paper-grey-100);
-          padding: 20px;
+          padding-left: 40px;
+          padding-right: 20px;
           overflow-y: auto;
           z-index: 1;
 
@@ -147,8 +148,12 @@
       <div id="drawerPanel" drawer>
 
         <bde-properties-editor id="propertyEditor"
+          artifact="{{_artifact}}"
           members="[[selectedMembers]]"
           connections="[[selectedConnections]]"
+          resolutions="[[resolutions]]"
+          last-selected-member={{lastSelectedMember}}
+          last-selected-connection={{lastSelectedConnection}}
         ></bde-properties-editor>
 
       </div>

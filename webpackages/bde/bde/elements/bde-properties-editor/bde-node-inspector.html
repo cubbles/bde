@@ -209,6 +209,18 @@
 
             properties: {
 
+                artifact: {
+                    type: Object,
+                    notify: true
+                },
+
+                member: {
+                    type: Object,
+                    notify: true
+                },
+
+                /** OLD  */
+
                 id: String,
 
                 compoundId: String,
@@ -235,6 +247,19 @@
             listeners: {
                 'keydown': 'handleKeydown',
             },
+
+            observers: {
+                '_memberChanged(member)'
+            },
+
+            _memberChanged: function(member) {
+                if (!member) { return }
+
+
+            },
+
+            /** OLD  */
+
 
             handleKeydown: function (event) {
                 event.stopPropagation();

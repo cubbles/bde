@@ -1,0 +1,104 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+<link rel="import" href="../../vendor/paper-item/paper-icon-item.html">
+<link rel="import" href="../../vendor/paper-item/paper-item-body.html">
+<link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
+
+
+<dom-module id="bde-slot-editor">
+  <template>
+    <style>
+      :hot {
+        display: block;
+      }
+    </style>
+
+    <paper-dialog opened="{{dialogOpened}}">
+      <h2>Slot <code>[[slot.slotId]]</code></h2>
+      <p>Set the initial slot value here.</p>
+      <paper-dialog-scrollable>
+        <p contenteditable="true" on-keydown="onKeydown">{{initialiser.description}}</p>
+        <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
+            <paper-checkbox hidden$="[[!_slotIsBoolean(slot)]]" checked="{{initialiser.value}}">Enabled</paper-checkbox>
+            <paper-input hidden$="[[!_slotIsNumber(slot)]]" label="Initial Value" type="Number" value="{{initialiser.value}}"></paper-input>
+            <paper-input hidden$="[[!_slotIsText(slot)]]" label="Initialiser" value="{{initialiser.value}}"></paper-input>
+            <paper-input hidden$="[[!_slotIsOther(slot)]]" label="Initialiser" value="{{initialiser.value}}"></paper-input>
+        </form>
+      </paper-dialog-scrollable>
+    </paper-dialog>
+
+    <paper-icon-item>
+      <iron-icon icon="[[_getSlotIcon(slot)]]" item-icon></iron-icon>
+      <paper-item-body three-line>
+        <div>[[slot.slotId]]</div>
+        <div hidden$="[[!slot.description]]" secondary>[[slot.description]]</div>
+        <div secondary>[[slot.type]]</div>
+      </paper-item-body>
+      <paper-icon-button hidden$="[[!_isInputSlot(slot)]]" icon="icons:settings" active="{{dialogOpened}}" toggles></paper-icon-button>
+    </paper-icon-item>
+  </template>
+  <script>
+    Polymer({
+      is: 'bde-slot-editor',
+
+      properties: {
+        direction: {
+          type: String
+        },
+
+        initialiser: {
+          type: Object
+        },
+
+        slot: {
+          type: Object
+        }
+      },
+
+      onKeydown: function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          // this.set('initialiser.description', event.target.textContent);
+          event.target.blur();
+        }
+      },
+
+      onPreSubmit: function(event) {
+        // Don't try to send the form
+        event.preventDefault();
+
+
+      },
+
+      triggerChange: function() {
+        this.fire('change', this.slot);
+      },
+
+      _getSlotIcon: function(slot) {
+        return (this.direction === 'input') ? 'bde:inslot' : 'bde:outslot';
+      },
+
+      _isInputSlot: function() {
+        return this.direction === 'input';
+      },
+
+      _slotIsBoolean: function(slot) {
+        return slot.type.toLowerCase() === 'boolean';
+      },
+
+      _slotIsNumber: function(slot) {
+        return slot.type.toLowerCase() === 'number';
+      },
+
+      _slotIsText: function(slot) {
+        return slot.type.toLowerCase() === 'string';
+      },
+
+      _slotIsOther: function(slot) {
+        return !this._slotIsBoolean(slot) &&
+               !this._slotIsNumber(slot) &&
+               !this._slotIsText(slot);
+      }
+    });
+  </script>
+</dom-module>

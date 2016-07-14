@@ -15,14 +15,26 @@ actions can be performed on said element.
 -->
 
 <link rel="import" href="../../vendor/polymer/polymer.html"/>
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+<link rel="import" href="../../vendor/paper-styles/paper-styles.html">
+<link rel="import" href="../../vendor/paper-item/paper-item.html">
+<link rel="import" href="../../vendor/paper-item/paper-icon-item.html">
+<link rel="import" href="../../vendor/paper-item/paper-item-body.html">
 
-<link rel="import" href="bde-node-inspector.html"/>
+<link rel="import" href="../bde-styles/bde-custom-icons.html">
+<link rel="import" href="bde-member-editor.html">
 
 <dom-module id="bde-properties-editor">
 
     <style>
     :host {
         display: block;
+    }
+
+    paper-icon-item {
+        margin-bottom: 1em;
+
+        @apply(--shadow-elevation-2dp);
     }
 
     bde-node-inspector {
@@ -32,18 +44,29 @@ actions can be performed on said element.
 
     <template>
 
-        <template is="dom-repeat" items="{{members}}" as="member">
+        <!-- Edit a single selected Member -->
+        <div hidden$="[[!singleSelection(selectedMembers)]]">
+            <bde-member-editor id="inspector"
+                artifact="{{artifact}}"
+                resolutions="[[resolutions]]"
+                member-id="{{lastSelectedMember.memberId}}"
+                component-id="{{lastSelectedMember.componentId}}"
+            ></bde-member-editor>
+        </div>
 
-            <bde-node-inspector
-                id="[[member.id]]"
-                compound-id="[[member.compoundId]]"
-                member-index="[[member.memberIndex]]"
-                inslots="{{member.inslots}}"
-                outslots="[[member.outslots]]"
-                metadata="{{member.metadata}}">
-            </bde-node-inspector>
-
-        </template>
+        <!-- Multiple members are selected -->
+        <div hidden$="[[singleSelection(selectedMembers)]]">
+            <template is="dom-repeat" items="[[selectedMembers]]" as="member">
+                <paper-icon-item elevation="2">
+                    <iron-icon icon="[[_getIcon(member)]]" item-icon></iron-icon>
+                    <paper-item-body three-line>
+                        <div>[[_getMemberName(member)]]</div>
+                        <div secondary>[[member.description]]</div>
+                        <div secondary>[[_countSlots(member)]]</div>
+                    </paper-item-body>
+                </paper-icon-item>
+            </template>
+        </div>
 
     </template>
 
@@ -57,18 +80,88 @@ Polymer({
 
     properties: {
 
-        members: {
+        artifact: {
+            type: Object,
+            notify: true
+        },
+
+        manifest: {
+            type: Object,
+            notify: true
+        },
+
+        lastSelectedConnection: {
+            type: Object,
+            notify: true
+        },
+
+        lastSelectedMember: {
+            type: Object,
+            notify: true
+        },
+
+        resolutions: {
+            type: Object,
+            notify: true
+        },
+
+        selectedConnections: {
             type: Array
         },
 
-        connections: {
+        selectedMembers: {
             type: Array
         }
+    },
+
+    observers: [
+        '_artifactChanged(artifact)',
+        '_selectedConnectionsChanged(selectedConnections.splices)',
+        '_selectedMembersChanged(selectedMembers.splices)'
+    ],
+
+    singleSelection: function(members) {
+        return (members.length === 1);
+    },
+
+    _artifactChanged: function(artifact) {
 
     },
 
-    _filterSelectedConnections: function (connection) {
-        return connection.selected;
+    _countSlots: function(member) {
+        var count = [].concat(member.inslots, member.outslots).length;
+        return count + " " + ((count === 1) ? 'slot' : 'slots');
+    },
+
+    _getIcon: function(member) {
+        return member.icon || 'cog';
+    },
+
+    _getMemberName: function(member) {
+        return member.displayName || member.memberId;
+    },
+
+    _selectedConnectionsChanged: function(changeRecord) {
+
+    },
+
+    _selectedMembersChanged: function(changeRecord) {
+
+    },
+
+    _resolveMemberMetadata: function(members) {
+        return members.map(function(member) {
+            var artifactId = member.componentId.split('/')[1];
+            var artifact = this.resolutions[artifactId];
+
+            if (artifact) {
+                Object.keys(artifact).forEach(function(key) {
+                    member[key] = artifact[key];
+                });
+            }
+
+            return member;
+        }, this);
     }
 
 });
