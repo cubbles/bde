@@ -1,3 +1,4 @@
+/*global XMLHttpRequest*/
 (function () {
   'use strict';
 
@@ -62,8 +63,12 @@
       loading: {
         type: Boolean,
         value: false
-      }
+      },
 
+      bdeVersion: {
+        type: String,
+        value: 'unknown'
+      }
     },
 
     listeners: {
@@ -84,6 +89,10 @@
       // Attach resize listener
       // (cannot use listeners for window events)
       window.addEventListener('resize', this.handleResize.bind(this));
+    },
+
+    ready: function () {
+      this.loadBdeVersion();
     },
 
     computeBaseUrl: function (baseUrl, store, partial) {
@@ -164,6 +173,21 @@
           url: ''
         }
       });
+    },
+
+    loadBdeVersion: function () {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            this.set('bdeVersion', JSON.parse(xhr.responseText).version);
+          } else {
+            console.log('BDE version could no be determined. Error loading bde  manifest. Request returned a status of ' + xhr.status);
+          }
+        }
+      }.bind(this);
+      xhr.open('GET', '../manifest.webpackage', true);
+      xhr.send();
     }
   });
 })();
