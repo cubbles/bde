@@ -155,7 +155,7 @@
             <div>
                 <p>This is the Cubbles Browser Development Environment (BDE)</p>
                 <!-- TODO (fdu): Automate version replacement from package.json -->
-                <p>Version: 1.1.0-SNAPSHOT</p>
+                <p>Version: [[bdeVersion]]</p>
                 <p><a href="http://www.hm-ag.de/" target="_blank" alt="HM - Informatik AG">&copy; 2016 HM - Informatik
                     AG</a></p>
             </div>
@@ -268,11 +268,10 @@
                                 disable-swipe
                                 disable-edge-swipe>
                 <div drawer>
-                    <bde-explorer
-                            id="explorer"
-                            manifest="{{manifest}}"
-                            selected-compound="{{selectedArtifact}}"
-                            current-component-metadata="{{currentComponentMetadata}}"
+                    <bde-explorer id="explorer"
+                                  manifest="{{manifest}}"
+                                  selected-compound="{{selectedArtifact}}"
+                                  current-component-metadata="{{currentComponentMetadata}}"
                     ></bde-explorer>
                 </div>
                 <div main>
@@ -282,14 +281,13 @@
                         <bde-dataflow-view id="dataflowView"
                                            current-component-metadata="{{currentComponentMetadata}}"
                                            settings="{{settings}}">
-                            </bde-dataflow-view>
+                        </bde-dataflow-view>
 
-                        <bde-design-view
-                                id="designView"
-                                blob-registry="{{blobRegistry}}"
-                                current-component-metadata="{{currentComponentMetadata}}">
-                            <bde-flexbox-layouter
-                                    current-component-metadata="{{currentComponentMetadata}}">
+                        <bde-design-view id="designView"
+                                         blob-registry="{{blobRegistry}}"
+                                         current-component-metadata="{{currentComponentMetadata}}">
+                            <bde-flexbox-layouter bde-version="[[bdeVersion]]"
+                                                  current-component-metadata="{{currentComponentMetadata}}">
                             </bde-flexbox-layouter>
                         </bde-design-view>
 
