@@ -8,6 +8,7 @@
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="bde-base-item.html">
+<link rel="import" href="bde-endpoint-browser.html">
 <!--
 A BDE custom element, which gets the 'Cubbles-Components' from the Base via AJAX.
 The response is a list of items with the description attribute on display.
@@ -45,6 +46,30 @@ Example:
         :host #list {
             border: 1px solid #e5e5e5;
         }
+        .spinner-wrapper {
+            @apply(--layout-fit);
+            @apply(--layout-vertical);
+            @apply(--layout-center-center);
+        }
+
+        #endpointsDialog {
+
+            position: fixed;
+            width: 50vw;
+            min-width: 500px;
+            top: 10vw;
+            right: 25vw;
+            left: 25vw;
+            width: 50vw;
+            height: auto;
+            overflow: auto;
+        }
+        .description {
+            width: auto;
+            line-break: auto;
+        }
+
+
     </style>
 
     <template>
@@ -56,7 +81,24 @@ Example:
                    auto
         ></iron-ajax>
                    <!--url="[[_computeBaseUrl(settings.baseUrl, settings.store)]]"-->
+        <paper-dialog id="endpointsDialog">
 
+            <h2>Select Endpoint</h2>
+            <div class="description">
+                A component can have more than one endpoint. An endpoint defines the dependendencies of the component and determined their visual represenation.
+                You must decide, which representation of the component intend to use.
+            </div>
+
+            <paper-dialog-scrollable>
+                <bde-endpoint-browser id="endpointBrowser"
+                        artifact="[[selected]]"
+                >
+                </bde-endpoint-browser>
+            </paper-dialog-scrollable>
+        </paper-dialog>
+        <div class="spinner-wrapper" hidden="[[!loading]]">
+            <paper-spinner id="spinner" active></paper-spinner>
+        </div>
         <paper-input id="search"
                      label="Search components in the base..."
                      value="{{searchTerm}}"
@@ -73,12 +115,12 @@ Example:
 
         <iron-list id="list"
                    items="[[_filtered]]"
-                   multi-selection
                    hidden="[[!_filtered.length]]">
             <template>
                 <bde-base-item item="{{item}}" settings="[[settings]]"></bde-base-item>
             </template>
         </iron-list>
+
     </template>
     <script src="bde-base-browser.js"></script>
 </dom-module>

@@ -63,6 +63,24 @@ Polymer({
     },
 
     /**
+     * Global app settings
+     *
+     * @type {Object}
+     * @private
+     */
+    settings: {
+      type: Object
+    },
+
+    loading: {
+      type: Boolean,
+      value: false
+    },
+
+    endpoints: {
+      type: 'Array'
+    },
+    /**
      * All cubbles in the base
      *
      * @type {Array}
@@ -83,27 +101,32 @@ Polymer({
       value: function () {
         return [];
       }
-    },
-
-    /**
-     * Global app settings
-     *
-     * @type {Object}
-     * @private
-     */
-    settings: {
-      type: Object
     }
   },
 
   listeners: {
-    'bde-select-compound': 'handleItemSelect'
+    'bde-select-compound': 'handleItemSelect',
+    'bde-member-data-loaded': 'handleLoaded',
+    'bde-member-data-loading': 'handleLoading',
+    'bde-select-endpoint': 'endpointSelected'
   },
 
   observers: [
     'settingsChanged(settings.baseUrl,settings.store)'
   ],
 
+  attached: function () {
+    this.async(function () {
+      this.$.endpointsDialog.refit();
+    });
+  },
+  handleLoaded: function () {
+    this.loading = false;
+  },
+
+  handleLoading: function () {
+    this.loading = true;
+  },
   /**
    * Clear the input of the search field on button click.
    *
@@ -169,17 +192,17 @@ Polymer({
     }
     // fill qualified webpackageName
     var aWebpackageName = a.name;
-    var bWebpacakgeName = b.name;
+    var bWebpackageName = b.name;
     if (a.groupId && a.groupId.length > 0) {
       aWebpackageName = a.groupId + '.' + aWebpackageName;
     }
     if (b.groupId && b.groupId.length > 0) {
-      bWebpacakgeName = b.groupId + '.' + bWebpacakgeName;
+      bWebpackageName = b.groupId + '.' + bWebpackageName;
     }
-    if (aWebpackageName < bWebpacakgeName) {
+    if (aWebpackageName < bWebpackageName) {
       return -1;
     }
-    if (aWebpackageName > bWebpacakgeName) {
+    if (aWebpackageName > bWebpackageName) {
       return 1;
     }
     // Cut SNAPSHOT
@@ -214,8 +237,23 @@ Polymer({
    * Item was selected from the list of results
    */
   handleItemSelect: function (event) {
-    this.fire('bde-member-loading');
     var artifact = event.detail;
+    this.selected = artifact;
+    if (artifact.endpoints.length > 1) {
+      var dialog = this.$.endpointsDialog;
+      dialog.open();
+    } else {
+      this.addMember(artifact, artifact.endpoints[ 0 ].endpointId);
+    }
+  },
+  endpointSelected: function (event) {
+    var item = event.detail;
+    var artifact = JSON.parse(item.artifact);
+    var endpointId = item.endpointId;
+    this.addMember(artifact, endpointId);
+  },
+  addMember: function (artifact, endpointId) {
+    this.fire('bde-member-loading');
     var parts = artifact.webpackageId.match(/([^.]+)@/);
     var component = {
       name: parts[ 1 ] + '/' + artifact.artifactId,
@@ -255,16 +293,15 @@ Polymer({
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId,
-        endpointId: artifact.endpoints[ 0 ].endpointId
+        endpointId: endpointId
       }
     };
 
-    this.selected = event.detail;
+
     this.fire('library-update-required', { item: component });
     this.fire('iron-selected', { item: member });
-    this.fire('bde-member-loaded', { item: member });
-  },
 
+  },
   /**
    * Handles the initial AJAX response and applies a prefiltering of the result list.
    *

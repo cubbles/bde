@@ -344,6 +344,7 @@
     onLibraryUpdate: function(event) {
       var component = event.detail.item;
       this.$.graph.registerComponent(component, false);
+      this.fire('bde-member-loaded');
     },
 
     selectedEdgesChanged: function(changeRecord) {

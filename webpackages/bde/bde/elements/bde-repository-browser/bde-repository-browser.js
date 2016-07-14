@@ -168,17 +168,17 @@ Polymer({
     }
     // fill qualified webpackageName
     var aWebpackageName = a.name;
-    var bWebpacakgeName = b.name;
+    var bWebpackageName = b.name;
     if (a.groupId && a.groupId.length > 0) {
       aWebpackageName = a.groupId + '.' + aWebpackageName;
     }
     if (b.groupId && b.groupId.length > 0) {
-      bWebpacakgeName = b.groupId + '.' + bWebpacakgeName;
+      bWebpackageName = b.groupId + '.' + bWebpackageName;
     }
-    if (aWebpackageName < bWebpacakgeName) {
+    if (aWebpackageName < bWebpackageName) {
       return -1;
     }
-    if (aWebpackageName > bWebpacakgeName) {
+    if (aWebpackageName > bWebpackageName) {
       return 1;
     }
     // Cut SNAPSHOT

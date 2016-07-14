@@ -21,6 +21,7 @@ Polymer({
   },
 
   addComponent: function () {
+    this.fire('bde-member-data-loading');
     this.$.ajax.generateRequest();
   },
 
@@ -39,6 +40,7 @@ Polymer({
     artifact.webpackageId = this._getWebpackageId({groupId: webpackage.groupId, name: webpackage.name, version: webpackage.version});
 
     // this.fire('iron-select', artifact);
+    this.fire('bde-member-data-loaded');
     this.fire('bde-select-compound', artifact);
   },
 

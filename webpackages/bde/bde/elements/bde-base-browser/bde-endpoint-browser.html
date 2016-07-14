@@ -1,0 +1,73 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+
+<link rel="import" href="../../vendor/iron-list/iron-list.html">
+<link rel="import" href="../../vendor/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
+
+
+<!--
+A BDE custom element, which gets the 'Cubbles-Components' from the Base via AJAX.
+The response is a list of items with the description attribute on display.
+
+The list is rendered by repeating the bde-base-item.
+
+Example:
+
+    <bde-base-browser
+        selected="{{selected}}"
+        compounds-only>
+    </bde-base-browser>
+
+@group BDE Custom Elements
+@element bde-base-browser
+@demo ../elements/bde-base-browser/demo/index.html
+-->
+<dom-module id="bde-endpoint-browser">
+    <style>
+        :host {
+            display: block;
+        }
+
+
+        iron-list {
+            @apply(--layout-flex);
+        }
+
+        :host #list {
+            border: 1px solid #e5e5e5;
+        }
+        paper-item {
+            display: block;
+            border-bottom: 1px solid #e5e5e5;
+            cursor: pointer;
+        }
+
+        paper-item:hover {
+            background: #e1e1e1;
+        }
+
+    </style>
+
+    <template>
+        <iron-list
+            id="endpoint-list"
+            items="[[artifact.endpoints]]"
+            as="item"
+            selection-enabled>
+            <template>
+                <paper-item on-tap="selectEndpoint">
+                    <paper-item-body two-line>
+                        <div  data-artifact$="[[artifact]]" data-endpoint-id$="[[item.endpointId]]">[[item.endpointId]]</div>
+                        <div secondary>[[item.description]]</div>
+                    </paper-item-body>
+                </paper-item>
+            </template>
+        </iron-list>
+        <div class="buttons">
+            <paper-button dialog-dismiss>Close</paper-button>
+        </div>
+    </template>
+    <script src="bde-endpoint-browser.js"></script>
+</dom-module>
