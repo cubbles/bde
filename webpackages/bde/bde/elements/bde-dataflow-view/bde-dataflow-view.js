@@ -399,9 +399,13 @@
       this.$.graph.triggerFit();
     },
 
-    _addMember: function(event) {
+    onAddMemberBtcClick: function () {
+      this.querySelector('#memberSelectDialog').open();
+    },
+
+    _addMember: function (event) {
       var item = event.detail.item;
-      this.$.dialog.close();
+      this.querySelector('#memberSelectDialog').close();
 
       this.push('_artifact.members', item);
       this.push('_artifact.endpoints.#0.dependencies',
@@ -530,5 +534,6 @@
       this._graphOffsetX = offsetX;
       this._graphOffsetY = offsetY;
     }
+
   });
 })(this);

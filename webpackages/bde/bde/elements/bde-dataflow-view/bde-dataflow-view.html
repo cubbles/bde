@@ -68,32 +68,29 @@
         };
       }
 
-      #dialog {
-        width: 50%;
-        min-width: 500px;
-      }
+
 
 
     </style>
 
-    <paper-dialog id="dialog" opened="{{dialogOpened}}" with-backdrop>
+    <!--<paper-dialog id="dialog" opened="{{dialogOpened}}" with-backdrop>-->
 
-      <h2>Add member</h2>
+      <!--<h2>Add member</h2>-->
 
-      <paper-dialog-scrollable>
+      <!--<paper-dialog-scrollable>-->
 
         <bde-base-browser id="browser"
           on-iron-selected="_addMember"
           settings="[[settings]]"
         ></bde-base-browser>
 
-      </paper-dialog-scrollable>
+      <!--</paper-dialog-scrollable>-->
 
-      <div class="buttons">
-        <paper-button dialog-dismiss>Close</paper-button>
-      </div>
+      <!--<div class="buttons">-->
+        <!--<paper-button dialog-dismiss>Close</paper-button>-->
+      <!--</div>-->
 
-    </paper-dialog>
+    <!--</paper-dialog>-->
 
     <paper-drawer-panel id="drawerPanel"
       drawer-width="400px"
@@ -137,8 +134,7 @@
           <paper-fab id="addMemberButton"
             class$="[[_addCubbleClass(showPropertyEditor)]]"
             icon="icons:add"
-            active="{{dialogOpened}}"
-            toggles>
+            on-tap="onAddMemberBtcClick">
           </paper-fab>
           <paper-tooltip for="addMemberButton" position="top">
                 <div class="tooltip">Add member</div>

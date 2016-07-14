@@ -58,7 +58,7 @@ Example:
             selection-enabled>
             <template>
                 <paper-item on-tap="selectEndpoint">
-                    <paper-item-body two-line>
+                    <paper-item-body two-line data-artifact$="[[artifact]]" data-endpoint-id$="[[item.endpointId]]>
                         <div  data-artifact$="[[artifact]]" data-endpoint-id$="[[item.endpointId]]">[[item.endpointId]]</div>
                         <div secondary>[[item.description]]</div>
                     </paper-item-body>

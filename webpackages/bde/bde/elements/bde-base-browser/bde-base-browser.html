@@ -9,6 +9,7 @@
 
 <link rel="import" href="bde-base-item.html">
 <link rel="import" href="bde-endpoint-browser.html">
+<link rel="import" href="../../vendor/paper-badge/paper-badge.html" />
 <!--
 A BDE custom element, which gets the 'Cubbles-Components' from the Base via AJAX.
 The response is a list of items with the description attribute on display.
@@ -30,6 +31,11 @@ Example:
     <style>
         :host {
             display: block;
+        }
+
+        :host #memberSelectDialog{
+            width: 45vw;
+            min-width: 500px;
         }
 
         #clearBtn {
@@ -55,18 +61,35 @@ Example:
         #endpointsDialog {
 
             position: fixed;
-            width: 50vw;
+            width: 45vw;
             min-width: 500px;
             top: 10vw;
-            right: 25vw;
-            left: 25vw;
-            width: 50vw;
+            right: 30vw;
+            left: 30vw;
+            width: 40vw;
             height: auto;
             overflow: auto;
         }
         .description {
             width: auto;
             line-break: auto;
+        }
+
+
+        :focus {
+            outline: 0;
+        }
+
+        paper-badge {
+            --paper-badge-width: 30px;
+            --paper-badge-height: 30px;
+            --paper-badge-background: #1DB1CC;
+            --paper-badge-text-color: #FFFFFF;
+
+        }
+        #memberSelectDialogBadge {
+            margin-left: -45vw;
+            margin-top: 0;
         }
 
 
@@ -80,47 +103,55 @@ Example:
                    on-response="handleResponse"
                    auto
         ></iron-ajax>
-                   <!--url="[[_computeBaseUrl(settings.baseUrl, settings.store)]]"-->
-        <paper-dialog id="endpointsDialog">
+        <paper-dialog id="memberSelectDialog" opened="{{dialogOpened}}" with-backdrop>
+            <paper-badge id="memberSelectDialogBadge" label="{{_filtered.length}}"></paper-badge>
+            <h2>Add member</h2>
 
-            <h2>Select Endpoint</h2>
-            <div class="description">
-                A component can have more than one endpoint. An endpoint defines the dependendencies of the component and determined their visual represenation.
-                You must decide, which representation of the component intend to use.
+            <paper-dialog id="endpointsDialog">
+                <h2>Select Endpoint</h2>
+                <div class="description">
+                    A component can have more than one endpoint. An endpoint defines the dependendencies of the component and determined their visual represenation.
+                    You must decide, which representation of the component intend to use.
+                </div>
+
+                <paper-dialog-scrollable>
+                    <bde-endpoint-browser id="endpointBrowser"
+                            artifact="[[selected]]"
+                    >
+                    </bde-endpoint-browser>
+                </paper-dialog-scrollable>
+            </paper-dialog>
+            <div class="spinner-wrapper" hidden="[[!loading]]">
+                <paper-spinner id="spinner" active></paper-spinner>
+            </div>
+            <paper-input id="search"
+                         label="Search components in the base..."
+                         value="{{searchTerm}}"
+                         on-input="handleInput"
+                         autofocus>
+                <iron-icon icon="icons:search" prefix></iron-icon>
+                <paper-icon-button id="clearBtn"
+                                   icon="icons:clear"
+                                   title="clear search"
+                                   on-tap="clearInput"
+                                   suffix
+                ></paper-icon-button>
+            </paper-input>
+            <paper-dialog-scrollable>
+                <iron-list id="list"
+                           items="[[_filtered]]"
+                           hidden="[[!_filtered.length]]">
+                    <template>
+                        <bde-base-item item="{{item}}" settings="[[settings]]"></bde-base-item>
+                    </template>
+                </iron-list>
+            </paper-dialog-scrollable>
+
+            <div class="buttons">
+                <paper-button dialog-dismiss>Close</paper-button>
             </div>
 
-            <paper-dialog-scrollable>
-                <bde-endpoint-browser id="endpointBrowser"
-                        artifact="[[selected]]"
-                >
-                </bde-endpoint-browser>
-            </paper-dialog-scrollable>
         </paper-dialog>
-        <div class="spinner-wrapper" hidden="[[!loading]]">
-            <paper-spinner id="spinner" active></paper-spinner>
-        </div>
-        <paper-input id="search"
-                     label="Search components in the base..."
-                     value="{{searchTerm}}"
-                     on-input="handleInput"
-                     autofocus>
-            <iron-icon icon="icons:search" prefix></iron-icon>
-            <paper-icon-button id="clearBtn"
-                               icon="icons:clear"
-                               title="clear search"
-                               on-tap="clearInput"
-                               suffix
-            ></paper-icon-button>
-        </paper-input>
-
-        <iron-list id="list"
-                   items="[[_filtered]]"
-                   hidden="[[!_filtered.length]]">
-            <template>
-                <bde-base-item item="{{item}}" settings="[[settings]]"></bde-base-item>
-            </template>
-        </iron-list>
-
     </template>
     <script src="bde-base-browser.js"></script>
 </dom-module>

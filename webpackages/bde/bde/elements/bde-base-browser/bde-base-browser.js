@@ -78,7 +78,11 @@ Polymer({
     },
 
     endpoints: {
-      type: 'Array'
+      type: Array
+    },
+
+    dialogOpened: {
+      type: Boolean
     },
     /**
      * All cubbles in the base
@@ -238,7 +242,7 @@ Polymer({
    */
   handleItemSelect: function (event) {
     var artifact = event.detail;
-    this.selected = artifact;
+    this.set('selected',artifact);
     if (artifact.endpoints.length > 1) {
       var dialog = this.$.endpointsDialog;
       dialog.open();
