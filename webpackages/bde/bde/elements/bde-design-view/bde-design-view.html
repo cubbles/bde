@@ -15,7 +15,7 @@
             }
         </style>
 
-        <paper-dialog id="confirmDialog" exit-animation="fade-out-animation" modal>
+        <paper-dialog id="confirmEnablingDialog" exit-animation="fade-out-animation" modal>
             <h2>Allow overwriting current template?</h2>
             <p>
                 The current template is not supported by the BDE [[bdeVersion]]. If the Flexbox Layouter is enabled, the current template would be overwritten.
@@ -23,6 +23,16 @@
             <div class="buttons">
                 <paper-button dialog-dismiss>Disallow</paper-button>
                 <paper-button dialog-confirm>Allow</paper-button>
+            </div>
+        </paper-dialog>
+        <paper-dialog id="confirmKeepingDialog" exit-animation="fade-out-animation" modal>
+            <h2>Keep this template changes?</h2>
+            <p>
+                By selecting another component the Flexbox Layouter will be reloaded. Do you want to keep current changes?
+            </p>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Discard</paper-button>
+                <paper-button dialog-confirm>Keep</paper-button>
             </div>
         </paper-dialog>
         <bde-flexbox-layouter bde-version="[[bdeVersion]]"

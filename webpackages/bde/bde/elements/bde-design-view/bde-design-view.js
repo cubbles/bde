@@ -10,6 +10,12 @@ Polymer({
       type: Object,
       notify: true
     },
+    lastGeneratedTemplateBlobDocTime: {
+      type: Object
+    },
+    lastChangeTime: {
+      type: Object
+    },
     selectedCompound: {
       type: Object,
       value: null
@@ -30,7 +36,9 @@ Polymer({
   listeners: {
     'iron-overlay-closed': 'confirmDialogCloseHandler',
     'no-compatible-template': 'noCompatibleTemplateHandler',
-    'compatible-template': 'compatibleTemplateHandler'
+    'compatible-template': 'compatibleTemplateHandler',
+    'bde-template-changed': 'bdeTemplateChangeHandler',
+    'new-compound-can-load': 'newCompoundCanLoadHandler'
   },
   observers: [
     'currentComponentMetadataChanged(currentComponentMetadata.*)'
@@ -39,6 +47,10 @@ Polymer({
   ready: function () {
     this.parentNode.addEventListener('iron-deselect', this.leaveHandler);
     this.parentNode.addEventListener('iron-select', this.openHandler);
+  },
+
+  bdeTemplateChangeHandler: function (e) {
+    this.set('lastChangeTime', e.detail.time);
   },
 
   compatibleTemplateHandler: function () {
@@ -50,7 +62,7 @@ Polymer({
     this.set('compatibleTemplate', false);
     this.set('disabled', true);
     if (this.isVisible) {
-      this.$.confirmDialog.open();
+      this.$.confirmEnablingDialog.open();
     }
   },
 
@@ -58,10 +70,20 @@ Polymer({
     if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
       return;
     }
+    if (this.isVisible && !this.disabled &&
+      (!this.lastGeneratedTemplateBlobDocTime || this.lastGeneratedTemplateBlobDocTime < this.lastChangeTime)) {
+      this.$.confirmKeepingDialog.open();
+    } else {
+      this.fire('new-compound-can-load');
+    }
+  },
+
+  newCompoundCanLoadHandler: function () {
     var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
     compoundComponents.forEach(function (item) {
       if (item.artifactId === this.currentComponentMetadata.artifactId) {
         this.set('selectedCompound', item);
+        this.set('selectedCompound.endpointId', this.currentComponentMetadata.endpointId);
         this.loadHtmlResources();
       }
     }.bind(this));
@@ -74,18 +96,28 @@ Polymer({
     }
     designView.set('isVisible', true);
     if (!designView.compatibleTemplate && designView.disabled) {
-      designView.$.confirmDialog.open();
+      designView.$.confirmEnablingDialog.open();
     }
   },
 
   confirmDialogCloseHandler: function (e) {
-    // TODO: Define what to do when the template is not a bde-template
-    if (e.target.id === 'confirmDialog') {
-      if (e.detail.confirmed) {
-        this.set('disabled', false);
-      } else {
-        this.set('disabled', true);
-      }
+    if (!e.target.id) {
+      return;
+    }
+    switch (e.target.id) {
+      case 'confirmEnablingDialog':
+        if (e.detail.confirmed) {
+          this.set('disabled', false);
+        } else {
+          this.set('disabled', true);
+        }
+        break;
+      case 'confirmKeepingDialog':
+        if (e.detail.confirmed) {
+          this.generateTemplateBlobDoc(this.selectedCompound.artifactId, this.selectedCompound.endpointId);
+        }
+        this.fire('new-compound-can-load');
+        break;
     }
   },
 
@@ -96,23 +128,25 @@ Polymer({
       return;
     }
     designView.set('isVisible', false);
-    var template = designView.querySelector('bde-flexbox-layouter').getTemplate();
-    if (designView.isEmptyTemplate(template.content)) {
+    designView.generateTemplateBlobDoc(designView.currentComponentMetadata.artifactId, designView.currentComponentMetadata.endpointId);
+  },
+
+  generateTemplateBlobDoc: function (artifactId, endpointId) {
+    var template = this.querySelector('bde-flexbox-layouter').getTemplate();
+    if (this.isEmptyTemplate(template.content)) {
       return;
     }
-    template.setAttribute('id', designView.currentComponentMetadata.artifactId);
+    template.setAttribute('id', artifactId);
     window.URL = window.URL || window.webkitURL;
     var blob = new Blob([template.outerHTML], {type: 'text/html'});
     var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
-    designView.blobRegistry[templateBlobUrl] = template.outerHTML;
-    var artifactId = designView.currentComponentMetadata.artifactId;
+    this.blobRegistry[templateBlobUrl] = template.outerHTML;
     var compound;
-    designView.currentComponentMetadata.manifest.artifacts.compoundComponents.forEach(function (item) {
+    this.currentComponentMetadata.manifest.artifacts.compoundComponents.forEach(function (item) {
       if (item.artifactId === artifactId) {
         compound = item;
       }
     });
-    var endpointId = designView.currentComponentMetadata.endpointId;
     var endpoint;
     compound.endpoints.forEach(function (item) {
       if (item.endpointId === endpointId) {
@@ -130,6 +164,7 @@ Polymer({
     });
 
     endpoint.resources.push(templateBlobUrl);
+    this.set('lastGeneratedTemplateBlobDocTime', new Date());
   },
 
   isEmptyTemplate: function (template) {

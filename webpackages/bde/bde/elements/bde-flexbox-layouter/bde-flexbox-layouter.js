@@ -106,7 +106,7 @@ Polymer({
     }
     // Select first flexbox
     this.$$('.sortable:not(.parking)').classList.add('selected');
-    this.templateChanged();
+    // this.templateChanged();
   },
   flexDirectionChanged: function (value) {
     var container = this.$$('.sortable.selected');
@@ -266,6 +266,7 @@ Polymer({
     }
   },
   templateChanged: function () {
+    this.fire('bde-template-changed', {time: new Date()});
     console.log('<bde-flexbox-layouter>::templateChanged', this.getTemplate());
   },
   getTemplate: function () {
