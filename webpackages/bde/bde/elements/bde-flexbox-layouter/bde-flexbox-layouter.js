@@ -49,6 +49,10 @@ Polymer({
       type: String,
       observer: 'flexShrinkChanged'
     },
+    lastChangeTime: {
+      type: Object,
+      notify: true
+    },
     bdeVersion: {
       type: String
     },
@@ -59,7 +63,7 @@ Polymer({
   },
   ready: function () {
     var sortable = this.$$('.sortable');
-    Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
+    // Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
   },
   selectedCompoundChanged: function (compound) {
     this.clearContainer();
@@ -77,6 +81,7 @@ Polymer({
         element.addEventListener('tap', this.selectMember.bind(this));
       }
     }
+    this.set('lastChangeTime', new Date(0));
   },
   clearContainer: function () {
     var container = this.$$('#flexbox-container');
@@ -106,7 +111,7 @@ Polymer({
     }
     // Select first flexbox
     this.$$('.sortable:not(.parking)').classList.add('selected');
-    // this.templateChanged();
+    this.templateChanged('containerCleared');
   },
   flexDirectionChanged: function (value) {
     var container = this.$$('.sortable.selected');
@@ -122,7 +127,7 @@ Polymer({
       this.$$('#align-items').classList.remove('hidden');
       this.$$('#wrap').classList.add('hidden');
     }
-    this.templateChanged();
+    this.templateChanged('flexDirectionChanged');
   },
   flexWrapChanged: function (value) {
     var container = this.$$('.sortable.selected');
@@ -134,19 +139,19 @@ Polymer({
     } else {
       this.$$('#flex-shrink').classList.add('hidden');
     }
-    this.templateChanged();
+    this.templateChanged('flexWrapChanged');
   },
   justifyContentChanged: function (value) {
     var container = this.$$('.sortable.selected');
     container.style.display = 'flex';
     container.style.justifyContent = value;
-    this.templateChanged();
+    this.templateChanged('justifyContentChanged');
   },
   alignItemsChanged: function (value) {
     var container = this.$$('.sortable.selected');
     container.style.display = 'flex';
     container.style.alignItems = value;
-    this.templateChanged();
+    this.templateChanged('alignItemsChanged');
   },
   /* Requires to set the height of the container
    this.$$('#flexbox-container').offsetHeight;
@@ -158,12 +163,12 @@ Polymer({
   flexGrowChanged: function (value) {
     var item = this.$$('.member-selected');
     if (item) item.style.flexGrow = value;
-    this.templateChanged();
+    this.templateChanged('flexGrowChanged');
   },
   flexShrinkChanged: function (value) {
     var item = this.$$('.member-selected');
     if (item) item.style.flexShrink = value;
-    this.templateChanged();
+    this.templateChanged('flexShrinkChanged');
   },
   trimComponentId: function (componentId) {
     return componentId.substring(componentId.indexOf('/') + 1);
@@ -189,11 +194,11 @@ Polymer({
     sortable.addEventListener('tap', this.selectFlexbox.bind(this));
     sortable.addEventListener('sort', this.templateChanged.bind(this));
     sortable.addEventListener('add', this.moveMember);
-    Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
+    //Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
     removeButton.setAttribute('class', 'style-scope bde-flexbox-layouter');
     removeButton.innerHTML = '✖';
     removeButton.addEventListener('tap', this.removeFlexbox.bind(this));
-    this.templateChanged();
+    this.templateChanged('flexboxAdded');
     return flexbox;
   },
   selectFlexbox: function (event) {
@@ -233,7 +238,7 @@ Polymer({
       }
       // Remove flexbox
       Polymer.dom(container).removeChild(flexbox);
-      this.templateChanged();
+      this.templateChanged('flexboxRemoved');
     }
   },
   selectMember: function (event) {
@@ -265,9 +270,9 @@ Polymer({
       Polymer.dom(to).appendChild(member);
     }
   },
-  templateChanged: function () {
-    this.fire('bde-template-changed', {time: new Date()});
-    console.log('<bde-flexbox-layouter>::templateChanged', this.getTemplate());
+  templateChanged: function (changeName) {
+    this.set('lastChangeTime', new Date());
+    console.log('<bde-flexbox-layouter>::templateChanged::', changeName, this.getTemplate());
   },
   getTemplate: function () {
     var flexboxes = Polymer.dom(this.root).querySelectorAll('.sortable');
@@ -339,6 +344,7 @@ Polymer({
     // Select last edited flexbox div
     flexbox.classList.add('selected');
     this.updateFlexboxSettings(flexbox);
+    this.set('lastChangeTime', new Date(0));
   },
   prepareMemberToBeAdded: function (memberElement) {
     memberElement.innerHTML = memberElement.getAttribute('member-id-ref');

@@ -37,7 +37,6 @@ Polymer({
     'iron-overlay-closed': 'confirmDialogCloseHandler',
     'no-compatible-template': 'noCompatibleTemplateHandler',
     'compatible-template': 'compatibleTemplateHandler',
-    'bde-template-changed': 'bdeTemplateChangeHandler',
     'new-compound-can-load': 'newCompoundCanLoadHandler'
   },
   observers: [
@@ -47,10 +46,6 @@ Polymer({
   ready: function () {
     this.parentNode.addEventListener('iron-deselect', this.leaveHandler);
     this.parentNode.addEventListener('iron-select', this.openHandler);
-  },
-
-  bdeTemplateChangeHandler: function (e) {
-    this.set('lastChangeTime', e.detail.time);
   },
 
   compatibleTemplateHandler: function () {
@@ -82,6 +77,7 @@ Polymer({
     var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
     compoundComponents.forEach(function (item) {
       if (item.artifactId === this.currentComponentMetadata.artifactId) {
+        this.lastGeneratedTemplateBlobDocTime = new Date(0);
         this.set('selectedCompound', item);
         this.set('selectedCompound.endpointId', this.currentComponentMetadata.endpointId);
         this.loadHtmlResources();
