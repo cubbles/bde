@@ -51,6 +51,10 @@ Polymer({
     },
     bdeVersion: {
       type: String
+    },
+    disabled: {
+      type: Boolean,
+      value: false
     }
   },
   ready: function () {
@@ -301,9 +305,10 @@ Polymer({
     tempDiv.innerHTML = templateString;
     var template = tempDiv.querySelector('[' + this.buildAttributeName('template') + ']');
     if (!template) {
-      // TODO: Define what to do when the template is not a bde-template
+      this.fire('no-compatible-template');
       return;
     }
+    this.fire('compatible-template');
     this.clearContainer();
     var sortables = Polymer.dom(this.root).querySelectorAll('.sortable');
     // Load hidden members

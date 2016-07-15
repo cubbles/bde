@@ -13,7 +13,24 @@ Polymer({
     selectedCompound: {
       type: Object,
       value: null
+    },
+    compatibleTemplate: {
+      type: Boolean,
+      value: false
+    },
+    isVisible: {
+      type: Boolean,
+      value: false
+    },
+    disabled: {
+      type: Boolean,
+      value: false
     }
+  },
+  listeners: {
+    'iron-overlay-closed': 'confirmDialogCloseHandler',
+    'no-compatible-template': 'noCompatibleTemplateHandler',
+    'compatible-template': 'compatibleTemplateHandler'
   },
   observers: [
     'currentComponentMetadataChanged(currentComponentMetadata.*)'
@@ -21,6 +38,20 @@ Polymer({
 
   ready: function () {
     this.parentNode.addEventListener('iron-deselect', this.leaveHandler);
+    this.parentNode.addEventListener('iron-select', this.openHandler);
+  },
+
+  compatibleTemplateHandler: function () {
+    this.set('compatibleTemplate', true);
+    this.set('disabled', false);
+  },
+
+  noCompatibleTemplateHandler: function () {
+    this.set('compatibleTemplate', false);
+    this.set('disabled', true);
+    if (this.isVisible) {
+      this.$.confirmDialog.open();
+    }
   },
 
   currentComponentMetadataChanged: function () {
@@ -36,12 +67,35 @@ Polymer({
     }.bind(this));
   },
 
-  leaveHandler: function (e) {
-    // TODO mapping für blob URL zu webpackage Generierung erstellen und global verwalten
+  openHandler: function (e) {
     var designView = e.detail.item;
     if (designView.id !== 'designView') {
       return;
     }
+    designView.set('isVisible', true);
+    if (!designView.compatibleTemplate && designView.disabled) {
+      designView.$.confirmDialog.open();
+    }
+  },
+
+  confirmDialogCloseHandler: function (e) {
+    // TODO: Define what to do when the template is not a bde-template
+    if (e.target.id === 'confirmDialog') {
+      if (e.detail.confirmed) {
+        this.set('disabled', false);
+      } else {
+        this.set('disabled', true);
+      }
+    }
+  },
+
+  leaveHandler: function (e) {
+    // TODO mapping für blob URL zu webpackage Generierung erstellen und global verwalten
+    var designView = e.detail.item;
+    if (designView.id !== 'designView' || designView.disabled) {
+      return;
+    }
+    designView.set('isVisible', false);
     var template = designView.querySelector('bde-flexbox-layouter').getTemplate();
     if (designView.isEmptyTemplate(template.content)) {
       return;
@@ -103,9 +157,19 @@ Polymer({
     }
     var endpoint = this.getEndpointFromSelectedCompound(this.currentComponentMetadata.endpointId);
     if (endpoint) {
+      var absoluteUrl;
+      var index;
       for (var i = 0; i < endpoint.resources.length; i++) {
         if (endpoint.resources[i].indexOf('.html') > -1) {
-          this.loadFile(this.buildSelectedCompoundResourceUrl(endpoint.resources[i]), function (response) {
+          absoluteUrl = this.buildSelectedCompoundResourceUrl(endpoint.resources[i]);
+        } else {
+          index = endpoint.resources[i].indexOf('?type=html');
+          if (index > -1) {
+            absoluteUrl = endpoint.resources[i].substring(0, index);
+          }
+        }
+        if (absoluteUrl) {
+          this.loadFile(absoluteUrl, function (response) {
             this.$$('bde-flexbox-layouter').loadTemplate(response);
           }.bind(this));
         }

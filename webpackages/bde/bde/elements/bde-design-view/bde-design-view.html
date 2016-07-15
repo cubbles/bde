@@ -1,5 +1,6 @@
 <link rel="import" href="../../vendor/polymer/polymer.html">
 <link rel="import" href="../bde-flexbox-layouter/bde-flexbox-layouter.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
 
 <!--
 `bde-design-view` is the editor for compound templates
@@ -13,10 +14,22 @@
                 display: block;
             }
         </style>
+
+        <paper-dialog id="confirmDialog" exit-animation="fade-out-animation" modal>
+            <h2>Allow overwriting current template?</h2>
+            <p>
+                The current template is not supported by the BDE [[bdeVersion]]. If the Flexbox Layouter is enabled, the current template would be overwritten.
+            </p>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Disallow</paper-button>
+                <paper-button dialog-confirm>Allow</paper-button>
+            </div>
+        </paper-dialog>
         <bde-flexbox-layouter bde-version="[[bdeVersion]]"
                               settings="[[settings]]"
                               current-component-metadata="[[currentComponentMetadata]]"
-                              selected-compound="[[selectedCompound]]">
+                              selected-compound="[[selectedCompound]]"
+                              hidden="[[disabled]]">
         </bde-flexbox-layouter>
     </template>
     <script src="bde-design-view.js"></script>
