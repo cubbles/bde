@@ -290,7 +290,7 @@ Polymer({
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId,
-        endpointsId: endpointId
+        endpointId: endpointId
       }
     };
 
