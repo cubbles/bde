@@ -61,16 +61,11 @@ Polymer({
       value: false
     }
   },
-  ready: function () {
-    var sortable = this.$$('.sortable');
-    // Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
-  },
-  selectedCompoundChanged: function (compound) {
+  loadSelectedCompound: function () {
     this.clearContainer();
     var sortable = this.$$('.sortable.selected');
-
-    if (compound) {
-      var members = compound.members;
+    if (this.selectedCompound) {
+      var members = this.selectedCompound.members;
       for (let i = 0; i < members.length; i++) {
         var element = document.createElement(this.trimComponentId(members[i].componentId));
 
@@ -82,6 +77,9 @@ Polymer({
       }
     }
     this.set('lastChangeTime', new Date(0));
+  },
+  selectedCompoundChanged: function () {
+    this.loadSelectedCompound();
   },
   clearContainer: function () {
     var container = this.$$('#flexbox-container');
@@ -312,6 +310,7 @@ Polymer({
     var template = tempDiv.querySelector('[' + this.buildAttributeName('template') + ']');
     if (!template) {
       this.fire('no-compatible-template');
+      this.loadSelectedCompound();
       return;
     }
     this.fire('compatible-template');

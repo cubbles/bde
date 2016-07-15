@@ -31,6 +31,9 @@ Polymer({
     disabled: {
       type: Boolean,
       value: false
+    },
+    lastEndpointId: {
+      type: String
     }
   },
   listeners: {
@@ -78,8 +81,8 @@ Polymer({
     compoundComponents.forEach(function (item) {
       if (item.artifactId === this.currentComponentMetadata.artifactId) {
         this.lastGeneratedTemplateBlobDocTime = new Date(0);
-        this.set('selectedCompound', item);
-        this.set('selectedCompound.endpointId', this.currentComponentMetadata.endpointId);
+        this.selectedCompound = item;
+        this.lastEndpointId = this.currentComponentMetadata.endpointId;
         this.loadHtmlResources();
       }
     }.bind(this));
@@ -110,7 +113,7 @@ Polymer({
         break;
       case 'confirmKeepingDialog':
         if (e.detail.confirmed) {
-          this.generateTemplateBlobDoc(this.selectedCompound.artifactId, this.selectedCompound.endpointId);
+          this.generateTemplateBlobDoc(this.selectedCompound.artifactId, this.lastEndpointId);
         }
         this.fire('new-compound-can-load');
         break;
@@ -204,6 +207,9 @@ Polymer({
             this.$$('bde-flexbox-layouter').loadTemplate(response);
           }.bind(this));
         }
+      }
+      if (!absoluteUrl) {
+        this.$$('bde-flexbox-layouter').loadSelectedCompound();
       }
     }
   },
