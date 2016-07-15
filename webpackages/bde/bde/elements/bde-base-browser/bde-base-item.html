@@ -30,7 +30,7 @@
             handle-as="json"
             on-response="handleResponse"></iron-ajax>
 
-        <paper-icon-item on-tap="addComponent">
+        <paper-icon-item on-tap="addComponent" disabled="[[_componentDisabled(item)]]">
             <iron-icon icon="image:remove-red-eye" item-icon></iron-icon>
             <paper-item-body three-line>
                 <div>[[item.artifactId]]</div>

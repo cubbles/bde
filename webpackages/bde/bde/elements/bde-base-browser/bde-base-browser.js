@@ -91,6 +91,9 @@ Polymer({
         return [];
       }
     },
+    currentComponent: {
+      type: Object
+    },
     /**
      * All cubbles in the base
      *
@@ -286,9 +289,13 @@ Polymer({
   },
   _currentManifestComponents: function () {
     var components = [];
+    var compList = [];
     if (this.manifest) {
       var compounds = this.manifest.artifacts.compoundComponents;
-      compounds.forEach(function (item) {
+      compList = compList.concat(compounds);
+      var elementaries = this.manifest.artifacts.elementaryComponents;
+      compList = compList.concat(elementaries);
+      compList.forEach(function (item) {
         var newReference = {
           artifactId: item.artifactId,
           webpackageId: 'this',
@@ -298,7 +305,6 @@ Polymer({
         components.push(newReference);
       });
     }
-    components.sort((a, b) => a.artifactId < b.artifactId ? -1 : a.attifactId > b.artifactId ? 1 : 0);
     return components;
   },
   _sortArtifacts: function (a, b) {

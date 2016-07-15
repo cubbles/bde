@@ -17,6 +17,14 @@ Polymer({
 
     settings: {
       type: Object
+    },
+
+    manifest: {
+      type: Object
+    },
+
+    currentComponent: {
+      type: Object
     }
   },
 
@@ -58,6 +66,17 @@ Polymer({
       webpackageId = item.groupId + '.' + webpackageId;
     }
     return webpackageId;
+  },
+  _componentDisabled: function (artifact) {
+    var enabled = true;
+    this.currentComponent.members.forEach(function (member) {
+      var webpackageId = member.componentId.substring(0, member.componentId.lastIndexOf('/'));
+      var artifactId = member.componentId.substring(member.componentId.lastIndexOf('/') + 1);
+      if (artifactId === artifact.artifactId && webpackageId !== artifact.webpackageId) {
+        enabled = false;
+      }
+    });
+    return !enabled;
   }
 
 });
