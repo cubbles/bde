@@ -46,8 +46,8 @@
       var tooltipEvent = new CustomEvent('the-graph-tooltip', { 
         detail: {
           tooltip: this.props.label,
-          x: event.clientX,
-          y: event.clientY
+          x: event.clientX - this.props.app.state.offsetX,
+          y: event.clientY - this.props.app.state.offsetY
         }, 
         bubbles: true
       });

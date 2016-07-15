@@ -14,6 +14,6 @@
     "commit": "f5a3dce93ed565adfac5b85d5f1b048e4e46e135"
   },
   "_source": "https://github.com/facebook/react-bower.git",
-  "_target": ">=0.9.0",
+  "_target": "^15.1.0",
   "_originalSource": "react"
 }
