@@ -332,8 +332,8 @@ Polymer({
       // Apply style to divs
       flexbox.setAttribute('style', flexDivs[j].getAttribute('style'));
       members = flexDivs[j].children;
-      for (var k = 0; k < members.length; k++) {
-        Polymer.dom(flexbox).appendChild(this.prepareMemberToBeAdded(members[k]));
+      while (members.length > 0) {
+        Polymer.dom(flexbox).appendChild(this.prepareMemberToBeAdded(members[0]));
       }
     }
     // Select last edited flexbox div
