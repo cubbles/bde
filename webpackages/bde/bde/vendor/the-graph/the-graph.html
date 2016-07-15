@@ -382,7 +382,7 @@
 
       selectedNodesChanged: function (changeRecord) {
         if (!changeRecord) { return; }
-        
+
         var selectedNodesHash = {};
         for (var i = 0, len = this.selectedNodes.length; i < len; i++) {
           selectedNodesHash[this.selectedNodes[i].id] = true;
@@ -731,7 +731,7 @@
           return {};
         }
         return this.graph.toJSON();
-      }      
+      }
     });
   </script>
 </dom-module>

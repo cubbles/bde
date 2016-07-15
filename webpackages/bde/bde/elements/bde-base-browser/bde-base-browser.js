@@ -261,15 +261,36 @@ Polymer({
         };
       });
 
+    /**
+     * Determine the 'is' property for the members array
+     *
+     * This should probably be deprecated and the artifactType be used
+     * allover the app.
+     *
+     * @var {String} app|elementary|compound|utility
+     */
+    var is = (function(artifact) {
+      if (artifact.artifactType === 'app') { return 'app'; }
+      if (artifact.artifactType === 'elementaryComponent') { return 'elementary'; }
+      if (artifact.artifactType === 'compoundComponent') { return 'compound'; }
+      if (artifact.artifactType === 'utility') { return 'utility'; }
+      throw new Error("Unknown artifactType '" + artifact.artifactType + "'");
+    })(artifact);
+
     var member = {
-      memberId: artifact.artifactId + '_' + Math.random().toString(36).substring(7),
+      artifactId: artifact.artifactId,
       componentId: parts[ 1 ] + '/' + artifact.artifactId,
+      memberId: artifact.artifactId + '_' + Math.random().toString(36).substring(7),
       displayName: artifact.artifactId,
-      description: artifact.description || '',
+      is: is,
+      description: artifact.description,
+      endpoints: artifact.endpoints,
+      runnables: artifact.runnables,
+      slots: artifact.slots,
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId,
-        endpointId: endpointId
+        endpointsId: endpointId
       }
     };
 
