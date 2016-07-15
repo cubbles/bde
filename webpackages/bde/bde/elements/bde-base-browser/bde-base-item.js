@@ -30,11 +30,20 @@ Polymer({
 
   addComponent: function () {
     this.fire('bde-member-data-loading');
-    this.$.ajax.generateRequest();
+    if (this.$.ajax.url && this.$.ajax.url.length > 0) {
+      this.$.ajax.generateRequest();
+    } else {
+      var webpackage = JSON.parse(JSON.stringify(this.manifest.toValidManifest()));
+      this._addComponent(webpackage);
+    }
   },
 
   handleResponse: function () {
     var webpackage = this.$.ajax.lastResponse;
+    this._addComponent(webpackage);
+  },
+
+  _addComponent: function(webpackage){
     var artifact = webpackage
       .artifacts[ inflection.pluralize(this.item.artifactType) ]
       .find((artifact) => artifact.artifactId === this.item.artifactId);
@@ -50,11 +59,15 @@ Polymer({
     // this.fire('iron-select', artifact);
     this.fire('bde-member-data-loaded');
     this.fire('bde-select-compound', artifact);
-  },
 
+  },
   _getItemUrl: function (item) {
-    return this.settings.baseUrl.replace(/[/]?$/, '/') +
-      this.settings.store + '/' + item.webpackageId + '/manifest.webpackage';
+    if (item.webpackageId === 'this'){
+      return '';
+    } else {
+      return this.settings.baseUrl.replace(/[/]?$/, '/') +
+        this.settings.store + '/' + item.webpackageId + '/manifest.webpackage';
+    }
   },
 
   _getWebpackageId: function (item) {
@@ -77,6 +90,9 @@ Polymer({
       }
     });
     return !enabled;
+  },
+  _isThisWebpackage: function (item) {
+     return item.webpackageId === 'this';
   }
 
 });

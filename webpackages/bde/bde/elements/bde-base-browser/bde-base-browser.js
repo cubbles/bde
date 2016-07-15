@@ -310,21 +310,26 @@ Polymer({
   },
   _currentManifestComponents: function () {
     var components = [];
-    var compList = [];
     if (this.manifest) {
       var compounds = this.manifest.artifacts.compoundComponents;
-      compList = compList.concat(compounds);
+      if (compounds) {
+        compounds.forEach(function (item) {
+          var newReference = JSON.parse(JSON.stringify(item));
+          newReference.webpackageId = 'this';
+          newReference.artifactType = 'compoundComponent';
+          components.push(newReference);
+
+        });
+      }
       var elementaries = this.manifest.artifacts.elementaryComponents;
-      compList = compList.concat(elementaries);
-      compList.forEach(function (item) {
-        var newReference = {
-          artifactId: item.artifactId,
-          webpackageId: 'this',
-          description: item.description,
-          endpoints: item.endpoints
-        };
-        components.push(newReference);
-      });
+      if(elementaries) {
+        elementaries.forEach(function (item) {
+          var newReference = JSON.parse(JSON.stringify(item));
+          newReference.webpackageId = 'this';
+          newReference.artifactType = 'elementaryComponent';
+          components.push(newReference);
+        });
+      }
     }
     return components;
   },

@@ -26,7 +26,7 @@
     <template>
 
         <iron-ajax id="ajax"
-            url="[[_getItemUrl(item)]]"
+            url$="[[_getItemUrl(item)]]"
             handle-as="json"
             on-response="handleResponse"></iron-ajax>
 
