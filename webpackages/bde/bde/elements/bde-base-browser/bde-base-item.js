@@ -33,8 +33,8 @@ Polymer({
     if (this.$.ajax.url && this.$.ajax.url.length > 0) {
       this.$.ajax.generateRequest();
     } else {
-      var webpackage = JSON.parse(JSON.stringify(this.manifest.toValidManifest()));
-      this._addComponent(webpackage);
+      var webpackage = this.manifest;
+      this._addComponent(webpackage, this.item.webpackageId);
     }
   },
 
@@ -43,7 +43,7 @@ Polymer({
     this._addComponent(webpackage);
   },
 
-  _addComponent: function(webpackage){
+  _addComponent: function(webpackage, webpackageId) {
     var artifact = webpackage
       .artifacts[ inflection.pluralize(this.item.artifactType) ]
       .find((artifact) => artifact.artifactId === this.item.artifactId);
@@ -54,13 +54,22 @@ Polymer({
 
     artifact.artifactType = this.item.artifactType;
     artifact.url = this._getItemUrl(this.item);
-    artifact.webpackageId = this._getWebpackageId({groupId: webpackage.groupId, name: webpackage.name, version: webpackage.version});
+    if (!webpackageId || webpackageId !== 'this') {
+      artifact.webpackageId = this._getWebpackageId({
+        groupId: webpackage.groupId,
+        name: webpackage.name,
+        version: webpackage.version
+      });
+    } else {
+      artifact.webpackageId = webpackageId;
+    }
 
     // this.fire('iron-select', artifact);
     this.fire('bde-member-data-loaded');
     this.fire('bde-select-compound', artifact);
 
   },
+
   _getItemUrl: function (item) {
     if (item.webpackageId === 'this'){
       return '';

@@ -230,9 +230,15 @@ Polymer({
   },
   addMember: function (artifact, endpointId) {
     this.fire('bde-member-loading');
-    var parts = artifact.webpackageId.match(/([^.]+)@/);
+    var webpackageId;
+    if (artifact.webpackageId === 'this') {
+      webpackageId = 'this';
+    } else {
+      var parts = artifact.webpackageId.match(/([^.]+)@/);
+      webpackageId = parts[1];
+    }
     var component = {
-      name: parts[ 1 ] + '/' + artifact.artifactId,
+      name: webpackageId + '/' + artifact.artifactId,
       icon: 'cog',
       description: artifact.description || '',
       inports: [],
@@ -279,7 +285,7 @@ Polymer({
 
     var member = {
       artifactId: artifact.artifactId,
-      componentId: parts[ 1 ] + '/' + artifact.artifactId,
+      componentId: webpackageId + '/' + artifact.artifactId,
       memberId: artifact.artifactId + '_' + Math.random().toString(36).substring(7),
       displayName: artifact.artifactId,
       is: is,
