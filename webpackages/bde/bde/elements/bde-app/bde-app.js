@@ -14,7 +14,8 @@
             endpointId: null,
             artifactId: null
           };
-        }
+        },
+        notify: true
       },
 
       manifest: {
@@ -94,7 +95,6 @@
     ready: function () {
       this.loadBdeVersion();
     },
-
     computeBaseUrl: function (baseUrl, store, partial) {
       if (!partial || typeof partial !== 'string') {
         throw new TypeError('`partial` must be a string');
@@ -166,12 +166,7 @@
     initializeDefaultSettings: function () {
       this.set('settings', {
         baseUrl: 'https://cubbles.world',
-        store: 'sandbox',
-        author: {
-          name: '',
-          email: '',
-          url: ''
-        }
+        store: 'sandbox'
       });
     },
 

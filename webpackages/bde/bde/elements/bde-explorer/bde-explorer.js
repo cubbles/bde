@@ -5,7 +5,7 @@ Polymer({
 
     manifest: {
       type: Object,
-      observer: 'manifestChanged'
+      notify: true
     },
     currentComponentMetadata: {
       type: Object,
@@ -71,13 +71,12 @@ Polymer({
   ],
 
   listeners: {
-    'bde_compound_select': 'handleBdeCompoundSelect'
+    'bde_compound_select': 'handleBdeCompoundSelect',
   },
   ready: function () {
     // Bind dom-change to wait for dom-repeat
     this.$.compoundSelector.addEventListener('dom-change', this.onDomChange.bind(this));
   },
-
   onDomChange: function (e) {
     // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
     if (e.target.id === 'compoundList' && !this.$.compoundSelector.selected) {
@@ -97,7 +96,6 @@ Polymer({
       this.fire('bde_compound_select', this.selectedCompound.artifactId);
     }
   },
-
 
   addApp: function () {
     // this.$.addAppDialog.open();
@@ -121,7 +119,8 @@ Polymer({
     this.deselect();
     if (this.manifest) {
       this.set('currentComponentMetadata.manifest', this.manifest);
-      // this.notifyPath('currentComponentMetadata.manifest', this.currentComponentMetadata.manifest);
+      this.notifyPath('currentComponentMetadata.manifest', this.manifest);
+      this.fire('bde-current-component-metadata-change',this.currentComponentMetadata);
       var menu = this.$$('#compoundSelector');
       Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
         subMenu.close();
@@ -135,6 +134,7 @@ Polymer({
 
   handleNewCompound: function (e) {
     this.push('manifest.artifacts.compoundComponents', e.detail.value);
+    this.notifyPath('manifest.artifacts.compoundComponents', this.manifest.artifacts.compoundComponents);
     this.$.compoundSelector.select(e.detail.value);
   },
 
@@ -195,7 +195,6 @@ Polymer({
 
   selectCompound: function (artifactId) {
     this.set('currentComponentMetadata.artifactId', artifactId);
-    // this.notifyPath('currentComponentMetadata.artifactId', this.currentComponentMetadata.artifactId);
     var subMenu = this.$$('[data-artifact-id=' + artifactId + ']');
     subMenu.open();
     if (Polymer.dom(subMenu).querySelector('[data-endpoint-id]')) {

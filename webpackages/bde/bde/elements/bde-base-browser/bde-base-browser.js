@@ -82,8 +82,7 @@ Polymer({
     },
 
     manifest: {
-      type: Object,
-      observer: 'manifestChanged'
+      type: Object
     },
 
     ownComponents: {
@@ -120,7 +119,9 @@ Polymer({
     'bde-select-compound': 'handleItemSelect',
     'bde-member-data-loaded': 'handleLoaded',
     'bde-member-data-loading': 'handleLoading',
-    'bde-select-endpoint': 'endpointSelected'
+    'bde-select-endpoint': 'endpointSelected',
+    'iron-overlay-opened': 'handleDialogOpen'
+
   },
 
   observers: [
@@ -150,7 +151,7 @@ Polymer({
     this.$.search.focus();
   },
 
-  manifestChanged: function () {
+  handleDialogOpen: function () {
     this.set('ownComponents', this._currentManifestComponents());
   },
   /**
@@ -164,7 +165,7 @@ Polymer({
     this.debounce('handleInput', function () {
       var searchTerm = event.target.value.replace(/[*,?]/g, '');
       var filtered = JSON.parse(JSON.stringify(this._cubbles || []));
-
+      filtered = filtered.concat(this.ownComponents);
 
       // Scroll to top of the list
       this.$.list.scrollTarget.scrollTop = 0;
@@ -190,13 +191,15 @@ Polymer({
         filtered = filtered.filter((i) => i.artifactType === 'utility');
       }
 
-      filtered = filtered.filter((i) => i.artifactId.indexOf(searchTerm) !== -1 || i.name.indexOf(searchTerm) !== -1);
+      filtered = filtered.filter( function (item) {
+        if (item.artifactId.indexOf(searchTerm) !== -1 || (item.name && item.name.indexOf(searchTerm) !== -1)) {
+          return true;
+        }
+        return false;
+      });
 
       filtered = filtered.sort(this._sortArtifacts);
 
-      this.ownComponents.forEach(function (elem) {
-        filtered.unshift(elem);
-      });
       this.set('_filtered', filtered);
 
       this.async(() => this.$.list.fire('iron-resize'));
@@ -263,7 +266,6 @@ Polymer({
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId,
-        description: artifact.description,
         endpointId: endpointId
       }
     };
@@ -290,6 +292,7 @@ Polymer({
         var newReference = {
           artifactId: item.artifactId,
           webpackageId: 'this',
+          description: item.description,
           endpoints: item.endpoints
         };
         components.push(newReference);
@@ -305,47 +308,62 @@ Polymer({
     if (a.artifactId > b.artifactId) {
       return 1;
     }
-    // fill qualified webpackageName
-    var aWebpackageName = a.name;
-    var bWebpackageName = b.name;
-    if (a.groupId && a.groupId.length > 0) {
-      aWebpackageName = a.groupId + '.' + aWebpackageName;
-    }
-    if (b.groupId && b.groupId.length > 0) {
-      bWebpackageName = b.groupId + '.' + bWebpackageName;
-    }
-    if (aWebpackageName < bWebpackageName) {
+    if (a.webpackageId === 'this' && b.webpackageId !== 'this') {
       return -1;
     }
-    if (aWebpackageName > bWebpackageName) {
+    if (a.webpackageId !== 'this' && b.webpackageId === 'this') {
       return 1;
     }
-    // Cut SNAPSHOT
-    var aVersion = a.version;
-
-    if (a.version.indexOf('-SNAPSHOT') > -1) {
-      aVersion = a.version.substring(0, a.version.indexOf('-SNAPSHOT'));
+    if (a.webpackageId !== 'this' && b.webpackageId !== 'this') {
+      // fill qualified webpackageName
+      var aWebpackageName = a.name;
+      var bWebpackageName = b.name;
+      if (a.groupId && a.groupId.length > 0) {
+        aWebpackageName = a.groupId + '.' + aWebpackageName;
+      }
+      if (b.groupId && b.groupId.length > 0) {
+        bWebpackageName = b.groupId + '.' + bWebpackageName;
+      }
+      if (aWebpackageName < bWebpackageName) {
+        return -1;
+      }
+      if (aWebpackageName > bWebpackageName) {
+        return 1;
+      }
     }
-    var bVersion = b.version;
-
-    if (b.version.indexOf('-SNAPSHOT') > -1) {
-      bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
-    }
-    // Without SNAPSHOT descending
-    if (aVersion > bVersion) {
+    if (!a.version && b.version) {
       return -1;
     }
-    if (aVersion < bVersion) {
+    if (a.version && !b.version) {
       return 1;
     }
-    // whit SNAPSHOT Version (ascending)
-    if (aVersion === bVersion && a.version < b.version) {
-      return -1;
-    }
-    if (aVersion === bVersion && a.version > b.version) {
-      return 1;
-    }
+    if (a.version && b.version) {
+      // Cut SNAPSHOT
+      var aVersion = a.version;
 
+      if (a.version.indexOf('-SNAPSHOT') > -1) {
+        aVersion = a.version.substring(0, a.version.indexOf('-SNAPSHOT'));
+      }
+      var bVersion = b.version;
+
+      if (b.version.indexOf('-SNAPSHOT') > -1) {
+        bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
+      }
+      // Without SNAPSHOT descending
+      if (aVersion > bVersion) {
+        return -1;
+      }
+      if (aVersion < bVersion) {
+        return 1;
+      }
+      // whit SNAPSHOT Version (ascending)
+      if (aVersion === bVersion && a.version < b.version) {
+        return -1;
+      }
+      if (aVersion === bVersion && a.version > b.version) {
+        return 1;
+      }
+    }
     return 0;
   },
   _computeBaseUrl: function (baseUrl, store) {
