@@ -77,6 +77,7 @@ Polymer({
   },
 
   newCompoundCanLoadHandler: function () {
+    this.disabled = false;
     var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
     compoundComponents.forEach(function (item) {
       if (item.artifactId === this.currentComponentMetadata.artifactId) {
