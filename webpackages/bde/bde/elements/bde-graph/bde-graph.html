@@ -218,7 +218,7 @@
       created: function() {
         // Export klayjs workserScript location
         window.KLAY_CONFIG = {
-          workerScript: location.pathname + 'vendor/klayjs/klay.js'
+          workerScript: location.pathname.replace(/\/[^\/]*\/?$/, '/') + 'vendor/klayjs/klay.js'
         };
       },
 
