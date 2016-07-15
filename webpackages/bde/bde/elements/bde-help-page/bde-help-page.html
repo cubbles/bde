@@ -6,8 +6,6 @@
 <link rel="import" href="../../vendor/iron-selector/iron-selector.html">
 <link rel="import" href="../../vendor/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
-<link rel="import" href="../../vendor/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../vendor/neon-animation/animations/fade-out-animation.html">
 
 <!--
@@ -58,85 +56,88 @@ Example:
         @apply(--layout-vertical);
       }
 
+      li {
+        margin: 5px;
+      }
+
     </style>
 
     <paper-dialog id="dialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
-      <!-- <paper-dialog-scrollable> -->
 
-      <h2>Starthilfe</h2>
+      <h2>Quick Tips</h2>
 
           <iron-pages selected="{{_selectedHelpPage}}">
             <div>
               <p>
-                Ein neues Projekt mit der BDE beginnen:
+                Welcome to Cubbles <i>B</i>rowser based <i>D</i>evelopment <i>E</i>nvironment!
               </p>
-                <li><b>"Add Compound Cubble"</b> eine artifact-id eingeben (diese muss einen Bindestrich enthalten), ENTER drücken, Beschreibung ist optional, aber sinnvoll</li>
-                <li>Allgemeine <b>"application-settings"</b> sind einzustellen mit einem Klick auf <paper-icon-button icon="settings"></paper-icon-button> in der Werkzeugleiste oben links, insbesondere der Tab <b>"User Settings"</b></li>
-                <li><b>Hinzufügen von Cubble Komponenten</b> von der Base per <paper-icon-button icon="add"></paper-icon-button> in der unteren rechten Ecke.</li>
-                <li>Nun können die Komponenten über die Oberfläche grafisch miteinander verbunden werden, um neue komplexe Cubble Komponenten zu erstellen.</li>
+              <p>
+                You can use the BDE to compose Cubble components and compounds to build running applications.
+              </p>
+              <!-- (ene) TODO  explain basic structure; underline with graphical representation -->
+                <li> On the left you can explore the components in the project, in the center you can compose the components, on the right (in a sidebar) you can modify the components in the project.</li>
+                <li>The <b>Webpackage</b> represents the current project. It can contain <i>applications</i>, <i>compounds</i>, <i>elementaries</i>, <i>utilities</i>.</li>
+                <li><b>Compounds</b> contain <i>member</i>, which are also Cubble components.</li>
+                <li>You can load compounds from the base via <paper-icon-button icon="icons:cloud-download"></paper-icon-button> in the upper left toolbar.</li>
+                <li>You can add members to a compound via <paper-icon-button icon="icons:add"></paper-icon-button> in the lower right corner. The Cubble Components are loaded from the base.</li>
             </div>
             <div>
               <p>
-                Grafische Manipulation von Cubble Komponenten:
+                Starting a new project:
               </p>
-                <li>Die Komponenten können per Maus angeordnet werden (drag-and-drop).</li>
-                <li>Per <b>Mausrad</b> kann die Zoomstufe verändert werden.</li>
-                <li>Zum Erstellen von Verbindungen zwischen Komponenten kann per <b>Klick-und-Halten</b> auf ein Slot eine Verbindung "gezogen" werden.</li>
-                <li>Alternativ kann ein Kontextmenü per <b>rechter Maustaste</b> aufgerufen werden.</li>
-              <p>Ansicht verändern:</p>
-                <li>Die Aktion <paper-icon-button icon="icons:aspect-ratio"></paper-icon-button> verändert das Fenster so, dass alle Komponenten zentriert angezeigt werden.</li>
-                <li>Ein Klick auf <paper-icon-button icon="bde:magic-wand"></paper-icon-button> ordnet die Komponenten automatisch im Fenster an.</li>
+                <li>After the BDE application is loaded, a new webpackage is default. You can also create a new project by clicking <paper-icon-button icon="editor:insert-drive-file"></paper-icon-button> ion the upper left toolbar.</li>
+                <li>You can edit the metadata of the current project by clicking the <paper-icon-button icon="icons:settings"></paper-icon-button> right beside the name in the left sidebar.</li>
+                <li>Set general the author information of the current project (Name and Email).</li>
+                <li><b>Add Cubble components</b> from the base via <paper-icon-button icon="add"></paper-icon-button> in the lower right corner.</li>
+                <li>Now the components can be modified visually to create new Cubble components.</li>
             </div>
             <div>
               <p>
-                Verschiedene Sichten in der BDE:
+                Visual Manipulation of Cubble components:
               </p>
-                <li>Oben rechts in der Werkzeugleiste finden Sie die Schaltflächen für die verschiedenen Sichten in der BDE zwischen denen gewechselt werden kann.</li>
-              <p>
-                Die Schaltfächen:
-              </p>
-                <li><paper-icon-button icon="icons:gesture"></paper-icon-button> (Standartmäßig eingestellt beim Starten der BDE): <b>Datenfluss-Sicht</b> (data-flow-view) zur Manipulation der Komponenten, Verbindungen, Startwerte, etc.</li>
-                <li><paper-icon-button icon="icons:open-with"></paper-icon-button><b>: Design-Sicht</b> (bde-design-view) zum Anordnen der Anwendungsansicht der Komponenten.</li>
-                <li><paper-icon-button icon="icons:apps"></paper-icon-button><b>: Anwendungs-Sicht</b> (application-view) zur Darstellung einer lauffähigen Version des erstellten Webpackages in der BDE.</li>
+                <li>Components can be arranged with the cursor (drag-and-drop).</li>
+                <li>Connections between components can be established by <b>click-and-hold</b> on the slots of the respective components.</li>
+                <li>Alternatively call a context menu via <b>right mouse button</b>.</li>
+                <li>Via <b>mouse-wheel</b> the zoom-level can be changed.</li>
+              <p>Highlighting and automatic arrangement:</p>
+                <li>Centering all components via <paper-icon-button icon="icons:aspect-ratio"></paper-icon-button>.</li>
+                <li>Arrange all components and connections automatically by pressing <paper-icon-button icon="bde:magic-wand"></paper-icon-button>.</li>
             </div>
             <div>
               <p>
-                Webpackage-Explorer:
+                Views in a BDE project:
+                In the upper right in the toolbar you find the buttons for changing the current view in the BDE project window:
               </p>
-                <li>Das <b>Webpackage</b> bildet das aktuelle Projekt ab. Es kann <i>Applications</i>, <i>Compounds</i>, <i>Elementaries</i>, <i>Utilities</i> enthalten.</li>
-                <li><b>Compounds</b> enthalten <i>Member</i>. Dies sind ebenfalls weitere Cubble Komponenten.</li>
-                <li>Member werden dem aktuellen Compound auch hinzugefügt, wenn Cubble Komponenten von der Base mit dem <paper-icon-button icon="icons:add"></paper-icon-button> unten rechts im Fenster hinzugefügt werden.</li>
-                <li>Über die Schaltfläche <b>Import Cubble</b> lassen sich weitere Komponenten aus der Base dem Webpackage hinzufügen.</li>
+                <li><paper-icon-button icon="icons:gesture"></paper-icon-button> (Default on start of the BDE): <b>dataflow-view</b> for manipulation of components, connections, initial-values, etc. </li>
+                <li><paper-icon-button icon="icons:open-with"></paper-icon-button>: <b>design-view</b> for the arrangement of components on application level.</li>
+                <li><paper-icon-button icon="icons:apps"></paper-icon-button>: <b>application-view</b> for displaying a runnable version of the created webpackage in the BDE.</li>
             </div>
-            <div>
+
+            <!-- (ene) TODO: is it desired, that there is an iron-component-page based documentation of the BDE elements available ? -->
+
+            <!-- <div>
               <p>
-                Entwicklerdokumentation
+                Developer documentation
               </p>
                 <div>
-                  Die Entwicklerdokumentation der BDE Elemente ist zu finden unter:
+                  The BDE API documentation can be found here:
                 </div>
-                  <li><a href="/test/documentation.html"> Dokumentation</a></li>
-                  <li>Die Dokumentation ist in englischer Sprache. </li>
-            </div>
+                  <li><a href="/test/documentation.html">documentation</a></li>
+            </div> -->
           </iron-pages>
-
-      <!-- </paper-dialog-scrollable> -->
 
       <iron-selector id="paginator" selected = "{{_selectedHelpPage}}">
         <div class = "dot"></div>
         <div class = "dot"></div>
         <div class = "dot"></div>
         <div class = "dot"></div>
-        <div class = "dot"></div>
+        <!-- <div class = "dot"></div> -->
       </iron-selector>
 
       <div class="buttons">
         <paper-button dialog-confirm>Close</paper-button>
       </div>
-      <!-- (ene) TODO: find a suitable place for this -->
-      <!-- <section id="docs">
-      <p>You find the API reference for the BDE elements on the <a href="/test/documentation.html"> documentation page</a>.</p>
-      </section> -->
+
     </paper-dialog>
 
     <!-- <iron-local-storage name = "start-up-Tutorial"
