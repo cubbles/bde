@@ -228,15 +228,16 @@ Polymer({
     var endpointId = item.endpointId;
     this.addMember(artifact, endpointId);
   },
+
   addMember: function (artifact, endpointId) {
     this.fire('bde-member-loading');
     var webpackageId;
     if (artifact.webpackageId === 'this') {
       webpackageId = 'this';
     } else {
-      var parts = artifact.webpackageId.match(/([^.]+)@/);
-      webpackageId = parts[1];
+      webpackageId = artifact.webpackageId;
     }
+
     var component = {
       name: webpackageId + '/' + artifact.artifactId,
       icon: 'cog',
@@ -283,7 +284,7 @@ Polymer({
       throw new Error("Unknown artifactType '" + artifact.artifactType + "'");
     })(artifact);
 
-    var member = {
+    var cubble = {
       artifactId: artifact.artifactId,
       componentId: webpackageId + '/' + artifact.artifactId,
       memberId: artifact.artifactId + '_' + Math.random().toString(36).substring(7),
@@ -301,7 +302,7 @@ Polymer({
     };
 
     this.fire('library-update-required', { item: component });
-    this.fire('iron-selected', { item: member });
+    this.fire('iron-selected', { item: cubble });
   },
   /**
    * Handles the initial AJAX response and applies a prefiltering of the result list.

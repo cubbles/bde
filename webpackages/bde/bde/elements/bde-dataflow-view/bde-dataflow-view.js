@@ -421,12 +421,23 @@
     },
 
     _addMember: function (event) {
-      var item = event.detail.item;
+      var cubble = event.detail.item;
+      var endpointId = this.currentComponentMetadata.endpointId;
+      var endpoint = this._artifact.endpoints.find(function(endpoint) { return endpoint.endpointId === endpointId; });
+      var endpointPath = Polymer.Collection.get(this._artifact.endpoints).getKey(endpoint); // e.g. #0
+
+      // Close the search dialog
       this.querySelector('#memberSelectDialog').close();
 
-      this.push('_artifact.members', item);
-      this.push('_artifact.endpoints.#0.dependencies',
-        item.metadata.webpackageId + '/' + item.metadata.artifactId + '/' + item.metadata.endpointId
+      var member = {
+        memberId: cubble.memberId,
+        componentId: cubble.metadata.webpackageId + '/' + cubble.metadata.artifactId,
+        displayName: cubble.metadata.artifactId
+      };
+
+      this.push('_artifact.members', member);
+      this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
+        member.componentId + '/' + cubble.metadata.endpointId
       );
     },
 
@@ -468,7 +479,7 @@
         graph.inports[slot.slotId] = {
           "process": connection.destination.memberIdRef,
           "port": connection.destination.slot,
-          "metadata": { x: 0, y: 0 }
+          "metadata": { x: 15, y: 15 }
         };
       });
 

@@ -382,7 +382,7 @@
 
       selectedNodesChanged: function (changeRecord) {
         if (!changeRecord) { return; }
-
+        
         var selectedNodesHash = {};
         for (var i = 0, len = this.selectedNodes.length; i < len; i++) {
           selectedNodesHash[this.selectedNodes[i].id] = true;
@@ -717,7 +717,8 @@
           }
           def = this.mergeComponentDefinition(component, definition);
         }
-        this.set('library' + ('.' + definition.name), def);
+        this.library[definition.name] = def;
+        this.notifyPath('library', this.library);
         // So changes are rendered
         this.debounceLibraryRefesh();
       },
@@ -731,7 +732,7 @@
           return {};
         }
         return this.graph.toJSON();
-      }
+      }      
     });
   </script>
 </dom-module>
