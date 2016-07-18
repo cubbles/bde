@@ -51,7 +51,7 @@ Example:
 
             .container > .count {
                 color: var(--secondary-text-color);
-
+                margin-left: 16px
                 @apply(--paper-font-caption);
             }
 
@@ -140,6 +140,9 @@ Example:
                 max-height: 4.5em;
             }
 
+            .alignRight {
+                float: right;
+            }
         </style>
 
         <div id="webpackageExplorerHeader">
@@ -174,9 +177,9 @@ Example:
                                   manifest="{{manifest}}"></bde-webpackage-meta-info>
 
         <div class="container" tabindex="0" on-tap="toggleApps">
-            <iron-icon icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
             <span>Applications</span>
             <span class="count">([[manifest.artifacts.apps.length]])</span>
+            <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
         </div>
 
         <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
@@ -201,9 +204,9 @@ Example:
         </iron-collapse>
 
         <div class="container" tabindex="0" on-tap="toggleCompounds">
-            <iron-icon icon="[[_calculateToggleIcon(_compoundsOpen)]]"></iron-icon>
             <span>Compounds</span>
             <span class="count">([[manifest.artifacts.compoundComponents.length]])</span>
+            <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_compoundsOpen)]]"></iron-icon>
         </div>
 
         <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
@@ -261,9 +264,9 @@ Example:
         </iron-collapse>
 
         <div class="container" tabindex="0" on-tap="toggleElementaries">
-            <iron-icon icon="[[_calculateToggleIcon(_elementariesOpen)]]"></iron-icon>
             <span>Elementaries</span>
             <span class="count">([[manifest.artifacts.elementaryComponents.length]])</span>
+            <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_elementariesOpen)]]"></iron-icon>
         </div>
 
         <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
@@ -287,9 +290,9 @@ Example:
         </iron-collapse>
 
         <div class="container" tabindex="0" on-tap="toggleUtilities">
-            <iron-icon icon="[[_calculateToggleIcon(_utilitiesOpen)]]"></iron-icon>
             <span>Utilities</span>
             <span class="count">([[manifest.artifacts.utilities.length]])</span>
+            <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_utilitiesOpen)]]"></iron-icon>
         </div>
 
         <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">

@@ -274,7 +274,7 @@ Polymer({
   },
 
   _calculateToggleIcon: function (state) {
-    return state ? 'icons:arrow-drop-up' : 'icons:arrow-drop-down';
+    return state ? 'icons:expand-less' : 'icons:expand-more';
   },
 
   _equals: function (a, b) {
