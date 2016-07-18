@@ -154,7 +154,7 @@ Polymer({
     this.$.search.focus();
   },
 
-  handleDialogOpen: function () {
+  handleDialogOpen: function (event) {
     this.set('ownComponents', this._currentManifestComponents());
   },
   /**

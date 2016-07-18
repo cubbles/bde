@@ -61,7 +61,7 @@
             }
         </style>
 
-        <paper-dialog id="dialog" opened="{{opened}}">
+        <paper-dialog id="dialog" opened="{{opened}}" on-iron-overlay-opened="dialogOpenHandler">
 
             <h2><span>[[_editingArtifact.artifactId]]</span></h2>
 

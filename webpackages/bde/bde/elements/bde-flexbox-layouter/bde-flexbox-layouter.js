@@ -4,8 +4,8 @@ Polymer({
   properties: {
     selectedCompound: {
       type: Object,
-      value: null,
-      observer: 'selectedCompoundChanged'
+      value: null
+
     },
     compoundMembersOpen: {
       type: Boolean,
@@ -61,6 +61,9 @@ Polymer({
       value: false
     }
   },
+  observers: [
+    'selectedCompoundChanged(selectedCompound.members.*)'
+  ],
   loadSelectedCompound: function () {
     this.clearContainer();
     var sortable = this.$$('.sortable.selected');

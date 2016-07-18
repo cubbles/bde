@@ -43,7 +43,7 @@ Polymer({
     'new-compound-can-load': 'newCompoundCanLoadHandler'
   },
   observers: [
-    'currentComponentMetadataChanged(currentComponentMetadata.*)'
+    'currentComponentMetadataChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)'
   ],
 
   ready: function () {
@@ -82,7 +82,7 @@ Polymer({
     compoundComponents.forEach(function (item) {
       if (item.artifactId === this.currentComponentMetadata.artifactId) {
         this.lastGeneratedTemplateBlobDocTime = new Date(0);
-        this.selectedCompound = item;
+        this.set('selectedCompound', item);
         this.lastEndpointId = this.currentComponentMetadata.endpointId;
         this.loadHtmlResources();
       }
