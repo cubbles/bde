@@ -107,7 +107,7 @@ Polymer({
     return prefix + 'collapse' + index;
   },
   _calculateToggleIcon: function (state) {
-    return state ? 'icons:arrow-drop-up' : 'icons:arrow-drop-down';
+    return state ? 'icons:expand-less' : 'icons:expand-more';
   },
   _isObject: function (value) {
     return typeof value === 'object';
