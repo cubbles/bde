@@ -412,11 +412,13 @@
       },
 
       addMember: function(member) {
-        this.$.graph.addNode(
-          member.memberId,
-          member.componentId,
-          { x: 0, y: 0, label: member.displayName || member.memberId }
-        );
+        var nodesCount = this.nofloGraph.nodes.length;
+
+        this.$.graph.addNode(member.memberId, member.componentId, {
+          x: this.grid,
+          y: (nodesCount + 1) * this.snap + nodesCount * this.grid,
+          label: member.displayName || member.memberId
+        });
       },
 
       addMenu: function(type, options) {
