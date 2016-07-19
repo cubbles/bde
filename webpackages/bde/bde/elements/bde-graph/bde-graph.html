@@ -188,6 +188,10 @@
           type: Object
         },
 
+        _nofloNodes: {
+          type: Object
+        },
+
         _copyNodes: {
           type: Array
         },
@@ -207,7 +211,7 @@
         '_edgesChanged(nofloGraph.edges.splices)',
         '_inportsChanged(nofloGraph.inports)',
         '_outportsChanged(nofloGraph.outports)',
-        '_nodesChanged(nofloGraph.nodes.splices)',
+        '_nofloNodesChanged(nofloGraph.nodes.splices)',
       ],
 
       listeners: {
@@ -462,8 +466,8 @@
       },
 
       removeMember: function(member) {
-        var node = this._nodeForMember(member);
-        thi.$.graph.removeNode(node.id);
+        // var node = this._nodeForMember(member);
+        // this.$.graph.removeNode(node.id);
       },
 
       rerender: function() {
@@ -606,7 +610,7 @@
         }, this);
       },
 
-      _nodesChanged: function(changeRecord) {
+      _nofloNodesChanged: function(changeRecord) {
         if (!changeRecord) { return; }
 
         changeRecord.indexSplices.forEach(function(s) {
@@ -670,8 +674,8 @@
 
       _nodeForMember: function(member) {
         var node;
-        if (this._nodes[member.memberId]) {
-          node = this._nodes[member.memberId];
+        if (this._nofloNodes[member.memberId]) {
+          node = this._nofloNodes[member.memberId];
         }
 
         return node;

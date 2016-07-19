@@ -51,7 +51,8 @@
       },
 
       _artifact: {
-        type: Object
+        type: Object,
+        notify: true
       },
 
       _graphWidth: {
@@ -94,7 +95,8 @@
       'membersChanged(_artifact.members.splices)',
       'selectedNodesChanged(_selectedNodes.splices)',
       'selectedEdgesChanged(_selectedEdges.splices)',
-      'showPropertyEditorChanged(showPropertyEditor)'
+      'showPropertyEditorChanged(showPropertyEditor)',
+      '_artifactChanged(_artifact.*)'
     ],
 
     listeners: {
@@ -140,7 +142,8 @@
 
       var self = this;
       var settings = this.settings;
-      var artifact = manifest.localArtifacts.find(function(artifact) {
+
+      var artifact = manifest.artifacts.compoundComponents.find(function(artifact) {
         return artifact.artifactId === artifactId;
       });
       var endpoint = artifact.endpoints.find(function(endpoint) {
@@ -148,7 +151,6 @@
       });
 
       this.set('_artifact', artifact);
-      this.notifyPath('currentComponentMetadata.manifest', this.currentComponentMetadata.manifest);
 
       // Go through all dependencies and resolve,
       // either from the same webpackage or by requesting the base
@@ -336,7 +338,7 @@
         return connection.source.memberIdRef === edge.from.node &&
           connection.source.slot === edge.from.port &&
           connection.destination.memberIdRef === edge.to.node &&
-          connection.destination.slit === edge.to.port;
+          connection.destination.slot === edge.to.port;
       });
 
       this.splice('_artifact.connections', cIdx, 1);
@@ -443,6 +445,16 @@
 
     _addCubbleClass: function(showPropertyEditor) {
       return (showPropertyEditor) ? 'moveRight' : '';
+    },
+
+    _artifactChanged: function(changeRecord) {
+      if (!changeRecord) { return; }
+
+      var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
+      var path = new Polymer.Collection(compoundComponents).getKey(this._artifact);
+      path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + path);
+
+      this.set(path, changeRecord.value);
     },
 
     _graphFromArtifact: function(artifact) {

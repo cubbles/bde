@@ -67,7 +67,8 @@ Polymer({
   },
 
   observers: [
-    'manifestChanged(manifest.*)'
+    'manifestChanged(manifest.*)',
+    'selectedCompoundChanged(selectedCompound.*)'
   ],
 
   listeners: {
@@ -211,6 +212,16 @@ Polymer({
       }
     });
     this.set('selectedCompound', compound);
+  },
+
+  selectedCompoundChanged: function(changeRecord) {
+    if (!changeRecord || !this.currentComponentMetadata.manifest) { return; }
+
+    var path = changeRecord.path;
+    var artifactPath = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(this.selectedCompound);
+    path.replace('selectedCompound', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + artifactPath);
+    console.log("%c selectedCompoundChanged", 'color:red', path, changeRecord.value);
+    this.set(path, changeRecord.value);
   },
 
   selectEndpoint: function (endpointId) {

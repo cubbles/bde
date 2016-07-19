@@ -4,8 +4,7 @@ Polymer({
 
     artifact: {
       type: Object,
-      notify: true,
-      observer: 'artifactChanged'
+      notify: true
     },
 
     manifest: {
@@ -36,6 +35,10 @@ Polymer({
       value: true
     }
   },
+
+  observers: [
+    'artifactChanged(artifact.*)'
+  ],
 
   artifactChanged: function () {
     this.set('_editingArtifact', JSON.parse(JSON.stringify(this.artifact)));
