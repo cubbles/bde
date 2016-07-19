@@ -1,4 +1,26 @@
-/*global XMLHttpRequest*/
+if (!Array.prototype.find) {
+  Array.prototype.find = function(predicate) {
+    if (this == null) {
+      throw new TypeError('Array.prototype.find called on null or undefined');
+    }
+    if (typeof predicate !== 'function') {
+      throw new TypeError('predicate must be a function');
+    }
+    var list = Object(this);
+    var length = list.length >>> 0;
+    var thisArg = arguments[1];
+    var value;
+
+    for (var i = 0; i < length; i++) {
+      value = list[i];
+      if (predicate.call(thisArg, value, i, list)) {
+        return value;
+      }
+    }
+    return undefined;
+  };
+}
+
 Polymer({
   is: 'bde-flexbox-layouter',
   properties: {
@@ -62,28 +84,33 @@ Polymer({
     }
   },
   observers: [
-    'selectedCompoundChanged(selectedCompound.members.*)'
+    'selectedCompoundChanged(selectedCompound.members.splices)'
   ],
   loadSelectedCompound: function () {
     this.clearContainer();
-    var sortable = this.$$('.sortable.selected');
+    var sortable = this.$$('.sortable.standard');
     if (this.selectedCompound) {
       var members = this.selectedCompound.members;
       for (let i = 0; i < members.length; i++) {
-        var element = document.createElement(this.trimComponentId(members[i].componentId));
-
-        Polymer.dom(sortable).appendChild(element);
-        element.setAttribute('class', 'member style-scope bde-flexbox-layouter');
-        element.setAttribute('member-id-ref', members[i].memberId);
-        element.innerHTML = members[i].memberId;
-        element.addEventListener('tap', this.selectMember.bind(this));
+        this.addMemberToContainer(sortable, members[i]);
       }
     }
     this.set('lastChangeTime', new Date(0));
   },
-  selectedCompoundChanged: function () {
-    this.loadSelectedCompound();
+
+  addMemberToContainer: function (container, member) {
+    var element = document.createElement(this.trimComponentId(member.componentId));
+
+    Polymer.dom(container).appendChild(element);
+    Polymer.dom(element).setAttribute('class', 'member style-scope bde-flexbox-layouter');
+    Polymer.dom(element).setAttribute('member-id-ref', member.memberId);
+    Polymer.dom(element).innerHTML = member.memberId;
+    element.addEventListener('tap', this.selectMember.bind(this));
+    Polymer.dom.flush();
   },
+  // selectedCompoundChanged: function () {
+  //   this.loadSelectedCompound();
+  // },
   clearContainer: function () {
     var container = this.$$('#flexbox-container');
     var flexboxes = Polymer.dom(container).querySelectorAll('.flexbox');
@@ -95,10 +122,13 @@ Polymer({
       // Remove flexbox
       if (i > 1) {
         Polymer.dom(container).removeChild(flexboxes[i]);
+        Polymer.dom.flush();
       } else {
         for (let n = 0; n < nodes.length; n++) {
           Polymer.dom(sortable).removeChild(nodes[n]);
+          Polymer.dom.flush();
         }
+
         sortable.style.display = 'flex';
         sortable.style.flexDirection = 'row';
         this.flexDirection = sortable.style.flexDirection;
@@ -195,7 +225,7 @@ Polymer({
     sortable.addEventListener('tap', this.selectFlexbox.bind(this));
     sortable.addEventListener('sort', this.templateChanged.bind(this));
     sortable.addEventListener('add', this.moveMember);
-    //Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
+    // Polymer.dom(sortable).observeNodes(this.templateChanged.bind(this));
     removeButton.setAttribute('class', 'style-scope bde-flexbox-layouter');
     removeButton.innerHTML = '✖';
     removeButton.addEventListener('tap', this.removeFlexbox.bind(this));
@@ -269,6 +299,7 @@ Polymer({
     if (from && to && member) {
       Polymer.dom(from).removeChild(member);
       Polymer.dom(to).appendChild(member);
+      Polymer.dom.flush();
     }
   },
   templateChanged: function (changeName) {
@@ -281,8 +312,8 @@ Polymer({
     template.setAttribute(this.buildAttributeName('template'), '');
 
     for (let i = 0; i < flexboxes.length; i++) {
-      let flexbox = flexboxes[i].cloneNode(true),
-        div = document.createElement('div');
+      let flexbox = flexboxes[i].cloneNode(true);
+      let div = document.createElement('div');
       if (flexbox.classList.contains('parking')) {
         div.style.display = 'none';
         div.setAttribute(this.buildAttributeName('hidden-div'), '');
@@ -343,11 +374,48 @@ Polymer({
         Polymer.dom(flexbox).appendChild(this.prepareMemberToBeAdded(members[0]));
       }
     }
+    Polymer.dom.flush();
     // Select last edited flexbox div
     flexbox.classList.add('selected');
     this.updateFlexboxSettings(flexbox);
+    this.removeNodesfromTemplate();
+    this.updateTemplateWithNewMembers();
     this.set('lastChangeTime', new Date(0));
   },
+
+  removeNodesfromTemplate: function () {
+    var members = this.selectedCompound.members;
+    var flexboxSortables = this.querySelectorAll('.sortable');
+    var nodes = [];
+    flexboxSortables.forEach(function(elem) {
+      var nodeArray = [].slice.call(elem.children);
+      nodes = nodes.concat(nodeArray);
+    });
+    nodes.forEach(function (node) {
+      function findMember(element, index, array) {
+        return element.memberId === node.getAttribute('member-id-ref');
+      }
+      if (!members.find(findMember)) {
+        Polymer.dom(node.parentNode).removeChild(node);
+        Polymer.dom.flush();
+      }
+    });
+
+  },
+
+  updateTemplateWithNewMembers: function () {
+    var members = this.selectedCompound.members;
+
+    var sortable = this.$$('.sortable.standard');
+
+    members.forEach(function (member) {
+      var elem = this.querySelector('[member-id-ref=' + member.memberId + ']');
+      if (!elem) {
+        this.addMemberToContainer(sortable, member);
+      }
+    }.bind(this));
+  },
+
   prepareMemberToBeAdded: function (memberElement) {
     memberElement.innerHTML = memberElement.getAttribute('member-id-ref');
     memberElement.className = 'member';

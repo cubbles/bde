@@ -48,7 +48,7 @@ Polymer({
 
   ready: function () {
     this.parentNode.addEventListener('iron-deselect', this.leaveHandler);
-    this.parentNode.addEventListener('iron-select', this.openHandler);
+    this.parentNode.addEventListener('iron-select', this.openHandler.bind(this));
   },
 
   compatibleTemplateHandler: function () {
@@ -94,6 +94,7 @@ Polymer({
     if (designView.id !== 'designView') {
       return;
     }
+    this.currentComponentMetadataChanged();
     designView.set('isVisible', true);
     if (!designView.compatibleTemplate && designView.disabled) {
       designView.$.confirmEnablingDialog.open();
