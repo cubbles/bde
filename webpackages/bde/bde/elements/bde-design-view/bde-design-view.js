@@ -33,7 +33,8 @@ Polymer({
     }
   },
   listeners: {
-    'iron-overlay-closed': 'confirmDialogCloseHandler',
+    'confirmEnablingDialog.iron-overlay-closed': 'confirmEnablingDialogCloseHandler',
+    'confirmKeepingDialog.iron-overlay-closed': 'confirmKeepingDialogCloseHandler',
     'no-compatible-template': 'noCompatibleTemplateHandler',
     'compatible-template': 'compatibleTemplateHandler',
     'new-compound-can-load': 'newCompoundCanLoadHandler'
@@ -96,25 +97,19 @@ Polymer({
     }
   },
 
-  confirmDialogCloseHandler: function (e) {
-    if (!e.target.id) {
-      return;
+  confirmEnablingDialogCloseHandler: function (e) {
+    if (e.detail.confirmed) {
+      this.set('designViewDisabled', false);
+      this.$.bdeFlexboxLayouter.templateChanged('override extern template');
+    } else {
+      this.set('designViewDisabled', true);
     }
-    switch (e.target.id) {
-      case 'confirmEnablingDialog':
-        if (e.detail.confirmed) {
-          this.set('designViewDisabled', false);
-        } else {
-          this.set('designViewDisabled', true);
-        }
-        break;
-      case 'confirmKeepingDialog':
-        if (e.detail.confirmed) {
-          this.$.bdeFlexboxLayouter.generateTemplateBlobDoc(this.selectedCompound.artifactId, this.lastEndpointId);
-        }
-        this.fire('new-compound-can-load');
-        break;
+  },
+  confirmKeeingDialogCloseHandler: function (e) {
+    if (e.detail.confirmed) {
+      this.$.bdeFlexboxLayouter.generateTemplateBlobDoc(this.selectedCompound.artifactId, this.lastEndpointId);
     }
+    this.fire('new-compound-can-load');
   },
 
   leaveHandler: function (e) {
