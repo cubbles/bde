@@ -117,20 +117,15 @@ Polymer({
     this.$.compoundCreator.open();
   },
   manifestChanged: function () {
-    this.deselect();
     if (this.manifest) {
       this.set('currentComponentMetadata.manifest', this.manifest);
       this.notifyPath('currentComponentMetadata.manifest', this.manifest);
-      this.fire('bde-current-component-metadata-change',this.currentComponentMetadata);
+      this.fire('bde-current-component-metadata-change', this.currentComponentMetadata);
       var menu = this.$$('#compoundSelector');
       Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
         subMenu.close();
       });
     }
-  },
-  deselect: function () {
-    this.$.appSelector.deselect();
-    this.$.utilitySelector.deselect();
   },
 
   handleNewCompound: function (e) {
@@ -148,8 +143,6 @@ Polymer({
   },
 
   selectApp: function (e) {
-    this.deselect();
-
     var item = this.$.appList.itemForElement(e.target);
     item.is = 'app';
     this.$.appSelector.select(item);
@@ -214,8 +207,10 @@ Polymer({
     this.set('selectedCompound', compound);
   },
 
-  selectedCompoundChanged: function(changeRecord) {
-    if (!changeRecord || !this.currentComponentMetadata.manifest) { return; }
+  selectedCompoundChanged: function (changeRecord) {
+    if (!changeRecord || !this.currentComponentMetadata.manifest) {
+      return;
+    }
 
     var path = changeRecord.path;
     var artifactPath = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(this.selectedCompound);
@@ -229,8 +224,6 @@ Polymer({
   },
 
   selectElementary: function (e) {
-    this.deselect();
-
     var item = this.$.elementaryList.itemForElement(e.target);
     item.is = 'elementary';
     this.$.elementarySelector.select(item);
@@ -239,8 +232,6 @@ Polymer({
   },
 
   selectUtility: function (e) {
-    this.deselect();
-
     var item = this.$.utilityList.itemForElement(e.target);
     item.is = 'utility';
     this.$.elementarySelector.select(item);

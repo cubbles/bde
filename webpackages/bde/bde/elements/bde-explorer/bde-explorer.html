@@ -196,22 +196,14 @@ Example:
             <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
                 <template is="dom-repeat" id="appList"
                           items="{{manifest.artifacts.apps}}" as="app">
-                    <paper-item on-tap="selectApp" toggles class="explorerItem artifact" id$="[[app.artifactId]]" disabled>
-                        <paper-item-body>
-                            <div>[[app.artifactId]]</div>
-                        </paper-item-body>
+                    <div class="explorerItem artifact" id$="[[app.artifactId]]">
+                        <div>[[app.artifactId]]</div>
                         <paper-tooltip for$="[[app.artifactId]]">
                             <div class="tooltip tooltip_title">[[app.artifactId]]</div>
                             <div class="tooltip tooltip_details">[[app.description]]</div>
                         </paper-tooltip>
-                        </paper-icon-button>
-                    </paper-item>
+                    </div>
                 </template>
-
-                <array-selector id="appSelector"
-                                items="{{manifest.artifacts.apps}}"
-                                selected="{{selectedApp}}">
-                </array-selector>
             </iron-collapse>
         </div>
 
@@ -289,22 +281,14 @@ Example:
             <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
                 <template is="dom-repeat" id="elementaryList"
                           items="{{manifest.artifacts.elementaryComponents}}" as="elementary">
-                    <paper-item on-tap="selectElementary" toggles class="explorerItem artifact"
-                                id$="[[elementary.artifactId]]" disabled>
-                        <paper-item-body>
-                            <div>[[elementary.artifactId]]</div>
-                        </paper-item-body>
+                    <div class="explorerItem artifact" id$="[[elementary.artifactId]]">
+                        <div>[[elementary.artifactId]]</div>
                         <paper-tooltip for$="[[elementary.artifactId]]">
                             <div class="tooltip tooltip_title">[[elementary.artifactId]]</div>
                             <div class="tooltip tooltip_details">[[elementary.description]]</div>
                         </paper-tooltip>
-                    </paper-item>
+                    </div>
                 </template>
-
-                <array-selector id="elementarySelector"
-                                items="{{manifest.artifacts.elementaryComponents}}"
-                                selected="{{selectedElementary}}">
-                </array-selector>
             </iron-collapse>
 
         </div>
@@ -317,17 +301,14 @@ Example:
             <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
                 <template is="dom-repeat" id="utilityList"
                           items="{{manifest.artifacts.utilities}}" as="utility">
-                    <paper-item on-tap="selectUtility" toggles class="explorerItem artifact"
-                                id$="[[utility.artifactId]]" disabled>
-                        <paper-item-body>
-                            <div>[[utility.artifactId]]</div>
-                        </paper-item-body>
+                    <div class="explorerItem artifact" id$="[[utility.artifactId]]">
+                        <div>[[utility.artifactId]]</div>
                         <paper-tooltip for$="[[utility.artifactId]]">
                             <div class="tooltip tooltip_title">[[utility.artifactId]]</div>
                             <div class="tooltip tooltip_details">[[utility.description]]</div>
                         </paper-tooltip>
                         <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
-                    </paper-item>
+                    </div>
                 </template>
 
                 <array-selector id="utilitySelector"
