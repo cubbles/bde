@@ -73,7 +73,7 @@ Polymer({
   },
 
   newCompoundCanLoadHandler: function () {
-    this.designViewDisabled = false;
+    this.set('designViewDisabled', false);
     var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
     compoundComponents.forEach(function (item) {
       if (item.artifactId === this.currentComponentMetadata.artifactId) {
