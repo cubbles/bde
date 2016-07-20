@@ -154,20 +154,21 @@
 
       // Go through all dependencies and resolve,
       // either from the same webpackage or by requesting the base
-      Promise.all(endpoint.dependencies.map(resolveDependency))
-        .then(function(artifacts) {
+      Promise.all(endpoint.dependencies.map(this._resolveDependency.bind(this)))
+        .then(function(resolutions) {
           // We need to create a library for the graph
           // and a library for the property-editor here.
           var newLibrary = {};
           var newResolutions = {};
 
-           artifacts.forEach(function(artifact) {
-             newResolutions[artifact.artifactId] = artifact;
+           resolutions.forEach(function(resolution) {
+             newResolutions[resolution.artifact.artifactId] = resolution.artifact;
            });
 
-           artifacts.map(artifactToComponent)
+          resolutions.map(artifactToComponent)
             .forEach(function(resolution) {
-              newLibrary[resolution.artifactId] = resolution.definition;
+              var componentId = resolution.componentId.replace(/\/[^\/]*$/, '');
+              newLibrary[componentId] = resolution.artifact.definition;
             });
 
           // We are done, load the graph
@@ -177,16 +178,20 @@
           self.triggerAutolayout();
         });
 
-      function artifactToComponent(artifact) {
+      function artifactToComponent(resolution) {
+        var artifact = resolution.artifact;
         return {
-          artifactId: artifact.artifactId,
-          definition: {
-            name: artifact.displayName || artifact.artifactId,
-            description: artifact.description,
-            icon: 'cog',
-            inports: artifact.slots ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
-            outports: artifact.slots ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
-          }
+          artifact: {
+            artifactId: artifact.artifactId,
+            definition: {
+              name: artifact.displayName || artifact.artifactId,
+              description: artifact.description,
+              icon: 'cog',
+              inports: artifact.slots ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
+              outports: artifact.slots ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
+            }
+          },
+          componentId: resolution.componentId
         };
       }
 
@@ -198,48 +203,8 @@
         return (slot.direction.indexOf('output') !== -1);
       }
 
-      function findInManifest(manifest, artifactId) {
-        // We don't care about webpackageId here
-        var artifactId = artifactId.split('/')[1];
-        var artifacts = [];
-        Object.keys(manifest.artifacts).forEach(function(artifactType) {
-          artifacts = artifacts.concat(manifest.artifacts[artifactType]);
-        });
-
-        return artifacts.find(function(artifact) {
-          return artifact.artifactId === artifactId;
-        });
-      }
-
-      function resolveDependency(dependency) {
-        return new Promise(function(resolve, reject) {
-          if (dependency.startsWith('this')) {
-            // Resolve local dependency
-            var artifact = findInManifest(manifest, dependency);
-            resolve(artifact);
-          } else {
-            // Resolve remote dependency
-            fetch(urlFor(dependency))
-              .then(function(response) { return response.json() })
-              .then(function(manifest) {
-                var artifact = findInManifest(manifest, dependency);
-                resolve(artifact);
-              });
-          }
-        });
-      }
-
       function transformSlot (slot) {
         return { name: slot.slotId, type: slot.type };
-      }
-
-      function urlFor(dependency) {
-        var webpackageId = dependency.split('/')[0];
-
-        var url = settings.baseUrl.replace(/\/?$/, '/') + settings.store + '/';
-        url += webpackageId + '/manifest.webpackage';
-
-        return url;
       }
     },
 
@@ -437,6 +402,13 @@
         displayName: cubble.metadata.artifactId
       };
 
+      // Resolve and add to resolutions
+      this._resolveDependency(member.componentId)
+        .then(function (resolution) {
+            this.resolutions[resolution.artifact.artifactId] = resolution.artifact;
+            this.notifyPath('resolutions', this.resolutions);
+        }.bind(this))
+
       this.push('_artifact.members', member);
       this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
         member.componentId + '/' + cubble.metadata.endpointId
@@ -455,6 +427,20 @@
       path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + path);
 
       this.set(path, changeRecord.value);
+    },
+
+    _findInManifest: function (manifest, artifactId) {
+      // We don't care about webpackageId here
+      artifactId = artifactId.split('/')[1];
+
+      var artifacts = [];
+      Object.keys(manifest.artifacts).forEach(function(artifactType) {
+        artifacts = artifacts.concat(manifest.artifacts[artifactType]);
+      });
+
+      return artifacts.find(function(artifact) {
+        return artifact.artifactId === artifactId;
+      });
     },
 
     _graphFromArtifact: function(artifact) {
@@ -520,7 +506,7 @@
       // Members
       artifact.members.forEach(function(member) {
         graph.processes[member.memberId] = {
-          "component": member.componentId.split('/')[1],
+          "component": member.componentId,
           "metadata": {
             "x": 0,
             "y": 0,
@@ -573,6 +559,33 @@
       this._graphHeight = height;
       this._graphOffsetX = offsetX;
       this._graphOffsetY = offsetY;
+    },
+
+    _resolveDependency: function (dependency) {
+      return new Promise(function(resolve, reject) {
+        if (dependency.startsWith('this')) {
+          // Resolve local dependency
+          var artifact = this._findInManifest(manifest, dependency);
+          resolve({artifact: artifact, componentId: dependency });
+        } else {
+          // Resolve remote dependency
+          fetch(this._urlFor(dependency))
+            .then(function(response) { return response.json() })
+            .then(function(manifest) {
+              var artifact = this._findInManifest(manifest, dependency);
+              resolve({artifact: artifact, componentId: dependency });
+            }.bind(this));
+        }
+      }.bind(this));
+    },
+
+    _urlFor: function(dependency) {
+      var webpackageId = dependency.split('/')[0];
+
+      var url = this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
+      url += webpackageId + '/manifest.webpackage';
+
+      return url;
     }
 
   });

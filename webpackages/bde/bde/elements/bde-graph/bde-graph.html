@@ -54,6 +54,7 @@
       name="[[artifact.artifactId]]"
       graph="[[nofloGraph]]"
       menus="[[_menus]]"
+      library="{{library}}"
       width="[[width]]" height="[[height]]"
       offset-x="[[offsetX]]" offset-y=[[offsetY]]
       pan="{{pan}}" scale="{{scale}}"
@@ -132,6 +133,10 @@
         autolayout: {
           type: Boolean,
           value: false
+        },
+
+        library: {
+            type: Object
         },
 
         nofloGraph: {
