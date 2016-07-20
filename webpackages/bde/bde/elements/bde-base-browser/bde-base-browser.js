@@ -287,7 +287,7 @@ Polymer({
     var cubble = {
       artifactId: artifact.artifactId,
       componentId: webpackageId + '/' + artifact.artifactId,
-      memberId: artifact.artifactId + '_' + Math.random().toString(36).substring(7),
+      memberId: artifact.artifactId + '-' + Math.random().toString(36).substring(7),
       displayName: artifact.artifactId,
       is: is,
       description: artifact.description,
