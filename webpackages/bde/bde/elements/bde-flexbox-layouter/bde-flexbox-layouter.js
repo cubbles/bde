@@ -66,9 +66,6 @@ Polymer({
       value: false
     }
   },
-  observers: [
-    'selectedCompoundChanged(selectedCompound.members.splices)'
-  ],
   loadSelectedCompound: function () {
     this.clearContainer();
     var sortable = this.$$('.sortable.standard');
