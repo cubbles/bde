@@ -1,33 +1,13 @@
-if (!Array.prototype.find) {
-  Array.prototype.find = function(predicate) {
-    if (this == null) {
-      throw new TypeError('Array.prototype.find called on null or undefined');
-    }
-    if (typeof predicate !== 'function') {
-      throw new TypeError('predicate must be a function');
-    }
-    var list = Object(this);
-    var length = list.length >>> 0;
-    var thisArg = arguments[1];
-    var value;
-
-    for (var i = 0; i < length; i++) {
-      value = list[i];
-      if (predicate.call(thisArg, value, i, list)) {
-        return value;
-      }
-    }
-    return undefined;
-  };
-}
-
+/* globals Blob */
 Polymer({
   is: 'bde-flexbox-layouter',
   properties: {
+    currentComponentMetadata: {
+      type: Object
+    },
     selectedCompound: {
       type: Object,
       value: null
-
     },
     compoundMembersOpen: {
       type: Boolean,
@@ -36,6 +16,9 @@ Polymer({
     layoutSettingsOpen: {
       type: Boolean,
       value: false
+    },
+    designViewDisabled: {
+      type: Boolean
     },
     flexDirection: {
       type: String,
@@ -104,13 +87,17 @@ Polymer({
     Polymer.dom(container).appendChild(element);
     Polymer.dom(element).setAttribute('class', 'member style-scope bde-flexbox-layouter');
     Polymer.dom(element).setAttribute('member-id-ref', member.memberId);
-    Polymer.dom(element).innerHTML = member.memberId;
+
+    if (member.displayName) {
+      Polymer.dom(element).setAttribute('display-name', member.displayName);
+      Polymer.dom(element).innerHTML = member.displayName;
+    } else {
+      Polymer.dom(element).innerHTML = member.memberId;
+    }
     element.addEventListener('tap', this.selectMember.bind(this));
     Polymer.dom.flush();
   },
-  // selectedCompoundChanged: function () {
-  //   this.loadSelectedCompound();
-  // },
+
   clearContainer: function () {
     var container = this.$$('#flexbox-container');
     var flexboxes = Polymer.dom(container).querySelectorAll('.flexbox');
@@ -305,6 +292,12 @@ Polymer({
   templateChanged: function (changeName) {
     this.set('lastChangeTime', new Date());
     console.log('<bde-flexbox-layouter>::templateChanged::', changeName, this.getTemplate());
+    if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
+      return;
+    }
+    this.debounce('templateChanged', function () {
+      this.generateTemplateBlobDoc();
+    }, 250);
   },
   getTemplate: function () {
     var flexboxes = Polymer.dom(this.root).querySelectorAll('.sortable');
@@ -387,12 +380,12 @@ Polymer({
     var members = this.selectedCompound.members;
     var flexboxSortables = this.querySelectorAll('.sortable');
     var nodes = [];
-    flexboxSortables.forEach(function(elem) {
+    flexboxSortables.forEach(function (elem) {
       var nodeArray = [].slice.call(elem.children);
       nodes = nodes.concat(nodeArray);
     });
     nodes.forEach(function (node) {
-      function findMember(element, index, array) {
+      function findMember (element, index, array) {
         return element.memberId === node.getAttribute('member-id-ref');
       }
       if (!members.find(findMember)) {
@@ -400,7 +393,6 @@ Polymer({
         Polymer.dom.flush();
       }
     });
-
   },
 
   updateTemplateWithNewMembers: function () {
@@ -417,12 +409,59 @@ Polymer({
   },
 
   prepareMemberToBeAdded: function (memberElement) {
-    memberElement.innerHTML = memberElement.getAttribute('member-id-ref');
+    var displayName = memberElement.getAttribute('display-name');
+    memberId = memberElement.getAttribute('member-id-ref');
+    memberElement.innerHTML = displayName || memberId
     memberElement.className = 'member';
     return memberElement;
   },
   buildAttributeName: function (suffix) {
     var version = this.bdeVersion || 'unknown';
     return 'bde-' + version.replace(/\./g, '-') + '-generated-' + suffix;
+  },
+
+  generateTemplateBlobDoc: function () {
+    if (this.designViewDisabled) {
+      return;
+    }
+    var artifactId = this.currentComponentMetadata.artifactId;
+    var endpointId = this.currentComponentMetadata.endpointId;
+    var template = this.getTemplate();
+    if (this.isEmptyTemplate(template.content)) {
+      return;
+    }
+    template.setAttribute('id', artifactId);
+    window.URL = window.URL || window.webkitURL;
+    var blob = new Blob([template.outerHTML], {type: 'text/html'});
+    var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
+    var compound;
+
+    compound = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find(function (item) {
+      return item.artifactId === artifactId;
+    });
+    var endpoint = compound.endpoints.find(function (item) {
+      return item.endpointId === endpointId;
+    });
+
+    var listToDelete = endpoint.resources.filter(function (item) {
+      return item.indexOf('.html') > -1 || item.indexOf('?type=html') > -1;
+    });
+
+    listToDelete.forEach(function (item) {
+      endpoint.resources.splice(endpoint.resources.indexOf(item), 1);
+    });
+
+    endpoint.resources.push(templateBlobUrl);
+    this.set('lastGeneratedTemplateBlobDocTime', new Date());
+  },
+
+  isEmptyTemplate: function (template) {
+    if (template.children.length === 0) {
+      return true;
+    }
+    if (template.children.length === 1 && template.children[0].tagName === 'DIV' && template.children[0].children.length === 0) {
+      return true;
+    }
+    return false;
   }
 });

@@ -1,11 +1,7 @@
-/*global XMLHttpRequest, Blob*/
+/*global XMLHttpRequest*/
 Polymer({
   is: 'bde-design-view',
   properties: {
-    blobRegistry: {
-      type: Object,
-      notify: true
-    },
     currentComponentMetadata: {
       type: Object,
       notify: true
@@ -28,7 +24,7 @@ Polymer({
       type: Boolean,
       value: false
     },
-    disabled: {
+    designViewDisabled: {
       type: Boolean,
       value: false
     },
@@ -43,7 +39,7 @@ Polymer({
     'new-compound-can-load': 'newCompoundCanLoadHandler'
   },
   observers: [
-    'currentComponentMetadataChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)'
+    'currentComponentMetadataChanged(currentComponentMetadata.*)'
   ],
 
   ready: function () {
@@ -53,12 +49,12 @@ Polymer({
 
   compatibleTemplateHandler: function () {
     this.set('compatibleTemplate', true);
-    this.set('disabled', false);
+    this.set('designViewDisabled', false);
   },
 
   noCompatibleTemplateHandler: function () {
     this.set('compatibleTemplate', false);
-    this.set('disabled', true);
+    this.set('designViewDisabled', true);
     if (this.isVisible) {
       this.$.confirmEnablingDialog.open();
     }
@@ -68,7 +64,7 @@ Polymer({
     if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
       return;
     }
-    if (this.isVisible && !this.disabled &&
+    if (this.isVisible && !this.designViewDisabled &&
       (!this.lastGeneratedTemplateBlobDocTime || this.lastGeneratedTemplateBlobDocTime < this.lastChangeTime)) {
       this.$.confirmKeepingDialog.open();
     } else {
@@ -77,7 +73,7 @@ Polymer({
   },
 
   newCompoundCanLoadHandler: function () {
-    this.disabled = false;
+    this.designViewDisabled = false;
     var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
     compoundComponents.forEach(function (item) {
       if (item.artifactId === this.currentComponentMetadata.artifactId) {
@@ -94,9 +90,8 @@ Polymer({
     if (designView.id !== 'designView') {
       return;
     }
-    this.currentComponentMetadataChanged();
     designView.set('isVisible', true);
-    if (!designView.compatibleTemplate && designView.disabled) {
+    if (!designView.compatibleTemplate && designView.designViewDisabled) {
       designView.$.confirmEnablingDialog.open();
     }
   },
@@ -108,14 +103,14 @@ Polymer({
     switch (e.target.id) {
       case 'confirmEnablingDialog':
         if (e.detail.confirmed) {
-          this.set('disabled', false);
+          this.set('designViewDisabled', false);
         } else {
-          this.set('disabled', true);
+          this.set('designViewDisabled', true);
         }
         break;
       case 'confirmKeepingDialog':
         if (e.detail.confirmed) {
-          this.generateTemplateBlobDoc(this.selectedCompound.artifactId, this.lastEndpointId);
+          this.$.bdeFlexboxLayouter.generateTemplateBlobDoc(this.selectedCompound.artifactId, this.lastEndpointId);
         }
         this.fire('new-compound-can-load');
         break;
@@ -125,57 +120,10 @@ Polymer({
   leaveHandler: function (e) {
     // TODO mapping für blob URL zu webpackage Generierung erstellen und global verwalten
     var designView = e.detail.item;
-    if (designView.id !== 'designView' || designView.disabled) {
+    if (designView.id !== 'designView' || designView.designViewDisabled) {
       return;
     }
     designView.set('isVisible', false);
-    designView.generateTemplateBlobDoc(designView.currentComponentMetadata.artifactId, designView.currentComponentMetadata.endpointId);
-  },
-
-  generateTemplateBlobDoc: function (artifactId, endpointId) {
-    var template = this.querySelector('bde-flexbox-layouter').getTemplate();
-    if (this.isEmptyTemplate(template.content)) {
-      return;
-    }
-    template.setAttribute('id', artifactId);
-    window.URL = window.URL || window.webkitURL;
-    var blob = new Blob([template.outerHTML], {type: 'text/html'});
-    var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
-    this.blobRegistry[templateBlobUrl] = template.outerHTML;
-    var compound;
-    this.currentComponentMetadata.manifest.artifacts.compoundComponents.forEach(function (item) {
-      if (item.artifactId === artifactId) {
-        compound = item;
-      }
-    });
-    var endpoint;
-    compound.endpoints.forEach(function (item) {
-      if (item.endpointId === endpointId) {
-        endpoint = item;
-      }
-    });
-    var listToDelete = [];
-    endpoint.resources.forEach(function (item) {
-      if (item.indexOf('.html') > -1 || item.indexOf('?type=html') > -1) {
-        listToDelete.push(item);
-      }
-    });
-    listToDelete.forEach(function (item) {
-      endpoint.resources.splice(endpoint.resources.indexOf(item), 1);
-    });
-
-    endpoint.resources.push(templateBlobUrl);
-    this.set('lastGeneratedTemplateBlobDocTime', new Date());
-  },
-
-  isEmptyTemplate: function (template) {
-    if (template.children.length === 0) {
-      return true;
-    }
-    if (template.children.length === 1 && template.children[0].tagName === 'DIV' && template.children[0].children.length === 0) {
-      return true;
-    }
-    return false;
   },
 
   getEndpointFromSelectedCompound: function (endpointId) {
@@ -233,10 +181,10 @@ Polymer({
 
   buildSelectedCompoundResourceUrl: function (resourceUrl) {
     var webpackageQName = '';
-    if (this.currentComponentMetadata.manifest.groupId) {
-      webpackageQName += this.currentComponentMetadata.manifest.groupId + '.';
+    webpackageQName = this.currentComponentMetadata.manifest.name + '@' + this.currentComponentMetadata.manifest.version;
+    if (this.currentComponentMetadata.manifest.groupId && this.currentComponentMetadata.manifest.groupId.length > 0) {
+      webpackageQName = this.currentComponentMetadata.manifest.groupId + '.' + webpackageQName;
     }
-    webpackageQName += this.currentComponentMetadata.manifest.name + '@' + this.currentComponentMetadata.manifest.version;
     var baseUrl = this.settings.baseUrl + '/' + this.settings.store + '/' + webpackageQName + '/' + this.selectedCompound.artifactId + '/';
 
     return this.relativeToAbsolute(baseUrl, resourceUrl);

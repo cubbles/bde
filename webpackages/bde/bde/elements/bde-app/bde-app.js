@@ -50,13 +50,6 @@
         value: true
       },
 
-      blobRegistry: {
-        type: Object,
-        value: function () {
-          return {};
-        }
-      },
-
       selectedArtifact: {
         type: Object
       },
