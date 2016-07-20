@@ -72,7 +72,7 @@
                     <!-- artifactId -->
                     <paper-input tabindex="-1"
                                  label="Artifact id"
-                                 pattern="^[a-z0-9]+(-[a-z0-9]+)+"
+                                 pattern="^[a-z0-9]+(-[a-z0-9]+)+$"
                                  placeholder="A name for this artifact - unique within the webpackage."
                                  required
                                  auto-validate
@@ -122,7 +122,7 @@
                                         <div class="collapse-content">
                                             <paper-input label="Name"
                                                          placeholder="A (short) name for the runnable."
-                                                         pattern="^(.)+"
+                                                         pattern="^(.)+$"
                                                          required
                                                          auto-validate
                                                          error-message="The runnable name is required. (e.g. 'demo')"
@@ -130,7 +130,7 @@
                                             </paper-input>
                                             <paper-input label="Path"
                                                          placeholder="Path to the 'runnable' resource - relative to the webpackage itself (e.g. '/doc/index.html')."
-                                                         pattern="^/(.)+"
+                                                         pattern="^/(.)+$"
                                                          required
                                                          auto-validate
                                                          error-message="The runnable path is required. (e.g. '/doc/index.html')"
@@ -194,7 +194,7 @@
                                                 </paper-icon-item>
                                                 <paper-input label="Endpoint Id"
                                                              placeholder="Identifier for this slot item - unique within this component."
-                                                             pattern="^[a-z0-9-]+"
+                                                             pattern="^[a-z0-9-]+$"
                                                              required
                                                              error-message="The endpoint id should be lowercase. It can contain numbers and '-'. (e.g. 'my-endpoint-1')"
                                                              auto-validate
@@ -299,7 +299,7 @@
                                                                     </paper-item-body>
                                                                 </paper-icon-item>
                                                                 <paper-input
-                                                                        pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+"
+                                                                        pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+$"
                                                                         no-label-float
                                                                         auto-validate
                                                                         error-message="The dependecy should be: 'webpackageGroupId.webpackageName@version/endpointId' or 'this/endpointId', (e.g. 'org.example.my-package@1.0/my-component/main' or 'this/my-component/main')"
@@ -370,7 +370,7 @@
                                                 </paper-icon-item>
                                                 <paper-input label="Slot Id"
                                                              placeholder="Identifier for this slot item - unique within this component."
-                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             pattern="^[a-z][a-zA-Z0-9-]*$"
                                                              required
                                                              error-message="The slot id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'my-endpoint-1' or 'myEndpoint1')"
                                                              auto-validate
@@ -454,7 +454,7 @@
                                                 </paper-icon-item>
                                                 <paper-input label="Member Id"
                                                              placeholder="Identifier for this member item - unique within this compound component."
-                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             pattern="^[a-z][a-zA-Z0-9-]*$"
                                                              required
                                                              error-message="The member id can contain letters, numbers or '-'. (e.g. 'my-member-1' or 'myMember1)"
                                                              auto-validate
@@ -462,7 +462,7 @@
                                                 </paper-input>
                                                 <paper-input label="Component Id"
                                                              placeholder="Id of the component for this member item (e.g. 'org.example.my-package@1.0/artifact1')"
-                                                             pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*[@](\d+)(\.[\d]+)*(-SNAPSHOT)?||(this)/([a-z0-9-]+)"
+                                                             pattern="^(([a-z0-9]+|([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+|([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*[@](\d+)(\.[\d]+)*(-SNAPSHOT)?|(this))\/([a-z0-9-]+)$"
                                                              required
                                                              auto-validate
                                                              error-message="The component id should follow the pattern: 'webpackageGroupId.webpackageName@version/artifactId' or 'this/artifactId'. (e.g. 'org.example.my-package@1.0/my-component' or 'this/my-component')"
@@ -528,7 +528,7 @@
                                                 </paper-icon-item>
                                                 <paper-input label="Connection Id"
                                                              placeholder="Identifier for this connection item - unique within this compound component."
-                                                             pattern="^[a-z][a-zA-Z0-9-:]*"
+                                                             pattern="^[a-z][a-zA-Z0-9-:]*$"
                                                              required
                                                              error-message="The connection id can contain letters, numbers, '-' or ':'. It should begin with a lowercase letter. (e.g. 'slot-a:slot-b')"
                                                              auto-validate
@@ -556,7 +556,7 @@
                                                     <strong>Source</strong>
                                                     <paper-input label="Member Id Reference"
                                                                  placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
-                                                                 pattern="^[a-z][a-zA-Z0-9-]*"
+                                                                 pattern="^[a-z][a-zA-Z0-9-]*$"
                                                                  error-message="The member id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'myMember')"
                                                                  auto-validate
                                                                  value="{{connection.source.memberIdRef}}">
@@ -571,7 +571,7 @@
                                                     <strong>Destination</strong>
                                                     <paper-input label="Member Id Reference"
                                                                  placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
-                                                                 pattern="^[a-z][a-zA-Z0-9-]*"
+                                                                 pattern="^[a-z][a-zA-Z0-9-]*$"
                                                                  error-message="The member id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'myMember')"
                                                                  auto-validate
                                                                  value="{{connection.destination.memberIdRef}}">
@@ -634,7 +634,7 @@
                                                 </paper-icon-item>
                                                 <paper-input label="Member Id Reference"
                                                              placeholder="The 'memberId' value of the member item, the slot belongs to. If the property is missed, it refers to an own slot of the compound component."
-                                                             pattern="^[a-z][a-zA-Z0-9-]*"
+                                                             pattern="^[a-z][a-zA-Z0-9-]*$"
                                                              error-message="The member id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'my-member-1' or 'myMember1')"
                                                              auto-validate
                                                              value="{{init.memberIdRef}}">
