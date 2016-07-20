@@ -34,10 +34,8 @@ Polymer({
   },
   listeners: {
     'confirmEnablingDialog.iron-overlay-closed': 'confirmEnablingDialogCloseHandler',
-    'confirmKeepingDialog.iron-overlay-closed': 'confirmKeepingDialogCloseHandler',
     'no-compatible-template': 'noCompatibleTemplateHandler',
-    'compatible-template': 'compatibleTemplateHandler',
-    'new-compound-can-load': 'newCompoundCanLoadHandler'
+    'compatible-template': 'compatibleTemplateHandler'
   },
   observers: [
     'currentComponentMetadataChanged(currentComponentMetadata.*)'
@@ -65,15 +63,10 @@ Polymer({
     if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
       return;
     }
-    if (this.isVisible && !this.designViewDisabled &&
-      (!this.lastGeneratedTemplateBlobDocTime || this.lastGeneratedTemplateBlobDocTime < this.lastChangeTime)) {
-      this.$.confirmKeepingDialog.open();
-    } else {
-      this.fire('new-compound-can-load');
-    }
+    this.loadNewCompound()
   },
 
-  newCompoundCanLoadHandler: function () {
+  loadNewCompound: function () {
     this.set('designViewDisabled', false);
     var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
     compoundComponents.forEach(function (item) {
@@ -105,12 +98,7 @@ Polymer({
       this.set('designViewDisabled', true);
     }
   },
-  confirmKeeingDialogCloseHandler: function (e) {
-    if (e.detail.confirmed) {
-      this.$.bdeFlexboxLayouter.generateTemplateBlobDoc(this.selectedCompound.artifactId, this.lastEndpointId);
-    }
-    this.fire('new-compound-can-load');
-  },
+
 
   leaveHandler: function (e) {
     // TODO mapping für blob URL zu webpackage Generierung erstellen und global verwalten

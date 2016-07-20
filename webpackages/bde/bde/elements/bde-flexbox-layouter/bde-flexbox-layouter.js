@@ -293,7 +293,7 @@ Polymer({
       return;
     }
     this.debounce('templateChanged', function () {
-      this.generateTemplateBlobDoc();
+      this.generateTemplateBlobDoc(this.currentComponentMetadata.artifactId, this.currentComponentMetadata.endpointId);
     }, 250);
   },
   getTemplate: function () {
@@ -407,8 +407,8 @@ Polymer({
 
   prepareMemberToBeAdded: function (memberElement) {
     var displayName = memberElement.getAttribute('display-name');
-    memberId = memberElement.getAttribute('member-id-ref');
-    memberElement.innerHTML = displayName || memberId
+    var memberId = memberElement.getAttribute('member-id-ref');
+    memberElement.innerHTML = displayName || memberId;
     memberElement.className = 'member';
     return memberElement;
   },
@@ -417,12 +417,12 @@ Polymer({
     return 'bde-' + version.replace(/\./g, '-') + '-generated-' + suffix;
   },
 
-  generateTemplateBlobDoc: function () {
+  generateTemplateBlobDoc: function (artifactId, endpointId) {
     if (this.designViewDisabled) {
       return;
     }
-    var artifactId = this.currentComponentMetadata.artifactId;
-    var endpointId = this.currentComponentMetadata.endpointId;
+    // var artifactId = this.currentComponentMetadata.artifactId;
+    // var endpointId = this.currentComponentMetadata.endpointId;
     var template = this.getTemplate();
     if (this.isEmptyTemplate(template.content)) {
       return;
