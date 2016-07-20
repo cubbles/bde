@@ -196,7 +196,7 @@ Example:
             <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
                 <template is="dom-repeat" id="appList"
                           items="{{manifest.artifacts.apps}}" as="app">
-                    <paper-item on-tap="selectApp" toggles class="explorerItem artifact" id$="[[app.artifactId]]">
+                    <paper-item on-tap="selectApp" toggles class="explorerItem artifact" id$="[[app.artifactId]]" disabled>
                         <paper-item-body>
                             <div>[[app.artifactId]]</div>
                         </paper-item-body>
@@ -290,7 +290,7 @@ Example:
                 <template is="dom-repeat" id="elementaryList"
                           items="{{manifest.artifacts.elementaryComponents}}" as="elementary">
                     <paper-item on-tap="selectElementary" toggles class="explorerItem artifact"
-                                id$="[[elementary.artifactId]]">
+                                id$="[[elementary.artifactId]]" disabled>
                         <paper-item-body>
                             <div>[[elementary.artifactId]]</div>
                         </paper-item-body>
@@ -318,7 +318,7 @@ Example:
                 <template is="dom-repeat" id="utilityList"
                           items="{{manifest.artifacts.utilities}}" as="utility">
                     <paper-item on-tap="selectUtility" toggles class="explorerItem artifact"
-                                id$="[[utility.artifactId]]">
+                                id$="[[utility.artifactId]]" disabled>
                         <paper-item-body>
                             <div>[[utility.artifactId]]</div>
                         </paper-item-body>
