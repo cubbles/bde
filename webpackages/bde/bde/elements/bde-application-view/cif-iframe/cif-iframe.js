@@ -14,13 +14,11 @@
 
   function _handleMessage (event) {
     var data = event.data || {};
-    console.log(data.message, data);
     if (!data || !data.message) {
       return;
     }
 
     switch (data.message) {
-
       case 'debug':
         console.log('got', data);
         break;
@@ -30,7 +28,6 @@
           _handleCurrentComponentMetadata.call(this, data.data);
         }
         break;
-
     }
   };
 
@@ -58,6 +55,7 @@
     if (currentComponentMetadata.manifest.groupId && currentComponentMetadata.manifest.groupId.length > 0) {
       webpackageId = currentComponentMetadata.manifest.groupId + '.' + webpackageId;
     }
+
     // Create rootDependencies object
     window.cubx = {
       CRCInit: {
@@ -70,12 +68,10 @@
         ]
       }
     };
-
     var component = document.createElement(currentComponentMetadata.artifactId);
     crcRoot.appendChild(component);
 
     _injectScript(crcLoaderUrl, function () {
-      console.log('CRCLoader injected...');
       var event = document.createEvent('CustomEvent');
       event.initCustomEvent('iframeReady', true, true, {});
       // Dispatch this 'iframeReady' event so that the CRC starts working
@@ -113,6 +109,9 @@
   };
 
   window.addEventListener('message', _handleMessage, false);
+  window.addEventListener('DOMContentLoaded', function (e) {
+    _postMessage('DOMContentLoaded');
+  }, false);
   window.addEventListener('cifReady', function (e) {
     _postMessage('loaded');
   }, false);
