@@ -136,101 +136,10 @@ Polymer({
       this.$.endpointsDialog.refit();
     });
   },
-  handleLoaded: function () {
-    this.loading = false;
-  },
-
-  handleLoading: function () {
-    this.loading = true;
-  },
-  /**
-   * Clear the input of the search field on button click.
-   *
-   * @method clearInput
-   */
-  clearInput: function () {
-    this.set('_filtered', []);
-    this.$.search.value = '';
-    this.$.search.focus();
-  },
-
-  handleDialogOpen: function (event) {
-    this.set('ownComponents', this._currentManifestComponents());
-  },
-  /**
-   * Handles the input of a search term in the input field
-   * and returns the filtered array matching the expression in the input.
-   * As well as resizing the dialog, based on search result.
-   *
-   * @method handleInput
-   */
-  handleInput: function (event) {
-    this.debounce('handleInput', function () {
-      var searchTerm = event.target.value.replace(/[*,?]/g, '');
-      var filtered = JSON.parse(JSON.stringify(this._cubbles || []));
-      filtered = filtered.concat(this.ownComponents);
-
-      // Scroll to top of the list
-      this.$.list.scrollTarget.scrollTop = 0;
-
-      if (searchTerm.length === 0) {
-        this.set('_filtered', []);
-        return;
-      }
-
-      if (this.appsOnly) {
-        filtered = filtered.filter((i) => i.artifactType === 'app');
-      }
-
-      if (this.elementariesOnly) {
-        filtered = filtered.filter((i) => i.artifactType === 'elementaryComponent');
-      }
-
-      if (this.compoundsOnly) {
-        filtered = filtered.filter((i) => i.artifactType === 'compoundComponent');
-      }
-
-      if (this.utilitiesOnly) {
-        filtered = filtered.filter((i) => i.artifactType === 'utility');
-      }
-
-      filtered = filtered.filter( function (item) {
-        if (item.artifactId.indexOf(searchTerm) !== -1 || (item.name && item.name.indexOf(searchTerm) !== -1)) {
-          return true;
-        }
-        return false;
-      });
-
-      filtered = filtered.sort(this._sortArtifacts);
-
-      this.set('_filtered', filtered);
-
-      this.async(() => this.$.list.fire('iron-resize'));
-    }.bind(this), 125);
-  },
-
-  /**
-   * Item was selected from the list of results
-   */
-  handleItemSelect: function (event) {
-    var artifact = event.detail;
-    this.set('selected', artifact);
-    if (artifact.endpoints.length > 1) {
-      var dialog = this.$.endpointsDialog;
-      dialog.open();
-    } else {
-      this.addMember(artifact, artifact.endpoints[ 0 ].endpointId);
-    }
-  },
-  endpointSelected: function (event) {
-    var item = event.detail;
-    var artifact = JSON.parse(item.artifact);
-    var endpointId = item.endpointId;
-    this.addMember(artifact, endpointId);
-  },
 
   addMember: function (artifact, endpointId) {
     this.fire('bde-member-loading');
+    this.filterList(this.$.search.value);
     var webpackageId;
     if (artifact.webpackageId === 'this') {
       webpackageId = 'this';
@@ -276,7 +185,7 @@ Polymer({
      *
      * @var {String} app|elementary|compound|utility
      */
-    var is = (function(artifact) {
+    var is = (function (artifact) {
       if (artifact.artifactType === 'app') { return 'app'; }
       if (artifact.artifactType === 'elementaryComponent') { return 'elementary'; }
       if (artifact.artifactType === 'compoundComponent') { return 'compound'; }
@@ -304,6 +213,103 @@ Polymer({
     this.fire('library-update-required', { item: component });
     this.fire('iron-selected', { item: cubble });
   },
+
+  /**
+   * Clear the input of the search field on button click.
+   *
+   * @method clearInput
+   */
+  clearInput: function () {
+    this.set('_filtered', []);
+    this.$.search.value = '';
+    this.$.search.focus();
+  },
+  endpointSelected: function (event) {
+    var item = event.detail;
+    var artifact = JSON.parse(item.artifact);
+    var endpointId = item.endpointId;
+    this.addMember(artifact, endpointId);
+  },
+
+  handleDialogOpen: function (event) {
+    this.set('ownComponents', this._currentManifestComponents());
+  },
+
+  /**
+   * Handles the input of a search term in the input field
+   * and returns the filtered array matching the expression in the input.
+   * As well as resizing the dialog, based on search result.
+   *
+   * @method handleInput
+   */
+  handleInput: function (event) {
+    this.debounce('handleInput', function () {
+      this.filterList(event.target.value);
+    }.bind(this), 125);
+  },
+  filterList: function (searchString) {
+    var searchTerm = searchString.replace(/[*,?]/g, '');
+    var filtered = JSON.parse(JSON.stringify(this._cubbles || []));
+    filtered = filtered.concat(this.ownComponents);
+
+    // Scroll to top of the list
+    this.$.list.scrollTarget.scrollTop = 0;
+
+    if (searchTerm.length === 0) {
+      this.set('_filtered', []);
+      return;
+    }
+
+    if (this.appsOnly) {
+      filtered = filtered.filter((i) => i.artifactType === 'app');
+    }
+
+    if (this.elementariesOnly) {
+      filtered = filtered.filter((i) => i.artifactType === 'elementaryComponent');
+    }
+
+    if (this.compoundsOnly) {
+      filtered = filtered.filter((i) => i.artifactType === 'compoundComponent');
+    }
+
+    if (this.utilitiesOnly) {
+      filtered = filtered.filter((i) => i.artifactType === 'utility');
+    }
+
+    filtered = filtered.filter(function (item) {
+      if (item.artifactId.indexOf(searchTerm) !== -1 || (item.name && item.name.indexOf(searchTerm) !== -1)) {
+        return true;
+      }
+      return false;
+    });
+
+    filtered = filtered.sort(this._sortArtifacts);
+
+    this.set('_filtered', filtered);
+
+    this.async(() => this.$.list.fire('iron-resize'));
+  },
+
+  /**
+   * Item was selected from the list of results
+   */
+  handleItemSelect: function (event) {
+    var artifact = event.detail;
+    this.set('selected', artifact);
+    if (artifact.endpoints.length > 1) {
+      var dialog = this.$.endpointsDialog;
+      dialog.open();
+    } else {
+      this.addMember(artifact, artifact.endpoints[ 0 ].endpointId);
+    }
+  },
+  handleLoaded: function () {
+    this.loading = false;
+  },
+
+  handleLoading: function () {
+    this.loading = true;
+  },
   /**
    * Handles the initial AJAX response and applies a prefiltering of the result list.
    *
@@ -325,11 +331,10 @@ Polymer({
           newReference.webpackageId = 'this';
           newReference.artifactType = 'compoundComponent';
           components.push(newReference);
-
         });
       }
       var elementaries = this.manifest.artifacts.elementaryComponents;
-      if(elementaries) {
+      if (elementaries) {
         elementaries.forEach(function (item) {
           var newReference = JSON.parse(JSON.stringify(item));
           newReference.webpackageId = 'this';
@@ -339,6 +344,16 @@ Polymer({
       }
     }
     return components;
+  },
+  settingsChanged: function () {
+    this.$.ajax.set('url', this._computeBaseUrl(this.settings.baseUrl, this.settings.store));
+    this.clearInput();
+  },
+  /* *********************************************************************************/
+  /* ***************************** private methods ***********************************/
+  /* *********************************************************************************/
+  _computeBaseUrl: function (baseUrl, store) {
+    return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
   },
   _sortArtifacts: function (a, b) {
     if (a.artifactId < b.artifactId) {
@@ -404,13 +419,6 @@ Polymer({
       }
     }
     return 0;
-  },
-  _computeBaseUrl: function (baseUrl, store) {
-    return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
-  },
-
-  settingsChanged: function () {
-    this.$.ajax.set('url', this._computeBaseUrl(this.settings.baseUrl, this.settings.store));
-    this.clearInput();
   }
+
 });

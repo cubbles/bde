@@ -72,7 +72,7 @@ Polymer({
     if (this.selectedCompound) {
       var members = this.selectedCompound.members;
       for (let i = 0; i < members.length; i++) {
-        this.addMemberToContainer(sortable, members[i]);
+        this.addMemberToContainer(sortable, members[ i ]);
       }
     }
     this.set('lastChangeTime', new Date(0));
@@ -100,16 +100,16 @@ Polymer({
     var flexboxes = Polymer.dom(container).querySelectorAll('.flexbox');
 
     for (var i = 0; i < flexboxes.length; i++) {
-      var sortable = Polymer.dom(flexboxes[i]).querySelector('.sortable');
-      var nodes = Polymer.dom(flexboxes[i]).querySelectorAll('.member');
+      var sortable = Polymer.dom(flexboxes[ i ]).querySelector('.sortable');
+      var nodes = Polymer.dom(flexboxes[ i ]).querySelectorAll('.member');
 
       // Remove flexbox
       if (i > 1) {
-        Polymer.dom(container).removeChild(flexboxes[i]);
+        Polymer.dom(container).removeChild(flexboxes[ i ]);
         Polymer.dom.flush();
       } else {
         for (let n = 0; n < nodes.length; n++) {
-          Polymer.dom(sortable).removeChild(nodes[n]);
+          Polymer.dom(sortable).removeChild(nodes[ n ]);
           Polymer.dom.flush();
         }
 
@@ -219,7 +219,7 @@ Polymer({
   selectFlexbox: function (event) {
     var selectedElements = Polymer.dom(event).localTarget.parentNode.parentNode.querySelectorAll('.selected');
     for (let i = 0; i < selectedElements.length; i++) {
-      selectedElements[i].classList.remove('selected');
+      selectedElements[ i ].classList.remove('selected');
     }
     Polymer.dom(event).localTarget.classList.add('selected');
     // Update flexbox settings
@@ -227,7 +227,7 @@ Polymer({
     // Unselect member
     selectedElements = Polymer.dom(this.root).querySelectorAll('.member-selected');
     for (let i = 0; i < selectedElements.length; i++) {
-      selectedElements[i].classList.remove('member-selected');
+      selectedElements[ i ].classList.remove('member-selected');
     }
     this.$$('#item-settings').classList.add('hidden');
   },
@@ -263,9 +263,9 @@ Polymer({
       var flexboxes = Polymer.dom(container).querySelectorAll('.sortable:not(.parking)');
 
       for (let i = 0; i < flexboxes.length; i++) {
-        var selectedElements = Polymer.dom(flexboxes[i]).querySelectorAll('.member-selected');
+        var selectedElements = Polymer.dom(flexboxes[ i ]).querySelectorAll('.member-selected');
         for (let i = 0; i < selectedElements.length; i++) {
-          selectedElements[i].classList.remove('member-selected');
+          selectedElements[ i ].classList.remove('member-selected');
         }
       }
       Polymer.dom(event).localTarget.classList.add('member-selected');
@@ -302,7 +302,7 @@ Polymer({
     template.setAttribute(this.buildAttributeName('template'), '');
 
     for (let i = 0; i < flexboxes.length; i++) {
-      let flexbox = flexboxes[i].cloneNode(true);
+      let flexbox = flexboxes[ i ].cloneNode(true);
       let div = document.createElement('div');
       if (flexbox.classList.contains('parking')) {
         div.style.display = 'none';
@@ -321,9 +321,9 @@ Polymer({
         }
       }
       for (let ii = 0; ii < div.children.length; ii++) {
-        div.children[ii].removeAttribute('class');
-        div.children[ii].removeAttribute('draggable');
-        div.children[ii].innerHTML = '';
+        div.children[ ii ].removeAttribute('class');
+        div.children[ ii ].removeAttribute('draggable');
+        div.children[ ii ].innerHTML = '';
       }
     }
     return template;
@@ -343,7 +343,7 @@ Polymer({
     // Load hidden members
     var hiddenDiv = template.content.querySelector('[' + this.buildAttributeName('hidden-div') + ']');
     for (var i = 0; i < hiddenDiv.children.length; i++) {
-      Polymer.dom(sortables[0]).appendChild(this.prepareMemberToBeAdded(hiddenDiv.children[i]));
+      Polymer.dom(sortables[ 0 ]).appendChild(this.prepareMemberToBeAdded(hiddenDiv.children[ i ]));
     }
     // Load visible members
     var flexDivs = template.content.querySelectorAll('[' + this.buildAttributeName('flex-div') + ']');
@@ -354,14 +354,14 @@ Polymer({
         // Add flexvbox divs when needed
         flexbox = this.addFlexbox().querySelector('.sortable');
       } else {
-        flexbox = sortables[1];
+        flexbox = sortables[ 1 ];
         flexbox.classList.remove('selected');
       }
       // Apply style to divs
-      flexbox.setAttribute('style', flexDivs[j].getAttribute('style'));
-      members = flexDivs[j].children;
+      flexbox.setAttribute('style', flexDivs[ j ].getAttribute('style'));
+      members = flexDivs[ j ].children;
       while (members.length > 0) {
-        Polymer.dom(flexbox).appendChild(this.prepareMemberToBeAdded(members[0]));
+        Polymer.dom(flexbox).appendChild(this.prepareMemberToBeAdded(members[ 0 ]));
       }
     }
     Polymer.dom.flush();
@@ -377,10 +377,14 @@ Polymer({
     var members = this.selectedCompound.members;
     var flexboxSortables = this.querySelectorAll('.sortable');
     var nodes = [];
-    flexboxSortables.forEach(function (elem) {
-      var nodeArray = [].slice.call(elem.children);
-      nodes = nodes.concat(nodeArray);
-    });
+
+    for (var i = 0; i < flexboxSortables.length; i++) {
+      var elem = flexboxSortables[ i ];
+      for (var ii = 0; ii < elem.children.length; ii++) {
+        nodes.push(elem.children[ii]);
+      }
+    }
+
     nodes.forEach(function (node) {
       function findMember (element, index, array) {
         return element.memberId === node.getAttribute('member-id-ref');
@@ -429,7 +433,7 @@ Polymer({
     }
     template.setAttribute('id', artifactId);
     window.URL = window.URL || window.webkitURL;
-    var blob = new Blob([template.outerHTML], {type: 'text/html'});
+    var blob = new Blob([ template.outerHTML ], { type: 'text/html' });
     var templateBlobUrl = window.URL.createObjectURL(blob) + '?type=html';
     var compound;
 
@@ -456,7 +460,7 @@ Polymer({
     if (template.children.length === 0) {
       return true;
     }
-    if (template.children.length === 1 && template.children[0].tagName === 'DIV' && template.children[0].children.length === 0) {
+    if (template.children.length === 1 && template.children[ 0 ].tagName === 'DIV' && template.children[ 0 ].children.length === 0) {
       return true;
     }
     return false;

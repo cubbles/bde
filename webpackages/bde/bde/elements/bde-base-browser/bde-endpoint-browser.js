@@ -10,5 +10,4 @@ Polymer({
     this.fire('bde-select-endpoint', {artifact: item.dataset.artifact, endpointId: item.dataset.endpointId});
   }
 
-
 });

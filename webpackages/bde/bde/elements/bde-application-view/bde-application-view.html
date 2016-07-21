@@ -53,7 +53,7 @@
 
         <div class="spinner-wrapper" hidden="[[loaded]]">
             <paper-spinner id="spinner" active></paper-spinner>
-            <span class="hint">Complete <a href="javascript:void(0)" on-tap="openProjectProperties">project settings</a> and add some cubbles</span>
+            <span class="hint">Wait...</span>
         </div>
 
         <iframe
@@ -80,120 +80,6 @@
 
     </template>
 
-    <script>
-    (function () {
-        'use strict';
-
-        // window.addEventListener('message', console.log.bind(console));
-
-        Polymer({
-
-            is: 'bde-application-view',
-
-            properties: {
-
-                loaded: {
-                    type: Boolean,
-                    value: false,
-                    notify: true
-                },
-
-                currentComponentMetadata: {
-                    type: Object
-                },
-                settings: {
-                    type: Object
-                }
-
-            },
-
-            observers: [
-                'currentComponentMetadataChanged(currentComponentMetadata.*)'
-            ],
-
-            created: function () {
-
-                // Polymer does not let me bind to window in `listeners`
-                window.addEventListener('message', this.handleMessage.bind(this), false);
-
-            },
-
-            ready: function () {
-                this.parentNode.addEventListener('iron-select', this.entryHandler);
-            },
-
-            handleMessage: function (event) {
-                var data = event.data || {};
-
-                if (!data || !data.message) {
-                    return;
-                }
-
-                switch (data.message) {
-
-                    case 'loaded':
-                        this.loaded = true;
-                        console.log("`loaded` event from iframe");
-                    break;
-
-                }
-
-            },
-            entryHandler: function(e){
-                var applicationView = e.detail.item;
-                if (!applicationView || !applicationView.id || applicationView.id !== 'applicationView'){
-                    return;
-                }
-                applicationView.currentComponentMetadataChanged();
-            },
-            currentComponentMetadataChanged: function () {
-                if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest
-                        || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId){
-                    return;
-                }
-                this.currentComponentMetadata.settings = this.settings;
-                this.reloadIframe(() => {
-                    this._postMessage('currentComponentMetadata', this.currentComponentMetadata);
-                });
-            },
-
-            reloadIframe: function (cb) {
-
-                this.loaded = false;
-
-                this.$.iframe.onload = cb.bind(this);
-                this.$.iframe.contentWindow.location.reload();
-
-            },
-
-            _computeIFrameClasses: function (loaded) {
-                return (!loaded) ? 'hidden': 'visible';
-            },
-
-            _postMessage: function (message, data) {
-                this.debounce('postMessage', () => {
-                    var payload = { 'message': message };
-                    payload.data = {};
-                    if (data) {
-                        Object.keys(data).forEach(function (key) {
-                            if (key === 'manifest'){
-                                payload.data[ key ] = data[ key ].toValidManifest();
-                            } else {
-                                payload.data[ key ] = data[ key ];
-                            }
-                        });
-                    }
-
-                    this.$.iframe.contentWindow.postMessage(
-                        JSON.parse(JSON.stringify(payload)),
-                        document.location.origin
-                    );
-                }, 250);
-            }
-
-
-        });
-    }());
-    </script>
+    <script src="bde-application-view.js"></script>
 
 </dom-module>
