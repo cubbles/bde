@@ -70,7 +70,8 @@
       'bde-manifest-loaded': 'handleLoaded',
       'bde-manifest-loading': 'handleLoading',
       'bde-member-loaded': 'handleLoaded',
-      'bde-member-loading': 'handleLoading'
+      'bde-member-loading': 'handleLoading',
+      'iron-select': '_handlePageSelect'
     },
 
     attached: function () {
@@ -88,6 +89,7 @@
     ready: function () {
       this.loadBdeVersion();
     },
+
     computeBaseUrl: function (baseUrl, store, partial) {
       if (!partial || typeof partial !== 'string') {
         throw new TypeError('`partial` must be a string');
@@ -103,16 +105,16 @@
       }
     },
 
+    handleGraphUpdate: function () {
+      this.$.dataflowView.rerender();
+    },
+
     handleLoading: function () {
       this.loading = true;
     },
 
     handleLoaded: function () {
       this.loading = false;
-    },
-
-    handleGraphUpdate: function () {
-      this.$.dataflowView.rerender();
     },
 
     handleResize: function (event) {
@@ -137,9 +139,21 @@
     _concatArray: function () {
       return [].concat.apply(this, arguments);
     },
+
+    _handlePageSelect: function (event) {
+       if(event.detail.item.id === 'dataflowView'){
+         this._resizeView(event.detail.item);
+       }
+    },
+
+    _resizeView : function (view) {
+      view.handleResize();
+    },
+
     storeSettingsBtnHandler: function () {
       this.$.storeSettings.opened = !this.$.storeSettings.opened;
     },
+
     aboutBtnHandler: function () {
       this.$.about.opened = !this.$.about.opened;
     },

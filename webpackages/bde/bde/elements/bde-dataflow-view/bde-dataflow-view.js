@@ -113,10 +113,10 @@
 
     attached: function() {
       // Set initial graph size
-      this.async(this._handleResize);
+      this.async(this.handleResize);
 
       // Resize cannot be bound using `listeners`
-      window.addEventListener('resize', this._handleResize.bind(this));
+      window.addEventListener('resize', this.handleResize.bind(this));
     },
 
     /**
@@ -297,7 +297,7 @@
       });
     },
 
-    handleRemoveEdge: function(event) {
+    handleRemoveEdge: function (event) {
       var edge = event.detail;
       var cIdx = this._artifact.connections.findIndex(function(connection) {
         return connection.source.memberIdRef === edge.from.node &&
@@ -307,6 +307,22 @@
       });
 
       this.splice('_artifact.connections', cIdx, 1);
+    },
+
+    handleResize: function () {
+      var clientRects = this.getClientRects();
+      if (clientRects.length === 0) {
+        return;
+      }
+      var width = clientRects[0].width;
+      var height = clientRects[0].height;
+      var offsetX = clientRects[0].left;
+      var offsetY = clientRects[0].top;
+
+      this._graphWidth = width;
+      this._graphHeight = height;
+      this._graphOffsetX = offsetX;
+      this._graphOffsetY = offsetY;
     },
 
     membersChanged: function(changeRecord) {
@@ -546,19 +562,6 @@
       });
 
       return graph;
-    },
-
-    _handleResize: function() {
-      var clientRects = this.getClientRects();
-      var width = clientRects[0].width;
-      var height = clientRects[0].height;
-      var offsetX = clientRects[0].left;
-      var offsetY = clientRects[0].top;
-
-      this._graphWidth = width;
-      this._graphHeight = height;
-      this._graphOffsetX = offsetX;
-      this._graphOffsetY = offsetY;
     },
 
     _resolveDependency: function (dependency) {

@@ -73,6 +73,7 @@ Polymer({
 
   listeners: {
     'bde_compound_select': 'handleBdeCompoundSelect',
+    'compoundSelector.iron-items-changed': 'handleCompoundItemsChanged'
   },
   ready: function () {
     // Bind dom-change to wait for dom-repeat
@@ -130,16 +131,25 @@ Polymer({
 
   handleNewCompound: function (e) {
     this.push('manifest.artifacts.compoundComponents', e.detail.value);
-    this.notifyPath('manifest.artifacts.compoundComponents', this.manifest.artifacts.compoundComponents);
-    this.$.compoundSelector.select(e.detail.value);
-  },
+    this.notifyPath('manifest.artifacts.compoundComponents', this.manifest.artifacts.compoundComponents.slice());
 
+    //this.$.compoundSelector.tempSelected = e.detail.value;
+    //this.$.compoundSelector.select(e.detail.value);
+    // this.$.compoundSelector.fire('iron-select', this.$.compoundSelector.selected);
+  },
+  handleCompoundItemsChanged: function (event) {
+    // find added paper-submenu and ignore added text nodes
+    var addedItem = event.detail.addedNodes.find((item) => item.tagName && item.tagName.toLowerCase() === 'paper-submenu');
+    if (addedItem !== this.$.compoundSelector.selectedItem) {
+      this.$.compoundSelector.select(addedItem.dataset.artifactId);
+    }
+  },
   openSettings: function (e) {
     e.stopPropagation();
     var item = e.model.dataHost.itemForElement(e.target);
     item.is = e.model.dataHost.id.replace(/List/, '');
 
-    this.fire('bde-explorer-open-settings', {item: item});
+    this.fire('bde-explorer-open-settings', { item: item });
   },
 
   selectApp: function (e) {
@@ -147,7 +157,7 @@ Polymer({
     item.is = 'app';
     this.$.appSelector.select(item);
 
-    this.fire('iron-select', {is: 'app', item: item});
+    this.fire('iron-select', { is: 'app', item: item });
   },
 
   explorerItemSelected: function (e) {
@@ -220,7 +230,7 @@ Polymer({
   },
 
   selectEndpoint: function (endpointId) {
-    this.set('currentComponentMetadata.endpointId', endpointId.split('_')[1]);
+    this.set('currentComponentMetadata.endpointId', endpointId.split('_')[ 1 ]);
   },
 
   selectElementary: function (e) {
@@ -228,7 +238,7 @@ Polymer({
     item.is = 'elementary';
     this.$.elementarySelector.select(item);
 
-    this.fire('iron-select', {is: 'elementary', item: item});
+    this.fire('iron-select', { is: 'elementary', item: item });
   },
 
   selectUtility: function (e) {
@@ -236,7 +246,7 @@ Polymer({
     item.is = 'utility';
     this.$.elementarySelector.select(item);
 
-    this.fire('iron-select', {is: 'utility', item: item});
+    this.fire('iron-select', { is: 'utility', item: item });
   },
 
   toggleApps: function () {
