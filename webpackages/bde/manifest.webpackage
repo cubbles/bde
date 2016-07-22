@@ -8,9 +8,29 @@
     "name": "Edwin Gamboa",
     "email": "edwin.gamboa@incowia.com"
   },
+  "contributors": [
+    {
+      "name": "Felix Dürrwald",
+      "email": "Felix.Duerrwald@hm-ag.de"
+    },
+    {
+      "name": "Erik Neute",
+      "email": "Erik.Neute@hm-ag.de"
+    },
+    {
+      "name": "Philipp Wagner",
+      "email": "Philipp.Wagner@incowia.com"
+    },
+    {
+      "name": "Judit Ross",
+      "email": "Judit.ross@incowia.com"
+    }
+  ],
   "license": "MIT",
-  "keywords": ["BDE"],
-  "man": [],
+  "keywords": [
+    "BDE"
+  ],
+  "man": [ ],
   "artifacts": {
     "apps": [
       {
@@ -25,8 +45,8 @@
         ]
       }
     ],
-    "elementaryComponents": [],
-    "compoundComponents": [],
-    "utilities": []
+    "elementaryComponents": [ ],
+    "compoundComponents": [ ],
+    "utilities": [ ]
   }
 }
