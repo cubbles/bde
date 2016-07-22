@@ -70,6 +70,9 @@
     };
     var component = document.createElement(currentComponentMetadata.artifactId);
     crcRoot.appendChild(component);
+    // (ene) quick-fix for BDE-269 horizontal center of the component
+    crcRoot.setAttribute('style', 'text-align: center');
+    crcRoot.firstChild.setAttribute('style', 'display: inline-block');
 
     _injectScript(crcLoaderUrl, function () {
       var event = document.createEvent('CustomEvent');
