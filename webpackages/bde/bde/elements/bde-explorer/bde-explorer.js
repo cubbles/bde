@@ -73,7 +73,7 @@ Polymer({
 
   listeners: {
     'bde_compound_select': 'handleBdeCompoundSelect',
-    'compoundSelector.iron-items-changed': 'handleCompoundItemsChanged'
+    'compoundSelector.iron-items-changed': '_handleCompoundItemsChanged'
   },
   ready: function () {
     // Bind dom-change to wait for dom-repeat
@@ -132,12 +132,9 @@ Polymer({
   handleNewCompound: function (e) {
     this.push('manifest.artifacts.compoundComponents', e.detail.value);
     this.notifyPath('manifest.artifacts.compoundComponents', this.manifest.artifacts.compoundComponents.slice());
-
-    //this.$.compoundSelector.tempSelected = e.detail.value;
-    //this.$.compoundSelector.select(e.detail.value);
-    // this.$.compoundSelector.fire('iron-select', this.$.compoundSelector.selected);
   },
-  handleCompoundItemsChanged: function (event) {
+
+  _handleCompoundItemsChanged: function (event) {
     // find added paper-submenu and ignore added text nodes
     var addedItem = event.detail.addedNodes.find((item) => item.tagName && item.tagName.toLowerCase() === 'paper-submenu');
     if (addedItem !== this.$.compoundSelector.selectedItem) {
