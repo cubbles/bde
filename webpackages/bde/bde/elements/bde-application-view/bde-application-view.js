@@ -28,10 +28,6 @@
 
     },
 
-    observers: [
-      'currentComponentMetadataChanged(currentComponentMetadata.*)'
-    ],
-
     created: function () {
       // Polymer does not let me bind to window in `listeners`
       window.addEventListener('message', this.handleMessage.bind(this), false);
