@@ -119,6 +119,9 @@
             .route-buttons[active] {
                 color: #ff4081;
             }
+            .view-buttons{
+                margin-right: 2.5em;
+            }
         </style>
 
         <!-- Global application state -->
@@ -217,7 +220,7 @@
 
                 <span class="flex"></span>
 
-                <page-select-menu selected="{{selectedPage}}">
+                <page-select-menu selected="{{selectedPage}}" class="view-buttons">
                     <paper-icon-button id="flowIcon"
                                        page="dataflowView"
                                        title="change to dataflow-view"
