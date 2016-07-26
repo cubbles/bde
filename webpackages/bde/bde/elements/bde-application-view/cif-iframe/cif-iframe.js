@@ -40,13 +40,15 @@
       document.location.reload();
       return;
     }
+    var component = document.createElement(currentComponentMetadata.artifactId);
+    crcRoot.appendChild(component);
+    // (ene) quick-fix for BDE-269 horizontal center of the component
+    crcRoot.setAttribute('style', 'text-align: center');
+    crcRoot.firstChild.setAttribute('style', 'display: inline-block');
+
     var baseUrl = currentComponentMetadata.settings.baseUrl + '/' + currentComponentMetadata.settings.store + '/';
     var crcLoaderUrl = baseUrl + rteWebpackage + '/crc-loader/js/main.js';
     var webComponentsUrl = baseUrl + rteWebpackage + '/webcomponents/webcomponents-lite.js';
-
-    _injectScript(webComponentsUrl, function () {
-      console.log('Webcomponents injected...');
-    });
 
     var webpackageId = currentComponentMetadata.manifest.name + '@' +
       currentComponentMetadata.manifest.version + '/' +
@@ -68,24 +70,26 @@
         ]
       }
     };
-    var component = document.createElement(currentComponentMetadata.artifactId);
-    crcRoot.appendChild(component);
-    // (ene) quick-fix for BDE-269 horizontal center of the component
-    crcRoot.setAttribute('style', 'text-align: center');
-    crcRoot.firstChild.setAttribute('style', 'display: inline-block');
+    _injectScript(webComponentsUrl, function () {
+      console.log('Webcomponents injected...');
+    });
 
     _injectScript(crcLoaderUrl, function () {
+      console.log('beforeEvent...');
       var event = document.createEvent('CustomEvent');
       event.initCustomEvent('iframeReady', true, true, {});
       // Dispatch this 'iframeReady' event so that the CRC starts working
       document.dispatchEvent(event);
+      console.log('crcLoader script injected...');
     },
-    { 'data-crcinit-loadcif': 'true', 'data-cubx-startevent': 'iframeReady' });
+    {'data-crcinit-loadcif': 'true', 'data-cubx-startevent': 'iframeReady'});
   };
 
   function _injectScript (src, cb, additionalAttrs) {
     var head = document.querySelector('head');
     var script = document.createElement('script');
+    script.async = false;
+    script.type = 'text/javascript';
 
     script.onload = function () {
       cb.call(this);
@@ -117,5 +121,9 @@
   }, false);
   window.addEventListener('cifReady', function (e) {
     _postMessage('loaded');
+  }, false);
+  window.addEventListener('crcReady', function (e) {
+    console.log('crcReady');
+    console.log('window.Polymer', window.Polymer);
   }, false);
 }());

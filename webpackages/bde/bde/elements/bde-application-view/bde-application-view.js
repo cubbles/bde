@@ -75,8 +75,7 @@
       applicationView.currentComponentMetadataChanged();
     },
     currentComponentMetadataChanged: function () {
-      if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest ||
-        !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
+      if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
         return;
       }
       this.currentComponentMetadata.settings = this.settings;
@@ -95,14 +94,7 @@
       this.loaded = false;
 
       this.$.iframe.onload = cb.bind(this);
-      // window.setTimeout(function () {
       this.$.iframe.contentWindow.location.reload();
-      // }.bind(this), 1000);
-
-    },
-
-    _computeIFrameClasses: function (loaded) {
-      return (!loaded) ? 'hidden' : 'visible';
     },
 
     _postMessage: function (message, data) {
