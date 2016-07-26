@@ -42,10 +42,7 @@
     }
     var component = document.createElement(currentComponentMetadata.artifactId);
     crcRoot.appendChild(component);
-    // (ene) quick-fix for BDE-269 horizontal center of the component
-    crcRoot.setAttribute('style', 'text-align: center');
-    crcRoot.firstChild.setAttribute('style', 'display: inline-block');
-
+    
     var baseUrl = currentComponentMetadata.settings.baseUrl + '/' + currentComponentMetadata.settings.store + '/';
     var crcLoaderUrl = baseUrl + rteWebpackage + '/crc-loader/js/main.js';
     var webComponentsUrl = baseUrl + rteWebpackage + '/webcomponents/webcomponents-lite.js';
