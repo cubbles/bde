@@ -42,7 +42,7 @@
     }
     var component = document.createElement(currentComponentMetadata.artifactId);
     crcRoot.appendChild(component);
-    
+
     var baseUrl = currentComponentMetadata.settings.baseUrl + '/' + currentComponentMetadata.settings.store + '/';
     var crcLoaderUrl = baseUrl + rteWebpackage + '/crc-loader/js/main.js';
     var webComponentsUrl = baseUrl + rteWebpackage + '/webcomponents/webcomponents-lite.js';
