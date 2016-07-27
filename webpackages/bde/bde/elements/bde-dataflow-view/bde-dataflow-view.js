@@ -1,8 +1,8 @@
-(function(context) {
-  "use strict";
+(function (context) {
+  'use strict';
 
   if (!context.fetch) {
-    throw new Error("Browser must support Fetch API or have polyfill loaded.");
+    throw new Error('Browser must support Fetch API or have polyfill loaded.');
   }
 
   Polymer({
@@ -18,7 +18,7 @@
       selectedMembers: {
         type: Array,
         notify: true,
-        value: function() {
+        value: function () {
           return [];
         }
       },
@@ -26,7 +26,7 @@
       selectedConnections: {
         type: Array,
         notify: true,
-        value: function() {
+        value: function () {
           return [];
         }
       },
@@ -111,7 +111,7 @@
       'the-graph-remove-edge': 'handleRemoveEdge'
     },
 
-    attached: function() {
+    attached: function () {
       // Set initial graph size
       this.async(this.handleResize);
 
@@ -131,22 +131,21 @@
      * @param  {String} artifactId [description]
      * @param  {String} endpointId [description]
      */
-    artifactIdChanged: function(manifest, artifactId, endpointId) {
-
+    artifactIdChanged: function (manifest, artifactId, endpointId) {
       if (!manifest || !artifactId || !endpointId) { return; }
 
-      this.set('_selectedNodes', Array());
-      this.set('_selectedEdges', Array());
-      this.set('_lastSelectedNode', void(0));
-      this.set('_lastSelectedEdge', void(0));
+      this.set('_selectedNodes', []);
+      this.set('_selectedEdges', []);
+      this.set('_lastSelectedNode', void (0));
+      this.set('_lastSelectedEdge', void (0));
 
       var self = this;
-      var settings = this.settings;
+      // var settings = this.settings;
 
-      var artifact = manifest.artifacts.compoundComponents.find(function(artifact) {
+      var artifact = manifest.artifacts.compoundComponents.find(function (artifact) {
         return artifact.artifactId === artifactId;
       });
-      var endpoint = artifact.endpoints.find(function(endpoint) {
+      var endpoint = artifact.endpoints.find(function (endpoint) {
         return endpoint.endpointId === endpointId;
       });
 
@@ -155,20 +154,20 @@
       // Go through all dependencies and resolve,
       // either from the same webpackage or by requesting the base
       Promise.all(endpoint.dependencies.map(this._resolveDependency.bind(this)))
-        .then(function(resolutions) {
+        .then(function (resolutions) {
           // We need to create a library for the graph
           // and a library for the property-editor here.
           var newLibrary = {};
           var newResolutions = {};
 
-           resolutions.forEach(function(resolution) {
-             newResolutions[resolution.artifact.artifactId] = resolution.artifact;
-           });
+          resolutions.forEach(function (resolution) {
+            newResolutions[ resolution.artifact.artifactId ] = resolution.artifact;
+          });
 
           resolutions.map(artifactToComponent)
-            .forEach(function(resolution) {
+            .forEach(function (resolution) {
               var componentId = resolution.componentId.replace(/\/[^\/]*$/, '');
-              newLibrary[componentId] = resolution.artifact.definition;
+              newLibrary[ componentId ] = resolution.artifact.definition;
             });
 
           // We are done, load the graph
@@ -178,7 +177,7 @@
           self.triggerAutolayout();
         });
 
-      function artifactToComponent(resolution) {
+      function artifactToComponent (resolution) {
         var artifact = resolution.artifact;
         return {
           artifact: {
@@ -195,11 +194,11 @@
         };
       }
 
-      function filterInslots(slot) {
+      function filterInslots (slot) {
         return (slot.direction.indexOf('input') !== -1);
       }
 
-      function filterOutslots(slot) {
+      function filterOutslots (slot) {
         return (slot.direction.indexOf('output') !== -1);
       }
 
@@ -208,25 +207,25 @@
       }
     },
 
-    handleAddNode: function(event) {
+    handleAddNode: function (event) {
       var node = event.detail;
       // @TODO (fdu): Get the cubble component from dependencies
       //              and add the new member
       console.log('handleAddNode', event.detail);
     },
 
-    handleRemoveNode: function(event) {
+    handleRemoveNode: function (event) {
       var node = event.detail;
-      var memberIdx = this._artifact.members.findIndex(m => m.memberId === node.id);
+      var memberIdx = this._artifact.members.findIndex((m) => m.memberId === node.id);
       this.splice('_artifact.members', memberIdx, 1);
     },
 
-    handleAddInport: function(event, port) {
-      var inport = this.$.graph.nofloGraph.inports[port];
+    handleAddInport: function (event, port) {
+      var inport = this.$.graph.nofloGraph.inports[ port ];
       this.push('_artifact.slots', {
         slotId: port,
         type: 'all', // @TODO (fdu): Fix this to be type of source slot
-        direction: ['input']
+        direction: [ 'input' ]
       });
       this.push('_artifact.connections', {
         connectionId: Math.random().toString(36).substring(7),
@@ -240,23 +239,23 @@
       });
     },
 
-    handleRemoveInport: function(event, port) {
-      var slotIdx = this._artifact.slots.findIndex(s => s.slotId === port);
-      this._artifact.connections.forEach(function(connection, connectionIdx) {
-          if (!connection.source.memberIdRef &&
-               connection.source.slot === port) {
-            this.splice('_artifact.connections', connectionIdx, 1)
-          }
-        }, this);
+    handleRemoveInport: function (event, port) {
+      var slotIdx = this._artifact.slots.findIndex((s) => s.slotId === port);
+      this._artifact.connections.forEach(function (connection, connectionIdx) {
+        if (!connection.source.memberIdRef &&
+          connection.source.slot === port) {
+          this.splice('_artifact.connections', connectionIdx, 1);
+        }
+      }, this);
       this.splice('_artifact.slots', slotIdx, 1);
     },
 
-    handleAddOutport: function(event, port) {
-      var outport = this.$.graph.nofloGraph.outports[port];
+    handleAddOutport: function (event, port) {
+      var outport = this.$.graph.nofloGraph.outports[ port ];
       this.push('_artifact.slots', {
         slotId: port,
         type: 'all', // @TODO (fdu): Fix this to be type of source slot
-        direction: ['output']
+        direction: [ 'output' ]
       });
       this.push('_artifact.connections', {
         connectionId: Math.random().toString(36).substring(7),
@@ -270,18 +269,18 @@
       });
     },
 
-    handleRemoveOutport: function(event, port) {
-      var slotIdx = this._artifact.slots.findIndex(s => s.slotId === port);
-      this._artifact.connections.forEach(function(connection, connectionIdx) {
-          if (!connection.destination.memberIdRef &&
-               connection.destination.slot === port) {
-            this.splice('_artifact.connections', connectionIdx, 1)
-          }
-        }, this);
+    handleRemoveOutport: function (event, port) {
+      var slotIdx = this._artifact.slots.findIndex((s) => s.slotId === port);
+      this._artifact.connections.forEach(function (connection, connectionIdx) {
+        if (!connection.destination.memberIdRef &&
+          connection.destination.slot === port) {
+          this.splice('_artifact.connections', connectionIdx, 1);
+        }
+      }, this);
       this.splice('_artifact.slots', slotIdx, 1);
     },
 
-    handleAddEdge: function(event) {
+    handleAddEdge: function (event) {
       var edge = event.detail;
 
       this.push('_artifact.connections', {
@@ -299,7 +298,7 @@
 
     handleRemoveEdge: function (event) {
       var edge = event.detail;
-      var cIdx = this._artifact.connections.findIndex(function(connection) {
+      var cIdx = this._artifact.connections.findIndex(function (connection) {
         return connection.source.memberIdRef === edge.from.node &&
           connection.source.slot === edge.from.port &&
           connection.destination.memberIdRef === edge.to.node &&
@@ -314,10 +313,10 @@
       if (clientRects.length === 0) {
         return;
       }
-      var width = clientRects[0].width;
-      var height = clientRects[0].height;
-      var offsetX = clientRects[0].left;
-      var offsetY = clientRects[0].top;
+      var width = clientRects[ 0 ].width;
+      var height = clientRects[ 0 ].height;
+      var offsetX = clientRects[ 0 ].left;
+      var offsetY = clientRects[ 0 ].top;
 
       this._graphWidth = width;
       this._graphHeight = height;
@@ -325,65 +324,65 @@
       this._graphOffsetY = offsetY;
     },
 
-    membersChanged: function(changeRecord) {
+    membersChanged: function (changeRecord) {
       if (!changeRecord) { return; }
 
-      changeRecord.indexSplices.forEach(function(s) {
-        s.removed.forEach(function(member) {
+      changeRecord.indexSplices.forEach(function (s) {
+        s.removed.forEach(function (member) {
           this.$.graph.removeMember(member);
         }, this);
 
-        for(var i = 0; i < s.addedCount; i++) {
+        for (var i = 0; i < s.addedCount; i++) {
           // Resolve the newly added member here and add
           // definition to resolutions
-          this.$.graph.addMember(s.object[s.index + i]);
+          this.$.graph.addMember(s.object[ s.index + i ]);
         }
       }, this);
     },
 
-    onLibraryUpdate: function(event) {
+    onLibraryUpdate: function (event) {
       var component = event.detail.item;
       this.$.graph.registerComponent(component, false);
       this.fire('bde-member-loaded');
     },
 
-    selectedEdgesChanged: function(changeRecord) {
+    selectedEdgesChanged: function (changeRecord) {
       var connections = this._selectedEdges.map(connectionForEdge.bind(this));
       this.set('selectedConnections', connections);
-      this.set('lastSelectedConnection', connections[connections.length - 1]);
+      this.set('lastSelectedConnection', connections[ connections.length - 1 ]);
       this.fire('iron-selected', { item: this._lastSelectedEdge, type: 'edge' });
 
       // Show PropertyEditor
       this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
 
-      function connectionForEdge(edge) {
-        return this._artifact.connections.find(function(connection) {
+      function connectionForEdge (edge) {
+        return this._artifact.connections.find(function (connection) {
           return edge.from.node === connection.source.memberIdRef &&
-                   edge.to.node === connection.destination.memberIdRef &&
-                 edge.from.port === connection.source.slot &&
-                   edge.to.port === connection.destination.slot;
+            edge.to.node === connection.destination.memberIdRef &&
+            edge.from.port === connection.source.slot &&
+            edge.to.port === connection.destination.slot;
         });
       }
     },
 
-    selectedNodesChanged: function(changeRecord) {
+    selectedNodesChanged: function (changeRecord) {
       var members = this._selectedNodes.map(memberForNode.bind(this));
 
       this.set('selectedMembers', members);
-      this.set('lastSelectedMember', members[members.length - 1]);
+      this.set('lastSelectedMember', members[ members.length - 1 ]);
       this.fire('iron-selected', { item: this.lastSelectedMember, type: 'member' });
 
       // Show PropertyEditor
       this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
 
-      function memberForNode(node) {
-        return this._artifact.members.find(function(member) {
+      function memberForNode (node) {
+        return this._artifact.members.find(function (member) {
           return member.memberId === node.id;
         });
       }
     },
 
-    showPropertyEditorChanged: function(showPropertyEditor) {
+    showPropertyEditorChanged: function (showPropertyEditor) {
       if (showPropertyEditor) {
         this.$.drawerPanel.openDrawer();
       } else {
@@ -391,11 +390,11 @@
       }
     },
 
-    triggerAutolayout: function() {
+    triggerAutolayout: function () {
       this.$.graph.triggerAutolayout(true);
     },
 
-    zoomToFit: function() {
+    zoomToFit: function () {
       this.$.graph.triggerFit();
     },
 
@@ -406,7 +405,7 @@
     _addMember: function (event) {
       var cubble = event.detail.item;
       var endpointId = this.currentComponentMetadata.endpointId;
-      var endpoint = this._artifact.endpoints.find(function(endpoint) { return endpoint.endpointId === endpointId; });
+      var endpoint = this._artifact.endpoints.find(function (endpoint) { return endpoint.endpointId === endpointId; });
       var endpointPath = Polymer.Collection.get(this._artifact.endpoints).getKey(endpoint); // e.g. #0
 
       // Close the search dialog
@@ -421,9 +420,9 @@
       // Resolve and add to resolutions
       this._resolveDependency(member.componentId)
         .then(function (resolution) {
-            this.resolutions[resolution.artifact.artifactId] = resolution.artifact;
-            this.notifyPath('resolutions', this.resolutions);
-        }.bind(this))
+          this.resolutions[ resolution.artifact.artifactId ] = resolution.artifact;
+          this.notifyPath('resolutions', this.resolutions);
+        }.bind(this));
 
       this.push('_artifact.members', member);
       this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
@@ -431,11 +430,11 @@
       );
     },
 
-    _addCubbleClass: function(showPropertyEditor) {
+    _addCubbleClass: function (showPropertyEditor) {
       return (showPropertyEditor) ? 'moveRight' : '';
     },
 
-    _artifactChanged: function(changeRecord) {
+    _artifactChanged: function (changeRecord) {
       if (!changeRecord) { return; }
 
       var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
@@ -447,114 +446,114 @@
 
     _findInManifest: function (manifest, artifactId) {
       // We don't care about webpackageId here
-      artifactId = artifactId.split('/')[1];
+      artifactId = artifactId.split('/')[ 1 ];
 
       var artifacts = [];
-      Object.keys(manifest.artifacts).forEach(function(artifactType) {
-        artifacts = artifacts.concat(manifest.artifacts[artifactType]);
+      Object.keys(manifest.artifacts).forEach(function (artifactType) {
+        artifacts = artifacts.concat(manifest.artifacts[ artifactType ]);
       });
 
-      return artifacts.find(function(artifact) {
+      return artifacts.find(function (artifact) {
         return artifact.artifactId === artifactId;
       });
     },
 
-    _graphFromArtifact: function(artifact) {
+    _graphFromArtifact: function (artifact) {
       if (!artifact) { return; }
 
       var graph = {
-        "id": Math.random().toString(36).substring(7),
-        "project": "",
-        "properties": {
-          "name": artifact.artifactId
+        'id': Math.random().toString(36).substring(7),
+        'project': '',
+        'properties': {
+          'name': artifact.artifactId
         },
-        "caseSensitive": true,
-        "inports": {},
-        "outports": {},
-        "processes": {},
-        "connections": []
+        'caseSensitive': true,
+        'inports': {},
+        'outports': {},
+        'processes': {},
+        'connections': []
       };
 
       // External inslots
       artifact.connections
-      .filter(function(connection) {
-        return (!connection.source.memberIdRef &&
+        .filter(function (connection) {
+          return (!connection.source.memberIdRef &&
           connection.destination.memberIdRef);
-      })
-      .forEach(function(connection) {
-        var slot = artifact.slots
-        .filter(function(slot) {
-          return slot.direction.indexOf('input') !== -1;
         })
-        .find(function(slot) {
-          return slot.slotId === connection.source.slot;
-        });
+        .forEach(function (connection) {
+          var slot = artifact.slots
+            .filter(function (slot) {
+              return slot.direction.indexOf('input') !== -1;
+            })
+            .find(function (slot) {
+              return slot.slotId === connection.source.slot;
+            });
 
-        graph.inports[slot.slotId] = {
-          "process": connection.destination.memberIdRef,
-          "port": connection.destination.slot,
-          "metadata": { x: 15, y: 15 }
-        };
-      });
+          graph.inports[ slot.slotId ] = {
+            'process': connection.destination.memberIdRef,
+            'port': connection.destination.slot,
+            'metadata': { x: 15, y: 15 }
+          };
+        });
 
       // External outslots
       artifact.connections
-      .filter(function(connection) {
-        return (!connection.destination.memberIdRef &&
+        .filter(function (connection) {
+          return (!connection.destination.memberIdRef &&
           connection.source.memberIdRef);
-      })
-      .forEach(function(connection) {
-        var slot = artifact.slots
-        .filter(function(slot) {
-          return slot.direction.indexOf('output') !== -1;
         })
-        .find(function(slot) {
-          return slot.slotId === connection.destination.slot;
+        .forEach(function (connection) {
+          var slot = artifact.slots
+            .filter(function (slot) {
+              return slot.direction.indexOf('output') !== -1;
+            })
+            .find(function (slot) {
+              return slot.slotId === connection.destination.slot;
+            });
+
+          graph.inports[ slot.slotId ] = {
+            'process': connection.source.memberIdRef,
+            'port': connection.source.slot,
+            'metadata': { x: 0, y: 0 }
+          };
         });
 
-        graph.inports[slot.slotId] = {
-          "process": connection.source.memberIdRef,
-          "port": connection.source.slot,
-          "metadata": { x: 0, y: 0 }
-        };
-      });
-
       // Members
-      artifact.members.forEach(function(member) {
-        graph.processes[member.memberId] = {
-          "component": member.componentId,
-          "metadata": {
-            "x": 0,
-            "y": 0,
-            "label": member.displayName || member.memberId
+      artifact.members.forEach(function (member) {
+        graph.processes[ member.memberId ] = {
+          'component': member.componentId,
+          'metadata': {
+            'x': 0,
+            'y': 0,
+            'label': member.displayName || member.memberId
           }
         };
       });
 
       // Connections
-      artifact.connections.forEach(function(connection) {
+      artifact.connections.forEach(function (con) {
         var connection = {
-          "src": {
-            "process": connection.source.memberIdRef,
-            "port": connection.source.slot
+          'src': {
+            'process': con.source.memberIdRef,
+            'port': con.source.slot
           },
-          "tgt": {
-            "process": connection.destination.memberIdRef,
-            "port": connection.destination.slot
+          'tgt': {
+            'process': con.destination.memberIdRef,
+            'port': con.destination.slot
           },
-          "metadata": {}
+          'metadata': {}
         };
 
         graph.connections.push(connection);
       });
 
       // Initializers
-      artifact.inits.forEach(function(init) {
+      artifact.inits.forEach(function (init) {
         var connection = {
-          "data": init.value,
-          "tgt": {
-            "process": init.memberIdRef,
-            "port": init.slot
+          'data': init.value,
+          'tgt': {
+            'process': init.memberIdRef,
+            'port': init.slot
           }
         };
 
@@ -565,25 +564,25 @@
     },
 
     _resolveDependency: function (dependency) {
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         if (dependency.startsWith('this')) {
           // Resolve local dependency
-          var artifact = this._findInManifest(manifest, dependency);
-          resolve({artifact: artifact, componentId: dependency });
+          var artifact = this._findInManifest(this.currentComponentMetadata.manifest, dependency);
+          resolve({ artifact: artifact, componentId: dependency });
         } else {
           // Resolve remote dependency
-          fetch(this._urlFor(dependency))
-            .then(function(response) { return response.json() })
-            .then(function(manifest) {
+          context.fetch(this._urlFor(dependency))
+            .then(function (response) { return response.json() })
+            .then(function (manifest) {
               var artifact = this._findInManifest(manifest, dependency);
-              resolve({artifact: artifact, componentId: dependency });
+              resolve({ artifact: artifact, componentId: dependency });
             }.bind(this));
         }
       }.bind(this));
     },
 
-    _urlFor: function(dependency) {
-      var webpackageId = dependency.split('/')[0];
+    _urlFor: function (dependency) {
+      var webpackageId = dependency.split('/')[ 0 ];
 
       var url = this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
       url += webpackageId + '/manifest.webpackage';

@@ -24,9 +24,16 @@
       },
       settings: {
         type: Object
+      },
+      active: {
+        type: Boolean,
+        value: false
       }
-
     },
+
+    observers: [
+      'currentComponentMetadataChanged(currentComponentMetadata.*)'
+    ],
 
     created: function () {
       // Polymer does not let me bind to window in `listeners`
@@ -57,6 +64,7 @@
         case 'DOMContentLoaded':
           if (!this.firstDomLoaded) {
             this.reloadIframe(() => {
+              this.currentComponentMetadata.settings = this.settings;
               this._postMessage('currentComponentMetadata', this.currentComponentMetadata);
             });
           }
@@ -68,12 +76,18 @@
       if (!applicationView || !applicationView.id || applicationView.id !== 'applicationView') {
         return;
       }
-      applicationView.currentComponentMetadataChanged();
+      applicationView.refreshApplication();
     },
     currentComponentMetadataChanged: function () {
-      if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
+      if (!this.active || !this.currentComponentMetadata || !this.currentComponentMetadata.manifest ||
+            !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
         return;
       }
+
+      this.refreshApplication();
+    },
+
+    refreshApplication: function () {
       this.currentComponentMetadata.settings = this.settings;
       // NOTE:
       // if you reload the frame, before the content loaded, is the url 'about:blank) (sometimes || in Firefox)
@@ -85,7 +99,6 @@
         });
       }
     },
-
     reloadIframe: function (cb) {
       this.loaded = false;
 

@@ -71,7 +71,8 @@
       'bde-manifest-loading': 'handleLoading',
       'bde-member-loaded': 'handleLoaded',
       'bde-member-loading': 'handleLoading',
-      'iron-select': '_handlePageSelect'
+      'iron-select': '_handlePageSelect',
+      'iron_deselect': '_handlePageDeselect'
     },
 
     attached: function () {
@@ -141,12 +142,20 @@
     },
 
     _handlePageSelect: function (event) {
-       if(event.detail.item.id === 'dataflowView'){
-         this._resizeView(event.detail.item);
-       }
+      if (event.detail.item.id === 'applicationView') {
+        event.detail.item.set('active', true);
+      }
+      if (event.detail.item.id === 'dataflowView') {
+        this._resizeView(event.detail.item);
+      }
+    },
+    _handlePageDeselect: function (event) {
+      if (event.detail.item.id === 'applicationView') {
+        event.detail.item.set('active', false);
+      }
     },
 
-    _resizeView : function (view) {
+    _resizeView: function (view) {
       view.handleResize();
     },
 

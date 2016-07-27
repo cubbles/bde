@@ -84,7 +84,7 @@ Polymer({
     if (this.manifest.groupId && this.manifest.groupId.length > 0) {
       webpackageId = this.manifest.groupId + '.' + webpackageId;
     }
-    if (enabled && this.currentComponent.artifactId === artifact.artifactId && webpackageId === artifact.webpackageId || 'this' === artifact.webpackageId) {
+    if (enabled && this.currentComponent.artifactId === artifact.artifactId && (webpackageId === artifact.webpackageId || 'this' === artifact.webpackageId)) {
       enabled = false;
     }
     return !enabled;

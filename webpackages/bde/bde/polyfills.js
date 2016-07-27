@@ -55,4 +55,13 @@ if (!Array.prototype.filter) {
 
     return res;
   };
+
+  this.Element && (function (ElementPrototype) {
+    ElementPrototype.closest = ElementPrototype.closest ||
+      function (selector) {
+        var el = this;
+        while (el.matches && !el.matches(selector)) el = el.parentNode;
+        return el.matches ? el : null;
+      };
+  })(this.Element.prototype);
 }
