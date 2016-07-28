@@ -46,7 +46,6 @@ Polymer({
   },
 
   dialogOpenHandler: function (event) {
-
     this.set('_editingArtifact', JSON.parse(JSON.stringify(this.artifact)));
     this.set('validForm', true);
   },

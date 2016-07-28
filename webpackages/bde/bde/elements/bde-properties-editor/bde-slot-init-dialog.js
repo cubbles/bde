@@ -30,7 +30,8 @@ Polymer({
   },
   listeners: {
     'initDialog.iron-overlay-closed': '_handleDialogClosed',
-    'initDialog.iron-overlay-opened': '_handleDialogOpened'
+    'initDialog.iron-overlay-opened': '_handleDialogOpened',
+    'otherInitValue.change': '_handleOtherInitValueChanged'
   },
 
   onKeydown: function (event) {
@@ -89,7 +90,9 @@ Polymer({
       this._saveEditedInit();
     }
   },
-
+  _handleOtherInitValueChanged: function (event) {
+    this._initialiser.value = JSON.parse(this.$.otherInitValue.value);
+  },
   _saveEditedInit: function () {
     var init = this._findInitializer(this.slot);
     if (!init) {
@@ -109,9 +112,14 @@ Polymer({
     }
   },
 
-  _serialize: function (value) {
+  _serializeBoolean: function (value) {
     return value ? 'checked' : '';
   },
+
+  _serializeOther: function (value) {
+    return JSON.stringify(value,null,2);
+  },
+
   _slotIsBoolean: function (slot) {
     return slot.type.toLowerCase() === 'boolean';
   },
@@ -127,4 +135,6 @@ Polymer({
   _slotIsOther: function (slot) {
     return !this._slotIsBoolean(slot) && !this._slotIsNumber(slot) && !this._slotIsText(slot);
   }
+
+
 });

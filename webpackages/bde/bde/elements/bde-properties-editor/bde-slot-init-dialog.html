@@ -37,14 +37,14 @@
             <p>Set the initial slot value here.</p>
             <paper-dialog-scrollable>
                 <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
-                    <paper-textarea label="Description" rows="2" on-keydown="onKeydown" value="{{_initialiser.description}}"></paper-textarea>
-                    <paper-checkbox hidden$="[[!_slotIsBoolean(slot)]]" checked="[[_serialize(_initialiser.value)]]">
+                    <paper-input label="Description" type="Text" value="{{_initialiser.description}}"></paper-input>
+                    <paper-checkbox hidden$="[[!_slotIsBoolean(slot)]]" checked="[[_serializeBoolean(_initialiser.value)]]">
                         Enabled
                         <span class="subtitle">Initial Value</span>
                     </paper-checkbox>
                     <paper-input hidden$="[[!_slotIsNumber(slot)]]" label="Initial Value" type="Number" value="{{_initialiser.value}}"></paper-input>
                     <paper-input hidden$="[[!_slotIsText(slot)]]" label="Initial Value" value="{{_initialiser.value}}"></paper-input>
-                    <paper-input hidden$="[[!_slotIsOther(slot)]]" label="Initial Value" value="{{_initialiser.value}}"></paper-input>
+                    <paper-textarea id="otherInitValue" hidden$="[[!_slotIsOther(slot)]]" row="5" label="Initial Value" value="{{_serializeOther(_initialiser.value)}}"></paper-textarea>
                 </form>
             </paper-dialog-scrollable>
             <div class="buttons">
