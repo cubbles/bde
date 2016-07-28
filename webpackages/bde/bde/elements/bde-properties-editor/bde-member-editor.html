@@ -16,7 +16,7 @@
 
     <div class="listbox" hidden$="[[_hasEntries(member.inports)]]">
       <template is="dom-repeat" items="[[member.slots]]" filter="_filterInslots" as="slot">
-        <bde-slot-editor slot="{{slot}}" direction="input" initialiser="[[_getInit(slot)]]" on-change="onInSlotChange"></bde-slot-editor>
+        <bde-slot-editor slot="{{slot}}" direction="input" artifact="[[artifact]]" member-id="[[member.memberId]]" on-change="onInSlotChange"></bde-slot-editor>
       </template>
 
       <template is="dom-repeat" items="[[member.slots]]" filter="_filterOutslots" as="slot">
@@ -25,116 +25,5 @@
     </div>
 
   </template>
-  <script>
-  Polymer({
-    is: 'bde-member-editor',
-
-    properties: {
-      artifact: {
-        type: Object,
-        notify: true
-      },
-
-      componentId: {
-        type: String
-      },
-
-      resolutions: {
-        type: Object
-      },
-
-      memberId: {
-        type: String
-      },
-
-      member: {
-        type: Object,
-        notify: true
-      },
-
-      _inits: {
-        type: Object
-      }
-    },
-
-    observers: [
-      'artifactChanged(artifact, componentId, memberId)'
-    ],
-
-    artifactChanged: function(artifact, componentId, memberId) {
-      var artifactId = componentId.split('/')[1];
-      var member = artifact.members.find(function(member) {
-        return member.memberId === memberId;
-      });
-      var metadata = this.resolutions[artifactId] || {};
-
-      Object.keys(metadata).forEach(function(key) {
-        member[key] = metadata[key];
-      });
-
-      this.set('member', member);
-    },
-
-    handleSlotChange: function(event) {
-      console.log(event);
-    },
-
-    onDescriptionChange: function(event) {
-      this.set('member.description', event.target.textContent);
-    },
-
-    onInSlotChange: function(event) {
-
-    },
-
-    onOutSlotChange: function(event) {
-
-    },
-
-    onNameChange: function(event) {
-      this.set('member.displayName', event.target.textContent);
-    },
-
-    _filterInslots: function(slot) {
-      return (slot.direction.indexOf('input') !== -1);
-    },
-
-    _filterOutslots: function(slot) {
-      return (slot.direction.indexOf('output') !== -1);
-    },
-
-    _getInit: function(slot) {
-      return this.artifact.inits.find(function(init) {
-        return init.memberIdRef === this.memberId &&
-               init.slot === slot.slotId;
-      }, this);
-    },
-
-    _getMemberName: function(member) {
-      return member.displayName || member.memberId;
-    },
-
-    _hasEntries: function(inArr) {
-      return (inArr && inArr.length && inArr.length > 0);
-    },
-
-    _slotIsBoolean: function(slot) {
-      return slot.type === 'boolean';
-    },
-
-    _slotIsNumber: function(slot) {
-      return slot.type === 'number'
-    },
-
-    _slotIsOther: function(slot) {
-      return !this._slotIsBoolean(slot) &&
-             !this._slotIsNumber(slot) &&
-             !this._slotIsText(slot);
-    },
-
-    _slotIsText: function(slot) {
-      return slot.type === 'string';
-    }
-  });
-  </script>
+  <script src="bde-member-editor.js"></script>
 </dom-module>

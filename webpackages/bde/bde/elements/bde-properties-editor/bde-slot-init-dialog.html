@@ -1,0 +1,53 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-input/paper-textarea.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html"/>
+<link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html" />
+<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html" />
+<link rel="import" href="../../vendor/iron-form/iron-form.html" />
+
+<dom-module id="bde-slot-init-dialog">
+    <template>
+        <style>
+            paper-dialog {
+                position: fixed;
+                top: 20vh;
+                left: 50vw;
+                min-width: 500px;
+                /**
+                 * The 3D-transformation fixes a strange rendering bug, whereas the dialog will
+                 * be hidden behind the-graph after opening.
+                 * This is dark magic and to be removed if no longer needed. (fdu)
+                 */
+                transform: translate3d(-50%, 0, 0);
+                -webkit-transform: translate3d(-50%, 0, 0);
+                -ms-transform: translate3d(-50%, 0, 0);
+            }
+
+            paper-checkbox .subtitle {
+                display: block;
+                font-size: 0.8em;
+                margin-top: 2px;
+                max-width: 150px;
+            }
+        </style>
+        <paper-dialog id="initDialog" opened="{{dialogOpened}}">
+            <h2>Initialiser for <code>[[slot.slotId]]</code></h2>
+            <p>Set the initial slot value here.</p>
+            <paper-dialog-scrollable>
+                <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
+                    <paper-textarea label="Description" rows="2" on-keydown="onKeydown" value="{{_initialiser.description}}"></paper-textarea>
+                    <paper-checkbox hidden$="[[!_slotIsBoolean(slot)]]" checked="[[_serialize(_initialiser.value)]]">
+                        Enabled
+                        <span class="subtitle">Initial Value</span>
+                    </paper-checkbox>
+                    <paper-input hidden$="[[!_slotIsNumber(slot)]]" label="Initial Value" type="Number" value="{{_initialiser.value}}"></paper-input>
+                    <paper-input hidden$="[[!_slotIsText(slot)]]" label="Initial Value" value="{{_initialiser.value}}"></paper-input>
+                    <paper-input hidden$="[[!_slotIsOther(slot)]]" label="Initial Value" value="{{_initialiser.value}}"></paper-input>
+                </form>
+            </paper-dialog-scrollable>
+        </paper-dialog>
+    </template>
+    <script src="bde-slot-init-dialog.js"></script>
+</dom-module>

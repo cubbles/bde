@@ -1,12 +1,9 @@
 <link rel="import" href="../../vendor/polymer/polymer.html">
 <link rel="import" href="../../vendor/iron-icons/iron-icons.html">
-<link rel="import" href="../../vendor/iron-form/iron-form.html">
 <link rel="import" href="../../vendor/paper-item/paper-icon-item.html">
 <link rel="import" href="../../vendor/paper-item/paper-item-body.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../vendor/paper-input/paper-input.html">
-<link rel="import" href="../../vendor/paper-input/paper-textarea.html">
-
+<link rel="import" href="bde-slot-init-dialog.html" />
 
 <dom-module id="bde-slot-editor">
   <template>
@@ -38,22 +35,7 @@
       }
     </style>
 
-    <paper-dialog opened="{{dialogOpened}}">
-      <h2>Initialiser for <code>[[slot.slotId]]</code></h2>
-      <p>Set the initial slot value here.</p>
-      <paper-dialog-scrollable>
-        <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
-          <paper-textarea label="Description" rows="2" on-keydown="onKeydown">{{initialiser.description}}</paper-textarea>
-          <paper-checkbox hidden$="[[!_slotIsBoolean(slot)]]" checked="[[_serialize(initialiser.value)]]">
-            Enabled
-            <span class="subtitle">Initial Value</span>
-          </paper-checkbox>
-          <paper-input hidden$="[[!_slotIsNumber(slot)]]" label="Initial Value" type="Number" value="{{initialiser.value}}"></paper-input>
-          <paper-input hidden$="[[!_slotIsText(slot)]]" label="Initial Value" value="{{initialiser.value}}"></paper-input>
-          <paper-input hidden$="[[!_slotIsOther(slot)]]" label="Initial Value" value="{{initialiser.value}}"></paper-input>
-        </form>
-      </paper-dialog-scrollable>
-    </paper-dialog>
+    <bde-slot-init-dialog id="initDialog" artifact="[[artifact]]" slot="[[slot]]" member-id="[[memberId]]" dialog-opened="{{dialogOpened}}"></bde-slot-init-dialog>
 
     <paper-icon-item>
       <iron-icon icon="[[_getSlotIcon(slot)]]" item-icon></iron-icon>
@@ -65,72 +47,7 @@
       <paper-icon-button hidden$="[[!_isInputSlot(slot)]]" icon="icons:settings" active="{{dialogOpened}}" toggles></paper-icon-button>
     </paper-icon-item>
   </template>
-  <script>
-    Polymer({
-      is: 'bde-slot-editor',
+  <script src="bde-slot-editor.js">
 
-      properties: {
-        direction: {
-          type: String
-        },
-
-        initialiser: {
-          type: Object
-        },
-
-        slot: {
-          type: Object
-        }
-      },
-
-      onKeydown: function(event) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-          event.preventDefault();
-          // this.set('initialiser.description', event.target.textContent);
-          event.target.blur();
-        }
-      },
-
-      onPreSubmit: function(event) {
-        // Don't try to send the form
-        event.preventDefault();
-
-
-      },
-
-      triggerChange: function() {
-        this.fire('change', this.slot);
-      },
-
-      _getSlotIcon: function(slot) {
-        return (this.direction === 'input') ? 'bde:inslot' : 'bde:outslot';
-      },
-
-      _isInputSlot: function() {
-        return this.direction === 'input';
-      },
-
-      _serialize: function(value) {
-        return value ? 'checked' : '';
-      },
-
-      _slotIsBoolean: function(slot) {
-        return slot.type.toLowerCase() === 'boolean';
-      },
-
-      _slotIsNumber: function(slot) {
-        return slot.type.toLowerCase() === 'number';
-      },
-
-      _slotIsText: function(slot) {
-        return slot.type.toLowerCase() === 'string';
-      },
-
-      _slotIsOther: function(slot) {
-        return !this._slotIsBoolean(slot) &&
-               !this._slotIsNumber(slot) &&
-               !this._slotIsText(slot);
-      }
-    });
   </script>
 </dom-module>
