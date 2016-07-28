@@ -32,7 +32,7 @@
                 max-width: 150px;
             }
         </style>
-        <paper-dialog id="initDialog" opened="{{dialogOpened}}">
+        <paper-dialog id="initDialog" opened="{{dialogOpened}}" no-cancel-on-esc-key="true">
             <h2>Initialiser for <code>[[slot.slotId]]</code></h2>
             <p>Set the initial slot value here.</p>
             <paper-dialog-scrollable>
@@ -47,6 +47,10 @@
                     <paper-input hidden$="[[!_slotIsOther(slot)]]" label="Initial Value" value="{{_initialiser.value}}"></paper-input>
                 </form>
             </paper-dialog-scrollable>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button dialog-confirm>Save</paper-button>
+            </div>
         </paper-dialog>
     </template>
     <script src="bde-slot-init-dialog.js"></script>

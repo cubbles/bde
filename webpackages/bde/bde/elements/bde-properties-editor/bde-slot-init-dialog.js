@@ -85,7 +85,12 @@ Polymer({
   },
 
   _handleDialogClosed: function (event) {
-    console.log('dialog closed!!!!!!!!', event);
+    if (event.detail.confirmed) {
+      this._saveEditedInit();
+    }
+  },
+
+  _saveEditedInit: function () {
     var init = this._findInitializer(this.slot);
     if (!init) {
       if (this._initialiser.description.length === 0) {
@@ -96,11 +101,11 @@ Polymer({
       }
       this.artifact.inits.push(this._initialiser);
     } else {
+      var path = Polymer.Collection.get(this.artifact.inits).getKey(init);
       if (this._initialiser.description && this._initialiser.description.length > 0) {
-        var path = Polymer.Collection('this.artifact.inits').getKey(init);
-        this.set('this.artifact.inits.' + path + '.description', this._initialiser.description);
+        this.set('artifact.inits.' + path + '.description', this._initialiser.description);
       }
-      this.set('this.artifact.inits.' + path + '.value', this._initialiser.value);
+      this.set('artifact.inits.' + path + '.value', this._initialiser.value);
     }
   },
 
