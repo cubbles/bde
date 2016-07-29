@@ -2,10 +2,12 @@
 <!-- (ene) TODO: use iron-localstorage on property instead of using it directly -->
 
 <link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../vendor/iron-pages/iron-pages.html">
 <link rel="import" href="../../vendor/iron-selector/iron-selector.html">
 <link rel="import" href="../../vendor/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-material/paper-material.html">
 <link rel="import" href="../../vendor/neon-animation/animations/fade-out-animation.html">
 
 <!--
@@ -26,14 +28,44 @@ Example:
 
 <dom-module id="bde-help-page">
   <template>
-    <style>
+    <style include="iron-flex">
+
       :host {
         display: block;
+      }
+
+      #bdeTut {
+        height: 100px
+      }
+
+      #helpHeader {
+        background-color: var(--paper-cyan-600);
+        text-align: center;
+        padding: 5px;
+      }
+
+      #helpMain {
+        text-align: center;
+        padding: 5px;
       }
 
       #paginator {
         @apply(--layout-horizontal);
         justify-content: center;
+      }
+
+      .helpDrawer {
+        background-color: #f5f5f5;
+        padding: 5px;
+      }
+
+      .miniHelpFab {
+        display: inline-block;
+      }
+
+      .miniHelpToolFab {
+        display: inline-block;
+        background-color: var(--paper-cyan-600);
       }
 
       .dot {
@@ -56,6 +88,10 @@ Example:
         @apply(--layout-vertical);
       }
 
+      paper-icon-button->iron-icon {
+        background-color: var(--paper-cyan-600);
+      }
+
       li {
         margin: 5px;
       }
@@ -64,53 +100,68 @@ Example:
 
     <paper-dialog id="dialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
 
-      <h2>Quick Tips</h2>
-
           <iron-pages selected="{{_selectedHelpPage}}">
             <div>
-              <p>
-                Welcome to Cubbles <i>B</i>rowser based <i>D</i>evelopment <i>E</i>nvironment!
-              </p>
+              <h2>
+                Welcome to Cubbles <b>B</b>rowser based <b>D</b>evelopment <b>E</b>nvironment!
+              </h2>
               <p>
                 You can use the BDE to compose Cubble components and compounds to build running applications.
               </p>
-              <!-- (ene) TODO  explain basic structure; underline with graphical representation -->
+                  <div id="bdeTut" class="vertical layout">
+                    <paper-material elevation="1">
+                      <div id="helpHeader">Header - TOOLBAR</div>
+                    </paper-material>
+                    <div class="horizontal layout flex" >
+                      <paper-material class="helpDrawer" elevation="1">
+                        <div >Webpackage - EXPLORER</div>
+                      </paper-material>
+                      <paper-material elevation="1" id="helpMain" class="flex">
+                        <div>MAIN WINDOW - EDITOR</div>
+                      </paper-material>
+                      <paper-material class="helpDrawer" elevation="1">
+                        <div>Component - PROPERTY EDITOR</div>
+                      </paper-material>
+                    </div>
+                  </div>
+
                 <li> On the left you can explore the components in the project, in the center you can compose the components, on the right (in a sidebar) you can modify the components in the project.</li>
                 <li>The <b>Webpackage</b> represents the current project. It can contain <i>applications</i>, <i>compounds</i>, <i>elementaries</i>, <i>utilities</i>.</li>
-                <li><b>Compounds</b> contain <i>member</i>, which are also Cubble components.</li>
-                <li>You can load compounds from the base via <paper-icon-button icon="icons:cloud-download"></paper-icon-button> in the upper left toolbar.</li>
-                <li>You can add members to a compound via <paper-icon-button icon="icons:add"></paper-icon-button> in the lower right corner. The Cubble Components are loaded from the base.</li>
+                <li><b>Compounds</b> contain <i><b>member</b></i>, which are also Cubble components.</li>
             </div>
             <div>
-              <p>
+              <h2>
                 Starting a new project:
-              </p>
-                <li>After the BDE application is loaded, a new webpackage is default. You can also create a new project by clicking <paper-icon-button icon="editor:insert-drive-file"></paper-icon-button> ion the upper left toolbar.</li>
-                <li>You can edit the metadata of the current project by clicking the <paper-icon-button icon="icons:settings"></paper-icon-button> right beside the name in the left sidebar.</li>
+              </h2>
+                <li>After the BDE application is loaded, a new webpackage is default. You can also create a new project by clicking <paper-fab class="miniHelpToolFab" mini icon="editor:insert-drive-file"></paper-fab> on the upper left toolbar.</li>
+                <li>You can edit the metadata of the current project by clicking the <paper-fab class="miniHelpToolFab" mini icon="icons:settings"></paper-fab> right beside the name in the left sidebar.</li>
                 <li>Set general the author information of the current project (Name and Email).</li>
-                <li><b>Add Cubble components</b> from the base via <paper-icon-button icon="add"></paper-icon-button> in the lower right corner.</li>
+                <li>You can load compounds from the base via <paper-fab class="miniHelpToolFab" mini icon="icons:cloud-download"></paper-fab> in the upper left toolbar.</li>
+                <li><b>Add Cubble components</b> from the base via <paper-fab class="miniHelpFab" mini icon="add"></paper-fab> in the lower right corner.</li>
                 <li>Now the components can be modified visually to create new Cubble components.</li>
+                <!-- (ene) TODO: add icons to show the interaction -->
             </div>
             <div>
-              <p>
+              <h2>
                 Visual Manipulation of Cubble components:
-              </p>
+              </h2>
+                <!-- (ene) TODO: add icons for the interactions -->
                 <li>Components can be arranged with the cursor (drag-and-drop).</li>
                 <li>Connections between components can be established by <b>click-and-hold</b> on the slots of the respective components.</li>
                 <li>Alternatively call a context menu via <b>right mouse button</b>.</li>
                 <li>Via <b>mouse-wheel</b> the zoom-level can be changed.</li>
               <p>Highlighting and automatic arrangement:</p>
-                <li>Centering all components via <paper-icon-button icon="icons:aspect-ratio"></paper-icon-button>.</li>
-                <li>Arrange all components and connections automatically by pressing <paper-icon-button icon="bde:magic-wand"></paper-icon-button>.</li>
+                <li>Centering all components via <paper-fab class="miniHelpFab" mini icon="icons:aspect-ratio"></paper-fab>.</li>
+                <li>Arrange all components and connections automatically by pressing <paper-fab class="miniHelpFab" mini icon="bde:magic-wand"></paper-fab>.</li>
             </div>
             <div>
-              <p>
+              <h2>
                 Views in a BDE project:
+              </h2>
                 In the upper right in the toolbar you find the buttons for changing the current view in the BDE project window:
-              </p>
-                <li><paper-icon-button icon="icons:gesture"></paper-icon-button> (Default on start of the BDE): <b>dataflow-view</b> for manipulation of components, connections, initial-values, etc. </li>
-                <li><paper-icon-button icon="icons:open-with"></paper-icon-button>: <b>design-view</b> for the arrangement of components on application level.</li>
-                <li><paper-icon-button icon="icons:apps"></paper-icon-button>: <b>application-view</b> for displaying a runnable version of the created webpackage in the BDE.</li>
+                <li><paper-fab class="miniHelpToolFab" mini icon="icons:gesture"></paper-fab> (Default on start of the BDE): <b>dataflow-view</b> for manipulation of components, connections, initial-values, etc. </li>
+                <li><paper-fab class="miniHelpToolFab" mini icon="icons:open-with"></paper-fab>: <b>design-view</b> for the arrangement of components on application level.</li>
+                <li><paper-fab class="miniHelpToolFab" mini icon="icons:apps"></paper-fab>: <b>application-view</b> for displaying a runnable version of the created webpackage in the BDE.</li>
             </div>
 
             <!-- (ene) TODO: is it desired, that there is an iron-component-page based documentation of the BDE elements available ? -->
