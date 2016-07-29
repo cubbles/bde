@@ -1,6 +1,7 @@
-/* globals Array*/
+/* globals Array, String*/
 if (!Array.prototype.find) {
-  Array.prototype.find = function(predicate) {
+  // eslint-disable-next-line no-extend-native
+  Array.prototype.find = function (predicate) {
     if (this == null) {
       throw new TypeError('Array.prototype.find called on null or undefined');
     }
@@ -9,11 +10,11 @@ if (!Array.prototype.find) {
     }
     var list = Object(this);
     var length = list.length >>> 0;
-    var thisArg = arguments[1];
+    var thisArg = arguments[ 1 ];
     var value;
 
     for (var i = 0; i < length; i++) {
-      value = list[i];
+      value = list[ i ];
       if (predicate.call(thisArg, value, i, list)) {
         return value;
       }
@@ -23,7 +24,8 @@ if (!Array.prototype.find) {
 }
 
 if (!Array.prototype.filter) {
-  Array.prototype.filter = function(fun/*, thisArg*/) {
+  // eslint-disable-next-line no-extend-native
+  Array.prototype.filter = function (fun/*, thisArg*/) {
     'use strict';
 
     if (this === void 0 || this === null) {
@@ -37,10 +39,10 @@ if (!Array.prototype.filter) {
     }
 
     var res = [];
-    var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+    var thisArg = arguments.length >= 2 ? arguments[ 1 ] : void 0;
     for (var i = 0; i < len; i++) {
       if (i in t) {
-        var val = t[i];
+        var val = t[ i ];
 
         // NOTE: Technically this should Object.defineProperty at
         //       the next index, as push can be affected by
@@ -64,4 +66,15 @@ if (!Array.prototype.filter) {
         return el.matches ? el : null;
       };
   })(this.Element.prototype);
+
+  if (!String.prototype.trim) {
+    (function () {
+      // Make sure we trim BOM and NBSP
+      var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+      // eslint-disable-next-line no-extend-native
+      String.prototype.trim = function () {
+        return this.replace(rtrim, '');
+      };
+    })();
+  }
 }

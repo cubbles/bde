@@ -8,7 +8,17 @@
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
 <link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../custom-validator/custom-validator.html" />
 
+
+Polymer({
+
+    is: 'custom-validator',
+
+    behaviors: [
+        Polymer.IronValidatorBehavior
+    ]
+});
 <dom-module id="bde-explorer-details">
     <template>
         <style>
@@ -646,10 +656,15 @@
                                                              error-message="The slot name is required"
                                                              value="{{init.slot}}">
                                                 </paper-input>
-                                                <paper-textarea label="Value"
+                                                <custom-validator id="{{_initTextareaValidatorId(initi)}}" class="validJson" validator-name$="{{_initTextareaValidatorName(initi)}}"></custom-validator>
+                                                <paper-textarea  auto-validate validator$="{{_initTextareaValidatorName(initi)}}" label="Value"
+                                                                id="{{_initTextareId(initi)}}"
+                                                                class="initValue"
                                                                 placeholder="The value to init the slot with."
-                                                                value="{{init.value}}">
+                                                                value="{{_serialize(init.value)}}"
+                                                                data-path$="[[_initValueDataPath(initi)]]">
                                                 </paper-textarea>
+
                                                 <paper-textarea label="Description"
                                                                 placeholder="A short description of this init item: responsibility etc."
                                                                 value="{{init.description}}">

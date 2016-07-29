@@ -44,7 +44,7 @@
                     </paper-checkbox>
                     <paper-input hidden$="[[!_slotIsNumber(slot)]]" label="Initial Value" type="Number" value="{{_initialiser.value}}"></paper-input>
                     <paper-input hidden$="[[!_slotIsText(slot)]]" label="Initial Value" value="{{_initialiser.value}}"></paper-input>
-                    <paper-textarea id="otherInitValue" hidden$="[[!_slotIsOther(slot)]]" row="5" label="Initial Value" value="{{_serializeOther(_initialiser.value)}}"></paper-textarea>
+                    <paper-textarea id="otherInitValue" hidden$="[[!_slotIsOther(slot)]]" label="Initial Value" value="{{_serializeOther(_initialiser.value)}}"></paper-textarea>
                 </form>
             </paper-dialog-scrollable>
             <div class="buttons">

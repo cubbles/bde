@@ -36,6 +36,10 @@ Polymer({
     }
   },
 
+  listeners: {
+    'change': '_handleChangedInitValue',
+    'inits.dom-change': '_bindValidators'
+  },
   observers: [
     'artifactChanged(artifact.*)'
   ],
@@ -63,7 +67,37 @@ Polymer({
     collapseDiv.toggle();
     Polymer.dom(e.currentTarget).querySelector('iron-icon').icon = this._calculateToggleIcon(collapseDiv.opened);
   },
+  removeItem: function (e) {
+    var itemIndex = e.currentTarget.dataset.itemIndex;
+    var path = e.currentTarget.dataset.path;
+    this.splice(path, itemIndex, 1);
+  },
+  addNewItem: function (e) {
+    var path = e.currentTarget.dataset.path;
+    if (!this.get(path)) {
+      this.set(path, []);
+    }
+    var item = this._createItem(e.currentTarget.dataset.itemName);
+    this.push(path, item);
+  },
+  validateEditingArtifact: function () {
+    if (this.$.artifactForm.validate()) {
+      this.set('artifact', this._editingArtifact);
+      this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
+      this.$.dialog.close();
+    } else {
+      this.set('validForm', false);
+    }
+  },
 
+  _bindValidators: function (event) {
+    console.log(event);
+    var validatorElements = this.querySelectorAll('.validJson');
+    for (var i = 0; i < validatorElements.length; i++) {
+      var validatorEl = validatorElements[i];
+      validatorEl.validate = this._validateJson.bind(this);
+    }
+  },
   _artifactIsApp: function (artifact) {
     return this.artifactType === 'appComponent';
   },
@@ -89,25 +123,6 @@ Polymer({
     return state ? 'icons:expand-less' : 'icons:expand-more';
   },
 
-  _isObject: function (value) {
-    return typeof value === 'object';
-  },
-  _isInputSlot: function (slot) {
-    for (var i = 0; i < slot.direction.length; i++) {
-      if (slot.direction[i] === 'input') {
-        return true;
-      }
-    }
-    return false;
-  },
-  _isOutputSlot: function (slot) {
-    for (var i = 0; i < slot.direction.length; i++) {
-      if (slot.direction[i] === 'output') {
-        return true;
-      }
-    }
-    return false;
-  },
   _createItem: function (itemName) {
     switch (itemName) {
       case '':
@@ -159,26 +174,75 @@ Polymer({
     var path = Array.prototype.slice.call(arguments).join('.');
     return '_editingArtifact.' + path;
   },
-  removeItem: function (e) {
-    var itemIndex = e.currentTarget.dataset.itemIndex;
-    var path = e.currentTarget.dataset.path;
-    this.splice(path, itemIndex, 1);
-  },
-  addNewItem: function (e) {
-    var path = e.currentTarget.dataset.path;
-    if (!this.get(path)) {
-      this.set(path, []);
+
+  _handleChangedInitValue: function (event) {
+    console.log('event', event);
+    if (event.target.tagName.toLowerCase() === 'textarea') {
+      var textareaElem = event.target.closest('paper-textarea');
+      if (textareaElem.classList.contains('initValue')) {
+        var value = textareaElem.value;
+        // For an Object or array must be parsed
+        if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
+          try {
+            value = JSON.parse(value);
+          } catch (err) {
+
+          }
+        }
+        this.set(textareaElem.dataset.path, value);
+      }
     }
-    var item = this._createItem(e.currentTarget.dataset.itemName);
-    this.push(path, item);
   },
-  validateEditingArtifact: function () {
-    if (this.$.artifactForm.validate()) {
-      this.set('artifact', this._editingArtifact);
-      this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
-      this.$.dialog.close();
-    } else {
-      this.set('validForm', false);
+
+  _initTextareaValidatorId: function (index) {
+    return 'validJson' + index;
+  },
+
+  _initTextareaValidatorName: function (index) {
+    return 'jsonValidator' + index;
+  },
+  _initValueDataPath: function (index) {
+    return '_editingArtifact.inits.' + index + '.value';
+  },
+  _isInputSlot: function (slot) {
+    for (var i = 0; i < slot.direction.length; i++) {
+      if (slot.direction[i] === 'input') {
+        return true;
+      }
     }
+    return false;
+  },
+  _initTextareId: function (index) {
+    return 'initValue' + index;
+  },
+  _isObject: function (value) {
+    return typeof value === 'object';
+  },
+  _isOutputSlot: function (slot) {
+    for (var i = 0; i < slot.direction.length; i++) {
+      if (slot.direction[i] === 'output') {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  _serialize: function (value) {
+    if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+      return JSON.stringify(value, null, 2);
+    }
+    return value;
+  },
+  _validateJson: function (value) {
+    // validation code
+    if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
+      try {
+        JSON.parse(value);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+    return true;
   }
 });
