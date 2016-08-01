@@ -199,6 +199,23 @@
       }.bind(this);
       xhr.open('GET', '../manifest.webpackage', true);
       xhr.send();
+    },
+    activateFlow: function () {
+      this.$.flowIcon.setAttribute("ariaActiveAttribute", "aria-pressed");
+      this.$.designIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
+      this.$.appIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
+    },
+
+    activateDesign: function () {
+      this.$.flowIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
+      this.$.designIcon.setAttribute("ariaActiveAttribute", "aria-pressed");
+      this.$.appIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
+    },
+
+    activateApp: function () {
+      this.$.flowIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
+      this.$.designIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
+      this.$.appIcon.setAttribute("ariaActiveAttribute", "aria-pressed");
     }
   });
 })();

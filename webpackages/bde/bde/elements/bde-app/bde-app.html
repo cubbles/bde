@@ -115,9 +115,15 @@
             .route-buttons[active] {
                 color: #ff4081;
             }
+
             .route-buttons[focused] {
                 color: #ff4081;
             }
+
+            .route-buttons[ariaActiveAttribute = "aria-pressed"] {
+              color: #ff4081;
+            }
+
             .view-buttons{
                 margin-right: 2.5em;
             }
@@ -225,6 +231,7 @@
                                        title="change to dataflow-view"
                                        icon="gesture"
                                        class="route-buttons"
+                                       on-tap = "activateFlow"
                                        selected
                     ></paper-icon-button>
 
@@ -233,6 +240,8 @@
                                        title="change to design-view"
                                        icon="open-with"
                                        class="route-buttons"
+                                       on-tap="activateDesign"
+
                     ></paper-icon-button>
 
                     <paper-icon-button id="appIcon"
@@ -240,6 +249,8 @@
                                        title="change to application-view"
                                        icon="apps"
                                        class="route-buttons"
+                                       on-tap="activateApp"
+
                     ></paper-icon-button>
                 </page-select-menu>
 
