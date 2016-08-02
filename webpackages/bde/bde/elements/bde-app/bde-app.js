@@ -171,6 +171,10 @@
       this.$.help.opened = !this.$.help.opened;
     },
 
+    confirmationHandler: function () {
+      this.$.confirm.opened = !this.$.confirm.opened;
+    },
+
     newWebpackageBtnHandler: function () {
       this.resetBDE();
     },

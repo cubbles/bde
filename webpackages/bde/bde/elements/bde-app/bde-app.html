@@ -170,6 +170,21 @@
             </div>
         </paper-dialog>
 
+        <paper-dialog id="confirm"
+                      exit-animation="fade-out-animation"
+                      with-backdrop>
+            <h2>Are You Sure?</h2>
+            <div>
+                <p>By creating a nwe Webpackage you'll be losing all of your work </p>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-confirm
+                              on-tap="newWebpackageBtnHandler"
+                              >
+                              Confirm</paper-button>
+            </div>
+        </paper-dialog>
+
         <bde-help-page id="help"></bde-help-page>
 
         <bde-store-settings id="storeSettings"
@@ -197,7 +212,7 @@
                                    title="Create new webpackage..."
                                    aria-label="newWebpackage"
                                    icon="editor:insert-drive-file"
-                                   on-tap="newWebpackageBtnHandler"
+                                   on-tap="confirmationHandler"
 
                 ></paper-icon-button>
 
