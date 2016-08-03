@@ -99,6 +99,7 @@
       '_artifactChanged(_artifact.*)'
     ],
 
+
     listeners: {
       'library-update-required': 'onLibraryUpdate',
       'the-graph-add-node': 'handleAddNode',
@@ -366,14 +367,24 @@
     },
 
     selectedNodesChanged: function (changeRecord) {
-      var members = this._selectedNodes.map(memberForNode.bind(this));
+      var members = this._selectedNodes.map(memberForNode, this);
+      // add selected member with polymer array api methods for register changes in selectedMembers
+      this.splice('selectedMembers', 0);
+      members.forEach(function (member) {
+        // add artifact metadata to member
+        var artifactId = member.componentId.split('/')[ 1 ];
+        var metadata = this.resolutions[ artifactId ] || {};
+        member.metadata = metadata;
+        this.push('selectedMembers', member);
+      }.bind(this));
 
-      this.set('selectedMembers', members);
-      this.set('lastSelectedMember', members[ members.length - 1 ]);
-      this.fire('iron-selected', { item: this.lastSelectedMember, type: 'member' });
+      this.showPropertyEditor = false;
+      this.set('lastSelectedMember', this.selectedMembers[ members.length - 1 ]);
+      // this.fire('iron-selected', { item: this.lastSelectedMember, type: 'member' });
 
       // Show PropertyEditor
-      this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
+      // this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
+      this.showPropertyEditor = (this.selectedMembers.length > 0);
 
       function memberForNode (node) {
         return this._artifact.members.find(function (member) {

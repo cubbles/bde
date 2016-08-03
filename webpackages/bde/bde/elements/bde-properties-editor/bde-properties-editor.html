@@ -40,26 +40,23 @@ actions can be performed on said element.
     </style>
 
     <template>
-
         <!-- Edit a single selected Member -->
-        <div hidden$="[[!singleSelection(selectedMembers)]]">
+        <div hidden$="[[!singleSelected]]">
             <bde-member-editor id="inspector"
                 artifact="{{artifact}}"
-                resolutions="[[resolutions]]"
-                member-id="{{lastSelectedMember.memberId}}"
-                component-id="{{lastSelectedMember.componentId}}"
+                member="{{lastSelectedMember}}"
             ></bde-member-editor>
         </div>
 
         <!-- Multiple members are selected -->
-        <div hidden$="[[singleSelection(selectedMembers)]]">
+        <div hidden$="[[singleSelected]]">
             <template is="dom-repeat" items="[[selectedMembers]]" as="member">
                 <paper-icon-item elevation="2">
                     <iron-icon icon="[[_getIcon(member)]]" item-icon></iron-icon>
                     <paper-item-body three-line>
                         <div>[[_getMemberName(member)]]</div>
                         <div secondary>[[member.description]]</div>
-                        <div secondary>[[_countSlots(member)]]</div>
+                        <div secondary>[[_countInputSlots(member)]], [[_countOutputSlots(member)]]</div>
                     </paper-item-body>
                 </paper-icon-item>
             </template>
@@ -69,97 +66,4 @@ actions can be performed on said element.
 
 </dom-module>
 
-<script>
-'use strict';
-
-Polymer({
-    is: 'bde-properties-editor',
-
-    properties: {
-
-        artifact: {
-            type: Object,
-            notify: true
-        },
-
-        manifest: {
-            type: Object,
-            notify: true
-        },
-
-        lastSelectedConnection: {
-            type: Object,
-            notify: true
-        },
-
-        lastSelectedMember: {
-            type: Object,
-            notify: true
-        },
-
-        resolutions: {
-            type: Object,
-            notify: true
-        },
-
-        selectedConnections: {
-            type: Array
-        },
-
-        selectedMembers: {
-            type: Array
-        }
-    },
-
-    observers: [
-        '_artifactChanged(artifact)',
-        '_selectedConnectionsChanged(selectedConnections.splices)',
-        '_selectedMembersChanged(selectedMembers.splices)'
-    ],
-
-    singleSelection: function(members) {
-        return (members.length === 1);
-    },
-
-    _artifactChanged: function(artifact) {
-
-    },
-
-    _countSlots: function(member) {
-        var count = [].concat(member.inslots, member.outslots).length;
-        return count + " " + ((count === 1) ? 'slot' : 'slots');
-    },
-
-    _getIcon: function(member) {
-        return member.icon || 'cog';
-    },
-
-    _getMemberName: function(member) {
-        return member.displayName || member.memberId;
-    },
-
-    _selectedConnectionsChanged: function(changeRecord) {
-
-    },
-
-    _selectedMembersChanged: function(changeRecord) {
-
-    },
-
-    _resolveMemberMetadata: function(members) {
-        return members.map(function(member) {
-            var artifactId = member.componentId.split('/')[1];
-            var artifact = this.resolutions[artifactId];
-
-            if (artifact) {
-                Object.keys(artifact).forEach(function(key) {
-                    member[key] = artifact[key];
-                });
-            }
-
-            return member;
-        }, this);
-    }
-
-});
-</script>
+<script src="bde-properties-editor.js"></script>

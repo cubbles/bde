@@ -14,12 +14,12 @@
 
     <p contenteditable="true" on-input="onDescriptionChange">[[member.description]]</p>
 
-    <div class="listbox" hidden$="[[_hasEntries(member.inports)]]">
-      <template is="dom-repeat" items="[[member.slots]]" filter="_filterInslots" as="slot">
+    <div class="listbox" hidden$="[[_hasEntries(member.metadata.slots)]]">
+      <template is="dom-repeat" items="[[member.metadata.slots]]" filter="_filterInslots" as="slot">
         <bde-slot-editor slot="{{slot}}" direction="input" artifact="[[artifact]]" member-id="[[member.memberId]]" on-change="onInSlotChange"></bde-slot-editor>
       </template>
 
-      <template is="dom-repeat" items="[[member.slots]]" filter="_filterOutslots" as="slot">
+      <template is="dom-repeat" items="[[member.metadata.slots]]" filter="_filterOutslots" as="slot">
         <bde-slot-editor slot="{{slot}}" direction="output" on-change="onOutSlotChange"></bde-slot-editor>
       </template>
     </div>
