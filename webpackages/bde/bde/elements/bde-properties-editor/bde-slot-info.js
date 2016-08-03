@@ -1,5 +1,5 @@
 Polymer({
-  is: 'bde-slot-editor',
+  is: 'bde-slot-info',
 
   properties: {
     direction: {

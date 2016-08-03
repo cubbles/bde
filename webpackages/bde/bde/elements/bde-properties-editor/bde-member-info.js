@@ -1,5 +1,5 @@
 Polymer({
-  is: 'bde-member-editor',
+  is: 'bde-member-info',
 
   properties: {
     artifact: {
@@ -9,9 +9,26 @@ Polymer({
     member: {
       type: Object,
       notify: true
+    },
+    memberDialogOpened: {
+      type: Boolean
+    },
+    _dummy: {
+      type: String
+    },
+    _memberName: {
+      type: String,
+      computed: '_getMemberName(member, _dummy)'
     }
   },
 
+  observers: [
+    'memberPropsChanged(member.*)'
+  ],
+
+  memberPropsChanged: function () {
+    this.set('_dummy', new Date().getTime());
+  },
   handleSlotChange: function (event) {
     console.log(event);
   },

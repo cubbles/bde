@@ -22,7 +22,7 @@ actions can be performed on said element.
 <link rel="import" href="../../vendor/paper-item/paper-item-body.html">
 
 <link rel="import" href="../bde-styles/bde-custom-icons.html">
-<link rel="import" href="bde-member-editor.html">
+<link rel="import" href="bde-member-info.html">
 
 <dom-module id="bde-properties-editor">
 
@@ -42,10 +42,10 @@ actions can be performed on said element.
     <template>
         <!-- Edit a single selected Member -->
         <div hidden$="[[!singleSelected]]">
-            <bde-member-editor id="inspector"
+            <bde-member-info id="inspector"
                 artifact="{{artifact}}"
                 member="{{lastSelectedMember}}"
-            ></bde-member-editor>
+            ></bde-member-info>
         </div>
 
         <!-- Multiple members are selected -->

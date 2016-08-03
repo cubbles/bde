@@ -1,0 +1,50 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html"/>
+<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html" />
+<link rel="import" href="../../vendor/iron-form/iron-form.html" />
+
+
+<dom-module id="bde-member-edit-dialog">
+    <template>
+        <style>
+            paper-dialog {
+                position: fixed;
+                top: 20vh;
+                left: 50vw;
+                min-width: 500px;
+                /**
+                 * The 3D-transformation fixes a strange rendering bug, whereas the dialog will
+                 * be hidden behind the-graph after opening.
+                 * This is dark magic and to be removed if no longer needed. (fdu)
+                 */
+                transform: translate3d(-50%, 0, 0);
+                -webkit-transform: translate3d(-50%, 0, 0);
+                -ms-transform: translate3d(-50%, 0, 0);
+
+
+            }
+
+
+        </style>
+        <paper-dialog id="memberDialog" opened="{{dialogOpened}}" no-cancel-on-esc-key="true" on-iron-overlay-opened="_handleDialogOpened" on-iron-overlay-closed="_handleDialogClosed">
+            <h2>Member properties</h2>
+            <p>Set the <code>Display name</code> or <code>Description</code> of the member here.</p>
+            <paper-dialog-scrollable>
+                <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
+                    <paper-input label="Member id" value="[[_member.memberId]]" readonly="true"></paper-input>
+                    <paper-input label="Component id" readonly="true" value="[[_member.componentId]]"></paper-input>
+                    <paper-input label="Display name" type="Text" value="{{_member.displayName}}"></paper-input>
+                    <paper-input label="Description" type="Text" value="{{_member.description}}"></paper-input>
+                </form>
+            </paper-dialog-scrollable>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button dialog-confirm>Save</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+    </template>
+    <script src="bde-member-edit-dialog.js"></script>
+</dom-module>

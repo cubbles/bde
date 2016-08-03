@@ -49,14 +49,8 @@ Polymer({
   observers: [
     '_artifactChanged(artifact)',
     '_selectedConnectionsChanged(selectedConnections.splices)',
-    '_selectedMembersChanged(selectedMembers.splices)',
-    'selectedMembersChanged(selectedMembers.splices)'
-
+    '_selectedMembersChanged(selectedMembers.splices)'
   ],
-  selectedMembersChanged: function (changeRecords) {
-    console.log('selectedMembersChanged -> this.selectedMembers', this.selectedMembers);
-
-  },
 
   singleSelection: function (members) {
     return (this.selectedMembers.length === 1);
@@ -75,8 +69,8 @@ Polymer({
   },
   _countOutputSlots: function (member) {
     var count = 0;
-    if(member && member.metadata) {
-      var count = member.metadata.slots.filter((slot) => !slot.direction || slot.direction.indexOf('output') > -1).length;
+    if (member && member.metadata) {
+      count = member.metadata.slots.filter((slot) => !slot.direction || slot.direction.indexOf('output') > -1).length;
     }
     return count + ' output ' + ((count === 1) ? 'slot' : 'slots');
   },

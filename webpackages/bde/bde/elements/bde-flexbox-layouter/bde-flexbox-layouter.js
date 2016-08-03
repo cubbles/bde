@@ -288,7 +288,7 @@ Polymer({
   },
   templateChanged: function (changeName) {
     this.set('lastChangeTime', new Date());
-    console.log('<bde-flexbox-layouter>::templateChanged::', changeName, this.getTemplate());
+    // console.log('<bde-flexbox-layouter>::templateChanged::', changeName, this.getTemplate());
     if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
       return;
     }

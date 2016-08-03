@@ -5,7 +5,7 @@
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="bde-slot-init-dialog.html" />
 
-<dom-module id="bde-slot-editor">
+<dom-module id="bde-slot-info">
   <template>
     <style>
       :host {
@@ -35,7 +35,7 @@
       }
     </style>
 
-    <bde-slot-init-dialog id="initDialog" artifact="[[artifact]]" slot="[[slot]]" member-id="[[memberId]]" dialog-opened="{{dialogOpened}}"></bde-slot-init-dialog>
+    <bde-slot-init-dialog id="bdeInitDialog" artifact="[[artifact]]" slot="[[slot]]" member-id="[[memberId]]" dialog-opened="{{dialogOpened}}"></bde-slot-init-dialog>
 
     <paper-icon-item>
       <iron-icon icon="[[_getSlotIcon(slot)]]" item-icon></iron-icon>
@@ -47,7 +47,7 @@
       <paper-icon-button hidden$="[[!_isInputSlot(slot)]]" icon="icons:settings" active="{{dialogOpened}}" toggles></paper-icon-button>
     </paper-icon-item>
   </template>
-  <script src="bde-slot-editor.js">
+  <script src="bde-slot-info.js">
 
   </script>
 </dom-module>

@@ -99,7 +99,6 @@
       '_artifactChanged(_artifact.*)'
     ],
 
-
     listeners: {
       'library-update-required': 'onLibraryUpdate',
       'the-graph-add-node': 'handleAddNode',
