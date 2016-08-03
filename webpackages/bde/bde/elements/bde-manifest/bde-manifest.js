@@ -149,115 +149,6 @@
       document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[ 0 ]);
       document.querySelector('bde-app').set('manifest', this);
     },
-    /**
-     * The webpackageId in the base, generated from `groupId`,
-     * `name`, and `version`.
-     *
-     * @return {string}
-     */
-    // get _id ()  {
-    //   return this.groupId + '.' + this.name + '@' + this.version;
-    // },
-
-    // get apps () {
-    //   return this.artifacts.filter(function(artifact) {
-    //     return artifact.is === 'app';
-    //   });
-    // },
-
-    // get elementaries () {
-    //   return this.artifacts.filter(function(artifact) {
-    //     return artifact.is === 'elementary';
-    //   });
-    // },
-
-    // get compounds () {
-    //   return this.artifacts.filter(function(artifact) {
-    //     return artifact.is === 'compound';
-    //   });
-    // },
-
-    // get utilities () {
-    //   return this.artifacts.filter(function(artifact) {
-    //     return artifact.is === 'utility';
-    //   });
-    // },
-
-    /**
-     * Getter for localArtifacts property
-     *
-     * Returns an array of all artifacts in the
-     * manifest. Every array item will have a
-     * `is` property set to identify the artifact
-     * type.
-     */
-    // get localArtifacts () {
-    //     return [].concat(
-    //       (this.artifacts.apps) ?
-    //         this.artifacts.apps.map(function(artifact) {
-    //           artifact.is = 'app';
-    //           return artifact;
-    //         }) : [],
-    //       (this.artifacts.elementaryComponents) ?
-    //         this.artifacts.elementaryComponents.map(function(artifact) {
-    //           artifact.is = 'elementary';
-    //           return artifact;
-    //         }) : [],
-    //       (this.artifacts.compoundComponents) ?
-    //         this.artifacts.compoundComponents.map(function(artifact) {
-    //           artifact.is = 'compound';
-    //           return artifact;
-    //         }) : [],
-    //       (this.artifacts.utilities) ?
-    //         this.artifacts.utilities.map(function(artifact) {
-    //           artifact.is = 'utility';
-    //           return artifact;
-    //         }) : []
-    //     );
-    // },
-
-    /**
-     * Setter for localArtifacts property
-     *
-     * Will replace the `artifacts` property
-     * with the given array. The array must contain
-     * artifact items with an `is` property
-     * hinting the artifact type.
-     */
-    // set localArtifacts (newLocalArtifacts) {
-    //     var artifacts = {
-    //         apps: [],
-    //         elementaryComponents: [],
-    //         compoundComponents: [],
-    //         utilities: []
-    //     };
-
-    //     newLocalArtifacts.forEach(function (artifact) {
-    //         switch (artifact.is) {
-    //             case 'app':
-    //                 delete artifact.is;
-    //                 artifacts.apps.push(artifact);
-    //                 break;
-
-    //             case 'elementary':
-    //                 delete artifact.is;
-    //                 artifacts.elementaryComponents.push(artifact);
-    //                 break;
-
-    //             case 'compound':
-    //                 delete artifact.is;
-    //                 artifacts.compoundComponents.push(artifact);
-    //                 break;
-
-    //             case 'utility':
-    //                 delete artifact.is;
-    //                 artifacts.utilities.push(artifact);
-    //                 break;
-    //         }
-    //     });
-
-    //     this.set('artifacts', artifacts);
-    // },
 
     /**
      * Load a new manifest
@@ -297,18 +188,13 @@
           manifest[ key ] = this[ key ];
         }, this);
 
-      // @TODO (fdu): Do we still need the webpackageId in every member?
-      // this.artifacts.compoundComponents = this.artifacts.compoundComponents.map(function(artifact) {
-      //   artifact.members = artifact.members.map(function(member) {
-      //     member.componentId = [
-      //       member.metadata.webpackageId,
-      //       member.metadata.artifactId
-      //     ].join('/');
-      //     delete member.metadata;
-
-      //     return member;
-      //   });
-      // });
+      manifest.artifacts.compoundComponents.forEach(function (component) {
+        component.members.forEach(function (member) {
+          if (member.metadata) {
+            delete member.metadata
+          }
+        });
+      });
 
       return manifest;
     },

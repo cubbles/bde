@@ -6,42 +6,10 @@ Polymer({
       type: Object,
       notify: true
     },
-
-    componentId: {
-      type: String
-    },
-
-    resolutions: {
-      type: Object
-    },
-
-    memberId: {
-      type: String
-    },
-
     member: {
       type: Object,
       notify: true
     }
-  },
-
-  observers: [
-    'artifactChanged(artifact, componentId, memberId)'
-  ],
-
-  artifactChanged: function (artifact, componentId, memberId) {
-    var artifactId = componentId.split('/')[ 1 ];
-    var member = artifact.members.find(function (member) {
-      return member.memberId === memberId;
-    });
-
-    var metadata = this.resolutions[ artifactId ] || {};
-
-    Object.keys(metadata).forEach(function (key) {
-      member[ key ] = metadata[ key ];
-    });
-
-    this.set('member', member);
   },
 
   handleSlotChange: function (event) {
@@ -73,11 +41,11 @@ Polymer({
   },
 
   _getMemberName: function (member) {
-    return member.displayName || member.memberId;
+    return member ? member.displayName || member.memberId : '';
   },
 
-  _hasEntries: function (inArr) {
-    return (inArr && inArr.length && inArr.length > 0);
+  _hasSlots: function (member) {
+    return (member && member.metadata && member.metadata.slots && member.metadata.slots.length && member.metadata.slots.length > 0);
   },
 
   _slotIsBoolean: function (slot) {
