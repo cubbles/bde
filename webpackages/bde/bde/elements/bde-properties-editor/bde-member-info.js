@@ -18,6 +18,7 @@ Polymer({
     },
     _memberName: {
       type: String,
+      // dummy attribute for notify changes in deep properties
       computed: '_getMemberName(member, _dummy)'
     }
   },
@@ -26,11 +27,13 @@ Polymer({
     'memberPropsChanged(member.*)'
   ],
 
-  memberPropsChanged: function () {
-    this.set('_dummy', new Date().getTime());
-  },
   handleSlotChange: function (event) {
     console.log(event);
+  },
+
+  memberPropsChanged: function () {
+    // set dumme attribute for signalise a change in dep properties for the computed property _memberName
+    this.set('_dummy', new Date().getTime());
   },
 
   onDescriptionChange: function (event) {
