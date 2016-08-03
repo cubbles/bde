@@ -409,7 +409,7 @@
     },
 
     onAddMemberBtcClick: function () {
-      this.querySelector('#memberSelectDialog').open();
+      this.$.browser.open();
     },
 
     _addMember: function (event) {
@@ -419,7 +419,7 @@
       var endpointPath = Polymer.Collection.get(this._artifact.endpoints).getKey(endpoint); // e.g. #0
 
       // Close the search dialog
-      this.querySelector('#memberSelectDialog').close();
+      this.$.browser.close();
 
       var member = {
         memberId: cubble.memberId,

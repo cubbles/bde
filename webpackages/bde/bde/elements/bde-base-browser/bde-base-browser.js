@@ -123,8 +123,8 @@ Polymer({
     'bde-member-data-loaded': 'handleLoaded',
     'bde-member-data-loading': 'handleLoading',
     'bde-select-endpoint': 'endpointSelected',
-    'iron-overlay-opened': 'handleDialogOpen'
-
+    'iron-overlay-opened': 'handleDialogOpen',
+    'iron-overlay-closed': 'handleDialogClose'
   },
 
   observers: [
@@ -224,6 +224,15 @@ Polymer({
     this.$.search.value = '';
     this.$.search.focus();
   },
+
+  open: function() {
+    this.$.memberSelectDialog.open();
+  },
+
+  close: function() {
+    this.$.memberSelectDialog.close();
+  },
+
   endpointSelected: function (event) {
     var item = event.detail;
     var artifact = JSON.parse(item.artifact);
@@ -233,6 +242,16 @@ Polymer({
 
   handleDialogOpen: function (event) {
     this.set('ownComponents', this._currentManifestComponents());
+    this.async(function() {
+      document.activeElement.blur();
+      this.$.search._focusableElement.focus();
+    });
+  },
+
+  handleDialogClose: function(event) {
+    this.async(function() {
+      this.$.search._focusableElement.blur();
+    });
   },
 
   /**

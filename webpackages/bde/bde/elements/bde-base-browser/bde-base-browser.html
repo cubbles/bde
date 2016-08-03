@@ -103,7 +103,10 @@ Example:
                    on-response="handleResponse"
                    auto
         ></iron-ajax>
-        <paper-dialog id="memberSelectDialog" opened="{{dialogOpened}}" with-backdrop>
+
+        <paper-dialog id="memberSelectDialog"
+            opened="{{dialogOpened}}"
+            with-backdrop>
             <h2>Add member</h2>
             <paper-badge id="memberSelectDialogBadge" label="{{_filtered.length}}"></paper-badge>
 
@@ -128,8 +131,7 @@ Example:
                          class="dialogHeader"
                          label="Search components in the base..."
                          value="{{searchTerm}}"
-                         on-input="handleInput"
-                         autofocus>
+                         on-input="handleInput">
                 <iron-icon icon="icons:search" prefix></iron-icon>
                 <paper-icon-button id="clearBtn"
                                    icon="icons:clear"
