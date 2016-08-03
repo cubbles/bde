@@ -424,7 +424,7 @@
       var member = {
         memberId: cubble.memberId,
         componentId: cubble.metadata.webpackageId + '/' + cubble.metadata.artifactId,
-        displayName: cubble.metadata.artifactId
+        displayName: cubble.displayName
       };
 
       // Resolve and add to resolutions

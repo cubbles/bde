@@ -197,7 +197,7 @@ Polymer({
       artifactId: artifact.artifactId,
       componentId: webpackageId + '/' + artifact.artifactId,
       memberId: artifact.artifactId + '-' + Math.random().toString(36).substring(7),
-      displayName: artifact.artifactId,
+      displayName: this._generateDisplayName(artifact.artifactId),
       is: is,
       description: artifact.description,
       endpoints: artifact.endpoints,
@@ -340,6 +340,20 @@ Polymer({
       .filter((item) => item.artifactType === 'compoundComponent' || item.artifactType === 'elementaryComponent');
     this.set('_cubbles', cubbles);
   },
+
+  settingsChanged: function () {
+    this.$.ajax.set('url', this._computeBaseUrl(this.settings.baseUrl, this.settings.store));
+    this.clearInput();
+  },
+
+  /* *********************************************************************************/
+  /* ***************************** private methods ***********************************/
+  /* *********************************************************************************/
+
+  _computeBaseUrl: function (baseUrl, store) {
+    return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
+  },
+
   _currentManifestComponents: function () {
     var components = [];
     if (this.manifest) {
@@ -364,15 +378,23 @@ Polymer({
     }
     return components;
   },
-  settingsChanged: function () {
-    this.$.ajax.set('url', this._computeBaseUrl(this.settings.baseUrl, this.settings.store));
-    this.clearInput();
-  },
-  /* *********************************************************************************/
-  /* ***************************** private methods ***********************************/
-  /* *********************************************************************************/
-  _computeBaseUrl: function (baseUrl, store) {
-    return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
+
+  _generateDisplayName: function (artifactId) {
+    var members = this.currentComponent.members;
+    var filteredMembers = members.filter(function (member) {
+      return member && member.displayName && member.displayName.startsWith(artifactId);
+    });
+    if (filteredMembers.length === 0) {
+      return artifactId;
+    }
+    var max = 0;
+    filteredMembers.forEach(function (member) {
+      var ext = member.displayName.substr(artifactId.length);
+      if (ext.startsWith('-') && !isNaN(ext.substr(1))) {
+        max = Math.max(max, ext.substr(1));
+      }
+    });
+    return artifactId + '-' + (++max);
   },
   _sortArtifacts: function (a, b) {
     if (a.artifactId < b.artifactId) {
