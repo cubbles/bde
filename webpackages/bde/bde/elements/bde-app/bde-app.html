@@ -175,13 +175,17 @@
                       with-backdrop>
             <h2>Are You Sure?</h2>
             <div>
-                <p>By creating a nwe Webpackage you'll be losing all of your work </p>
+                <p>By creating a new Webpackage you'll be losing all of your work </p>
             </div>
             <div class="buttons">
                 <paper-button dialog-confirm
                               on-tap="newWebpackageBtnHandler"
-                              >
-                              Confirm</paper-button>
+                              >Confirm
+                </paper-button>
+                <paper-button class="buttons"
+                             dialog-dismiss
+                             >Cancel
+                </paper-button>
             </div>
         </paper-dialog>
 
