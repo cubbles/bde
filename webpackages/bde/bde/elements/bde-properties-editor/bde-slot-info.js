@@ -20,15 +20,24 @@ Polymer({
     },
 
     artifact: {
-      type: Object
+      type: Object,
+      notify: true
     }
   },
 
-  _getSlotIcon: function(slot) {
+  observers: [
+    'artifactChanged(artifact.*)'
+  ],
+
+  artifactChanged: function (changeRecord) {
+    console.log('bde-slot-info artifactChanged', changeRecord);
+  },
+
+  _getSlotIcon: function (slot) {
     return (this.direction === 'input') ? 'bde:inslot' : 'bde:outslot';
   },
 
-  _isInputSlot: function() {
+  _isInputSlot: function () {
     return this.direction === 'input';
   }
 

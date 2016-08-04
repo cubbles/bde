@@ -63,7 +63,7 @@ Polymer({
     if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
       return;
     }
-    this.loadNewCompound()
+    this.loadNewCompound();
   },
 
   loadNewCompound: function () {

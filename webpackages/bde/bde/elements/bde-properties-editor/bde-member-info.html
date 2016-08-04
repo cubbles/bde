@@ -18,7 +18,7 @@
 
     <div class="listbox" hidden$="[[!_hasSlots(member)]]">
       <template is="dom-repeat" items="[[member.metadata.slots]]" filter="_filterInslots" as="slot">
-        <bde-slot-info slot="{{slot}}" direction="input" artifact="[[artifact]]" member-id="[[member.memberId]]" on-change="onInSlotChange"></bde-slot-info>
+        <bde-slot-info slot="{{slot}}" direction="input" artifact="{{artifact}}" member-id="[[member.memberId]]" on-change="onInSlotChange"></bde-slot-info>
       </template>
 
       <template is="dom-repeat" items="[[member.metadata.slots]]" filter="_filterOutslots" as="slot">

@@ -225,11 +225,11 @@ Polymer({
     this.$.search.focus();
   },
 
-  open: function() {
+  open: function () {
     this.$.memberSelectDialog.open();
   },
 
-  close: function() {
+  close: function () {
     this.$.memberSelectDialog.close();
   },
 
@@ -242,14 +242,14 @@ Polymer({
 
   handleDialogOpen: function (event) {
     this.set('ownComponents', this._currentManifestComponents());
-    this.async(function() {
+    this.async(function () {
       document.activeElement.blur();
       this.$.search._focusableElement.focus();
     });
   },
 
-  handleDialogClose: function(event) {
-    this.async(function() {
+  handleDialogClose: function (event) {
+    this.async(function () {
       this.$.search._focusableElement.blur();
     });
   },

@@ -221,7 +221,7 @@
     },
 
     handleAddInport: function (event, port) {
-      var inport = this.$.graph.nofloGraph.inports[ port ];
+      var inport = this.$.bdeGraph.nofloGraph.inports[ port ];
       this.push('_artifact.slots', {
         slotId: port,
         type: 'all', // @TODO (fdu): Fix this to be type of source slot
@@ -251,7 +251,7 @@
     },
 
     handleAddOutport: function (event, port) {
-      var outport = this.$.graph.nofloGraph.outports[ port ];
+      var outport = this.$.bdeGraph.nofloGraph.outports[ port ];
       this.push('_artifact.slots', {
         slotId: port,
         type: 'all', // @TODO (fdu): Fix this to be type of source slot
@@ -329,20 +329,20 @@
 
       changeRecord.indexSplices.forEach(function (s) {
         s.removed.forEach(function (member) {
-          this.$.graph.removeMember(member);
+          this.$.bdeGraph.removeMember(member);
         }, this);
 
         for (var i = 0; i < s.addedCount; i++) {
           // Resolve the newly added member here and add
           // definition to resolutions
-          this.$.graph.addMember(s.object[ s.index + i ]);
+          this.$.bdeGraph.addMember(s.object[ s.index + i ]);
         }
       }, this);
     },
 
     onLibraryUpdate: function (event) {
       var component = event.detail.item;
-      this.$.graph.registerComponent(component, false);
+      this.$.bdeGraph.registerComponent(component, false);
       this.fire('bde-member-loaded');
     },
 
@@ -401,11 +401,11 @@
     },
 
     triggerAutolayout: function () {
-      this.$.graph.triggerAutolayout(true);
+      this.$.bdeGraph.triggerAutolayout(true);
     },
 
     zoomToFit: function () {
-      this.$.graph.triggerFit();
+      this.$.bdeGraph.triggerFit();
     },
 
     onAddMemberBtcClick: function () {
@@ -445,6 +445,7 @@
     },
 
     _artifactChanged: function (changeRecord) {
+      console.log('bde-dataflow-view _artifactChanged', changeRecord);
       if (!changeRecord) { return; }
 
       var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
@@ -452,6 +453,8 @@
       path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + path);
 
       this.set(path, changeRecord.value);
+      this._updateGraph(changeRecord);
+
     },
 
     _findInManifest: function (manifest, artifactId) {
@@ -582,7 +585,7 @@
         } else {
           // Resolve remote dependency
           context.fetch(this._urlFor(dependency))
-            .then(function (response) { return response.json() })
+            .then(function (response) { return response.json(); })
             .then(function (manifest) {
               var artifact = this._findInManifest(manifest, dependency);
               resolve({ artifact: artifact, componentId: dependency });
@@ -590,7 +593,30 @@
         }
       }.bind(this));
     },
-
+    _updateGraph: function (changeRecord) {
+      if (changeRecord.path.indexOf('members') > 0 && changeRecord.path.endsWith('displayName')) {
+        // update graph for displayName
+        this._updateMemberDisplayName(changeRecord);
+      }
+      if (changeRecord.path.indexOf('init') > 0 ){
+        this._updateInits(changeRecord);
+      }
+    },
+    _updateInits: function(changeRecord){
+      // new init
+      // path: "_artifact.inits.length"
+      // change init
+      // path: "_artifact.inits.#0.value"
+    },
+    _updateMemberDisplayName: function (changeRecord) {
+      var memberPath = changeRecord.path.substring(0, changeRecord.path.indexOf('.displayName'));
+      var member = this.get(memberPath);
+      var currentNode = this.$.bdeGraph.selectedNodes.find(function (node) {
+        return node.id === member.memberId;
+      });
+      currentNode.metadata.label = changeRecord.value;
+      this.$.bdeGraph.rerender();
+    },
     _urlFor: function (dependency) {
       var webpackageId = dependency.split('/')[ 0 ];
 
@@ -599,6 +625,5 @@
 
       return url;
     }
-
   });
 })(this);

@@ -24,7 +24,8 @@ Polymer({
     },
 
     artifact: {
-      type: Object
+      type: Object,
+      notify: true
     }
 
   },
@@ -33,7 +34,13 @@ Polymer({
     'initDialog.iron-overlay-opened': '_handleDialogOpened',
     'otherInitValue.change': '_handleOtherInitValueChanged'
   },
+  observers: [
+    'artifactChanged(artifact.*)'
+  ],
 
+  artifactChanged: function (changeRecord) {
+    console.log('bde-slot-init-dialog artifactChanged', changeRecord);
+  },
   onKeydown: function (event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -102,7 +109,7 @@ Polymer({
       if (!this.artifact.inits) {
         this.artifact.inits = [];
       }
-      this.artifact.inits.push(this._initialiser);
+      this.push('artifact.inits', this._initialiser);
     } else {
       var path = Polymer.Collection.get(this.artifact.inits).getKey(init);
       if (this._initialiser.description && this._initialiser.description.length > 0) {

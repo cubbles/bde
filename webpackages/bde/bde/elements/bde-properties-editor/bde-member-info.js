@@ -24,16 +24,25 @@ Polymer({
   },
 
   observers: [
-    'memberPropsChanged(member.*)'
+    'memberPropsChanged(member.*)',
+    'artifactChanged(artifact.*)'
   ],
+
+  artifactChanged: function (changeRecord) {
+    console.log('bde-member-info artifactChanged', changeRecord);
+  },
 
   handleSlotChange: function (event) {
     console.log(event);
   },
 
-  memberPropsChanged: function () {
+  memberPropsChanged: function (changeRecord) {
     // set dumme attribute for signalise a change in dep properties for the computed property _memberName
     this.set('_dummy', new Date().getTime());
+    if (this.member && changeRecord.path === 'member.displayName') {
+      var key = Polymer.Collection.get(this.artifact.members).getKey(this.member);
+      this.set('artifact.members.' + key + '.displayName', this.member.displayName);
+    }
   },
 
   onDescriptionChange: function (event) {
