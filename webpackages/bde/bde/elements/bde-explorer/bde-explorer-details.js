@@ -91,7 +91,6 @@ Polymer({
   },
 
   _bindValidators: function (event) {
-    console.log(event);
     var validatorElements = this.querySelectorAll('.validJson');
     for (var i = 0; i < validatorElements.length; i++) {
       var validatorEl = validatorElements[i];
@@ -176,7 +175,6 @@ Polymer({
   },
 
   _handleChangedInitValue: function (event) {
-    console.log('event', event);
     if (event.target.tagName.toLowerCase() === 'textarea') {
       var textareaElem = event.target.closest('paper-textarea');
       if (textareaElem.classList.contains('initValue')) {

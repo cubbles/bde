@@ -82,16 +82,12 @@ Polymer({
   onDomChange: function (e) {
     // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
     if (e.target.id === 'compoundList' && !this.$.compoundSelector.selected) {
-      console.log(e);
-      console.log('this.selectedCompound', this.selectedCompound);
       this.$.compoundSelector.select(this.selectedCompound.artifactId);
       // Fire own event, because iron-select handler not always received after initialisation.
       // self-fired iron-select events also not received
       this.fire('bde_compound_select', this.selectedCompound.artifactId);
     }
     if (e.target.id.indexOf('endpoints_template') > -1) {
-      console.log(e);
-      console.log('this.selectedCompound', this.selectedCompound);
       this.$.compoundSelector.select(this.selectedCompound.artifactId);
       // Fire own event, because iron-select handler not always received after initialisation.
       // self-fired iron-select events also not received
@@ -222,7 +218,6 @@ Polymer({
     var path = changeRecord.path;
     var artifactPath = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(this.selectedCompound);
     path.replace('selectedCompound', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + artifactPath);
-    console.log("%c selectedCompoundChanged", 'color:red', path, changeRecord.value);
     this.set(path, changeRecord.value);
   },
 

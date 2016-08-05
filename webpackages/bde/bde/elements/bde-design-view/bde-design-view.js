@@ -154,7 +154,7 @@ Polymer({
         if (xhr.status === 200) {
           successCallback.call(this, xhr.responseText);
         } else {
-          console.log('Error loading "' + url + '". Request returned a status of ' + xhr.status);
+          console.error('Error loading "' + url + '". Request returned a status of ' + xhr.status);
         }
       }
     }.bind(this);

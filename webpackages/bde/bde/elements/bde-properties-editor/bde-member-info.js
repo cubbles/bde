@@ -28,7 +28,7 @@ Polymer({
   ],
 
   handleSlotChange: function (event) {
-    console.log(event);
+
   },
 
   memberPropsChanged: function (changeRecord) {

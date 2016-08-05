@@ -20,7 +20,7 @@
 
     switch (data.message) {
       case 'debug':
-        console.log('got', data);
+        // console.log('got', data);
         break;
 
       case 'currentComponentMetadata':
@@ -68,16 +68,15 @@
       }
     };
     _injectScript(webComponentsUrl, function () {
-      console.log('Webcomponents injected...');
+      // console.log('Webcomponents injected...');
     });
 
     _injectScript(crcLoaderUrl, function () {
-      console.log('beforeEvent...');
       var event = document.createEvent('CustomEvent');
       event.initCustomEvent('iframeReady', true, true, {});
       // Dispatch this 'iframeReady' event so that the CRC starts working
       document.dispatchEvent(event);
-      console.log('crcLoader script injected...');
+      // console.log('crcLoader script injected...');
     },
     {'data-crcinit-loadcif': 'true', 'data-cubx-startevent': 'iframeReady'});
   };
@@ -119,8 +118,5 @@
   window.addEventListener('cifReady', function (e) {
     _postMessage('loaded');
   }, false);
-  window.addEventListener('crcReady', function (e) {
-    console.log('crcReady');
-    console.log('window.Polymer', window.Polymer);
-  }, false);
+
 }());

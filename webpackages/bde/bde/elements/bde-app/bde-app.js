@@ -197,7 +197,7 @@
           if (xhr.status === 200) {
             this.set('bdeVersion', JSON.parse(xhr.responseText).version);
           } else {
-            console.log('BDE version could no be determined. Error loading bde  manifest. Request returned a status of ' + xhr.status);
+            console.error('BDE version could no be determined. Error loading bde  manifest. Request returned a status of ' + xhr.status);
           }
         }
       }.bind(this);

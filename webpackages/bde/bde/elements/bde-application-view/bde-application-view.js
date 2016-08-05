@@ -55,7 +55,7 @@
 
         case 'loaded':
           this.loaded = true;
-          console.log('`loaded` event from iframe');
+          // console.log('`loaded` event from iframe');
           break;
         // NOTE:
         // if you reload the frame, before the content loaded, is the url 'about:blank) (sometimes || in Firefox)
