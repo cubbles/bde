@@ -1,6 +1,6 @@
 <!-- (ene) TODO: i18n  -> app-localize-behavior -->
 <!-- (ene) TODO: use iron-localstorage on property instead of using it directly -->
-<!-- (ene) TODO: somhow template-repeat over the dots via the helpPages property -->
+<!-- (ene) TODO: solve problem of iron-component-page and devided html/js, than include api-reference -->
 
 <link rel="import" href="../../vendor/polymer/polymer.html">
 <link rel="import" href="../../vendor/iron-flex-layout/iron-flex-layout.html">
@@ -120,7 +120,7 @@ Example:
               <p>
                 You can use the BDE to compose Cubble components and compounds to build running applications.
               </p>
-                  <div id="bdeTut" class="vertical">
+                  <div id="bdeTut" class="vertical layout flex">
                     <paper-material elevation="1">
                       <div id="helpHeader">Header - TOOLBAR</div>
                     </paper-material>
@@ -146,28 +146,24 @@ Example:
                 Starting a new project
               </h2>
               <p>After the BDE application is loaded, a new webpackage is default.</p>
-              <li>You can also create a new project by clicking <paper-fab class="miniHelpToolFab" mini icon="editor:insert-drive-file"></paper-fab> on the upper left toolbar.</li>
-                <li>You can edit the metadata of the current project by clicking the <paper-fab class="miniHelpSideFab" mini icon="icons:settings"></paper-fab> right beside the name in the left sidebar.</li>
-                <li>Set general the author information of the current project (name and email).</li>
-                <li>You can load compounds from the base via <paper-fab class="miniHelpToolFab" mini icon="icons:cloud-download"></paper-fab> in the upper left toolbar.</li>
+              <li><b>Create a new project</b> by clicking <paper-fab class="miniHelpToolFab" mini icon="editor:insert-drive-file"></paper-fab> on the upper left toolbar.</li>
+                <li><b>Edit the metadata</b> of the current project by clicking the <paper-fab class="miniHelpSideFab" mini icon="icons:settings"></paper-fab> right beside the name in the left sidebar.</li>
+                <li>Set <b>general author information</b> of the current project (name and email).</li>
+                <li><b>Load compounds</b> from the base via <paper-fab class="miniHelpToolFab" mini icon="icons:cloud-download"></paper-fab> in the upper left toolbar.</li>
                 <li><b>Add Cubble components</b> from the base via <paper-fab class="miniHelpFab" mini icon="add"></paper-fab> in the lower right corner.</li>
+                <p></p>
                 <li>Now the components can be modified visually to create new Cubble components.</li>
                 <!-- (ene) TODO: add icons to show the interaction -->
             </div>
             <div>
               <h2>
-                Visual Manipulation of Cubble components
+                Visual manipulation of Cubble components
               </h2>
                 <!-- (ene) TODO: add icons for the interactions -->
-                <li>Components can be arranged with the cursor (drag-and-drop).</li>
+                <li>Components can be arranged with the cursor (<b>drag-and-drop</b>).</li>
                 <li>Connections between components can be established by <b>click-and-hold</b> on the slots of the respective components.</li>
                 <li>Alternatively call a context menu via <b>right mouse button</b>.</li>
                 <li>Via <b>mouse-wheel</b> the zoom-level can be changed.</li>
-              <h2>Highlighting and automatic arrangement</h2>
-              <h3>Zoom-to-fit</h3>
-                <li>Centering all components via <paper-fab class="miniHelpFab" mini icon="icons:aspect-ratio"></paper-fab></li>
-              <h3>Auto-layout</h3>
-                <li>Arrange all components and connections automatically by pressing <paper-fab class="miniHelpFab" mini icon="bde:magic-wand"></paper-fab></li>
             </div>
             <div>
               <h2>
@@ -180,9 +176,15 @@ Example:
                 <li><paper-fab class="miniHelpToolFab" mini icon="icons:open-with"></paper-fab> <b>design-view</b> for the arrangement of components on application level.</li>
                 <li><paper-fab class="miniHelpToolFab" mini icon="icons:apps"></paper-fab> <b>application-view</b> for displaying a runnable version of the created webpackage in the BDE.</li>
             </div>
+            <div>
+              <h2>Arrangement of the project</h2>
+              <h3>Zoom-to-fit</h3>
+                <li>Centering all components via <paper-fab class="miniHelpFab" mini icon="icons:aspect-ratio"></paper-fab></li>
+              <h3>Auto-layout</h3>
+                <li>Arrange all components and connections automatically by pressing <paper-fab class="miniHelpFab" mini icon="bde:magic-wand"></paper-fab></li>
+            </div>
 
-            <!-- (ene) TODO: is it desired, that there is an iron-component-page based documentation of the BDE elements available ? -->
-
+            <!-- (ene) TODO: include after documentation -->
             <!-- <div>
               <p>
                 Developer documentation
@@ -192,6 +194,7 @@ Example:
                 </div>
                   <li><a href="/test/documentation.html">documentation</a></li>
             </div> -->
+
           </iron-pages>
 
       <iron-selector id="paginator" selected = "{{_selectedHelpPage}}">
