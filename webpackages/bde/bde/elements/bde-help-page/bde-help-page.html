@@ -1,5 +1,6 @@
 <!-- (ene) TODO: i18n  -> app-localize-behavior -->
 <!-- (ene) TODO: use iron-localstorage on property instead of using it directly -->
+<!-- (ene) TODO: somhow template-repeat over the dots via the helpPages property -->
 
 <link rel="import" href="../../vendor/polymer/polymer.html">
 <link rel="import" href="../../vendor/iron-flex-layout/iron-flex-layout.html">
@@ -9,6 +10,7 @@
 <link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../vendor/paper-material/paper-material.html">
 <link rel="import" href="../../vendor/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../vendor/neon-animation/animations/fade-in-animation.html">
 
 <!--
 A page dialog component used for documentation and tutorials.
@@ -105,8 +107,7 @@ Example:
 
     </style>
 
-    <paper-dialog id="dialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
-
+    <paper-dialog id="dialog" opened="{{opened}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation" with-backdrop>
 
       <iron-a11y-keys keys="left" on-keys-pressed="decrement"></iron-a11y-keys>
       <iron-a11y-keys keys="right" on-keys-pressed="increment"></iron-a11y-keys>
@@ -194,11 +195,9 @@ Example:
           </iron-pages>
 
       <iron-selector id="paginator" selected = "{{_selectedHelpPage}}">
+        <template is="dom-repeat" items="{{_helpPages}}">
           <div class = "dot"></div>
-          <div class = "dot"></div>
-          <div class = "dot"></div>
-          <div class = "dot"></div>
-        <!-- <div class = "dot"></div> -->
+        </template>
       </iron-selector>
 
       <div class="buttons">
@@ -235,16 +234,26 @@ Example:
           value: 0
         },
 
+        /**
+         * Helper function to determine the number of pages in the dialog, which can be selected.
+         *
+         * @type {Array}
+         * @return {Array} Array of children of the iron-pages element
+         * @property {_helpPages}
+         */
         _helpPages : {
+          type : Array,
           value : function () {
-            var helpPages = this.$.helpPages.children;
-            return helpPages.length;
+            var helpPages = Array.from(this.$.helpPages.children);
+            return helpPages;
           }
         }
 
     },
       /**
        * Polymer attached function. Sets the 'startupTutorial' value on app-start, otherwise checks if the value is set.
+       *
+       * @method {attached}
        */
       attached: function() {
 
@@ -258,6 +267,8 @@ Example:
 
       /**
        * Decreases the iron-pages selector on left arrow button hit.
+       *
+       * @method {decrement}
        */
       decrement: function() {
         this._selectedHelpPage > 0 ? this._selectedHelpPage-- : this._selectedHelpPage = 0;
@@ -265,9 +276,11 @@ Example:
 
       /**
        * Increases the iron-pages selector on right arrow button hit.
+       *
+       * @method {increment}
        */
       increment: function() {
-        this._selectedHelpPage < this._helpPages-1 ? this._selectedHelpPage++ : this._selectedHelpPage = this._helpPages-1;
+        this._selectedHelpPage < this._helpPages.length-1 ? this._selectedHelpPage++ : this._selectedHelpPage = this._helpPages.length-1;
       }
     });
   </script>
