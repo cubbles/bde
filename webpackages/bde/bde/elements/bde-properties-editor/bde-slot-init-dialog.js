@@ -34,13 +34,7 @@ Polymer({
     'initDialog.iron-overlay-opened': '_handleDialogOpened',
     'otherInitValue.change': '_handleOtherInitValueChanged'
   },
-  observers: [
-    'artifactChanged(artifact.*)'
-  ],
 
-  artifactChanged: function (changeRecord) {
-    console.log('bde-slot-init-dialog artifactChanged', changeRecord);
-  },
   onKeydown: function (event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -124,7 +118,7 @@ Polymer({
   },
 
   _serializeOther: function (value) {
-    return JSON.stringify(value,null,2);
+    return JSON.stringify(value, null, 2);
   },
 
   _slotIsBoolean: function (slot) {
@@ -142,6 +136,5 @@ Polymer({
   _slotIsOther: function (slot) {
     return !this._slotIsBoolean(slot) && !this._slotIsNumber(slot) && !this._slotIsText(slot);
   }
-
 
 });

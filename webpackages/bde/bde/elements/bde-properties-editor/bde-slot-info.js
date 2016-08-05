@@ -25,14 +25,6 @@ Polymer({
     }
   },
 
-  observers: [
-    'artifactChanged(artifact.*)'
-  ],
-
-  artifactChanged: function (changeRecord) {
-    console.log('bde-slot-info artifactChanged', changeRecord);
-  },
-
   _getSlotIcon: function (slot) {
     return (this.direction === 'input') ? 'bde:inslot' : 'bde:outslot';
   },

@@ -331,6 +331,7 @@ Polymer({
   loadTemplate: function (templateString) {
     var tempDiv = document.createElement('div');
     tempDiv.innerHTML = templateString;
+    this.updateDisplayNamesInTemplate(tempDiv.querySelector('template'));
     var template = tempDiv.querySelector('[' + this.buildAttributeName('template') + ']');
     if (!template) {
       this.fire('no-compatible-template');
@@ -464,5 +465,14 @@ Polymer({
       return true;
     }
     return false;
+  },
+  updateDisplayNamesInTemplate: function (template) {
+    this.selectedCompound.members.forEach(function (member) {
+      var memberElem = template.content.querySelector('[member-id-ref=' + member.memberId + ']');
+      if (memberElem && memberElem.getAttribute('display-name') !== member.displayName) {
+        memberElem.setAttribute('display-name', member.displayName);
+      }
+    })
   }
+
 });

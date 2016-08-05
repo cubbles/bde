@@ -47,17 +47,12 @@ Polymer({
   },
 
   observers: [
-    '_artifactChanged(artifact.*)',
     '_selectedConnectionsChanged(selectedConnections.splices)',
     '_selectedMembersChanged(selectedMembers.splices)'
   ],
 
   singleSelection: function (members) {
     return (this.selectedMembers.length === 1);
-  },
-
-  _artifactChanged: function (changeRecord) {
-    console.log('bde-properties-editor _artifactChanged', changeRecord);
   },
 
   _countInputSlots: function (member) {

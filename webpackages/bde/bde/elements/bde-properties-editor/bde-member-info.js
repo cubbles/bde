@@ -24,13 +24,8 @@ Polymer({
   },
 
   observers: [
-    'memberPropsChanged(member.*)',
-    'artifactChanged(artifact.*)'
+    'memberPropsChanged(member.*)'
   ],
-
-  artifactChanged: function (changeRecord) {
-    console.log('bde-member-info artifactChanged', changeRecord);
-  },
 
   handleSlotChange: function (event) {
     console.log(event);
