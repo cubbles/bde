@@ -132,79 +132,7 @@
      * @param  {String} endpointId [description]
      */
     artifactIdChanged: function (manifest, artifactId, endpointId) {
-      if (!manifest || !artifactId || !endpointId) { return; }
-
-      this.set('_selectedNodes', []);
-      this.set('_selectedEdges', []);
-      this.set('_lastSelectedNode', void (0));
-      this.set('_lastSelectedEdge', void (0));
-
-      var self = this;
-      // var settings = this.settings;
-
-      var artifact = manifest.artifacts.compoundComponents.find(function (artifact) {
-        return artifact.artifactId === artifactId;
-      });
-      var endpoint = artifact.endpoints.find(function (endpoint) {
-        return endpoint.endpointId === endpointId;
-      });
-
-      this.set('_artifact', artifact);
-
-      // Go through all dependencies and resolve,
-      // either from the same webpackage or by requesting the base
-      Promise.all(endpoint.dependencies.map(this._resolveDependency.bind(this)))
-        .then(function (resolutions) {
-          // We need to create a library for the graph
-          // and a library for the property-editor here.
-          var newLibrary = {};
-          var newResolutions = {};
-
-          resolutions.forEach(function (resolution) {
-            newResolutions[ resolution.artifact.artifactId ] = resolution.artifact;
-          });
-
-          resolutions.map(artifactToComponent)
-            .forEach(function (resolution) {
-              var componentId = resolution.componentId.replace(/\/[^\/]*$/, '');
-              newLibrary[ componentId ] = resolution.artifact.definition;
-            });
-
-          // We are done, load the graph
-          self.set('library', newLibrary);
-          self.set('resolutions', newResolutions);
-          self.set('graph', self._graphFromArtifact(artifact));
-          self.triggerAutolayout();
-        });
-
-      function artifactToComponent (resolution) {
-        var artifact = resolution.artifact;
-        return {
-          artifact: {
-            artifactId: artifact.artifactId,
-            definition: {
-              name: artifact.displayName || artifact.artifactId,
-              description: artifact.description,
-              icon: 'cog',
-              inports: artifact.slots ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
-              outports: artifact.slots ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
-            }
-          },
-          componentId: resolution.componentId
-        };
-      }
-
-      function filterInslots (slot) {
-        return (slot.direction.indexOf('input') !== -1);
-      }
-
-      function filterOutslots (slot) {
-        return (slot.direction.indexOf('output') !== -1);
-      }
-
-      function transformSlot (slot) {
-        return { name: slot.slotId, type: slot.type };
-      }
+      this.reload(manifest, artifactId, endpointId);
     },
 
     handleAddNode: function (event) {
@@ -284,7 +212,7 @@
       var edge = event.detail;
 
       this.push('_artifact.connections', {
-        connectionId: Math.random().toString(36).substring(7),
+        connectionId: 'connection-' + Math.random().toString(36).substring(7),
         source: {
           memberIdRef: edge.from.node,
           slot: edge.from.port
@@ -345,7 +273,85 @@
       this.$.bdeGraph.registerComponent(component, false);
       this.fire('bde-member-loaded');
     },
+    reload: function (manifest, artifactId, endpointId) {
+      if (arguments.length === 0 && this.currentComponentMetadata) {
+        manifest = this.currentComponentMetadata.manifest;
+        artifactId = this.currentComponentMetadata.artifactId;
+        endpointId = this.currentComponentMetadata.endpointId;
+      }
+      if (!manifest || !artifactId || !endpointId) { return; }
 
+      this.set('_selectedNodes', []);
+      this.set('_selectedEdges', []);
+      this.set('_lastSelectedNode', void (0));
+      this.set('_lastSelectedEdge', void (0));
+
+      var self = this;
+      // var settings = this.settings;
+
+      var artifact = manifest.artifacts.compoundComponents.find(function (artifact) {
+        return artifact.artifactId === artifactId;
+      });
+      var endpoint = artifact.endpoints.find(function (endpoint) {
+        return endpoint.endpointId === endpointId;
+      });
+
+      this.set('_artifact', artifact);
+      // Go through all dependencies and resolve,
+      // either from the same webpackage or by requesting the base
+      Promise.all(endpoint.dependencies.map(this._resolveDependency.bind(this)))
+        .then(function (resolutions) {
+          // We need to create a library for the graph
+          // and a library for the property-editor here.
+          var newLibrary = {};
+          var newResolutions = {};
+
+          resolutions.forEach(function (resolution) {
+            newResolutions[ resolution.artifact.artifactId ] = resolution.artifact;
+          });
+
+          resolutions.map(artifactToComponent)
+            .forEach(function (resolution) {
+              var componentId = resolution.componentId.replace(/\/[^\/]*$/, '');
+              newLibrary[ componentId ] = resolution.artifact.definition;
+            });
+
+          // We are done, load the graph
+          self.set('library', newLibrary);
+          self.set('resolutions', newResolutions);
+          self.set('graph', self._graphFromArtifact(artifact));
+          self.triggerAutolayout();
+        });
+
+      function artifactToComponent (resolution) {
+        var artifact = resolution.artifact;
+        return {
+          artifact: {
+            artifactId: artifact.artifactId,
+            definition: {
+              name: artifact.displayName || artifact.artifactId,
+              description: artifact.description,
+              icon: 'cog',
+              inports: artifact.slots ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
+              outports: artifact.slots ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
+            }
+          },
+          componentId: resolution.componentId
+        };
+      }
+
+      function filterInslots (slot) {
+        return (slot.direction.indexOf('input') !== -1);
+      }
+
+      function filterOutslots (slot) {
+        return (slot.direction.indexOf('output') !== -1);
+      }
+
+      function transformSlot (slot) {
+        return { name: slot.slotId, type: slot.type };
+      }
+    },
     selectedEdgesChanged: function (changeRecord) {
       var connections = this._selectedEdges.map(connectionForEdge.bind(this));
       this.set('selectedConnections', connections);
@@ -454,7 +460,6 @@
 
       this.set(path, changeRecord.value);
       this._updateGraph(changeRecord);
-
     },
 
     _findInManifest: function (manifest, artifactId) {
@@ -593,21 +598,24 @@
         }
       }.bind(this));
     },
+
     _updateGraph: function (changeRecord) {
       if (changeRecord.path.indexOf('members') > 0 && changeRecord.path.endsWith('displayName')) {
         // update graph for displayName
         this._updateMemberDisplayName(changeRecord);
       }
-      if (changeRecord.path.indexOf('init') > 0 ){
+      if (changeRecord.path.indexOf('init') > 0) {
         this._updateInits(changeRecord);
       }
     },
-    _updateInits: function(changeRecord){
+
+    _updateInits: function (changeRecord) {
       // new init
       // path: "_artifact.inits.length"
       // change init
       // path: "_artifact.inits.#0.value"
     },
+
     _updateMemberDisplayName: function (changeRecord) {
       var memberPath = changeRecord.path.substring(0, changeRecord.path.indexOf('.displayName'));
       var member = this.get(memberPath);
@@ -617,6 +625,7 @@
       currentNode.metadata.label = changeRecord.value;
       this.$.bdeGraph.rerender();
     },
+
     _urlFor: function (dependency) {
       var webpackageId = dependency.split('/')[ 0 ];
 

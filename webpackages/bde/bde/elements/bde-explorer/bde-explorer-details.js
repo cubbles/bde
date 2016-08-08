@@ -44,13 +44,15 @@ Polymer({
     'artifactChanged(artifact.*)'
   ],
 
-  artifactChanged: function () {
+  artifactChanged: function (changeRecord) {
+    console.log('bde-explorer-details artifactChanged', changeRecord);
     this.set('_editingArtifact', JSON.parse(JSON.stringify(this.artifact)));
     this.set('validForm', true);
   },
 
   dialogOpenHandler: function (event) {
     this.set('_editingArtifact', JSON.parse(JSON.stringify(this.artifact)));
+    this.$.members.render();
     this.set('validForm', true);
   },
 
@@ -82,8 +84,11 @@ Polymer({
   },
   validateEditingArtifact: function () {
     if (this.$.artifactForm.validate()) {
-      this.set('artifact', this._editingArtifact);
-      this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
+      if (!_.isEqual(this.artifact, this._editingArtifact)) {
+        this.set('artifact', this._editingArtifact);
+        this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
+        this.fire('bde-dataflow-view-reload-required');
+      }
       this.$.dialog.close();
     } else {
       this.set('validForm', false);

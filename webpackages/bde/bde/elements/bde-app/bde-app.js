@@ -72,7 +72,8 @@
       'bde-member-loaded': 'handleLoaded',
       'bde-member-loading': 'handleLoading',
       'iron-select': '_handlePageSelect',
-      'iron_deselect': '_handlePageDeselect'
+      'iron_deselect': '_handlePageDeselect',
+      'bde-dataflow-view-reload-required': '_handleBdeDataflowViewReloadRequired'
     },
 
     attached: function () {
@@ -141,6 +142,9 @@
       return [].concat.apply(this, arguments);
     },
 
+    _handleBdeDataflowViewReloadRequired: function () {
+      this.$.dataflowView.reload();
+    },
     _handlePageSelect: function (event) {
       if (event.detail.item.id === 'applicationView') {
         event.detail.item.set('active', true);
