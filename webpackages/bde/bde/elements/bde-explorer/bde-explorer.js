@@ -78,22 +78,13 @@ Polymer({
   },
 
   currentComponentMetadataChanged: function (changeRecord) {
-    // console.log('bde-explorer currentComponentMetadataChanged', changeRecord);
-    // // Notify manifest changes
-    // var manifestIndex = changeRecord.path.indexOf('manifest');
-    // if (manifestIndex > 0) {
-    //   console.log('!!!!!!!!!!!!!!!!!!changeRecord.path.substring(manifestIndex)',changeRecord.path.substring(manifestIndex));
-    //   this.set(changeRecord.path.substring(manifestIndex), changeRecord.value);
-    // }
     // Notify selectedCompound changes
     var regexpr = /(.*compoundComponents\.#\d+\.)(.*)/ig;
     var matches = regexpr.exec(changeRecord.path);
     if (matches) {
       var path = matches[2];
       if (path) {
-        console.log('!!!!!!!!!!!!!!!!!!\'selectedCompound.\' + path', 'selectedCompound.' + path);
         this.set('selectedCompound.' + path, changeRecord.value);
-        console.log(this.selectedCompound.connections);
       }
     }
   },
@@ -137,13 +128,11 @@ Polymer({
     this.$.compoundCreator.open();
   },
   manifestChanged: function (changeRecord) {
-    console.log('bde-explorer manifestChanged', changeRecord);
     var path = changeRecord.path.replace('manifest', 'currentComponentMetadata.manifest');
     this.set(path, changeRecord.value);
-    if (this.selectedCompound){
+    if (this.selectedCompound) {
       this.set('selectedCompound', this.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.selectedCompound.artifactId));
     }
-    //this.fire('bde-current-component-metadata-change', this.currentComponentMetadata);
     if (this.manifest) {
       var menu = this.$$('#compoundSelector');
       Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
@@ -233,7 +222,6 @@ Polymer({
   },
 
   selectedCompoundChanged: function (changeRecord) {
-    console.log('bde-explorer selectedCompoundChanged', changeRecord);
     if (!changeRecord || !this.currentComponentMetadata.manifest) {
       return;
     }
@@ -242,12 +230,6 @@ Polymer({
     var artifactPath = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(this.selectedCompound);
     path.replace('selectedCompound', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + artifactPath);
     this.set(path, changeRecord.value);
-    // update explorer detail
-    // if (this.$.explorerDetails.artifact) {
-    //   path = changeRecord.path;
-    //   path.replace('selectedCompound', 'artifact');
-    //   this.$.explorerDetails.notifyPath(path,changeRecord.value);
-    // }
   },
 
   selectEndpoint: function (endpointId) {

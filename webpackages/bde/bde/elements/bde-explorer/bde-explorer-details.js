@@ -1,3 +1,4 @@
+/* gobal _*/
 Polymer({
   is: 'bde-explorer-details',
   properties: {
@@ -45,7 +46,6 @@ Polymer({
   ],
 
   artifactChanged: function (changeRecord) {
-    console.log('bde-explorer-details artifactChanged', changeRecord);
     this.set('_editingArtifact', JSON.parse(JSON.stringify(this.artifact)));
     this.set('validForm', true);
   },

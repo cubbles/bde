@@ -24,5 +24,8 @@
     "afterEach": true,
     "expect": true,
     "sinon": true
+  },
+  "env": {
+    "browser": true
   }
 }
