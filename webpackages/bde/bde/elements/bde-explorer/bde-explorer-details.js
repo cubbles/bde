@@ -178,7 +178,12 @@ Polymer({
     var path = Array.prototype.slice.call(arguments).join('.');
     return '_editingArtifact.' + path;
   },
-
+  _copyValue: function (connection) {
+    if (typeof connection.copyValue === 'undefined') {
+      connection.copyValue = true;
+    }
+    return connection.copyValue;
+  },
   _handleChangedInitValue: function (event) {
     if (event.target.tagName.toLowerCase() === 'textarea') {
       var textareaElem = event.target.closest('paper-textarea');

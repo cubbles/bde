@@ -559,7 +559,7 @@ Polymer({
                                                 </paper-checkbox>
                                                 <paper-checkbox
                                                         title="Indicate to copy or not to copy the payload (inc case the payload is an object). true: make a copy, false: do not make a copy - pass by reference. (default == true)"
-                                                        checked="{{connection.copyValue}}">
+                                                        checked="{{_copyValue(connection)}}">
                                                     Copy Value
                                                 </paper-checkbox>
                                                 <div class="list-item-container">

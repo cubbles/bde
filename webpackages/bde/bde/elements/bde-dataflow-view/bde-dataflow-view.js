@@ -220,7 +220,9 @@
         destination: {
           memberIdRef: edge.to.node,
           slot: edge.to.port
-        }
+        },
+        copyValue: true,
+        repeatedValues: false
       });
     },
 
