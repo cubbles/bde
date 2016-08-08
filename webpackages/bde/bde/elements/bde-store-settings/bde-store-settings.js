@@ -28,6 +28,20 @@ Polymer({
     'iron-overlay-opened': 'handleOpened'
   },
 
+
+
+  confirmBaseURL: function (e) {
+    if(e.keyCode === 13) {
+      this.$.storeName.focus();
+    }
+  },
+
+  saveChanges: function (e) {
+    if(e.keyCode === 13) {
+      this.validateStoreSettings();
+    }
+  },
+
   handleOpened: function () {
     this.set('_intermediate', JSON.parse(JSON.stringify(this.settings)));
     this.set('validSettings', true);

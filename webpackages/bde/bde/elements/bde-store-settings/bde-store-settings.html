@@ -64,7 +64,8 @@
                              error-message="Please provide a valid Store sase url, e.g. 'https://cubbles.world'"
                              autofocus
                              required
-                             auto-validate>
+                             auto-validate
+                             on-keyDown="confirmBaseURL">
                 </paper-input>
 
                 <paper-input id="storeName"
@@ -75,7 +76,8 @@
                              value="[[_intermediate.store]]"
                              error-message="Please provide a valid Store name, e.g. 'bde'"
                              required
-                             auto-validate>
+                             auto-validate
+                             on-keyDown="saveChanges">
                 </paper-input>
 
                 <p>
