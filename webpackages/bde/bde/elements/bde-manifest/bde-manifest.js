@@ -25,13 +25,13 @@
 
       version: {
         type: String,
-        value: '1.0-SNAPSHOT',
+        value: '1.0.0-SNAPSHOT',
         notify: true
       },
 
       modelVersion: {
         type: String,
-        value: '8.3.0'
+        value: '8.3.1'
       },
 
       docType: {
@@ -182,8 +182,8 @@
 
       Object.keys(this.properties)
         .filter(function (key) {
-          return ((key !== 'metadata'));
-        })
+          return this._filterRules(key);
+        }, this)
         .forEach(function (key) {
           manifest[ key ] = this[ key ];
         }, this);
@@ -191,7 +191,7 @@
       manifest.artifacts.compoundComponents.forEach(function (component) {
         component.members.forEach(function (member) {
           if (member.metadata) {
-            delete member.metadata
+            delete member.metadata;
           }
         });
       });
@@ -203,13 +203,14 @@
       this.set('name', 'new-webpackage');
       this.set('groupId', null);
       this.set('version', '1.0.0-SNAPSHOT');
-      this.set('modelVersion', '8.3.0');
+      this.set('modelVersion', '8.3.1');
       this.set('docType', 'webpackage');
-      this.set('description', null);
+      this.set('description', undefined);
       this.set('author', {
-        name: '',
-        email: ''
+        name: undefined,
+        email: undefined
       });
+      this.set('createCounter', 1);
       this.set('contributors', []);
       this.set('license', 'MIT');
       this.set('homepage', null);
@@ -254,6 +255,12 @@
       var id = 'new-compound-' + counter++;
       this.set('createCounter', counter);
       return id;
+    },
+    _filterRules: function (key) {
+      var keyAllowed = key !== 'metadata';
+      keyAllowed = keyAllowed && key !== 'createCounter';
+      keyAllowed = keyAllowed && (key !== 'description' || key === 'description' && typeof this.description !== 'undefined' && this.description.trim().length > 0);
+      return keyAllowed;
     }
   });
 })();

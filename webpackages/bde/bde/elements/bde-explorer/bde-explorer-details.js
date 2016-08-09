@@ -82,7 +82,7 @@ Polymer({
     var item = this._createItem(e.currentTarget.dataset.itemName);
     this.push(path, item);
   },
-  validateEditingArtifact: function () {
+  validateAndSave: function () {
     if (this.$.artifactForm.validate()) {
       if (!_.isEqual(this.artifact, this._editingArtifact)) {
         this.set('artifact', this._editingArtifact);
