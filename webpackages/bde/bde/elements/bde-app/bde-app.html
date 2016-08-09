@@ -324,13 +324,15 @@
                                 selected="{{selectedPage}}">
                         <bde-dataflow-view id="dataflowView"
                                            current-component-metadata="{{currentComponentMetadata}}"
-                                           settings="{{settings}}">
+                                           settings="{{settings}}"
+                                           >
                         </bde-dataflow-view>
 
                         <bde-design-view id="designView"
                                          current-component-metadata="[[currentComponentMetadata]]"
                                          bde-version="[[bdeVersion]]"
-                                         settings="[[settings]]">
+                                         settings="[[settings]]"
+                                         selected-page = "{{selectedPage}}">
                         </bde-design-view>
 
                         <bde-application-view id="applicationView"

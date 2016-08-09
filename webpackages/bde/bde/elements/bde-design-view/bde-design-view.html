@@ -13,6 +13,11 @@
             :host {
                 display: block;
             }
+
+            paper-button.red {
+            background-color: var(--paper-red-500);
+            color: white;
+            }
         </style>
 
         <paper-dialog id="confirmEnablingDialog" exit-animation="fade-out-animation" modal>
@@ -21,8 +26,8 @@
                 The current template is not supported by the BDE [[bdeVersion]]. If the Flexbox Layouter is enabled, the current template will be overwritten.
             </p>
             <div class="buttons">
-                <paper-button dialog-dismiss>Disallow</paper-button>
-                <paper-button dialog-confirm>Allow</paper-button>
+                <paper-button dialog-dismiss on-tap="handleTap" selected="{{selectedPage}}" >go to Data-flow-view</paper-button>
+                <paper-button dialog-confirm class="custom red">Overwrite</paper-button>
             </div>
         </paper-dialog>
         <bde-flexbox-layouter bde-version="[[bdeVersion]]"

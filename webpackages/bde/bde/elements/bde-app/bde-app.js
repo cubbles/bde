@@ -38,7 +38,8 @@
 
       selectedPage: {
         type: String,
-        value: 'dataflowView'
+        value: 'dataflowView',
+        observer: "selectedPageChanged"
       },
 
       settings: {
@@ -76,6 +77,7 @@
       'bde-dataflow-view-reload-required': '_handleBdeDataflowViewReloadRequired'
     },
 
+
     attached: function () {
       // Bind webpackage node to local scope
       this.set('manifest', this.$.manifest);
@@ -90,6 +92,15 @@
 
     ready: function () {
       this.loadBdeVersion();
+    },
+
+    selectedPageChanged: function (newpage, oldpage) {
+      if(!newpage) {
+        return;
+      }
+      if (newpage === "dataflowView"){
+        this.activateFlow();
+      }
     },
 
     computeBaseUrl: function (baseUrl, store, partial) {

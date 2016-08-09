@@ -9,6 +9,12 @@ Polymer({
     lastGeneratedTemplateBlobDocTime: {
       type: Object
     },
+
+    selectedPage: {
+      notify: true,
+      type: String
+    },
+
     lastChangeTime: {
       type: Object
     },
@@ -44,6 +50,10 @@ Polymer({
   ready: function () {
     this.parentNode.addEventListener('iron-deselect', this.leaveHandler);
     this.parentNode.addEventListener('iron-select', this.openHandler.bind(this));
+  },
+
+  handleTap: function () {
+    this.selectedPage = "dataflowView";
   },
 
   compatibleTemplateHandler: function () {
@@ -191,4 +201,3 @@ Polymer({
     return stack.join('/');
   }
 });
-
