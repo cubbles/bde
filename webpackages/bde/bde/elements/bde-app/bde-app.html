@@ -183,7 +183,21 @@
                               >Confirm
                 </paper-button>
                 <paper-button dialog-dismiss
-                              >Cancel                             
+                              >Cancel
+                </paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="deployDialog"
+                      exit-animation="fade-out-animation"
+                      with-backdrop>
+            <h2>Under Construction</h2>
+            <div>
+                <p>This functionality is not yet implemented... </p>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-dismiss
+                              >Cancel
                 </paper-button>
             </div>
         </paper-dialog>
@@ -230,6 +244,7 @@
                                    title="Deploy..."
                                    aria-label="compounds"
                                    icon="icons:cloud-upload"
+                                   on-tap="openDeployDialog"
                 ></paper-icon-button>
 
                 <div class="storeSettingsZone" on-tap="storeSettingsBtnHandler">

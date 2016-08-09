@@ -179,6 +179,10 @@
       this.$.confirm.opened = !this.$.confirm.opened;
     },
 
+    openDeployDialog: function () {
+      this.$.deployDialog.opened = !this.$.deployDialog.opened;
+    },
+
     newWebpackageBtnHandler: function () {
       this.resetBDE();
     },
