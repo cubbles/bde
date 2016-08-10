@@ -34,7 +34,6 @@
             }
 
             .collapse-header {
-                font-weight: bold;
                 cursor: pointer;
                 border: solid thin #dbdbdb;
                 background-color: #dbdbdb;
@@ -120,31 +119,63 @@
                                  value="{{_editingManifest.modelVersion}}">
                     </paper-input>
 
-                    <div class="main-collapse-header collapse-header"><span>Author</span></div>
-                    <div class="collapse-content collapse-item item-body">
-                        <paper-input label="Name"
-                                     pattern="^(([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?[\.]?\s)+([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?"
-                                     required
-                                     placeholder="The name of the author. (like John Doe)"
-                                     error-message="The full name of the author is required."
-                                     auto-validate
-                                     value="{{_editingManifest.author.name}}">
-                        </paper-input>
-                        <paper-input label="Email"
-                                     pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)"
-                                     required
-                                     error-message="The email address of the author is required."
-                                     auto-validate
-                                     value="{{_editingManifest.author.email}}">
-                        </paper-input>
-                        <paper-input label="Url"
-                                     pattern="^(https?)://[^\s\/$.?#].[^\s]*"
-                                     placeholder="Url of the author (e.g. the personal homepage)"
-                                     auto-validate
-                                     rror-message="It should be a valid url."
-                                     value="{{_editingManifest.author.url}}">
-                        </paper-input>
-                    </div>
+
+                <div class="layout horizontal">
+                    <paper-dropdown-menu label="License" selected-item-label="{{selectedLicenseLabel}}">
+                        <paper-menu class="dropdown-content" attr-for-selected="data-value"
+                                    selected="{{selectedLicense}}">
+                            <template is="dom-repeat" items="{{licenses}}">
+                                <paper-item data-value$="{{item.value}}">{{item.label}}</paper-item>
+                            </template>
+                        </paper-menu>
+                    </paper-dropdown-menu>
+                    <input is="iron-input" type="hidden" name="license"
+                           value="[[_decideLicense(selectedLicense, otherLicense)]]">
+                    <paper-input placeholder="License name"
+                                 value="{{otherLicense}}"
+                                 hidden="[[!_equals(selectedLicenseLabel, 'Other')]]">
+                    </paper-input>
+                </div>
+                <paper-input label="Homepage"
+                             pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
+                             placeholder="The url of the webpackage related website"
+                             auto-validate
+                             error-message="It should be a valid url."
+                             value="{{_editingManifest.hompage}}">
+                </paper-input>
+                <paper-input label="Keywords"
+                             placeholder="Keywords separated by ', ' which help to find this webpackage."
+                             pattern="^([\w][\s\w-]*)(,\s*([\w][\s*\w-]*))*"
+                             auto-validate
+                             error-message="It should be a comma separated list of keywords. The keywords can contains letter, number, and the character '-' and '_'."
+                             on-change="keywordsChanged"
+                             value="{{keywords}}">
+                </paper-input>
+                <div class="main-collapse-header collapse-header"><span>Author</span></div>
+                <div class="collapse-content collapse-item item-body">
+                    <paper-input label="Name"
+                                 pattern="^(([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?[\.]?\s)+([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?"
+                                 required
+                                 placeholder="The name of the author. (like John Doe)"
+                                 error-message="The full name of the author is required."
+                                 auto-validate
+                                 value="{{_editingManifest.author.name}}">
+                    </paper-input>
+                    <paper-input label="Email"
+                                 pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)"
+                                 required
+                                 error-message="The email address of the author is required."
+                                 auto-validate
+                                 value="{{_editingManifest.author.email}}">
+                    </paper-input>
+                    <paper-input label="Url"
+                                 pattern="^(https?)://[^\s\/$.?#].[^\s]*"
+                                 placeholder="Url of the author (e.g. the personal homepage)"
+                                 auto-validate
+                                 rror-message="It should be a valid url."
+                                 value="{{_editingManifest.author.url}}">
+                    </paper-input>
+                </div>
                     <div tabindex="0"
                          on-tap="toggleCollapse"
                          data-collapse-id="contributorsCollapse"
@@ -211,37 +242,7 @@
                         </div>
                     </iron-collapse>
 
-                    <div class="layout horizontal">
-                        <paper-dropdown-menu label="License" selected-item-label="{{selectedLicenseLabel}}">
-                            <paper-menu class="dropdown-content" attr-for-selected="data-value"
-                                        selected="{{selectedLicense}}">
-                                <template is="dom-repeat" items="{{licenses}}">
-                                    <paper-item data-value$="{{item.value}}">{{item.label}}</paper-item>
-                                </template>
-                            </paper-menu>
-                        </paper-dropdown-menu>
-                        <input is="iron-input" type="hidden" name="license"
-                               value="[[_decideLicense(selectedLicense, otherLicense)]]">
-                        <paper-input placeholder="License name"
-                                     value="{{otherLicense}}"
-                                     hidden="[[!_equals(selectedLicenseLabel, 'Other')]]">
-                        </paper-input>
-                    </div>
-                    <paper-input label="Homepage"
-                                 pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
-                                 placeholder="The url of the webpackage related website"
-                                 auto-validate
-                                 error-message="It should be a valid url."
-                                 value="{{_editingManifest.hompage}}">
-                    </paper-input>
-                    <paper-input label="Keywords"
-                                 placeholder="Keywords separated by ', ' which help to find this webpackage."
-                                 pattern="^([\w][\s\w-]*)(,\s*([\w][\s*\w-]*))*"
-                                 auto-validate
-                                 error-message="It should be a comma separated list of keywords. The keywords can contains letter, number, and the character '-' and '_'."
-                                 on-change="keywordsChanged"
-                                 value="{{keywords}}">
-                    </paper-input>
+
 
                     <template is="dom-if" if="[[_isObject(_editingManifest.man)]]">
                         <div on-tap="toggleCollapse"
@@ -272,6 +273,7 @@
                                                      placeholder="Url to an external manual related to this webpackage"
                                                      error-message="It should be a valid url."
                                                      auto-validate
+                                                     required
                                                      no-label-float
                                                      value="{{man}}">
                                         </paper-input>

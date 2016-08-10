@@ -43,7 +43,6 @@ Polymer.IronValidatorBehavior
             }
 
             .collapse-header {
-                font-weight: bold;
                 cursor: pointer;
                 border: solid thin #dbdbdb;
                 background-color: #dbdbdb;
@@ -107,7 +106,10 @@ Polymer.IronValidatorBehavior
                 font-size: 0.8em;
                 transition: transform 0.25s, width 0.25s;
                 -webkit-transition: -webkit-transform 0.25s, width 0.25s;
+            }
 
+            .category {
+                margin-top: 1em;
             }
         </style>
 
@@ -584,7 +586,9 @@ Polymer.IronValidatorBehavior
                                                     Copy Value
                                                 </paper-checkbox>
                                                 <div class="list-item-container">
-                                                    <strong>Source</strong>
+                                                    <div class="category">
+                                                        <strong>Source</strong>
+                                                    </div>
                                                     <paper-input label="Member Id Reference"
                                                                  placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
                                                                  pattern="^[a-z][a-zA-Z0-9-]*$"
@@ -599,7 +603,9 @@ Polymer.IronValidatorBehavior
                                                                  auto-validate
                                                                  value="{{connection.source.slot}}">
                                                     </paper-input>
-                                                    <strong>Destination</strong>
+                                                    <div class="category">
+                                                        <strong>Destination</strong>
+                                                    </div>
                                                     <paper-input label="Member Id Reference"
                                                                  placeholder="The 'memberId' value of the member item, the slot belongs to. If the memberIdRef property is missed, it will connected with an own slot of the compound component."
                                                                  pattern="^[a-z][a-zA-Z0-9-]*$"
