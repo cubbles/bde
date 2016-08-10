@@ -67,40 +67,23 @@ Polymer({
   },
 
   observers: [
-    'manifestChanged(manifest.*)',
-    'selectedCompoundChanged(selectedCompound.*)',
-    'currentComponentMetadataChanged(currentComponentMetadata.*)'
+    '_manifestChanged(manifest.*)',
+    '_selectedCompoundChanged(selectedCompound.*)',
+    '_currentComponentMetadataChanged(currentComponentMetadata.*)'
   ],
 
   listeners: {
-    'bde_compound_select': 'handleBdeCompoundSelect',
+    'bde_compound_select': '_handleBdeCompoundSelect',
     'compoundSelector.iron-items-changed': '_handleCompoundItemsChanged'
   },
 
-  currentComponentMetadataChanged: function (changeRecord) {
-    // Notify selectedCompound changes
-    var regexpr = /(.*compoundComponents\.#\d+\.)(.*)/ig;
-    var matches = regexpr.exec(changeRecord.path);
-    if (matches) {
-      var path = matches[2];
-      if (path) {
-        this.set('selectedCompound.' + path, changeRecord.value);
-      }
-    }
+  addCompound: function () {
+    this.$.compoundCreator.open();
   },
-  ready: function () {
-    // Bind dom-change to wait for dom-repeat
-    this.$.compoundSelector.addEventListener('dom-change', this.onDomChange.bind(this));
-  },
-  onDomChange: function (e) {
+
+  compoundListDomChange: function (e) {
     // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
-    if (e.target.id === 'compoundList' && !this.$.compoundSelector.selected) {
-      this.$.compoundSelector.select(this.selectedCompound.artifactId);
-      // Fire own event, because iron-select handler not always received after initialisation.
-      // self-fired iron-select events also not received
-      this.fire('bde_compound_select', this.selectedCompound.artifactId);
-    }
-    if (e.target.id.indexOf('endpoints_template') > -1) {
+    if (!this.$.compoundSelector.selected) {
       this.$.compoundSelector.select(this.selectedCompound.artifactId);
       // Fire own event, because iron-select handler not always received after initialisation.
       // self-fired iron-select events also not received
@@ -108,12 +91,29 @@ Polymer({
     }
   },
 
-  addApp: function () {
-    // this.$.addAppDialog.open();
+  endpointTemplateDomChange: function (e) {
+    // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
+    if (this.selectedCompound) {
+      this.$.compoundSelector.select(this.selectedCompound.artifactId);
+      // Fire own event, because iron-select handler not always received after initialisation.
+      // self-fired iron-select events also not received
+      this.fire('bde_compound_select', this.selectedCompound.artifactId);
+    }
   },
 
-  openWebpackageMetaInfo: function (e) {
-    this.$.webpackageMetaInfo.open();
+  explorerItemSelected: function (e) {
+    var item = e.detail.item;
+
+    if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
+      this._deselectCompound();
+      this._selectCompound(item.dataset.artifactId, item.dataset.endpointId);
+    } else if (item.dataset.endpointId && item.dataset.endpointId !== this._createEndpointMenuItemId(this.currentComponentMetadata.artifactId, this.currentComponentMetadata.endpointId)) {
+      this._selectEndpoint(item.dataset.endpointId);
+    }
+  },
+  handleNewCompound: function (e) {
+    this.push('manifest.artifacts.compoundComponents', e.detail.value);
+    this.notifyPath('manifest.artifacts.compoundComponents', this.manifest.artifacts.compoundComponents.slice());
   },
 
   openCompoundDetails: function (e) {
@@ -124,35 +124,6 @@ Polymer({
     this.$.explorerDetails.open();
   },
 
-  addCompound: function () {
-    this.$.compoundCreator.open();
-  },
-  manifestChanged: function (changeRecord) {
-    var path = changeRecord.path.replace('manifest', 'currentComponentMetadata.manifest');
-    this.set(path, changeRecord.value);
-    if (this.selectedCompound) {
-      this.set('selectedCompound', this.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.selectedCompound.artifactId));
-    }
-    if (this.manifest) {
-      var menu = this.$$('#compoundSelector');
-      Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
-        subMenu.close();
-      });
-    }
-  },
-
-  handleNewCompound: function (e) {
-    this.push('manifest.artifacts.compoundComponents', e.detail.value);
-    this.notifyPath('manifest.artifacts.compoundComponents', this.manifest.artifacts.compoundComponents.slice());
-  },
-
-  _handleCompoundItemsChanged: function (event) {
-    // find added paper-submenu and ignore added text nodes
-    var addedItem = event.detail.addedNodes.find((item) => item.tagName && item.tagName.toLowerCase() === 'paper-submenu');
-    if (addedItem !== this.$.compoundSelector.selectedItem) {
-      this.$.compoundSelector.select(addedItem.dataset.artifactId);
-    }
-  },
   openSettings: function (e) {
     e.stopPropagation();
     var item = e.model.dataHost.itemForElement(e.target);
@@ -161,95 +132,8 @@ Polymer({
     this.fire('bde-explorer-open-settings', { item: item });
   },
 
-  selectApp: function (e) {
-    var item = this.$.appList.itemForElement(e.target);
-    item.is = 'app';
-    this.$.appSelector.select(item);
-
-    this.fire('iron-select', { is: 'app', item: item });
-  },
-
-  explorerItemSelected: function (e) {
-    var item = e.detail.item;
-
-    if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
-      this.deselectCompound();
-      this.selectCompound(item.dataset.artifactId, item.dataset.endpointId);
-    } else if (item.dataset.endpointId && item.dataset.endpointId !== this._createEndpointMenuItemId(this.currentComponentMetadata.artifactId, this.currentComponentMetadata.endpointId)) {
-      this.selectEndpoint(item.dataset.endpointId);
-    }
-  },
-
-  /**
-   * event listener for own bde-compound-select evevt (fired after initialisation)
-   * This event fired additional to iron-select, becouse iron-select can not always received by initialisation
-   * @param e
-   */
-  handleBdeCompoundSelect: function (e) {
-    var artifactId = e.detail;
-
-    var elem = this.$.compoundSelector.querySelector('[data-artifact-id = ' + artifactId + ']');
-    if (elem) {
-      elem.is = 'compound';
-    }
-    if (artifactId && artifactId !== this.currentComponentMetadata.artifactId) {
-      this.deselectCompound();
-      this.selectCompound(artifactId);
-    }
-  },
-  deselectCompound: function () {
-    var menu = this.$$('#compoundSelector');
-    // menu.selected = null;
-    Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
-      subMenu.close();
-      Polymer.dom(subMenu).querySelector('paper-menu').selected = null;
-    });
-  },
-
-  selectCompound: function (artifactId) {
-    this.set('currentComponentMetadata.artifactId', artifactId);
-    var subMenu = this.$$('[data-artifact-id=' + artifactId + ']');
-    subMenu.open();
-    if (Polymer.dom(subMenu).querySelector('[data-endpoint-id]')) {
-      Polymer.dom(subMenu).querySelector('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
-    } else {
-      Polymer.dom(subMenu).querySelector('paper-menu').addEventListener('dom-change', function (e) {
-        e.target.closest('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
-      });
-    }
-    var compound = this.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId);
-    this.set('selectedCompound', compound);
-  },
-
-  selectedCompoundChanged: function (changeRecord) {
-    if (!changeRecord || !this.currentComponentMetadata.manifest) {
-      return;
-    }
-
-    var path = changeRecord.path;
-    var artifactPath = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(this.selectedCompound);
-    path.replace('selectedCompound', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + artifactPath);
-    this.set(path, changeRecord.value);
-  },
-
-  selectEndpoint: function (endpointId) {
-    this.set('currentComponentMetadata.endpointId', endpointId.split('_')[ 1 ]);
-  },
-
-  selectElementary: function (e) {
-    var item = this.$.elementaryList.itemForElement(e.target);
-    item.is = 'elementary';
-    this.$.elementarySelector.select(item);
-
-    this.fire('iron-select', { is: 'elementary', item: item });
-  },
-
-  selectUtility: function (e) {
-    var item = this.$.utilityList.itemForElement(e.target);
-    item.is = 'utility';
-    this.$.elementarySelector.select(item);
-
-    this.fire('iron-select', { is: 'utility', item: item });
+  openWebpackageMetaInfo: function (e) {
+    this.$.webpackageMetaInfo.open();
   },
 
   toggleApps: function () {
@@ -292,22 +176,147 @@ Polymer({
     return state ? 'icons:expand-less' : 'icons:expand-more';
   },
 
-  _equals: function (a, b) {
-    return a === b;
-  },
   _createEndpointMenuItemId: function (artifactId, endpointId) {
     return artifactId + '_' + endpointId;
   },
+
   _createIdForEndpointsMenu: function (artifactId) {
     return 'endpoints_' + artifactId;
   },
+
   _createIdForEndpointsMenuTemplate: function (artifactId) {
     return 'endpoints_template_' + artifactId;
   },
+
+  _currentComponentMetadataChanged: function (changeRecord) {
+    // Notify selectedCompound changes
+    var regexpr = /(.*compoundComponents\.#\d+\.)(.*)/ig;
+    var matches = regexpr.exec(changeRecord.path);
+    if (matches) {
+      var path = matches[ 2 ];
+      if (path) {
+        this.set('selectedCompound.' + path, changeRecord.value);
+      }
+    }
+  },
+
+  _deselectCompound: function () {
+    var menu = this.$$('#compoundSelector');
+    // menu.selected = null;
+    Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
+      subMenu.close();
+      Polymer.dom(subMenu).querySelector('paper-menu').selected = null;
+    });
+  },
+
+  _equals: function (a, b) {
+    return a === b;
+  },
+
   _groupIdDefined: function (groupId) {
     if (groupId) {
       return true;
     }
     return false;
+  },
+
+  /**
+   * event listener for own bde-compound-select evevt (fired after initialisation)
+   * This event fired additional to iron-select, becouse iron-select can not always received by initialisation
+   * @param e
+   */
+  _handleBdeCompoundSelect: function (e) {
+    var artifactId = e.detail;
+
+    var elem = this.$.compoundSelector.querySelector('[data-artifact-id = ' + artifactId + ']');
+    if (elem) {
+      elem.is = 'compound';
+    }
+    if (artifactId && artifactId !== this.currentComponentMetadata.artifactId) {
+      this._deselectCompound();
+      this._selectCompound(artifactId);
+    }
+  },
+
+  _handleCompoundItemsChanged: function (event) {
+    // find added paper-submenu and ignore added text nodes
+    var addedItem = event.detail.addedNodes.find((item) => item.tagName && item.tagName.toLowerCase() === 'paper-submenu');
+    if (addedItem && addedItem !== this.$.compoundSelector.selectedItem) {
+      this.$.compoundSelector.select(addedItem.dataset.artifactId);
+    }
+  },
+
+  _manifestChanged: function (changeRecord) {
+    var path = changeRecord.path.replace('manifest', 'currentComponentMetadata.manifest');
+    this.set(path, changeRecord.value);
+    if (this.selectedCompound) {
+      var compoundInManifest = this.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.selectedCompound.artifactId);
+      if (compoundInManifest) {
+        this.set('selectedCompound', compoundInManifest);
+      }
+    }
+    if (this.manifest) {
+      var menu = this.$$('#compoundSelector');
+      Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
+        subMenu.close();
+      });
+    }
+  },
+
+  _selectApp: function (e) {
+    var item = this.$.appList.itemForElement(e.target);
+    item.is = 'app';
+    this.$.appSelector.select(item);
+
+    this.fire('iron-select', { is: 'app', item: item });
+  },
+
+  _selectCompound: function (artifactId) {
+    this.set('currentComponentMetadata.artifactId', artifactId);
+    var subMenu = this.$$('[data-artifact-id=' + artifactId + ']');
+    subMenu.open();
+    if (Polymer.dom(subMenu).querySelector('[data-endpoint-id]')) {
+      Polymer.dom(subMenu).querySelector('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
+    } else {
+      Polymer.dom(subMenu).querySelector('paper-menu').addEventListener('dom-change', function (e) {
+        e.target.closest('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
+      });
+    }
+    var compound = this.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId);
+    this.set('selectedCompound', compound);
+  },
+
+  _selectedCompoundChanged: function (changeRecord) {
+    if (!changeRecord || !this.currentComponentMetadata.manifest) {
+      return;
+    }
+
+    var path = changeRecord.path;
+    var artifactPath = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(this.selectedCompound);
+    if (artifactPath) {
+      path.replace('selectedCompound', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + artifactPath);
+      this.set(path, changeRecord.value);
+    }
+  },
+
+  _selectElementary: function (e) {
+    var item = this.$.elementaryList.itemForElement(e.target);
+    item.is = 'elementary';
+    this.$.elementarySelector.select(item);
+
+    this.fire('iron-select', { is: 'elementary', item: item });
+  },
+
+  _selectEndpoint: function (endpointId) {
+    this.set('currentComponentMetadata.endpointId', endpointId.split('_')[ 1 ]);
+  },
+
+  _selectUtility: function (e) {
+    var item = this.$.utilityList.itemForElement(e.target);
+    item.is = 'utility';
+    this.$.elementarySelector.select(item);
+
+    this.fire('iron-select', { is: 'utility', item: item });
   }
+
 });

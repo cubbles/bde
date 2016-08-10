@@ -218,7 +218,7 @@ Example:
                 <paper-menu attr-for-selected="data-artifact-id"
                             on-iron-select="explorerItemSelected"
                             id="compoundSelector">
-                    <template is="dom-repeat" id="compoundList"
+                    <template is="dom-repeat" id="compoundList" on-dom-change="compoundListDomChange"
                               items="{{manifest.artifacts.compoundComponents}}" as="compound">
                         <paper-submenu data-artifact-id$="[[compound.artifactId]]">
                             <!--<paper-icon-item class="menu-trigger">-->
@@ -243,7 +243,7 @@ Example:
                                         class="menu-content sublist explorerSubmenu"
                                         on-iron-select="explorerItemSelected">
                                 <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint"
-                                          id$="[[_createIdForEndpointsMenuTemplate(compound.artifactId)]]">
+                                          id$="[[_createIdForEndpointsMenuTemplate(compound.artifactId)]]" on-dom-change="endpointTemplateDomChange">
                                     <paper-item
                                             data-endpoint-id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]"
                                             class="endpoint-item explorerItem"

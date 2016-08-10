@@ -73,7 +73,9 @@ Polymer({
     if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
       return;
     }
-    this.loadNewCompound();
+    this.debounce('loadNewCompound', function () {
+      this.loadNewCompound();
+    }, 2);
   },
 
   loadNewCompound: function () {
@@ -108,7 +110,6 @@ Polymer({
       this.set('designViewDisabled', true);
     }
   },
-
 
   leaveHandler: function (e) {
     // TODO mapping für blob URL zu webpackage Generierung erstellen und global verwalten

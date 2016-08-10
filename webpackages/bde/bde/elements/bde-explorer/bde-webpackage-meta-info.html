@@ -308,13 +308,15 @@
                                                          placeholder="A (short) name for the runnable."
                                                          pattern="^(.)+"
                                                          required
+                                                         auto-validate
                                                          error-message="The runnable name is required. (e.g. 'demo')"
                                                          value="{{runnable.name}}">
                                             </paper-input>
                                             <paper-input label="Path"
                                                          placeholder="Path to the 'runnable' resource - relative to the webpackage itself (e.g. '/doc/index.html')."
-                                                         pattern="^/(.)+"
+                                                         pattern="^\/(.)+"
                                                          required
+                                                         auto-validate
                                                          value="{{runnable.path}}">
                                             </paper-input>
                                             <paper-textarea label="Description"

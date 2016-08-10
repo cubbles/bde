@@ -5,7 +5,7 @@ Polymer({
       type: 'Object'
     }
   },
-  selectEndpoint: function (event) {
+  _selectEndpoint: function (event) {
     var item = event.target;
     this.fire('bde-select-endpoint', {artifact: item.dataset.artifact, endpointId: item.dataset.endpointId});
   }

@@ -67,9 +67,7 @@ Polymer({
     }
   },
   dialogOpenHandler: function (event) {
-    console.log('this.manifest', this.manifest);
-    console.log(' _.clone(this.manifest)', _.clone(this.manifest.toValidManifest()));
-    this.set('_editingManifest', _.clone(this.manifest.toValidManifest()));
+    this.set('_editingManifest', _.cloneDeep(this.manifest.toValidManifest()));
     this.set('_validForm', true);
   },
   _decideLicense: function (selectedLicense, otherLicense) {
