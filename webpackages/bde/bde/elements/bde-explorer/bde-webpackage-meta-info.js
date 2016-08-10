@@ -197,5 +197,10 @@ Polymer({
   },
   _equals: function (a, b) {
     return a === b;
-  }
+  },
+  _validateForm: function () {
+    this.debounce('validateForm', function () {
+      this.$.manifestForm.validate();
+    }, 2);
+  },
 });

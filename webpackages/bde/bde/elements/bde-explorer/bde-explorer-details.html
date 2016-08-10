@@ -8,16 +8,16 @@
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
 <link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../custom-validator/custom-validator.html" />
+<link rel="import" href="../custom-validator/custom-validator.html"/>
 
 
 Polymer({
 
-    is: 'custom-validator',
+is: 'custom-validator',
 
-    behaviors: [
-        Polymer.IronValidatorBehavior
-    ]
+behaviors: [
+Polymer.IronValidatorBehavior
+]
 });
 <dom-module id="bde-explorer-details">
     <template>
@@ -50,13 +50,15 @@ Polymer({
                 height: 24px;
             }
 
-            .collapse-header span{
+            .collapse-header span {
                 padding: 10px;
             }
+
             .main-collapse-header {
                 font-size: medium;
                 margin-top: 15px;
             }
+
             .main-collapse-body {
                 background-color: #f2f2f2;
             }
@@ -74,7 +76,7 @@ Polymer({
                 background-color: white;
             }
 
-            .errorMessage{
+            .errorMessage {
                 background: #EEEEEE;
                 color: #DD2C00;
                 padding: 20px;
@@ -94,6 +96,19 @@ Polymer({
             .item-body {
                 background-color: white;
             }
+
+
+            .label {
+                margin-top: 0.7em;
+            }
+
+            .label label{
+                color: #737373;
+                font-size: 0.8em;
+                transition: transform 0.25s, width 0.25s;
+                -webkit-transition: -webkit-transform 0.25s, width 0.25s;
+
+            }
         </style>
 
         <paper-dialog id="dialog" opened="{{opened}}" on-iron-overlay-opened="dialogOpenHandler">
@@ -103,7 +118,7 @@ Polymer({
             <div class="errorMessage" hidden="[[validForm]]">Please correct the errors in the form</div>
 
             <paper-dialog-scrollable>
-                <form is="iron-form" id="artifactForm">
+                <form is="iron-form" id="artifactForm" on-dom-change="_validateForm">
                     <!-- artifactId -->
                     <paper-input tabindex="-1"
                                  label="Artifact id"
@@ -177,10 +192,12 @@ Polymer({
                                 </div>
                             </template>
                             <paper-button raised class="itemActionButton"
-                                             on-tap="addNewItem"
-                                             data-path$="[[_createPath('runnables')]]"
-                                             data-item-name="runnable">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>Add Runnable</paper-button>
+                                          on-tap="addNewItem"
+                                          data-path$="[[_createPath('runnables')]]"
+                                          data-item-name="runnable">
+                                <iron-icon icon="icons:add" item-icon></iron-icon>
+                                Add Runnable
+                            </paper-button>
                         </div>
                     </iron-collapse>
 
@@ -215,7 +232,8 @@ Polymer({
                                                        data-path$="[[_createPath('endpoints')]]"
                                                        data-item-index$="[[endpointi]]"></iron-icon>
                                         </div>
-                                        <iron-collapse id$="[[_idForCollapse(endpointi, 'endpoint_')]]" class="collapse-item">
+                                        <iron-collapse id$="[[_idForCollapse(endpointi, 'endpoint_')]]"
+                                                       class="collapse-item">
                                             <div class="collapse-content collapse-item item-body">
                                                 <paper-input label="Endpoint Id"
                                                              placeholder="Identifier for this slot item - unique within this component."
@@ -239,7 +257,8 @@ Polymer({
                                                     <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                                 </div>
                                                 <iron-collapse
-                                                        id="[[_idForCollapse(endpointi, 'endpoint_resources_')]]" class="collapse-item">
+                                                        id="[[_idForCollapse(endpointi, 'endpoint_resources_')]]"
+                                                        class="collapse-item">
                                                     <div class="collapse-content  main-collapse-body">
                                                         <template is="dom-repeat"
                                                                   id="resources"
@@ -247,46 +266,46 @@ Polymer({
                                                                   index-as="resourcei"
                                                                   data-endpoint-index$="[[endpointi]]"
                                                                   as="resource">
-                                                                <div tabindex="0"
-                                                                     class="collapse-header">
-                                                                    <span>&nbsp; </span>
-                                                                    <iron-icon icon="icons:delete"
-                                                                               class="deleteButton"
-                                                                               on-tap="removeItem"
-                                                                               data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
-                                                                               data-item-index$="[[resourcei]]"></iron-icon>
+                                                            <div tabindex="0"
+                                                                 class="collapse-header">
+                                                                <span>&nbsp; </span>
+                                                                <iron-icon icon="icons:delete"
+                                                                           class="deleteButton"
+                                                                           on-tap="removeItem"
+                                                                           data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
+                                                                           data-item-index$="[[resourcei]]"></iron-icon>
+                                                            </div>
+                                                            <template is="dom-if" if="[[_isObject(resource)]]">
+                                                                <div class="collapse-content collapse-item item-body">
+                                                                    <paper-input label="Development Path"
+                                                                                 placeholder="Path to resource for development."
+                                                                                 required
+                                                                                 auto-validate
+                                                                                 error-message="The path to the resource is required. (e.g. '/demo/index.html')"
+                                                                                 value="{{resource.dev}}">
+                                                                    </paper-input>
+                                                                    <paper-input label="Production Path"
+                                                                                 placeholder="Path to potentially optimized resource."
+                                                                                 required
+                                                                                 auto-validate
+                                                                                 error-message="The path to the resource is required. It can be same as Development path. (e.g. '/demo/index.html')"
+                                                                                 value="{{resource.prod}}">
+                                                                    </paper-input>
                                                                 </div>
-                                                                <template is="dom-if" if="[[_isObject(resource)]]">
-                                                                    <div class="collapse-content collapse-item item-body">
-                                                                        <paper-input label="Development Path"
-                                                                                     placeholder="Path to resource for development."
-                                                                                     required
-                                                                                     auto-validate
-                                                                                     error-message="The path to the resource is required. (e.g. '/demo/index.html')"
-                                                                                     value="{{resource.dev}}">
-                                                                        </paper-input>
-                                                                        <paper-input label="Production Path"
-                                                                                     placeholder="Path to potentially optimized resource."
-                                                                                     required
-                                                                                     auto-validate
-                                                                                     error-message="The path to the resource is required. It can be same as Development path. (e.g. '/demo/index.html')"
-                                                                                     value="{{resource.prod}}">
-                                                                        </paper-input>
-                                                                     </div>
-                                                                </template>
-                                                                <template is="dom-if" if="[[!_isObject(resource)]]">
-                                                                    <div class="collapse-content collapse-item item-body">
-                                                                        <paper-input value="{{resource}}"
-                                                                                     placeholder="Path to resource. This resource will be used for both runtimeMode 'prod' and 'dev'."
-                                                                                     no-label-float>
-                                                                        </paper-input>
-                                                                    </div>
-                                                                </template>
+                                                            </template>
+                                                            <template is="dom-if" if="[[!_isObject(resource)]]">
+                                                                <div class="collapse-content collapse-item item-body">
+                                                                    <paper-input value="{{resource}}"
+                                                                                 placeholder="Path to resource. This resource will be used for both runtimeMode 'prod' and 'dev'."
+                                                                                 no-label-float>
+                                                                    </paper-input>
+                                                                </div>
+                                                            </template>
                                                         </template>
                                                         <paper-button raised class="itemActionButton"
-                                                                         on-tap="addNewItem"
-                                                                         data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
-                                                                         data-item-name="endpointResource">
+                                                                      on-tap="addNewItem"
+                                                                      data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
+                                                                      data-item-name="endpointResource">
                                                             <iron-icon icon="icons:add" item-icon></iron-icon>
                                                             <paper-item-body>
                                                                 <div>Add Resource</div>
@@ -306,7 +325,7 @@ Polymer({
                                                     <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                                 </div>
                                                 <iron-collapse
-                                                        id="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]" >
+                                                        id="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]">
                                                     <div class="collapse-content main-collapse-body">
                                                         <template is="dom-repeat"
                                                                   id="dependencies"
@@ -314,30 +333,32 @@ Polymer({
                                                                   items="{{endpoint.dependencies}}"
                                                                   index-as="dependencyi"
                                                                   as="dependency">
-                                                                <div tabindex="0"
-                                                                     class="collapse-header">
-                                                                    <span>&nbsp; </span>
-                                                                    <iron-icon icon="icons:delete"
-                                                                               class="deleteButton"
-                                                                               on-tap="removeItem"
-                                                                               data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
-                                                                               data-item-index$="[[dependencyi]]"></iron-icon>
-                                                                </div>
-                                                                <div class="collapse-content collapse-item item-body">
-                                                                    <paper-input
-                                                                            pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+$"
-                                                                            no-label-float
-                                                                            auto-validate
-                                                                            error-message="The dependecy should be: '[webpackageGroupId.]webpackageName@version/artifactId/endpointId' or 'this/artifactId/endpointId', (e.g. 'org.example.my-package@1.0/my-component/main' or 'this/my-component/main')"
-                                                                            value="{{dependency}}">
-                                                                    </paper-input>
-                                                                </div>
+                                                            <div tabindex="0"
+                                                                 class="collapse-header">
+                                                                <span>&nbsp; </span>
+                                                                <iron-icon icon="icons:delete"
+                                                                           class="deleteButton"
+                                                                           on-tap="removeItem"
+                                                                           data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
+                                                                           data-item-index$="[[dependencyi]]"></iron-icon>
+                                                            </div>
+                                                            <div class="collapse-content collapse-item item-body">
+                                                                <paper-input
+                                                                        pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+$"
+                                                                        no-label-float
+                                                                        auto-validate
+                                                                        error-message="The dependecy should be: '[webpackageGroupId.]webpackageName@version/artifactId/endpointId' or 'this/artifactId/endpointId', (e.g. 'org.example.my-package@1.0/my-component/main' or 'this/my-component/main')"
+                                                                        value="{{dependency}}">
+                                                                </paper-input>
+                                                            </div>
                                                         </template>
                                                         <paper-button raised class="itemActionButton"
-                                                                         on-tap="addNewItem"
-                                                                         data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
-                                                                         data-item-name="endpointDependency">
-                                                            <iron-icon icon="icons:add" item-icon></iron-icon>Add Dependency</paper-button>
+                                                                      on-tap="addNewItem"
+                                                                      data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
+                                                                      data-item-name="endpointDependency">
+                                                            <iron-icon icon="icons:add" item-icon></iron-icon>
+                                                            Add Dependency
+                                                        </paper-button>
                                                     </div>
                                                 </iron-collapse>
                                             </div>
@@ -345,10 +366,11 @@ Polymer({
                                     </div>
                                 </template>
                                 <paper-button raised class="itemActionButton"
-                                                 on-tap="addNewItem"
-                                                 data-path$="[[_createPath('endpoints')]]"
-                                                 data-item-name="endpoint">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Endpoint</paper-item-body>
+                                              on-tap="addNewItem"
+                                              data-path$="[[_createPath('endpoints')]]"
+                                              data-item-name="endpoint">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    Add Endpoint</paper-item-body>
                                 </paper-button>
                             </div>
                         </iron-collapse>
@@ -394,7 +416,6 @@ Polymer({
                                                 </paper-input>
                                                 <paper-input label="Type" list="slotTypes"
                                                              placeholder="Data type of the slot."
-                                                             required
                                                              auto-validate
                                                              error-message="The slot type is required"
                                                              value="{{slot.type}}">
@@ -409,9 +430,11 @@ Polymer({
                                                 <paper-textarea label="Description"
                                                                 placeholder="Description of this slot: responsibility, expected data-structure etc.">
                                                 </paper-textarea>
-                                                <label title="A slot can be public accessible as input-slot (receive data), output-slot (propagate data) or both. If this attribute not exist, is the slot bidirectional">
-                                                    Direction
-                                                </label>
+                                                <div class="label">
+                                                    <label class="label" title="A slot can be public accessible as input-slot (receive data), output-slot (propagate data) or both. If this attribute not exist, is the slot bidirectional">
+                                                        Direction
+                                                    </label>
+                                                </div>
                                                 <paper-checkbox checked="[[_isInputSlot(slot)]]">Input
                                                 </paper-checkbox>
                                                 <paper-checkbox checked="[[_isOutputSlot(slot)]]">Output
@@ -421,10 +444,11 @@ Polymer({
                                     </div>
                                 </template>
                                 <paper-button raised class="itemActionButton"
-                                                 on-tap="addNewItem"
-                                                 data-path$="[[_createPath('slots')]]"
-                                                 data-item-name="slot">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Slot
+                                              on-tap="addNewItem"
+                                              data-path$="[[_createPath('slots')]]"
+                                              data-item-name="slot">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    Add Slot
                                 </paper-button>
                             </div>
                         </iron-collapse>
@@ -460,7 +484,8 @@ Polymer({
                                                        data-path$="[[_createPath('members')]]"
                                                        data-item-index$="[[memberi]]"></iron-icon>
                                         </div>
-                                        <iron-collapse id$="[[_idForCollapse(memberi, 'member_')]]" class="collapse-item item-body">
+                                        <iron-collapse id$="[[_idForCollapse(memberi, 'member_')]]"
+                                                       class="collapse-item item-body">
                                             <div class="collapse-content">
                                                 <paper-input label="Member Id"
                                                              placeholder="Identifier for this member item - unique within this compound component."
@@ -491,10 +516,12 @@ Polymer({
                                     </div>
                                 </template>
                                 <paper-button raised class="itemActionButton"
-                                                 on-tap="addNewItem"
-                                                 data-path$="[[_createPath('members')]]"
-                                                 data-item-name="member">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Member</paper-button>
+                                              on-tap="addNewItem"
+                                              data-path$="[[_createPath('members')]]"
+                                              data-item-name="member">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    Add Member
+                                </paper-button>
                             </div>
                         </iron-collapse>
 
@@ -527,7 +554,8 @@ Polymer({
                                                        data-path$="[[_createPath('connections')]]"
                                                        data-item-index$="[[connectioni]]"></iron-icon>
                                         </div>
-                                        <iron-collapse id$="[[_idForCollapse(connectioni, 'connection_')]]" class="collapse-item item-body">
+                                        <iron-collapse id$="[[_idForCollapse(connectioni, 'connection_')]]"
+                                                       class="collapse-item item-body">
                                             <div class="collapse-content">
                                                 <paper-input label="Connection Id"
                                                              placeholder="Identifier for this connection item - unique within this compound component."
@@ -592,10 +620,11 @@ Polymer({
                                     </div>
                                 </template>
                                 <paper-button raised class="itemActionButton"
-                                                 on-tap="addNewItem"
-                                                 data-path$="[[_createPath('connections')]]"
-                                                 data-item-name="connection">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Connection
+                                              on-tap="addNewItem"
+                                              data-path$="[[_createPath('connections')]]"
+                                              data-item-name="connection">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    Add Connection
                                 </paper-button>
                             </div>
                         </iron-collapse>
@@ -627,7 +656,8 @@ Polymer({
                                                        data-path$="[[_createPath('inits')]]"
                                                        data-item-index$="[[initi]]"></iron-icon>
                                         </div>
-                                        <iron-collapse id$="[[_idForCollapse(initi, 'init_')]]" class="collapse-item item-body">
+                                        <iron-collapse id$="[[_idForCollapse(initi, 'init_')]]"
+                                                       class="collapse-item item-body">
                                             <div class="collapse-content">
                                                 <paper-input label="Member Id Reference"
                                                              placeholder="The 'memberId' value of the member item, the slot belongs to. If the property is missed, it refers to an own slot of the compound component."
@@ -643,8 +673,12 @@ Polymer({
                                                              error-message="The slot name is required"
                                                              value="{{init.slot}}">
                                                 </paper-input>
-                                                <custom-validator id="{{_initTextareaValidatorId(initi)}}" class="validJson" validator-name$="{{_initTextareaValidatorName(initi)}}"></custom-validator>
-                                                <paper-textarea auto-validate validator$="{{_initTextareaValidatorName(initi)}}" label="Value"
+                                                <custom-validator id="{{_initTextareaValidatorId(initi)}}"
+                                                                  class="validJson"
+                                                                  validator-name$="{{_initTextareaValidatorName(initi)}}"></custom-validator>
+                                                <paper-textarea auto-validate
+                                                                validator$="{{_initTextareaValidatorName(initi)}}"
+                                                                label="Value"
                                                                 id="{{_initTextareaId(initi)}}"
                                                                 class="initValue"
                                                                 placeholder="The value to init the slot with."
@@ -661,10 +695,12 @@ Polymer({
                                     </div>
                                 </template>
                                 <paper-button raised class="itemActionButton"
-                                                 on-tap="addNewItem"
-                                                 data-path$="[[_createPath('inits')]]"
-                                                 data-item-name="init">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Init</paper-button>
+                                              on-tap="addNewItem"
+                                              data-path$="[[_createPath('inits')]]"
+                                              data-item-name="init">
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>
+                                    Add Init
+                                </paper-button>
                             </div>
                         </iron-collapse>
                         <!--</template>-->

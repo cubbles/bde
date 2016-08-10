@@ -84,7 +84,7 @@
 
             <h2>Webpackage Meta Information</h2>
                 <paper-dialog-scrollable>
-            <form is="iron-form" id="manifestForm">
+            <form is="iron-form" id="manifestForm" on-dom-change="_validateForm">
                 <paper-input label="Name"
                              pattern="^([a-z][a-z0-9]*)([a-z\-]*(([0-9])+([0-9\.]+)*([0-9])+)*)*([a-z0-9]*)"
                              placeholder="The name of the webpackage"
@@ -95,15 +95,17 @@
 
                     <paper-input label="Group Id"
                                  pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*"
-                                 placeholder="Use this to define/select a namespace for the webpackage (e.g. org.example)"
+                                 placeholder="Use this to define/select a namespace for the webpackage (e.g. com.mycompany). Non-empty 'groupId' must start with the (reversed) author email-domain."
                                  auto-validate
                                  value="{{_editingManifest.groupId}}">
                     </paper-input>
 
                     <paper-input label="Version"
-                                 pattern="^(\d+)(\.[\d]+)*(-SNAPSHOT)?"
-                                 placeholder="Version number of the webpackage"
+                                 pattern="^(\d+)(\.[\d]+){2}(-SNAPSHOT)?"
+                                 placeholder="Version number of the webpackage. (x.x.x or x.x.x-SNAPSHOT)"
                                  auto-validate
+                                 error-message="The version of the webpackage is required. The version number should be composed from major, minor and patch number, and it optional can be marked as SNAPSHOT. (x.x.x or x.x.x-SNAPSHOT)"
+                                 required
                                  value="{{_editingManifest.version}}">
                     </paper-input>
 
@@ -123,12 +125,15 @@
                         <paper-input label="Name"
                                      pattern="^(([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?[\.]?\s)+([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?"
                                      required
+                                     placeholder="The name of the author. (like John Doe)"
+                                     error-message="The full name of the author is required."
                                      auto-validate
                                      value="{{_editingManifest.author.name}}">
                         </paper-input>
                         <paper-input label="Email"
                                      pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)"
                                      required
+                                     error-message="The email address of the author is required."
                                      auto-validate
                                      value="{{_editingManifest.author.email}}">
                         </paper-input>
@@ -136,6 +141,7 @@
                                      pattern="^(https?)://[^\s\/$.?#].[^\s]*"
                                      placeholder="Url of the author (e.g. the personal homepage)"
                                      auto-validate
+                                     rror-message="It should be a valid url."
                                      value="{{_editingManifest.author.url}}">
                         </paper-input>
                     </div>
@@ -175,12 +181,14 @@
                                             <paper-input label="Name"
                                                          pattern="^(([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?[\.]?\s)+([A-Za-zäöüÄÖÜ]+[\-\']?)*([A-Za-zäöüÄÖÜ]+)?"
                                                          required
+                                                         error-message="The full name of the contributor is required."
                                                          auto-validate
                                                          value="{{contributor.name}}">
                                             </paper-input>
                                             <paper-input label="Email"
                                                          pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)"
                                                          required
+                                                         error-message="The email address of the contributor is required."
                                                          auto-validate
                                                          value="{{contributor.email}}">
                                             </paper-input>
@@ -188,6 +196,7 @@
                                                          pattern="^(https?)://[^\s\/$.?#].[^\s]*"
                                                          placeholder="Url of the author (e.g. the personal homepage)"
                                                          auto-validate
+                                                         error-message="It should be a valid url."
                                                          value="{{contributor.url}}">
                                             </paper-input>
                                         </div>
@@ -222,12 +231,14 @@
                                  pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
                                  placeholder="The url of the webpackage related website"
                                  auto-validate
+                                 error-message="It should be a valid url."
                                  value="{{_editingManifest.hompage}}">
                     </paper-input>
                     <paper-input label="Keywords"
                                  placeholder="Keywords separated by ', ' which help to find this webpackage."
                                  pattern="^([\w][\s\w-]*)(,\s*([\w][\s*\w-]*))*"
                                  auto-validate
+                                 error-message="It should be a comma separated list of keywords. The keywords can contains letter, number, and the character '-' and '_'."
                                  on-change="keywordsChanged"
                                  value="{{keywords}}">
                     </paper-input>
@@ -259,6 +270,7 @@
                                     <div class="collapse-content collapse-item item-body">
                                         <paper-input pattern="^(https?)://[^\s\/$.?#].[^\s]*"
                                                      placeholder="Url to an external manual related to this webpackage"
+                                                     error-message="It should be a valid url."
                                                      auto-validate
                                                      no-label-float
                                                      value="{{man}}">
@@ -309,7 +321,7 @@
                                                          pattern="^(.)+"
                                                          required
                                                          auto-validate
-                                                         error-message="The runnable name is required. (e.g. 'demo')"
+                                                         error-message="The name of runnable is required. (e.g. 'demo')"
                                                          value="{{runnable.name}}">
                                             </paper-input>
                                             <paper-input label="Path"
@@ -317,6 +329,7 @@
                                                          pattern="^\/(.)+"
                                                          required
                                                          auto-validate
+                                                         error-message="It should be a relative path beginning with '/' (e.g. '/doc/index.html')."
                                                          value="{{runnable.path}}">
                                             </paper-input>
                                             <paper-textarea label="Description"

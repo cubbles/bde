@@ -305,6 +305,11 @@ Polymer({
     }
     return value;
   },
+  _validateForm: function () {
+    this.debounce('validateForm', function () {
+      this.$.artifactForm.validate();
+    }, 2);
+  },
   _validateJson: function (value) {
     // validation code
     if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
