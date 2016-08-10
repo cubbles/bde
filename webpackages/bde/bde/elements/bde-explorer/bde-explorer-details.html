@@ -45,11 +45,20 @@ Polymer({
             .collapse-header {
                 font-weight: bold;
                 cursor: pointer;
+                border: solid thin #dbdbdb;
+                background-color: #dbdbdb;
+                height: 24px;
             }
 
+            .collapse-header span{
+                padding: 10px;
+            }
             .main-collapse-header {
                 font-size: medium;
                 margin-top: 15px;
+            }
+            .main-collapse-body {
+                background-color: #f2f2f2;
             }
 
             .list-item-container {
@@ -60,14 +69,30 @@ Polymer({
                 margin-top: 10px;
             }
 
-            .addItem {
-                cursor: pointer;
+            .itemActionButton {
+                margin-top: 0.2em;
+                background-color: white;
             }
 
             .errorMessage{
                 background: #EEEEEE;
                 color: #DD2C00;
                 padding: 20px;
+            }
+
+            .deleteButton {
+                float: right;
+                color: #404040;
+                margin-right: 0.4em;
+                height: 24px;
+            }
+
+            .collapse-item {
+                border: solid thin #dbdbdb;
+            }
+
+            .item-body {
+                background-color: white;
             }
         </style>
 
@@ -104,12 +129,13 @@ Polymer({
                         <span title="Resources that are actually runnable in a user webbrowser.">Runnables</span>
                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                     </div>
-                    <iron-collapse id="runnablesCollapse">
+                    <iron-collapse id="runnablesCollapse" class="collapse-item main-collapse-body">
                         <div class="collapse-content">
                             <template is="dom-repeat"
                                       id="runnables"
                                       items="{{_editingArtifact.runnables}}"
                                       as="runnable"
+                                      on-dom-change="runnablesDomChanged"
                                       index-as="runnablei">
                                 <div>
                                     <div tabindex="0"
@@ -118,18 +144,14 @@ Polymer({
                                          data-collapse-id$="[[_idForCollapse(runnablei, 'runnable_')]]">
                                         <span>[[runnable.name]]</span>
                                         <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                        <iron-icon icon="icons:delete"
+                                                   class="deleteButton"
+                                                   on-tap="removeItem"
+                                                   data-path$="[[_createPath('runnables')]]"
+                                                   data-item-index$="[[runnablei]]"></iron-icon>
                                     </div>
                                     <iron-collapse id$="[[_idForCollapse(runnablei, 'runnable_')]]">
-                                        <paper-icon-item class="addItem"
-                                                         on-tap="removeItem"
-                                                         data-path$="[[_createPath('runnables')]]"
-                                                         data-item-index$="[[runnablei]]">
-                                            <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                            <paper-item-body>
-                                                <div>Remove</div>
-                                            </paper-item-body>
-                                        </paper-icon-item>
-                                        <div class="collapse-content">
+                                        <div class="collapse-content collapse-item item-body">
                                             <paper-input label="Name"
                                                          placeholder="A (short) name for the runnable."
                                                          pattern="^(.)+$"
@@ -154,15 +176,11 @@ Polymer({
                                     </iron-collapse>
                                 </div>
                             </template>
-                            <paper-icon-item class="addItem"
+                            <paper-button raised class="itemActionButton"
                                              on-tap="addNewItem"
                                              data-path$="[[_createPath('runnables')]]"
                                              data-item-name="runnable">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>
-                                <paper-item-body>
-                                    <div>Add Runnable</div>
-                                </paper-item-body>
-                            </paper-icon-item>
+                                <iron-icon icon="icons:add" item-icon></iron-icon>Add Runnable</paper-button>
                         </div>
                     </iron-collapse>
 
@@ -176,12 +194,13 @@ Polymer({
                             <span title="1..n endpoints other artifacts can refer to. A 'main' -artifactEndpoint is required.">Endpoints</span>
                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                         </div>
-                        <iron-collapse id="endpointsCollapse">
+                        <iron-collapse id="endpointsCollapse" class="collapse-item main-collapse-body">
                             <div class="collapse-content">
                                 <template is="dom-repeat"
                                           id="endpoints"
                                           items="[[_editingArtifact.endpoints]]"
                                           index-as="endpointi"
+                                          on-dom-change="endpointsDomChanged"
                                           as="endpoint">
                                     <div>
                                         <div tabindex="0"
@@ -190,18 +209,14 @@ Polymer({
                                              data-collapse-id$="[[_idForCollapse(endpointi, 'endpoint_')]]">
                                             <span>[[endpoint.endpointId]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                            <iron-icon icon="icons:delete"
+                                                       class="deleteButton"
+                                                       on-tap="removeItem"
+                                                       data-path$="[[_createPath('endpoints')]]"
+                                                       data-item-index$="[[endpointi]]"></iron-icon>
                                         </div>
-                                        <iron-collapse id$="[[_idForCollapse(endpointi, 'endpoint_')]]">
-                                            <div class="collapse-content">
-                                                <paper-icon-item class="addItem"
-                                                                 on-tap="removeItem"
-                                                                 data-path$="[[_createPath('endpoints')]]"
-                                                                 data-item-index$="[[endpointi]]">
-                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                    <paper-item-body>
-                                                        <div>Remove</div>
-                                                    </paper-item-body>
-                                                </paper-icon-item>
+                                        <iron-collapse id$="[[_idForCollapse(endpointi, 'endpoint_')]]" class="collapse-item">
+                                            <div class="collapse-content collapse-item item-body">
                                                 <paper-input label="Endpoint Id"
                                                              placeholder="Identifier for this slot item - unique within this component."
                                                              pattern="^[a-z0-9-]+$"
@@ -224,24 +239,25 @@ Polymer({
                                                     <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                                 </div>
                                                 <iron-collapse
-                                                        id="[[_idForCollapse(endpointi, 'endpoint_resources_')]]">
+                                                        id="[[_idForCollapse(endpointi, 'endpoint_resources_')]]" class="collapse-item">
                                                     <div class="collapse-content">
+
                                                         <template is="dom-repeat"
                                                                   id="resources"
                                                                   items="[[endpoint.resources]]"
                                                                   index-as="resourcei"
+                                                                  data-endpoint-index$="[[endpointi]]"
                                                                   as="resource">
                                                             <div class="list-item-container">
-                                                                <paper-icon-item class="addItem"
-                                                                                 on-tap="removeItem"
-                                                                                 data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
-                                                                                 data-item-index$="[[resourcei]]">
-                                                                    <iron-icon icon="icons:remove"
-                                                                               item-icon></iron-icon>
-                                                                    <paper-item-body>
-                                                                        <div>Remove</div>
-                                                                    </paper-item-body>
-                                                                </paper-icon-item>
+                                                                <div tabindex="0"
+                                                                     class="collapse-header">
+                                                                    <span>&nbsp; </span>
+                                                                    <iron-icon icon="icons:delete"
+                                                                               class="deleteButton"
+                                                                               on-tap="removeItem"
+                                                                               data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
+                                                                               data-item-index$="[[resourcei]]"></iron-icon>
+                                                                </div>
                                                                 <template is="dom-if" if="[[_isObject(resource)]]">
                                                                     <paper-input label="Development Path"
                                                                                  placeholder="Path to resource for development."
@@ -266,7 +282,7 @@ Polymer({
                                                                 </template>
                                                             </div>
                                                         </template>
-                                                        <paper-icon-item class="addItem"
+                                                        <paper-button raised class="itemActionButton"
                                                                          on-tap="addNewItem"
                                                                          data-path$="[[_createPath('endpoints', endpointi, 'resources')]]"
                                                                          data-item-name="endpointResource">
@@ -274,7 +290,7 @@ Polymer({
                                                             <paper-item-body>
                                                                 <div>Add Resource</div>
                                                             </paper-item-body>
-                                                        </paper-icon-item>
+                                                        </paper-button>
                                                     </div>
                                                 </iron-collapse>
 
@@ -289,7 +305,7 @@ Polymer({
                                                     <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                                                 </div>
                                                 <iron-collapse
-                                                        id="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]">
+                                                        id="[[_idForCollapse(endpointi, 'endpoint_dependencies_')]]" class="collapse-item">
                                                     <div class="collapse-content">
                                                         <template is="dom-repeat"
                                                                   id="dependencies"
@@ -298,49 +314,41 @@ Polymer({
                                                                   index-as="dependencyi"
                                                                   as="dependency">
                                                             <div class="list-item-container">
-                                                                <paper-icon-item class="addItem"
-                                                                                 on-tap="removeItem"
-                                                                                 data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
-                                                                                 data-item-index$="[[dependencyi]]">
-                                                                    <iron-icon icon="icons:remove"
-                                                                               item-icon></iron-icon>
-                                                                    <paper-item-body>
-                                                                        <div>Remove</div>
-                                                                    </paper-item-body>
-                                                                </paper-icon-item>
+                                                                <div tabindex="0"
+                                                                     class="collapse-header">
+                                                                    <span>&nbsp; </span>
+                                                                    <iron-icon icon="icons:delete"
+                                                                               class="deleteButton"
+                                                                               on-tap="removeItem"
+                                                                               data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
+                                                                               data-item-index$="[[dependencyi]]"></iron-icon>
+                                                                </div>
                                                                 <paper-input
                                                                         pattern="^[a-z0-9-@\.]+(-SNAPSHOT)?\/[a-z0-9-]+\/[a-z0-9-]+$"
                                                                         no-label-float
                                                                         auto-validate
-                                                                        error-message="The dependecy should be: 'webpackageGroupId.webpackageName@version/endpointId' or 'this/endpointId', (e.g. 'org.example.my-package@1.0/my-component/main' or 'this/my-component/main')"
+                                                                        error-message="The dependecy should be: '[webpackageGroupId.]webpackageName@version/artifactId/endpointId' or 'this/artifactId/endpointId', (e.g. 'org.example.my-package@1.0/my-component/main' or 'this/my-component/main')"
                                                                         value="{{dependency}}">
                                                                 </paper-input>
                                                             </div>
                                                         </template>
-                                                        <paper-icon-item class="addItem"
+                                                        <paper-button raised class="itemActionButton"
                                                                          on-tap="addNewItem"
                                                                          data-path$="[[_createPath('endpoints', endpointi, 'dependencies')]]"
                                                                          data-item-name="endpointDependency">
-                                                            <iron-icon icon="icons:add" item-icon></iron-icon>
-                                                            <paper-item-body>
-                                                                <div>Add Dependency</div>
-                                                            </paper-item-body>
-                                                        </paper-icon-item>
+                                                            <iron-icon icon="icons:add" item-icon></iron-icon>Add Dependency</paper-button>
                                                     </div>
                                                 </iron-collapse>
                                             </div>
                                         </iron-collapse>
                                     </div>
                                 </template>
-                                <paper-icon-item class="addItem"
+                                <paper-button raised class="itemActionButton"
                                                  on-tap="addNewItem"
                                                  data-path$="[[_createPath('endpoints')]]"
                                                  data-item-name="endpoint">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>
-                                    <paper-item-body>
-                                        <div>Add Endpoint</div>
-                                    </paper-item-body>
-                                </paper-icon-item>
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Endpoint</paper-item-body>
+                                </paper-button>
                             </div>
                         </iron-collapse>
 
@@ -352,12 +360,13 @@ Polymer({
                             <span title="1..n slots to exchange data with other elementaries or compounds.">Slots</span>
                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                         </div>
-                        <iron-collapse id="slotsCollapse">
+                        <iron-collapse id="slotsCollapse" class="collapse-item main-collapse-body">
                             <div class="collapse-content">
                                 <template is="dom-repeat"
                                           id="slots"
                                           items="[[_editingArtifact.slots]]"
                                           index-as="sloti"
+                                          on-dom-change="slotsDomChanged"
                                           as="slot">
                                     <div>
                                         <div tabindex="0"
@@ -366,18 +375,14 @@ Polymer({
                                              data-collapse-id$="[[_idForCollapse(sloti, 'slot_')]]">
                                             <span>[[slot.slotId]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                            <iron-icon icon="icons:delete"
+                                                       class="deleteButton"
+                                                       on-tap="removeItem"
+                                                       data-path$="[[_createPath('slots')]]"
+                                                       data-item-index$="[[sloti]]"></iron-icon>
                                         </div>
                                         <iron-collapse id$="[[_idForCollapse(sloti, 'slot_')]]">
-                                            <div class="collapse-content">
-                                                <paper-icon-item class="addItem"
-                                                                 on-tap="removeItem"
-                                                                 data-path$="[[_createPath('slots')]]"
-                                                                 data-item-index$="[[sloti]]">
-                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                    <paper-item-body>
-                                                        <div>Remove</div>
-                                                    </paper-item-body>
-                                                </paper-icon-item>
+                                            <div class="collapse-content collapse-item item-body">
                                                 <paper-input label="Slot Id"
                                                              placeholder="Identifier for this slot item - unique within this component."
                                                              pattern="^[a-z][a-zA-Z0-9-]*$"
@@ -414,15 +419,12 @@ Polymer({
                                         </iron-collapse>
                                     </div>
                                 </template>
-                                <paper-icon-item class="addItem"
+                                <paper-button raised class="itemActionButton"
                                                  on-tap="addNewItem"
                                                  data-path$="[[_createPath('slots')]]"
                                                  data-item-name="slot">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>
-                                    <paper-item-body>
-                                        <div>Add Slot</div>
-                                    </paper-item-body>
-                                </paper-icon-item>
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Slot
+                                </paper-button>
                             </div>
                         </iron-collapse>
 
@@ -436,12 +438,13 @@ Polymer({
                         </span>
                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                         </div>
-                        <iron-collapse id="membersCollapse">
+                        <iron-collapse id="membersCollapse" class="collapse-item main-collapse-body">
                             <div class="collapse-content">
                                 <template is="dom-repeat"
                                           id="members"
                                           items="[[_editingArtifact.members]]"
                                           index-as="memberi"
+                                          on-dom-change="membersDomChanged"
                                           as="member">
                                     <div>
                                         <div tabindex="0"
@@ -450,18 +453,14 @@ Polymer({
                                              data-collapse-id$="[[_idForCollapse(memberi, 'member_')]]">
                                             <span>[[member.memberId]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                            <iron-icon icon="icons:delete"
+                                                       class="deleteButton"
+                                                       on-tap="removeItem"
+                                                       data-path$="[[_createPath('members')]]"
+                                                       data-item-index$="[[memberi]]"></iron-icon>
                                         </div>
-                                        <iron-collapse id$="[[_idForCollapse(memberi, 'member_')]]">
+                                        <iron-collapse id$="[[_idForCollapse(memberi, 'member_')]]" class="collapse-item item-body">
                                             <div class="collapse-content">
-                                                <paper-icon-item class="addItem"
-                                                                 on-tap="removeItem"
-                                                                 data-path$="[[_createPath('members')]]"
-                                                                 data-item-index$="[[memberi]]">
-                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                    <paper-item-body>
-                                                        <div>Remove</div>
-                                                    </paper-item-body>
-                                                </paper-icon-item>
                                                 <paper-input label="Member Id"
                                                              placeholder="Identifier for this member item - unique within this compound component."
                                                              pattern="^[a-z][a-zA-Z0-9-]*$"
@@ -490,15 +489,11 @@ Polymer({
                                         </iron-collapse>
                                     </div>
                                 </template>
-                                <paper-icon-item class="addItem"
+                                <paper-button raised class="itemActionButton"
                                                  on-tap="addNewItem"
                                                  data-path$="[[_createPath('members')]]"
                                                  data-item-name="member">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>
-                                    <paper-item-body>
-                                        <div>Add Member</div>
-                                    </paper-item-body>
-                                </paper-icon-item>
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Member</paper-button>
                             </div>
                         </iron-collapse>
 
@@ -512,30 +507,27 @@ Polymer({
                         </span>
                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                         </div>
-                        <iron-collapse id="connectionsCollapse">
+                        <iron-collapse id="connectionsCollapse" class="collapse-item main-collapse-body">
                             <div class="collapse-content">
                                 <template is="dom-repeat"
                                           id="connections"
                                           items="[[_editingArtifact.connections]]"
                                           index-as="connectioni"
+                                          on-dom-change="connectionsDomChanged"
                                           as="connection">
                                     <div>
                                         <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
                                              data-collapse-id$="[[_idForCollapse(connectioni, 'connection_')]]">
                                             <span>[[connection.connectionId]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                            <iron-icon icon="icons:delete"
+                                                       class="deleteButton"
+                                                       on-tap="removeItem"
+                                                       data-path$="[[_createPath('connections')]]"
+                                                       data-item-index$="[[connectioni]]"></iron-icon>
                                         </div>
-                                        <iron-collapse id$="[[_idForCollapse(connectioni, 'connection_')]]">
+                                        <iron-collapse id$="[[_idForCollapse(connectioni, 'connection_')]]" class="collapse-item item-body">
                                             <div class="collapse-content">
-                                                <paper-icon-item class="addItem"
-                                                                 on-tap="removeItem"
-                                                                 data-path$="[[_createPath('connections')]]"
-                                                                 data-item-index$="[[connectioni]]">
-                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                    <paper-item-body>
-                                                        <div>Remove</div>
-                                                    </paper-item-body>
-                                                </paper-icon-item>
                                                 <paper-input label="Connection Id"
                                                              placeholder="Identifier for this connection item - unique within this compound component."
                                                              pattern="^[a-z][a-zA-Z0-9-:]*$"
@@ -598,15 +590,12 @@ Polymer({
                                         </iron-collapse>
                                     </div>
                                 </template>
-                                <paper-icon-item class="addItem"
+                                <paper-button raised class="itemActionButton"
                                                  on-tap="addNewItem"
                                                  data-path$="[[_createPath('connections')]]"
                                                  data-item-name="connection">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>
-                                    <paper-item-body>
-                                        <div>Add Connection</div>
-                                    </paper-item-body>
-                                </paper-icon-item>
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Connection
+                                </paper-button>
                             </div>
                         </iron-collapse>
 
@@ -618,30 +607,27 @@ Polymer({
                             <span title="List of slot initializations of the compound and member component(s).">Inits</span>
                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
                         </div>
-                        <iron-collapse id="initsCollapse">
+                        <iron-collapse id="initsCollapse" class="collapse-item main-collapse-body">
                             <div class="collapse-content">
                                 <template is="dom-repeat"
                                           id="inits"
                                           items="[[_editingArtifact.inits]]"
                                           index-as="initi"
+                                          on-dom-change="initsDomChanged"
                                           as="init">
                                     <div>
                                         <div tabindex="0" on-tap="toggleCollapse" class="collapse-header"
                                              data-collapse-id$="[[_idForCollapse(initi, 'init_')]]">
                                             <span>[[initi]]</span>
                                             <iron-icon icon="[[_calculateToggleIcon()]]"></iron-icon>
+                                            <iron-icon icon="icons:delete"
+                                                       class="deleteButton"
+                                                       on-tap="removeItem"
+                                                       data-path$="[[_createPath('inits')]]"
+                                                       data-item-index$="[[initi]]"></iron-icon>
                                         </div>
-                                        <iron-collapse id$="[[_idForCollapse(initi, 'init_')]]">
+                                        <iron-collapse id$="[[_idForCollapse(initi, 'init_')]]" class="collapse-item item-body">
                                             <div class="collapse-content">
-                                                <paper-icon-item class="addItem"
-                                                                 on-tap="removeItem"
-                                                                 data-path$="[[_createPath('inits')]]"
-                                                                 data-item-index$="[[initi]]">
-                                                    <iron-icon icon="icons:remove" item-icon></iron-icon>
-                                                    <paper-item-body>
-                                                        <div>Remove</div>
-                                                    </paper-item-body>
-                                                </paper-icon-item>
                                                 <paper-input label="Member Id Reference"
                                                              placeholder="The 'memberId' value of the member item, the slot belongs to. If the property is missed, it refers to an own slot of the compound component."
                                                              pattern="^[a-z][a-zA-Z0-9-]*$"
@@ -657,8 +643,8 @@ Polymer({
                                                              value="{{init.slot}}">
                                                 </paper-input>
                                                 <custom-validator id="{{_initTextareaValidatorId(initi)}}" class="validJson" validator-name$="{{_initTextareaValidatorName(initi)}}"></custom-validator>
-                                                <paper-textarea  auto-validate validator$="{{_initTextareaValidatorName(initi)}}" label="Value"
-                                                                id="{{_initTextareId(initi)}}"
+                                                <paper-textarea auto-validate validator$="{{_initTextareaValidatorName(initi)}}" label="Value"
+                                                                id="{{_initTextareaId(initi)}}"
                                                                 class="initValue"
                                                                 placeholder="The value to init the slot with."
                                                                 value="{{_serialize(init.value)}}"
@@ -673,15 +659,11 @@ Polymer({
                                         </iron-collapse>
                                     </div>
                                 </template>
-                                <paper-icon-item class="addItem"
+                                <paper-button raised class="itemActionButton"
                                                  on-tap="addNewItem"
                                                  data-path$="[[_createPath('inits')]]"
                                                  data-item-name="init">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>
-                                    <paper-item-body>
-                                        <div>Add Init</div>
-                                    </paper-item-body>
-                                </paper-icon-item>
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Init</paper-button>
                             </div>
                         </iron-collapse>
                         <!--</template>-->

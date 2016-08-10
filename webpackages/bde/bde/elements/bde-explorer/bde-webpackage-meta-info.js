@@ -66,34 +66,6 @@ Polymer({
       }
     }
   },
-  manDomChanged: function (event) {
-    // first time (initial) not expand the last element, just by add new item
-    if (!this.initializedMan) {
-      this.set('initializedMan', true);
-      return;
-    }
-    if (this._editingManifest && this._editingManifest.man && this._editingManifest.man.length > 0) {
-      var id = this._idForCollapse(this._editingManifest.man.length - 1, 'man_');
-      var lastElem = this.querySelector('#' + id);
-      if (lastElem && !lastElem.openend) {
-        lastElem.toggle();
-      }
-    }
-  },
-  runnablesDomChanged: function (event) {
-    // first time (initial) not expand the last element, just by add new item
-    if (!this.initializedRunnables) {
-      this.set('initializedRunnables', true);
-      return;
-    }
-    if (this._editingManifest && this._editingManifest.runnables && this._editingManifest.runnables.length > 0) {
-      var id = this._idForCollapse(this._editingManifest.runnables.length - 1, 'runnable_');
-      var lastElem = this.querySelector('#' + id);
-      if (lastElem && !lastElem.openend) {
-        lastElem.toggle();
-      }
-    }
-  },
   dialogOpenHandler: function (event) {
     console.log('this.manifest', this.manifest);
     console.log(' _.clone(this.manifest)', _.clone(this.manifest.toValidManifest()));
@@ -119,7 +91,20 @@ Polymer({
     keywords.forEach(function (keyword) {
       this.push('_editingManifest.keywords', keyword.trim())
     }.bind(this));
-
+  },
+  manDomChanged: function (event) {
+    // first time (initial) not expand the last element, just by add new item
+    if (!this.initializedMan) {
+      this.set('initializedMan', true);
+      return;
+    }
+    if (this._editingManifest && this._editingManifest.man && this._editingManifest.man.length > 0) {
+      var id = this._idForCollapse(this._editingManifest.man.length - 1, 'man_');
+      var lastElem = this.querySelector('#' + id);
+      if (lastElem && !lastElem.openend) {
+        lastElem.toggle();
+      }
+    }
   },
   manifestChanged: function () {
     if (this.manifest.man && typeof this.manifest.man === 'string') {
@@ -130,6 +115,20 @@ Polymer({
     }
     if (this.manifest.keywords) {
       this.keywords = this.manifest.keywords.join(', ');
+    }
+  },
+  runnablesDomChanged: function (event) {
+    // first time (initial) not expand the last element, just by add new item
+    if (!this.initializedRunnables) {
+      this.set('initializedRunnables', true);
+      return;
+    }
+    if (this._editingManifest && this._editingManifest.runnables && this._editingManifest.runnables.length > 0) {
+      var id = this._idForCollapse(this._editingManifest.runnables.length - 1, 'runnable_');
+      var lastElem = this.querySelector('#' + id);
+      if (lastElem && !lastElem.openend) {
+        lastElem.toggle();
+      }
     }
   },
   open: function () {

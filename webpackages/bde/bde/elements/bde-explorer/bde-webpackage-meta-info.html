@@ -198,11 +198,7 @@
                                              on-tap="addNewItem"
                                              data-path$="[[_createPath('contributors')]]"
                                              data-item-name="contributor">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>
-                                <paper-item-body>
-                                    <div>Add Contributor</div>
-                                </paper-item-body>
-                            </paper-button>
+                                <iron-icon icon="icons:add" item-icon></iron-icon>Add Contributor</paper-button>
                         </div>
                     </iron-collapse>
 
@@ -273,11 +269,7 @@
                                                  on-tap="addNewItem"
                                                  data-path$="[[_createPath('man')]]"
                                                  data-item-name="man">
-                                    <iron-icon icon="icons:add" item-icon></iron-icon>
-                                    <paper-item-body>
-                                        <div>Add Manual</div>
-                                    </paper-item-body>
-                                </paper-button>
+                                    <iron-icon icon="icons:add" item-icon></iron-icon>Add Manual</paper-button>
                             </div>
                         </iron-collapse>
                     </template>
@@ -316,6 +308,7 @@
                                                          placeholder="A (short) name for the runnable."
                                                          pattern="^(.)+"
                                                          required
+                                                         error-message="The runnable name is required. (e.g. 'demo')"
                                                          value="{{runnable.name}}">
                                             </paper-input>
                                             <paper-input label="Path"
@@ -336,11 +329,7 @@
                                              on-tap="addNewItem"
                                              data-path$="[[_createPath('runnables')]]"
                                              data-item-name="runnable">
-                                <iron-icon icon="icons:add" item-icon></iron-icon>
-                                <paper-item-body>
-                                    <div>Add Runnable</div>
-                                </paper-item-body>
-                            </paper-button>
+                                <iron-icon icon="icons:add" item-icon></iron-icon>Add Runnable</paper-button>
                         </div>
                     </iron-collapse>
 
