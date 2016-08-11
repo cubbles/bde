@@ -145,8 +145,11 @@ Polymer({
    */
   handleInput: function (evt) {
     this.debounce('handleInput', function () {
-      var searchTerm = evt.target.value.replace(/[*,?]/, '');
-      var filtered = JSON.parse(JSON.stringify(this.cubbles));
+      // for edge
+      var searchString = evt.target.value || '';
+
+      var searchTerm = searchString.replace(/[*,?]/, '');
+      var filtered = _.clone(this.cubbles || []);
 
       // Scroll to top of the list
       this.$.scroll.scrollTarget.scrollTop = 0;

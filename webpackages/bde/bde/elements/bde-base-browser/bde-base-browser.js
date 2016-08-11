@@ -271,8 +271,10 @@ Polymer({
     }.bind(this), 125);
   },
   filterList: function (searchString) {
+    // for edge
+    searchString = searchString || '';
     var searchTerm = searchString.replace(/[*,?]/g, '');
-    var filtered = JSON.parse(JSON.stringify(this._cubbles || []));
+    var filtered = _.clone(this._cubbles || []);
     filtered = filtered.concat(this.ownComponents);
 
     // Scroll to top of the list
