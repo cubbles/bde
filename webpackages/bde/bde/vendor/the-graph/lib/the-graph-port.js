@@ -39,11 +39,13 @@
       TheGraph.mixins.Tooltip
     ],
     componentDidMount: function () {
+
       // Preview edge start
       ReactDOM.findDOMNode(this).addEventListener("tap", this.edgeStart);
-      ReactDOM.findDOMNode(this).addEventListener("trackstart", this.edgeStart);
+      ReactDOM.findDOMNode(this).addEventListener("track", this.edgeStart);
+
       // Make edge
-      ReactDOM.findDOMNode(this).addEventListener("trackend", this.triggerDropOnTarget);
+      ReactDOM.findDOMNode(this).addEventListener("track", this.triggerDropOnTarget);
       ReactDOM.findDOMNode(this).addEventListener("the-graph-edge-drop", this.edgeStart);
 
       // Show context menu
@@ -62,10 +64,11 @@
       );
     },
     showContext: function (event) {
+      // @debug enable floating exports
       // Don't show port menu on export node port
-      if (this.props.isExport) {
-        return;
-      }
+      // if (this.props.isExport) {
+      //   return;
+      // }
       // Click on label, pass context menu to node
       if (event && (event.target === ReactDOM.findDOMNode(this.refs.label))) {
         return;
@@ -101,17 +104,22 @@
       });
     },
     edgeStart: function (event) {
+      // @debug enable floating exports
       // Don't start edge on export node port
-      if (this.props.isExport) {
-        return;
-      }
+      // if (this.props.isExport) {
+      //   return;
+      // }
+      
+      // Don't tap graph
+      event.stopPropagation();
+
+      if (event.type === 'track' && event.detail.state !== 'start') { return; }
+
       // Click on label, pass context menu to node
       if (event && (event.target === ReactDOM.findDOMNode(this.refs.label))) {
         return;
       }
-      // Don't tap graph
-      event.stopPropagation();
-
+      
       var edgeStartEvent = new CustomEvent('the-graph-edge-start', {
         detail: {
           isIn: this.props.isIn,
@@ -125,12 +133,16 @@
     },
     triggerDropOnTarget: function (event) {
       // If dropped on a child element will bubble up to port
-      if (!event.relatedTarget) { return; }
+      if (event.type === "track" && event.detail.state !== "end") { return; }
+
+      var hoverTarget = event.detail.hover();
+      if (!hoverTarget) { return; }
+
       var dropEvent = new CustomEvent('the-graph-edge-drop', {
         detail: null,
         bubbles: true
       });
-      event.relatedTarget.dispatchEvent(dropEvent);
+      hoverTarget.dispatchEvent(dropEvent);
     },
     render: function() {
       var style;

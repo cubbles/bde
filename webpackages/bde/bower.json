@@ -29,7 +29,7 @@
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
     "jsonpath-plus": "^0.13.1",
     "inflection": "^1.10.0",
-    "lodash": 2.10.1
+    "lodash": "3.10.1",
     "Sortable": "^1.4.2",
     "highlightjs": "^9.4.0",
     "the-graph": "cubbles/bde.the-graph#^1.0.2-rc1",

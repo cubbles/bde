@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../polymer-gestures/polymer-gestures.html">
+<!-- <link rel="import" href="../polymer-gestures/polymer-gestures.html"> -->
 <link rel="import" href="the-graph-dark.html">
 <link rel="import" href="the-graph-light.html">
 <dom-module id="the-graph">
@@ -382,7 +382,7 @@
 
       selectedNodesChanged: function (changeRecord) {
         if (!changeRecord) { return; }
-
+        
         var selectedNodesHash = {};
         for (var i = 0, len = this.selectedNodes.length; i < len; i++) {
           selectedNodesHash[this.selectedNodes[i].id] = true;
@@ -732,7 +732,7 @@
           return {};
         }
         return this.graph.toJSON();
-      }
+      }      
     });
   </script>
 </dom-module>

@@ -27,7 +27,10 @@
   TheGraph.NodeMenuPort = React.createFactory( React.createClass({
     displayName: "TheGraphNodeMenuPort",
     componentDidMount: function () {
-      ReactDOM.findDOMNode(this).addEventListener("up", this.edgeStart);
+      var domNode = ReactDOM.findDOMNode(this);
+
+      domNode.addEventListener("mouseup", this.edgeStart);
+      domNode.addEventListener("touchend", this.edgeStart);
     },
     edgeStart: function (event) {
       // Don't tap graph

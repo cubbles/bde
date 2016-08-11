@@ -195,28 +195,18 @@
       // Hammer.js
       this.pinching = false;
     },
-    onTrackStart: function (event) {
-      event.preventTap();
-      var domNode = ReactDOM.findDOMNode(this);
-      domNode.addEventListener("track", this.onTrack);
-      domNode.addEventListener("trackend", this.onTrackEnd);
-    },
-    onTrack: function (event) {
-      if (!event.ddx || !event.ddy) { return; }
-      if ( this.pinching ) { return; }
-      this.setState({
-        x: this.state.x + event.ddx,
-        y: this.state.y + event.ddy
-      });
-    },
-    onTrackEnd: function (event) {
-      // Don't click app (unselect)
+
+    onTrack: function(event) {
+      // Don't click app
       event.stopPropagation();
 
       var domNode = ReactDOM.findDOMNode(this);
-      domNode.removeEventListener("track", this.onTrack);
-      domNode.removeEventListener("trackend", this.onTrackEnd);
+      this.setState({
+        x: this.state.x + (event.detail.ddx || 0),
+        y: this.state.y + (event.detail.ddy || 0)
+      });
     },
+    
     onPanScale: function () {
       // Pass pan/scale out to the-graph
       if (this.props.onPanScale) {
@@ -303,13 +293,13 @@
 
       // Set up PolymerGestures for app and all children
       var noop = function(){};
-      PolymerGestures.addEventListener(domNode, "up", noop);
-      PolymerGestures.addEventListener(domNode, "down", noop);
-      PolymerGestures.addEventListener(domNode, "tap", noop);
-      PolymerGestures.addEventListener(domNode, "trackstart", noop);
-      PolymerGestures.addEventListener(domNode, "track", noop);
-      PolymerGestures.addEventListener(domNode, "trackend", noop);
-      PolymerGestures.addEventListener(domNode, "hold", noop);
+      // PolymerGestures.addEventListener(domNode, "up", noop);
+      // PolymerGestures.addEventListener(domNode, "down", noop);
+      // PolymerGestures.addEventListener(domNode, "tap", noop);
+      // PolymerGestures.addEventListener(domNode, "trackstart", noop);
+      // PolymerGestures.addEventListener(domNode, "track", noop);
+      // PolymerGestures.addEventListener(domNode, "trackend", noop);
+      // PolymerGestures.addEventListener(domNode, "hold", noop);
 
       // Unselect edges and nodes
       if (this.props.onNodeSelection) {
@@ -317,23 +307,23 @@
       }
 
       // Don't let Hammer.js collide with polymer-gestures
-      if (Hammer) {
-        Hammer(domNode, {
-          tap: false,
-          hold: false,
-          transform: true
-        });
-      }
+      // if (Hammer) {
+      //   Hammer(domNode, {
+      //     tap: false,
+      //     hold: false,
+      //     transform: true
+      //   });
+      // }
 
       // Pointer gesture event for pan
-      domNode.addEventListener("trackstart", this.onTrackStart);
+      domNode.addEventListener("track", this.onTrack);
 
-      var isTouchDevice = 'ontouchstart' in document.documentElement;
-      if( isTouchDevice && Hammer ){
-        Hammer(domNode).on("transformstart", this.onTransformStart);
-        Hammer(domNode).on("transform", this.onTransform);
-        Hammer(domNode).on("transformend", this.onTransformEnd);
-      }
+      // var isTouchDevice = 'ontouchstart' in document.documentElement;
+      // if( isTouchDevice && Hammer ){
+      //   Hammer(domNode).on("transformstart", this.onTransformStart);
+      //   Hammer(domNode).on("transform", this.onTransform);
+      //   Hammer(domNode).on("transformend", this.onTransformEnd);
+      // }
 
       // Wheel to zoom
       if (domNode.onwheel!==undefined) {
@@ -472,7 +462,11 @@
       this.props.onEdgeSelection();
     },
     renderGraph: function () {
-      this.refs.graph.markDirty();
+      try {
+        this.refs.graph.markDirty();
+      } catch (e) {
+        setTimeout(this.renderGraph, 250);
+      }
     },
     componentDidUpdate: function (prevProps, prevState) {
       this.renderCanvas(this.bgContext);

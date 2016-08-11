@@ -1,4 +1,4 @@
-(function (context) {
+(function(context) {
   "use strict";
 
   var TheGraph = context.TheGraph;
@@ -80,29 +80,20 @@
     return TheGraph.Port(options);
   }
 
-  // PolymerGestures monkeypatch
-  PolymerGestures.dispatcher.gestures.forEach( function (gesture) {
-    // hold
-    if (gesture.HOLD_DELAY) {
-      gesture.HOLD_DELAY = 500;
-    }
-    // track
-    if (gesture.WIGGLE_THRESHOLD) {
-      gesture.WIGGLE_THRESHOLD = 8;
-    }
-  });
-
   // Node view
   TheGraph.Node = React.createFactory( React.createClass({
+    
     displayName: "TheGraphNode",
+
     mixins: [
       TheGraph.mixins.Tooltip
     ],
+
     componentDidMount: function () {
       var domNode = ReactDOM.findDOMNode(this);
-      
+
       // Dragging
-      domNode.addEventListener("trackstart", this.onTrackStart);
+      domNode.addEventListener("track", this.onTrack);
 
       // Tap to select
       if (this.props.onNodeSelection) {
@@ -112,26 +103,28 @@
       // Context menu
       if (this.props.showContext) {
         ReactDOM.findDOMNode(this).addEventListener("contextmenu", this.showContext);
-        ReactDOM.findDOMNode(this).addEventListener("hold", this.showContext);
+        
+        // Emulate PolymerGestures "hold" event
+        // @todo: (fdu) Emulate hold event here
+        // ReactDOM.findDOMNode(this).addEventListener("touchstart", chargeEvent("context", this.showContext));
+        // ReactDOM.findDOMNode(this).addEventListener("touchend", cancelEvent("context"));
       }
-
     },
+
     onNodeSelection: function (event) {
       // Don't tap app (unselect)
       event.stopPropagation();
 
-      // Ignore "native" polymer events
-      if (event.detail !== 1) { return; }
-
-      var toggle = (TheGraph.metaKeyPressed || event.pointerType==="touch");
+      var toggle = (TheGraph.metaKeyPressed || event.type.startsWith("touch"));
       this.props.onNodeSelection(this.props.nodeID, this.props.node, toggle);
     },
-    onTrackStart: function (event) {
+
+    onTrack: function (event) {
       // Don't drag graph
       event.stopPropagation();
 
       // Don't change selection
-      event.preventTap();
+      // event.detail.prevent("tap");
 
       // Don't drag under menu
       if (this.props.app.menuShown) { return; }
@@ -139,63 +132,23 @@
       // Don't drag while pinching
       if (this.props.app.pinching) { return; }
 
-      var domNode = ReactDOM.findDOMNode(this);
-      domNode.addEventListener("track", this.onTrack);
-      domNode.addEventListener("trackend", this.onTrackEnd);
-
       // Moving a node should only be a single transaction
-      if (this.props.export) {
-        this.props.graph.startTransaction('moveexport');
-      } else {
-        this.props.graph.startTransaction('movenode');
-      }
-    },
-    onTrack: function (event) {
-      // Dont listen to "new" polymer gestures
-      if (!event.ddx || !event.ddy) { return; }
-      
-      // Don't fire on graph
-      event.stopPropagation();
-
-      var scale = this.props.app.state.scale;
-      var deltaX = Math.round( event.ddx / scale );
-      var deltaY = Math.round( event.ddy / scale );
-
-      // Fires a change event on noflo graph, which triggers redraw
-      if (this.props.export) {
-        var newPos = {
-          x: this.props.export.metadata.x + deltaX,
-          y: this.props.export.metadata.y + deltaY
-        };
-        if (this.props.isIn) {
-          this.props.graph.setInportMetadata(this.props.exportKey, newPos);
+      if (event.detail.state === "start") {
+        if (this.props.export) {
+          this.props.graph.startTransaction("moveexport");
         } else {
-          this.props.graph.setOutportMetadata(this.props.exportKey, newPos);
+          this.props.graph.startTransaction("movenode");
         }
-      } else {
-        this.props.graph.setNodeMetadata(this.props.nodeID, {
-          x: this.props.node.metadata.x + deltaX,
-          y: this.props.node.metadata.y + deltaY
-        });
-      }
-    },
-    onTrackEnd: function (event) {
-      // Don't fire on graph
-      event.stopPropagation();
+      } else if (event.detail.state === "track") {
+        var scale = this.props.app.state.scale;
+        var deltaX = Math.round( event.detail.ddx / scale );
+        var deltaY = Math.round( event.detail.ddy / scale );
 
-      var domNode = ReactDOM.findDOMNode(this);
-      domNode.removeEventListener("track", this.onTrack);
-      domNode.removeEventListener("trackend", this.onTrackEnd);
-
-      // Snap to grid
-      var snapToGrid = true;
-      var snap = TheGraph.config.node.snap / 2;
-      if (snapToGrid) {
-        var x, y;
+        // Fires a change event on noflo graph, which triggers redraw
         if (this.props.export) {
           var newPos = {
-            x: Math.round(this.props.export.metadata.x/snap) * snap,
-            y: Math.round(this.props.export.metadata.y/snap) * snap
+            x: this.props.export.metadata.x + deltaX,
+            y: this.props.export.metadata.y + deltaY
           };
           if (this.props.isIn) {
             this.props.graph.setInportMetadata(this.props.exportKey, newPos);
@@ -204,30 +157,54 @@
           }
         } else {
           this.props.graph.setNodeMetadata(this.props.nodeID, {
-            x: Math.round(this.props.node.metadata.x/snap) * snap,
-            y: Math.round(this.props.node.metadata.y/snap) * snap
+            x: this.props.node.metadata.x + deltaX,
+            y: this.props.node.metadata.y + deltaY
           });
         }
-      }
-
-      // Moving a node should only be a single transaction
-      if (this.props.export) {
-        this.props.graph.endTransaction('moveexport');
       } else {
-        this.props.graph.endTransaction('movenode');
+        // Snap to grid
+        var snapToGrid = true;
+        var snap = TheGraph.config.node.snap / 2;
+        if (snapToGrid) {
+          var x, y;
+          if (this.props.export) {
+            var newPos = {
+              x: Math.round(this.props.export.metadata.x / snap) * snap,
+              y: Math.round(this.props.export.metadata.y / snap) * snap
+            };
+            if (this.props.isIn) {
+              this.props.graph.setInportMetadata(this.props.exportKey, newPos);
+            } else {
+              this.props.graph.setOutportMetadata(this.props.exportKey, newPos);
+            }
+          } else {
+            this.props.graph.setNodeMetadata(this.props.nodeID, {
+              x: Math.round(this.props.node.metadata.x / snap) * snap,
+              y: Math.round(this.props.node.metadata.y / snap) * snap
+            });
+          }
+        }
+
+        // Moving a node should only be a single transaction
+        if (this.props.export) {
+          this.props.graph.endTransaction("moveexport");
+        } else {
+          this.props.graph.endTransaction("movenode");
+        }
       }
     },
+
     showContext: function (event) {
       // Don't show native context menu
       event.preventDefault();
 
       // Don't tap graph on hold event
       event.stopPropagation();
-      if (event.preventTap) { event.preventTap(); }
+      // event.detail.prevent("tap");
 
       // Get mouse position
-      var x = event.x || event.clientX || 0;
-      var y = event.y || event.clientY || 0;
+      var x = event.detail.x || 0;
+      var y = event.detail.y || 0;
 
       // App.showContext
       this.props.showContext({
@@ -240,96 +217,19 @@
         item: (this.props.export ? this.props.export : this.props.node)
       });
     },
+
     getContext: function (menu, options, hide) {
-      // If this node is an export
-      if (this.props.export) {
-        return TheGraph.Menu({
-          menu: menu,
-          options: options,
-          triggerHideContext: hide,
-          label: this.props.exportKey
-        });
-      }
-
-      // Absolute position of node
-      var x = options.x;
-      var y = options.y;
-      var scale = this.props.app.state.scale;
-      var appX = this.props.app.state.x;
-      var appY = this.props.app.state.y;
-      var nodeX = (this.props.x + this.props.width / 2) * scale + appX;
-      var nodeY = (this.props.y + this.props.height / 2) * scale + appY;
-      var deltaX = nodeX - x;
-      var deltaY = nodeY - y;
-      var ports = this.props.ports;
-      var processKey = this.props.nodeID;
-      var highlightPort = this.props.highlightPort;
-
-      // If there is a preview edge started, only show connectable ports
-      if (this.props.graphView.state.edgePreview) {
-        if (this.props.graphView.state.edgePreview.isIn) {
-          // Show outputs
-          return TheGraph.NodeMenuPorts({
-            ports: ports.outports,
-            triggerHideContext: hide,
-            isIn: false,
-            scale: scale,
-            processKey: processKey,
-            deltaX: deltaX,
-            deltaY: deltaY,
-            translateX: x,
-            translateY: y,
-            nodeWidth: this.props.width,
-            nodeHeight: this.props.height,
-            highlightPort: highlightPort
-          });
-        } else {
-          // Show inputs
-          return TheGraph.NodeMenuPorts({
-            ports: ports.inports,
-            triggerHideContext: hide,
-            isIn: true,
-            scale: scale,
-            processKey: processKey,
-            deltaX: deltaX,
-            deltaY: deltaY,
-            translateX: x,
-            translateY: y,
-            nodeWidth: this.props.width,
-            nodeHeight: this.props.height,
-            highlightPort: highlightPort
-          });
-        }
-      }
-
-      // Default, show whole node menu
-      return TheGraph.NodeMenu({
-        menu: menu,
-        options: options,
-        triggerHideContext: hide,
-        label: this.props.label,
-        graph: this.props.graph,
-        graphView: this.props.graphView,
-        node: this,
-        icon: this.props.icon,
-        ports: ports,
-        process: this.props.node,
-        processKey: processKey,
-        x: x,
-        y: y,
-        nodeWidth: this.props.width,
-        nodeHeight: this.props.height,
-        deltaX: deltaX,
-        deltaY: deltaY,
-        highlightPort: highlightPort
-      });
+      // ...
     },
+
     getTooltipTrigger: function () {
       return ReactDOM.findDOMNode(this);
     },
+
     shouldShowTooltip: function () {
       return (this.props.app.state.scale < TheGraph.zbpNormal);
     },
+
     shouldComponentUpdate: function (nextProps, nextState) {
       // Only rerender if changed
       return (
@@ -345,7 +245,8 @@
         nextProps.ports.dirty === true
       );
     },
-    render: function() {
+
+    render: function () {
       if (this.props.ports.dirty) {
         // This tag is set when an edge or iip changes port colors
         this.props.ports.dirty = false;
@@ -376,8 +277,8 @@
       keys = Object.keys(inports);
       count = keys.length;
       // Make views
-      var inportViews = keys.map(function(key){
-        var info = inports[key];
+      var inportViews = keys.map(function(key) {
+        var info = inports[ key ];
         var props = {
           app: app,
           graph: graph,
@@ -393,11 +294,12 @@
           nodeHeight: height,
           x: info.x,
           y: info.y,
-          port: {process:processKey, port:info.label, type:info.type},
+          port: { process: processKey, port: info.label, type: info.type },
           highlightPort: highlightPort,
           route: info.route,
           showContext: showContext
         };
+
         return TheGraph.factories.node.createNodePort(props);
       });
 
@@ -405,8 +307,9 @@
       var outports = this.props.ports.outports;
       keys = Object.keys(outports);
       count = keys.length;
-      var outportViews = keys.map(function(key){
-        var info = outports[key];
+      // Make views
+      var outportViews = keys.map(function(key) {
+        var info = outports[ key ];
         var props = {
           app: app,
           graph: graph,
@@ -422,11 +325,12 @@
           nodeHeight: height,
           x: info.x,
           y: info.y,
-          port: {process:processKey, port:info.label, type:info.type},
+          port: { process: processKey, port: info.label, type: info.type },
           highlightPort: highlightPort,
           route: info.route,
           showContext: showContext
         };
+
         return TheGraph.factories.node.createNodePort(props);
       });
 
@@ -438,53 +342,87 @@
 
       var iconContent;
       if (this.props.iconsvg && this.props.iconsvg !== "") {
-          var iconSVGOptions = TheGraph.merge(TheGraph.config.node.iconsvg, {
-              src: this.props.iconsvg,
-              x: TheGraph.config.nodeRadius - 4,
-              y: TheGraph.config.nodeRadius - 4,
-              width: this.props.width - 10,
-              height: this.props.height - 10
-          });
-          iconContent = TheGraph.factories.node.createNodeIconSVG.call(this, iconSVGOptions);
+        var iconSVGOptions = TheGraph.merge(TheGraph.config.node.iconsvg, {
+          src: this.props.iconsvg,
+          x: TheGraph.config.nodeRadius - 4,
+          y: TheGraph.config.nodeRadius - 4,
+          width: this.props.width - 10,
+          height: this.props.height - 10
+        });
+        iconContent = TheGraph.factories.node.createNodeIconSVG.call(this, iconSVGOptions);
       } else {
-          var iconOptions = TheGraph.merge(TheGraph.config.node.icon, {
-              x: this.props.width / 2,
-              y: this.props.height / 2,
-              children: icon });
-          iconContent = TheGraph.factories.node.createNodeIconText.call(this, iconOptions);
+        var iconOptions = TheGraph.merge(TheGraph.config.node.icon, {
+          x: this.props.width / 2,
+          y: this.props.height / 2,
+          children: icon
+        });
+        iconContent = TheGraph.factories.node.createNodeIconText.call(this, iconOptions);
       }
 
-      var backgroundRectOptions = TheGraph.merge(TheGraph.config.node.background, { width: this.props.width, height: this.props.height + 25 });
+      var backgroundRectOptions = TheGraph.merge(TheGraph.config.node.background, {
+        width: this.props.width,
+        height: this.props.height + 25
+      });
       var backgroundRect = TheGraph.factories.node.createNodeBackgroundRect.call(this, backgroundRectOptions);
 
-      var borderRectOptions = TheGraph.merge(TheGraph.config.node.border, { width: this.props.width, height: this.props.height });
+      var borderRectOptions = TheGraph.merge(TheGraph.config.node.border, {
+        width: this.props.width,
+        height: this.props.height
+      });
       var borderRect = TheGraph.factories.node.createNodeBorderRect.call(this, borderRectOptions);
       
-      var innerRectOptions = TheGraph.merge(TheGraph.config.node.innerRect, { width: this.props.width - 6, height: this.props.height - 6 });
+      var innerRectOptions = TheGraph.merge(TheGraph.config.node.innerRect, {
+        width: this.props.width - 6,
+        height: this.props.height - 6
+      });
       var innerRect = TheGraph.factories.node.createNodeInnerRect.call(this, innerRectOptions);
 
-      var inportsOptions = TheGraph.merge(TheGraph.config.node.inports, { children: inportViews });
+      var inportsOptions = TheGraph.merge(TheGraph.config.node.inports, {
+        children: inportViews
+      });
       var inportsGroup = TheGraph.factories.node.createNodeInportsGroup.call(this, inportsOptions);
 
-      var outportsOptions = TheGraph.merge(TheGraph.config.node.outports, { children: outportViews });
+      var outportsOptions = TheGraph.merge(TheGraph.config.node.outports, {
+        children: outportViews
+      });
       var outportsGroup = TheGraph.factories.node.createNodeOutportsGroup.call(this, outportsOptions);
 
-      var labelTextOptions = TheGraph.merge(TheGraph.config.node.labelText, { x: this.props.width / 2, y: this.props.height + 15, children: label });
+      var labelTextOptions = TheGraph.merge(TheGraph.config.node.labelText, {
+        x: this.props.width / 2,
+        y: this.props.height + 15,
+        children: label
+      });
       var labelText = TheGraph.factories.node.createNodeLabelText.call(this, labelTextOptions);
 
       var labelRectX = this.props.width / 2;
       var labelRectY = this.props.height + 15;
-      var labelRectOptions = buildLabelRectOptions(14, labelRectX, labelRectY, label.length, TheGraph.config.node.labelRect.className);
+      var labelRectOptions = buildLabelRectOptions(
+        14,
+        labelRectX,
+        labelRectY,
+        label.length,
+        TheGraph.config.node.labelRect.className
+      );
       labelRectOptions = TheGraph.merge(TheGraph.config.node.labelRect, labelRectOptions);
       var labelRect = TheGraph.factories.node.createNodeLabelRect.call(this, labelRectOptions);
       var labelGroup = TheGraph.factories.node.createNodeLabelGroup.call(this, TheGraph.config.node.labelBackground, [labelRect, labelText]);
 
-      var sublabelTextOptions = TheGraph.merge(TheGraph.config.node.sublabelText, { x: this.props.width / 2, y: this.props.height + 30, children: sublabel });
+      var sublabelTextOptions = TheGraph.merge(TheGraph.config.node.sublabelText, { 
+        x: this.props.width / 2,
+        y: this.props.height + 30,
+        children: sublabel
+      });
       var sublabelText = TheGraph.factories.node.createNodeSublabelText.call(this, sublabelTextOptions);
 
       var sublabelRectX = this.props.width / 2;
       var sublabelRectY = this.props.height + 30;
-      var sublabelRectOptions = buildLabelRectOptions(9, sublabelRectX, sublabelRectY, sublabel.length, TheGraph.config.node.sublabelRect.className);
+      var sublabelRectOptions = buildLabelRectOptions(
+        9,
+        sublabelRectX,
+        sublabelRectY,
+        sublabel.length,
+        TheGraph.config.node.sublabelRect.className
+      );
       sublabelRectOptions = TheGraph.merge(TheGraph.config.node.sublabelRect, sublabelRectOptions);
       var sublabelRect = TheGraph.factories.node.createNodeSublabelRect.call(this, sublabelRectOptions);
       var sublabelGroup = TheGraph.factories.node.createNodeSublabelGroup.call(this, TheGraph.config.node.sublabelBackground, [sublabelRect, sublabelText]);
@@ -501,13 +439,13 @@
       ];
 
       var nodeOptions = {
-        className: "node drag"+
-          (this.props.selected ? " selected" : "")+
+        className: "node drag" +
+          (this.props.selected ? " selected" : "") +
           (this.props.error ? " error" : ""),
         name: this.props.nodeID,
         key: this.props.nodeID,
         title: label,
-        transform: "translate("+x+","+y+")"
+        transform: "translate(" + x + "," + y + ")"
       };
       nodeOptions = TheGraph.merge(TheGraph.config.node.container, nodeOptions);
 
@@ -515,8 +453,24 @@
     }
   }));
 
-  function buildLabelRectOptions(height, x, y, len, className) {
+  var charging = {};
+  function chargeEvent(job, handler, time) {
+    time = time || 500;
+    charging[ job ] = setTimeout(function() {
+      delete charging[ job ];
+      handler();
+    }.bind(this), time);
 
+    charging[ job ] = setTimeout(handler, time);
+  }
+
+  function cancelEvent(job) {
+    if (charging[ job ]) {
+      clearTimeout(charging[ job ]);
+    }
+  }
+
+  function buildLabelRectOptions(height, x, y, len, className) {
     var width = len * height * 2/3;
     var radius = height / 2;
     x -= width / 2;
@@ -534,5 +488,4 @@
 
     return result;
   }
-
 })(this);
