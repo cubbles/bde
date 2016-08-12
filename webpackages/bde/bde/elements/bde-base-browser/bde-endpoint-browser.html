@@ -68,5 +68,20 @@ Example:
             <paper-button dialog-dismiss>Cancel</paper-button>
         </div>
     </template>
-    <script src="bde-endpoint-browser.js"></script>
+
+    <script>
+    Polymer({
+      is: 'bde-endpoint-browser',
+      properties: {
+        artifact: {
+          type: 'Object'
+        }
+      },
+      _selectEndpoint: function (event) {
+        var item = event.target;
+        this.fire('bde-select-endpoint', {artifact: item.dataset.artifact, endpointId: item.dataset.endpointId});
+      }
+
+    });
+    </script>
 </dom-module>
