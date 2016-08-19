@@ -24,18 +24,16 @@
     "url": "https://pmt.incowia.de/webble/r/client/bde.git"
   },
   "dependencies": {
-    "polymer": "^1.5.0",
+    "polymer": "^1.6.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.10",
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
-    "jsonpath-plus": "^0.13.1",
     "inflection": "^1.10.0",
-    "lodash": "3.10.1",
     "Sortable": "^1.4.2",
-    "highlightjs": "^9.4.0",
+    "highlightjs": "^9.6.0",
     "the-graph": "cubbles/bde.the-graph#^1.0.2-rc1",
     "klayjs": "^0.4.1",
     "fetch": "^1.0.0",
-    "paper-input": "polymerelements/paper-input#^1.1.16",
+    "paper-input": "polymerelements/paper-input#^1.1.17",
     "lodash": "^4.14.1"
   },
   "devDependencies": {
@@ -45,7 +43,6 @@
   },
   "private": true,
   "resolutions": {
-    "polymer": "^1.4.0",
     "react": "^15.1.0",
     "webcomponentsjs": "0.7.22",
     "font-awesome": "^4.6.3",
