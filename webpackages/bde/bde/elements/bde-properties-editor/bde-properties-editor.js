@@ -1,3 +1,5 @@
+// @importedBy bde-properties-editor.html
+
 'use strict';
 
 Polymer({
