@@ -1,3 +1,5 @@
+// @importedBy bde-slot-info.html
+
 Polymer({
   is: 'bde-slot-info',
 

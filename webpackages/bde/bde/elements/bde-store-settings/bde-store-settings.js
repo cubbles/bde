@@ -1,3 +1,7 @@
+// @importedBy bde-store-settings.html
+
+'use strict';
+
 Polymer({
   is: 'bde-store-settings',
 
@@ -27,7 +31,6 @@ Polymer({
   listeners: {
     'iron-overlay-opened': 'handleOpened'
   },
-
 
 
   confirmBaseURL: function (e) {

@@ -1,3 +1,7 @@
+// @importedBy bde-base-browser.html
+
+'use strict;'
+
 Polymer({
   is: 'bde-base-browser',
 

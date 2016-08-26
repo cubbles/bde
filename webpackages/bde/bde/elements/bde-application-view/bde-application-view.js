@@ -1,7 +1,5 @@
-(function () {
+// @importedBy bde-application-view.html
   'use strict';
-
-  // window.addEventListener('message', console.log.bind(console));
 
   Polymer({
 
@@ -127,4 +125,3 @@
     }
 
   });
-}());

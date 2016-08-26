@@ -1,3 +1,5 @@
+// @importedBy bde-member-edit-dialog.html
+
 Polymer({
   is: 'bde-member-edit-dialog',
   properties: {

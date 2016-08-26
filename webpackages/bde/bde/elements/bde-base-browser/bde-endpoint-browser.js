@@ -1,3 +1,5 @@
+// @importedBy bde-endpoint-browser.html
+
 Polymer({
   is: 'bde-endpoint-browser',
   properties: {

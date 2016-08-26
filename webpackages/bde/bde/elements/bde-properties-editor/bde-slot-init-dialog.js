@@ -1,5 +1,8 @@
+// @importedBy bde-slot.html
+
 Polymer({
   is: 'bde-slot-init-dialog',
+
   properties: {
     slot: {
       type: Object,

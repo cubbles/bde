@@ -1,3 +1,5 @@
+// @importedBy bde-compound-creator.html
+
 Polymer({
   is: 'bde-compound-creator',
 

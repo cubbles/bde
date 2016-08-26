@@ -1,3 +1,5 @@
+// @importedBy bde-member-info.html
+
 Polymer({
   is: 'bde-member-info',
 

@@ -1,3 +1,7 @@
+// @importedBy bde-repository-browser.html
+
+'use strict';
+
 Polymer({
 
   is: 'bde-repository-browser',
@@ -77,15 +81,23 @@ Polymer({
       notify: true
     },
 
+    /**
+     *  Binding for the settings object of the application.
+     *
+     * @property settings
+     * @type {Object}
+     */
     settings: {
       type: Object
     }
 
   },
+
   observers: [
     'baseUrlChanged(settings.baseUrl)',
     'storeChanged(settings.store)'
   ],
+  
   /**
    * Observer for the compoundOnly property. Sets searchTerm and filtered property.
    * @method compoundOnlyChanged

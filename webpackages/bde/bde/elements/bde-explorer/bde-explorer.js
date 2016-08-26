@@ -1,3 +1,5 @@
+// @importedBy bde-explorer.html
+
 Polymer({
   is: 'bde-explorer',
 

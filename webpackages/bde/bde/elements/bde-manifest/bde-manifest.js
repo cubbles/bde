@@ -1,4 +1,4 @@
-(function () {
+// @importedBy bde-manifest.html
   'use strict';
 
   Polymer({
@@ -263,5 +263,3 @@
       return keyAllowed;
     }
   });
-})();
-
