@@ -1,6 +1,6 @@
 // @importedBy bde-base-browser.html
-
-'use strict;'
+/* globals _ */
+'use strict';
 
 Polymer({
   is: 'bde-base-browser',
