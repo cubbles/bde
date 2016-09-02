@@ -1,4 +1,8 @@
+// @importedBy bde-app.html
+
 /*global XMLHttpRequest*/
+
+
 (function () {
   'use strict';
 
@@ -6,6 +10,11 @@
     is: 'bde-app',
 
     properties: {
+
+      /**
+       * Metadata of the current element, which is beeing created via the BDE.
+       * @type {Object}
+       */
       currentComponentMetadata: {
         type: Object,
         value: function () {
@@ -76,7 +85,6 @@
       'iron_deselect': '_handlePageDeselect',
       'bde-dataflow-view-reload-required': '_handleBdeDataflowViewReloadRequired'
     },
-
 
     attached: function () {
       // Bind webpackage node to local scope

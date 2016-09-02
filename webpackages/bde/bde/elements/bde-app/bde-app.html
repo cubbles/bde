@@ -21,6 +21,31 @@
 <link rel="import" href="../bde-application-view/bde-application-view.html">
 <link rel="import" href="../bde-repository-browser/bde-repository-browser.html">
 
+<!--
+A BDE custom element, the main BDE module.
+
+In this element the BDE application is defined by including all other elements and defining the page structure for a single page application inthe dom-module.
+
+Example:
+
+      <!DOCTYPE html>
+      <html lang="en">
+
+        <head>
+          ...
+        </head>
+
+        <body unresolved>
+            <bde-app id="app"></bde-app>
+        </body>
+
+      </html>
+
+@group BDE Custom Elements
+@element bde-app
+@author Felix Dürrwald <felix.duerrwald@hm-ag.de>
+-->
+
 <dom-module id="bde-app">
     <template>
         <style>
@@ -154,13 +179,13 @@
                            on-iron-localstorage-load-empty="initializeDefaultSettings"
         ></iron-localstorage>
 
+        <!-- About dialog, containing copyright and actual version  -->
         <paper-dialog id="about"
                       exit-animation="fade-out-animation"
                       with-backdrop>
             <h2>About</h2>
             <div>
                 <p>This is the Cubbles Browser Development Environment (BDE)</p>
-                <!-- TODO (fdu): Automate version replacement from package.json -->
                 <p>Version: [[bdeVersion]]</p>
                 <p><a href="http://www.hm-ag.de/" target="_blank" alt="HM - Informatik AG">&copy; 2016 HM - Informatik
                     AG</a></p>
@@ -170,6 +195,7 @@
             </div>
         </paper-dialog>
 
+        <!-- New webpackage dialog -->
         <paper-dialog id="confirm"
                       exit-animation="fade-out-animation"
                       with-backdrop>
@@ -183,6 +209,7 @@
             </div>
         </paper-dialog>
 
+        <!-- Webpackage base upload/deployment dialog -->
         <paper-dialog id="deployDialog"
                       exit-animation="fade-out-animation"
                       with-backdrop>
@@ -191,41 +218,46 @@
                 <p>This functionality is not yet implemented... </p>
             </div>
             <div class="buttons">
-                <paper-button dialog-dismiss
-                              >Cancel
-                </paper-button>
+                <paper-button dialog-dismiss raised>Cancel</paper-button>
             </div>
         </paper-dialog>
 
+        <!-- BDE quick help page; is shown initially on start-up of the app -->
         <bde-help-page id="help"></bde-help-page>
 
+        <!-- Dialog for setting up the Cubble base connection -->
         <bde-store-settings id="storeSettings"
                             settings="{{settings}}"
                             opened="{{settingsOpened}}">
         </bde-store-settings>
 
+        <!-- Repository browser dialog to search for existing Cubble components -->
         <bde-repository-browser
                 id="browser"
                 settings="[[settings]]"
                 url="[[computeBaseUrl(settings.baseUrl, settings.store, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
                 manifest="{{manifest}}"
-                added-item="{{selectedArtifact}}"
-        >
+                added-item="{{selectedArtifact}}">
         </bde-repository-browser>
 
+        <!-- Loading spinner -->
+        <div class="spinner-wrapper" hidden="[[!loading]]">
+          <paper-spinner id="spinner" active></paper-spinner>
+        </div>
+
         <!-- Application UI -->
+        <!-- Heaader toolbar  -->
         <paper-header-panel mode="seamed">
             <paper-toolbar id="bdeHeader">
                 <a href="#" class="brand">
                     <iron-icon icon="bde:cubbles"></iron-icon>
-                    BDE</a>
-
+                    BDE
+                </a>
                 <paper-icon-button id="newWebpacakgeBtn"
                                    title="Create new webpackage..."
                                    aria-label="newWebpackage"
                                    icon="editor:insert-drive-file"
                                    on-tap="confirmationHandler"
-
                 ></paper-icon-button>
 
                 <paper-icon-button id="compoundBtn"
@@ -296,10 +328,8 @@
                                    on-tap="helpBtnHandler"
                 ></paper-icon-button>
             </paper-toolbar>
-            <div class="spinner-wrapper" hidden="[[!loading]]">
-                <paper-spinner id="spinner" active></paper-spinner>
-            </div>
 
+            <!-- Main panel -->
             <paper-drawer-panel id="drawerPanel"
                                 drawer-width="300px"
                                 hidden="[[loading]]"
@@ -314,6 +344,7 @@
                     ></bde-explorer>
                 </div>
                 <div main>
+                    <!-- iron-pages selector for the different views in the BDE application, bound the selectedPage property, set by the buttons in the toolbar -->
                     <iron-pages id="pages"
                                 attr-for-selected="id"
                                 selected="{{selectedPage}}">
@@ -342,7 +373,6 @@
     </template>
 
     <!-- build:js src/app.min.js -->
-
     <script src="bde-app.js"></script>
     <!-- endbuild -->
 
