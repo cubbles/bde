@@ -1,4 +1,6 @@
+// @importedBy bde-base-item.html
 /*globals inflection*/
+
 Polymer({
   is: 'bde-base-item',
 
@@ -15,19 +17,42 @@ Polymer({
       type: Object
     },
 
+    /**
+     * Object representing the app settings.
+     *
+     * @type {Object}
+     * @property settings
+     */
     settings: {
       type: Object
     },
 
+    /**
+     * Object referencing the manifest of the Cubble component.
+     *
+     * @type {Object}
+     * @property manifest
+     */
     manifest: {
       type: Object
     },
 
+    /**
+     * The current Cubble component.
+     *
+     * @type {Object}
+     * @property currentComponent
+     */
     currentComponent: {
       type: Object
     }
   },
 
+  /**
+   * Add the Cubble component, set corresponding metadata.
+   *
+   * @method addComponent
+   */
   addComponent: function () {
     this.fire('bde-member-data-loading');
     if (this.$.ajax.url && this.$.ajax.url.length > 0) {
@@ -38,13 +63,27 @@ Polymer({
     }
   },
 
+  /**
+   * Handles the response of the iron-ajax, called on-tap, retrieves the metadata of the respective component.
+   *
+   * @method handleResponse
+   */
   handleResponse: function () {
     var webpackage = this.$.ajax.lastResponse;
     this._addComponent(webpackage);
   },
+
   /* *********************************************************************************/
   /* ***************************** private methods ***********************************/
   /* *********************************************************************************/
+
+  /**
+   * Utility function for adding the component, sets the corresponding metadata and fires loaded events.
+   *
+   * @param {[Object]} webpackage   [the current webpackage Object]
+   * @param {[String]} webpackageId [the current webpackageId]
+   * @method _addComponent
+   */
   _addComponent: function (webpackage, webpackageId) {
     var artifact = webpackage
       .artifacts[ inflection.pluralize(this.item.artifactType) ]
@@ -71,6 +110,13 @@ Polymer({
     this.fire('bde-select-compound', artifact);
   },
 
+  /**
+   * not called ???
+   *
+   * @param  {[type]} artifact [description]
+   * @return {[type]}          [description]
+   * @method _componentDisabled
+   */
   _componentDisabled: function (artifact) {
     var enabled = true;
     this.currentComponent.members.forEach(function (member) {
@@ -90,6 +136,13 @@ Polymer({
     return !enabled;
   },
 
+  /**
+   * Sets the itemUrlbased on baseUrl, current store and the webpackageId and appends 'manifest.webpackage'.
+   *
+   * @param  {[type]} item [description]
+   * @return {[String]}    [items url in the base]
+   * @method _getItemUrl
+   */
   _getItemUrl: function (item) {
     if (item.webpackageId === 'this'){
       return '';
@@ -98,9 +151,25 @@ Polymer({
         this.settings.store + '/' + item.webpackageId + '/manifest.webpackage';
     }
   },
+
+  /**
+   * not called ???
+   *
+   * @param  {[type]}  item [description]
+   * @return {String}      [description]
+   * @method _isThisWebpackage
+   */
   _isThisWebpackage: function (item) {
     return item.webpackageId === 'this';
   },
+
+  /**
+   * Gets the items id and transforms it into a valid webpackageId.
+   *
+   * @param  {[Object]} item [description]
+   * @return {[String]}      [modified webpackageId]
+   * @method _getWebpackageId
+   */
   _getWebpackageId: function (item) {
     if (item.webpackageId === 'this') {
       return item.webpackageId;
