@@ -10,6 +10,7 @@ Polymer({
      * The search term from the `paper-input` field.
      *
      * @type {String}
+     * @property searchTerm
      */
     searchTerm: {
       type: String,
@@ -20,6 +21,7 @@ Polymer({
      * The selected artifact
      *
      * @type {Object}
+     * @property selected
      */
     selected: {
       type: Object,
@@ -27,9 +29,10 @@ Polymer({
     },
 
     /**
-     * Wether to display only app artifacts
+     * Boolean value to display only app artifacts.
      *
      * @type {Boolean}
+     * @property appsOnly
      */
     appsOnly: {
       type: Boolean,
@@ -37,9 +40,10 @@ Polymer({
     },
 
     /**
-     * Wether to display only elementary artifacts
+     * Boolean value to display only elementary artifacts.
      *
      * @type {Boolean}
+     * @property elementariesOnly
      */
     elementariesOnly: {
       type: Boolean,
@@ -47,9 +51,10 @@ Polymer({
     },
 
     /**
-     * Wether to display only compound artifacts
+     * Boolean value to display only compound artifacts.
      *
      * @type {Boolean}
+     * @property compoundsOnly
      */
     compoundsOnly: {
       type: Boolean,
@@ -57,9 +62,10 @@ Polymer({
     },
 
     /**
-     * Wether to display only utility artifacts
+     * Boolean value to display only utility artifacts.
      *
      * @type {Boolean}
+     * @property utilitiesOnly
      */
     utilitiesOnly: {
       type: Boolean,
@@ -67,52 +73,84 @@ Polymer({
     },
 
     /**
-     * Global app settings
+     * Property referencing the global app settings.
      *
      * @type {Object}
-     * @private
+     * @property selected
      */
     settings: {
       type: Object
     },
 
+    /**
+     * Loading property of the app, to display a paper-spinner while loading.
+     *
+     * @type {Boolean}
+     * @property loading
+     */
     loading: {
       type: Boolean,
       value: false
     },
 
+    /**
+     * Array for the Cubble endpoints.
+     *
+     * @type {Array}
+     * @property endpoints
+     */
     endpoints: {
       type: Array
     },
 
+    /**
+     * Object referencing the manifest of the Cubble.
+     *
+     * @type {Object}
+     * @property manifest
+     */
     manifest: {
       type: Object
     },
 
+    /**
+     * Array of user generated components.
+     *
+     * @type {Array}
+     * @property ownComponents
+     */
     ownComponents: {
       type: Array,
       value: function () {
         return [];
       }
     },
+
+    /**
+     * The current edited component.
+     *
+     * @type {Object}
+     * @property currentComponent
+     */
     currentComponent: {
       type: Object
     },
+
     /**
-     * All cubbles in the base
+     * Array containing all cubbles in the base.
      *
      * @type {Array}
-     * @private
+     * @property _cubbles
      */
     _cubbles: {
       type: Array
     },
 
     /**
-     * Cubbles filtered by the criteria
+     * Cubbles array filtered by the criteria from the input field.
      *
      * @type {Array}
-     * @private
+     * @property _filtered
      */
     _filtered: {
       type: Array,
@@ -141,6 +179,13 @@ Polymer({
     });
   },
 
+  /**
+   * Adds the chosen Cubble component and sets the respective metadata.
+   *
+   * @param {[String]} artifact   [description]
+   * @param {[String]} endpointId [description]
+   * @method addMember
+   */
   addMember: function (artifact, endpointId) {
     this.fire('bde-member-loading');
     this.filterList(this.$.search.value);
@@ -197,6 +242,10 @@ Polymer({
       throw new Error("Unknown artifactType '" + artifact.artifactType + "'");
     })(artifact);
 
+    /**
+     * Setting the cubble metadata.
+     * @type {Object}
+     */
     var cubble = {
       artifactId: artifact.artifactId,
       componentId: webpackageId + '/' + artifact.artifactId,
@@ -229,14 +278,30 @@ Polymer({
     this.$.search.focus();
   },
 
+  /**
+   * Open the memberSelectDialog.
+   *
+   * @method open
+   */
   open: function () {
     this.$.memberSelectDialog.open();
   },
 
+  /**
+   * Close the memberSelectDialog.
+   *
+   * @method close
+   */
   close: function () {
     this.$.memberSelectDialog.close();
   },
 
+  /**
+   * [endpointSelected description]
+   *
+   * @param  {[Event]} event [description]
+   * @method endpointSelected
+   */
   endpointSelected: function (event) {
     var item = event.detail;
     var artifact = JSON.parse(item.artifact);
@@ -244,6 +309,12 @@ Polymer({
     this.addMember(artifact, endpointId);
   },
 
+  /**
+   * [handleDialogOpen description]
+   *
+   * @param  {[Event]} event [description]
+   * @method handleDialogOpen
+   */
   handleDialogOpen: function (event) {
     this.set('ownComponents', this._currentManifestComponents());
     this.async(function () {
@@ -252,6 +323,12 @@ Polymer({
     });
   },
 
+  /**
+   * [handleDialogClose description]
+   *
+   * @param  {[Event]} event [description]
+   * @method handleDialogClose
+   */
   handleDialogClose: function (event) {
     this.async(function () {
       this.$.search._focusableElement.blur();
@@ -270,6 +347,13 @@ Polymer({
       this.filterList(event.target.value);
     }.bind(this), 125);
   },
+
+  /**
+   * [filterList description]
+   *
+   * @param  {[String]} searchString [String from input]
+   * @method filterList
+   */
   filterList: function (searchString) {
     // for edge
     searchString = searchString || '';
@@ -316,7 +400,9 @@ Polymer({
   },
 
   /**
-   * Item was selected from the list of results
+   * Item was selected from the list of results.
+   *
+   * @method handleItemSelect
    */
   handleItemSelect: function (event) {
     var artifact = event.detail;
@@ -328,13 +414,24 @@ Polymer({
       this.addMember(artifact, artifact.endpoints[ 0 ].endpointId);
     }
   },
+
+  /**
+   * Sets loading property to false.
+   * @method handleLoaded
+   */
   handleLoaded: function () {
     this.loading = false;
   },
 
+  /**
+   * Sets loading property to true.
+   *
+   * @method handleLoading
+   */
   handleLoading: function () {
     this.loading = true;
   },
+
   /**
    * Handles the initial AJAX response and applies a prefiltering of the result list.
    *
@@ -347,6 +444,11 @@ Polymer({
     this.set('_cubbles', cubbles);
   },
 
+  /**
+   * Sets the baseUrl of the iron-ajax element for retrieving the cubble components from base.
+   *
+   * @method settingsChanged
+   */
   settingsChanged: function () {
     this.$.ajax.set('url', this._computeBaseUrl(this.settings.baseUrl, this.settings.store));
     this.clearInput();
@@ -356,10 +458,24 @@ Polymer({
   /* ***************************** private methods ***********************************/
   /* *********************************************************************************/
 
+  /**
+   * Computes an URL for the selected Base, more precisely the couchDB at the selected base.
+   *
+   * @param  {[String]} baseUrl [baseUrl of the base]
+   * @param  {[String]} store   [Name of the store at the base]
+   * @return {[String]}         [String representing the couchDB at the base]
+   * @method _computeBaseUrl
+   */
   _computeBaseUrl: function (baseUrl, store) {
     return baseUrl.replace(/[/]?$/, '/') + store + '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts';
   },
 
+  /**
+   * [_currentManifestComponents description]
+   *
+   * @return {[Array]} [Array of current components]
+   * @method _currentManifestComponents
+   */
   _currentManifestComponents: function () {
     var components = [];
     if (this.manifest) {
@@ -385,6 +501,13 @@ Polymer({
     return components;
   },
 
+  /**
+   * [_generateDisplayName description]
+   *
+   * @param  {[String]} artifactId [current cubble's artifactId]
+   * @return {[String]}            [modified artifactId]
+   * @method _generateDisplayName
+   */
   _generateDisplayName: function (artifactId) {
     var members = this.currentComponent.members;
     var filteredMembers = members.filter(function (member) {
@@ -402,6 +525,13 @@ Polymer({
     });
     return artifactId + '-' + (++max);
   },
+
+  /**
+   * [_sortArtifacts description]
+   *
+   * @param  {[type]} a [description]
+   * @param  {[type]} b [description]
+   */
   _sortArtifacts: function (a, b) {
     if (a.artifactId < b.artifactId) {
       return -1;
