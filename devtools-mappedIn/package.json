@@ -37,7 +37,6 @@
     "grunt-file-exists": "^0.1.2",
     "grunt-gh-pages": "~0.9.1",
     "grunt-githooks": "^0.3.1",
-    "grunt-inline": "^0.3.6",
     "grunt-jsdoc": "~0.6.7",
     "grunt-json-replace": "^0.1.2",
     "grunt-jsonlint": "~1.0.4",
@@ -51,14 +50,11 @@
     "load-grunt-tasks": "^2.0.0",
     "lodash": "^3.10",
     "noflo": "^0.5.22",
-    "polymer-analyzer": "^2.0.0-alpha.2",
     "shelljs": "^0.5.3",
     "standard": "^6.0.8",
     "time-grunt": "~1.0.0"
   },
-  "devDependencies": {
-    "grunt-folder-list": "^1.1.0"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "https://pmt.incowia.de/webble/r/client/cubbles-coder-devtools.git"

@@ -41,6 +41,11 @@
             "name": "BDE",
             "path": "/index.html",
             "description": "BDE app"
+          },
+          {
+            "name": "Developer Documentation",
+            "path": "/documentation.html",
+            "description": "BDE developer documentation generated via iron-component-page."
           }
         ]
       }
