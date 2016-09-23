@@ -10,7 +10,9 @@ Polymer({
 
     /**
      * The object data of the selected item from the Base.
+     *
      * @type Object
+     * @property addedItem
      */
     addedItem: {
       type: Object,
@@ -21,8 +23,8 @@ Polymer({
     /**
      * The specified URL to the Base.
      *
-     * @property url
      * @type String
+     * @property url
      */
     url: {
       type: String
@@ -31,8 +33,8 @@ Polymer({
     /**
      * Array for the filtered ajax response.
      *
+     * @type Array
      * @property filtered
-     * @type array
      */
     filtered: {
       type: Array,
@@ -44,15 +46,16 @@ Polymer({
     /**
      * Array for the ajax response.
      *
+     * @type Array
      * @property response
-     * @type array
      */
     response: Array,
 
     /**
      * Value of the search field.
-     * @property searchTerm
+     *
      * @type {Object}
+     * @property searchTerm
      */
     searchTerm: {
       type: String,
@@ -61,8 +64,9 @@ Polymer({
 
     /**
      * Value to only search for compound components.
-     * @property compoundOnly
+     *
      * @type {Object}
+     * @property compoundOnly
      */
     compoundOnly: {
       type: Boolean,
@@ -73,8 +77,9 @@ Polymer({
 
     /**
      * Webpackage metadata for the selected component.
-     * @property manifest
+     *
      * @type {Object}
+     * @property manifest
      */
     manifest: {
       type: Object,
@@ -84,8 +89,8 @@ Polymer({
     /**
      *  Binding for the settings object of the application.
      *
-     * @property settings
      * @type {Object}
+     * @property settings
      */
     settings: {
       type: Object
@@ -97,9 +102,10 @@ Polymer({
     'baseUrlChanged(settings.baseUrl)',
     'storeChanged(settings.store)'
   ],
-  
+
   /**
    * Observer for the compoundOnly property. Sets searchTerm and filtered property.
+   *
    * @method compoundOnlyChanged
    */
   compoundOnlyChanged: function () {
@@ -109,9 +115,10 @@ Polymer({
 
   /**
    * Computes the headers string, based on search method.
-   * @method computeLabel
+   *
    * @param  {[Boolean]} compoundOnly [Parameter for the selection of the return value.]
    * @return {[String]}
+   * @method computeLabel
    */
   computeLabel: function (compoundOnly) {
     return compoundOnly
@@ -140,8 +147,8 @@ Polymer({
   /**
    * Handles the input of a search term in the input field and returns the filtered array matching the expression in the input. As well as resizing the dialog, based on search result.
    *
-   * @method handleInput
    * @param evt keyup-event
+   * @method handleInput
    */
   handleInput: function (evt) {
     this.debounce('handleInput', function () {
@@ -171,6 +178,12 @@ Polymer({
       this.$.list.fire('iron-resize');
     }.bind(this), 125);
   },
+
+  /**
+   * Helper function for sorting the artifacts.
+   *
+   * @method _sortArtifacts
+   */
   _sortArtifacts: function (a, b) {
     if (a.artifactId < b.artifactId) {
       return -1;
@@ -193,7 +206,7 @@ Polymer({
     if (aWebpackageName > bWebpackageName) {
       return 1;
     }
-    // Cut SNAPSHOT
+    // cut SNAPSHOT
     var aVersion = a.version;
 
     if (a.version.indexOf('-SNAPSHOT') > -1) {
@@ -204,14 +217,14 @@ Polymer({
     if (b.version.indexOf('-SNAPSHOT') > -1) {
       bVersion = b.version.substring(0, b.version.indexOf('-SNAPSHOT'));
     }
-    // Without SNAPSHOT descending
+    // without SNAPSHOT version (descending)
     if (aVersion > bVersion) {
       return -1;
     }
     if (aVersion < bVersion) {
       return 1;
     }
-    // whit SNAPSHOT Version (ascending)
+    // with SNAPSHOT version (ascending)
     if (aVersion === bVersion && a.version < b.version) {
       return -1;
     }
@@ -221,11 +234,12 @@ Polymer({
 
     return 0;
   },
+
   /**
    * Handles the initial AJAX response and applies a prefiltering of the result list.
    *
-   * @method handleResponse
    * @param  {[Event]} event [Response of AJAX call.]
+   * @method handleResponse
    */
   // TODO (ene): use couchDB functionality for filtering certain document-attributes, like modelVersion...
   handleResponse: function (event) {
@@ -249,12 +263,32 @@ Polymer({
     this.filtered = [];
     this.$.baseSearch.focus();
   },
+
+  /**
+   * Observer for changes in the baseUrl.
+   * 
+   * @param  {[String]} baseUrl [the given baseUrl]
+   * @method baseUrlChanged
+   */
   baseUrlChanged: function (baseUrl) {
     this.resetSearch();
   },
+
+  /**
+   * Observer for changes in teh storeName.
+   *
+   * @param  {[String]} store [the given storeName]
+   * @method storeChanged
+   */
   storeChanged: function (store) {
     this.resetSearch();
   },
+
+  /**
+   * Function for reseting the search with new base parameters after change.
+   *
+   * @method resetSearch
+   */
   resetSearch: function () {
     this.set('searchTerm', '');
     this.set('filtered', []);

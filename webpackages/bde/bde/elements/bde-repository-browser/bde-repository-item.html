@@ -110,6 +110,8 @@ Example:
 
       /**
        * Holding the BDE Application settings. (see <bde-app> component)
+       * @type Object
+       * @property settings
        */
       settings: {
           type: Object
@@ -168,9 +170,7 @@ Example:
         function getWebpackageId (item) {
           return item.groupId + '.' + item.name + '@' + item.version;
         }
-
     }
-
   });
   </script>
 

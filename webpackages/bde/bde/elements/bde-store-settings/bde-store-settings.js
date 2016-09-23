@@ -9,6 +9,7 @@ Polymer({
 
     /**
      * Opened property for the encompassing paper-dialog element.
+     *
      * @type {Boolean}
      * @property opened
      */
@@ -19,6 +20,7 @@ Polymer({
 
     /**
      * Represents the global app settings. Used to set the store URL.
+     *
      * @type {Object}
      * @property settings
      */
@@ -29,6 +31,7 @@ Polymer({
 
     /**
      * Boolean value returned after validating the store URL and name.
+     *
      * @type {Boolean}
      * @property requestSuccess
      */
@@ -38,6 +41,7 @@ Polymer({
 
     /**
      * Boolean set for valid settings after validating URL and name of the store.
+     *
      * @type {Boolean}
      * @property validSettings
      */
@@ -54,6 +58,7 @@ Polymer({
 
   /**
    * Confirmation of the base URL field via enter button focuses the storeName field.
+   *
    * @param  {[Event]} e [keydown event]
    * @method confirmBaseURL
    */
@@ -65,6 +70,7 @@ Polymer({
 
   /**
    * Pressing enter on the storeName field calls the validateStoreSettings method.
+   *
    * @param  {[Event]} e [keydown event]
    * @method saveChanges
    */
@@ -76,6 +82,7 @@ Polymer({
 
   /**
    * Listener function for opening the dialog.
+   *
    * @method handleOpened
    */
   handleOpened: function () {
@@ -85,6 +92,7 @@ Polymer({
 
   /**
    * Validates the settings from the dialog field by calling an XMLHttpRequest for the given URL.
+   *
    * @method validateStoreSettings
    */
   validateStoreSettings: function () {
@@ -116,6 +124,7 @@ Polymer({
 
   /**
    * Change the store URL by setting the data from the dialog input fields to the settings.
+   *
    * @param  {[Boolean]} changeBaseUrl   [changed flag for the BaseUrl]
    * @param  {[Boolean]} changeStoreName [changed flag for the storeName]
    * @method changeStore
@@ -132,6 +141,7 @@ Polymer({
 
   /**
    * Sets the errormessage on a div in the dialog.
+   *
    * @param  {[String]} message [message set on error]
    * @method showErrorMessage
    */
@@ -142,6 +152,7 @@ Polymer({
 
   /**
    * Sets a paper-toast with a message and opens the toast.
+   *
    * @param  {[String]} message [message set on success]
    * @method showNotification
    */
@@ -153,8 +164,9 @@ Polymer({
   /**
    * Opens a XMLHttpRequest for testing the values of the input field for the store URL.
    * If the connection can be established, requestSuccess is set to ture otherwise false.
+   *
    * @param  {Function} callback [callback function of the request]
-   * @return {[type]}            [description]
+   * @method testStoreConnection
    */
   testStoreConnection: function (callback) {
     var xhr = new XMLHttpRequest();
