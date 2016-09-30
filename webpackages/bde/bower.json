@@ -46,6 +46,7 @@
     "react": "^15.1.0",
     "webcomponentsjs": "0.7.22",
     "font-awesome": "^4.6.3",
-    "klayjs": "~0.2.1"
+    "klayjs": "~0.2.1",
+    "lodash": "^4.14.1"
   }
 }
