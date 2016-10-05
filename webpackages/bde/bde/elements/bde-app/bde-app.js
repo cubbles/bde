@@ -2,7 +2,6 @@
 
 /*global XMLHttpRequest*/
 
-
 (function () {
   'use strict';
 
@@ -74,7 +73,7 @@
       selectedPage: {
         type: String,
         value: 'dataflowView',
-        observer: "selectedPageChanged"
+        observer: 'selectedPageChanged'
       },
 
       /**
@@ -176,10 +175,10 @@
      * @method selectedPageChanged
      */
     selectedPageChanged: function (newpage, oldpage) {
-      if(!newpage) {
+      if (!newpage) {
         return;
       }
-      if (newpage === "dataflowView"){
+      if (newpage === 'dataflowView') {
         this.activateFlow();
       }
     },
@@ -245,14 +244,9 @@
       this.set('screenHeight', window.outerHeight);
     },
 
-    /**
-     * Calls the loadManifest function of the manifest element.
-     * @param  {[Object]} manifest [the current manifest]
-     * @method loadManifest
-     */
-    loadManifest: function (manifest) {
-      this.$.manifest.loadManifest(manifest);
-    },
+    // loadManifest: function (manifest) {
+    //   this.$.manifest.loadManifest(manifest);
+    // },
 
     /**
      * Callback function on-tap of a paper-button to load only compound components from the base, sets the value compoundOnly and opend the repository-browser element.
@@ -405,27 +399,27 @@
      * Sets the attibutes after tapping the dataflowView button.
      */
     activateFlow: function () {
-      this.$.flowIcon.setAttribute("ariaActiveAttribute", "aria-pressed");
-      this.$.designIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
-      this.$.appIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
+      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
+      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
     },
 
     /**
      * Sets the attibutes after tapping the desigView button.
      */
     activateDesign: function () {
-      this.$.flowIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
-      this.$.designIcon.setAttribute("ariaActiveAttribute", "aria-pressed");
-      this.$.appIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
+      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
+      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
     },
 
     /**
      * Sets the attibutes after tapping the applicationView button.
      */
     activateApp: function () {
-      this.$.flowIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
-      this.$.designIcon.setAttribute("ariaActiveAttribute", "aria-not-pressed");
-      this.$.appIcon.setAttribute("ariaActiveAttribute", "aria-pressed");
+      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
     }
   });
 })();

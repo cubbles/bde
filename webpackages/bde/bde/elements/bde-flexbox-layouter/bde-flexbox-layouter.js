@@ -71,8 +71,10 @@ Polymer({
     var sortable = this.$$('.sortable.standard');
     if (this.selectedCompound) {
       var members = this.selectedCompound.members;
-      for (let i = 0; i < members.length; i++) {
-        this.addMemberToContainer(sortable, members[ i ]);
+      if (members) {
+        for (let i = 0; i < members.length; i++) {
+          this.addMemberToContainer(sortable, members[ i ]);
+        }
       }
     }
     this.set('lastChangeTime', new Date(0));
@@ -382,7 +384,7 @@ Polymer({
     for (var i = 0; i < flexboxSortables.length; i++) {
       var elem = flexboxSortables[ i ];
       for (var ii = 0; ii < elem.children.length; ii++) {
-        nodes.push(elem.children[ii]);
+        nodes.push(elem.children[ ii ]);
       }
     }
 
@@ -390,6 +392,7 @@ Polymer({
       function findMember (element, index, array) {
         return element.memberId === node.getAttribute('member-id-ref');
       }
+
       if (!members.find(findMember)) {
         Polymer.dom(node.parentNode).removeChild(node);
         Polymer.dom.flush();

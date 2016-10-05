@@ -1,0 +1,40 @@
+{
+  "name": "bde-graph",
+  "description": "A polymer element for viewing and editing flow-based programming graphs.",
+  "main": "bde-graph.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "klayjs-noflo": "^0.3.0",
+    "react": "15.1.0",
+    "font-awesome": "^4.6.3"
+  },
+  "devDependencies": {
+    "iron-input": "PolymerElements/iron-input#^1.0.10",
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
+    "iron-selector": "PolymerElements/iron-selector#^1.5.2"
+  },
+  "license": "MIT",
+  "authors": [
+    "Felix Dürrwald <mplabs@mplabs.de>",
+    "Judit Ross <judit.ross@incowia.com>",
+    "Philipp Waqgner <philipp.wagner.ross@incowia.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cubbles/bde-graph.git"
+  },
+  "homepage": "https://github.com/cubbles/bde-graph",
+  "version": "1.2.0",
+  "_release": "1.2.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.2.0",
+    "commit": "152cf5c9347a29bbfad81d64d67130e0fa333539"
+  },
+  "_source": "https://github.com/cubbles/bde-graph.git",
+  "_target": "^1.0.0-rc1",
+  "_originalSource": "https://github.com/cubbles/bde-graph.git"
+}

@@ -3,8 +3,13 @@
 <link rel="import" href="../../vendor/iron-icons/iron-icons.html">
 <link rel="import" href="../../vendor/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../vendor/paper-fab/paper-fab.html">
+<script>
+    window.KLAY_CONFIG = {
+        workerScript:   'vendor/klayjs/klay.js'
+    }
+</script>
 
-<link rel="import" href="../bde-graph/bde-graph.html">
+<link rel="import" href="../../vendor/bde-graph/bde-graph.html">
 <link rel="import" href="../bde-base-browser/bde-base-browser.html">
 <link rel="import" href="../bde-properties-editor/bde-properties-editor.html">
 <link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html">
@@ -94,7 +99,7 @@
 
     <!--</paper-dialog>-->
 
-    <paper-drawer-panel id="drawerPanel"
+    <paper-drawer-panel id="graphPanel"
       drawer-width="400px"
       right-drawer
       force-narrow="[[!showPropertyEditor]]"
@@ -111,11 +116,16 @@
           offset-y="[[_graphOffsetY]]"
           theme="light"
           library="{{library}}"
-          selected-nodes="{{_selectedNodes}}"
-          selected-edges="{{_selectedEdges}}"
-          last-selected-node="{{_lastSelectedNode}}"
-          last-selected-edge="{{_lastSelectedEdge}}"
+          artifact-id="{{currentComponentMetadata.artifactId}}"
+          connections="{{_artifact.connections}}"
+          inits="{{_artifact.inits}}"
+          members="{{_artifact.members}}"
+          slots="{{_artifact.slots}}"
         ></bde-graph>
+          <!--selected-nodes="{{_selectedNodes}}"-->
+          <!--selected-edges="{{_selectedEdges}}"-->
+          <!--last-selected-node="{{_lastSelectedNode}}"-->
+          <!--last-selected-edge="{{_lastSelectedEdge}}"-->
 
         <div id="toolbar">
           <paper-fab id="zoomToFit"
@@ -147,7 +157,7 @@
 
       </div>
 
-      <div id="drawerPanel" drawer>
+      <div id="propertiesPanel" drawer>
 
         <bde-properties-editor id="propertyEditor"
           artifact="{{_artifact}}"

@@ -30,6 +30,6 @@
     "commit": "6257c2b3814ece5fe82ade56a6af33d4863563f9"
   },
   "_source": "https://github.com/noflo/klayjs-noflo.git",
-  "_target": "~0.3.0",
+  "_target": "^0.3.0",
   "_originalSource": "klayjs-noflo"
 }

@@ -110,7 +110,6 @@
       'the-graph-add-edge': 'handleAddEdge',
       'the-graph-remove-edge': 'handleRemoveEdge'
     },
-
     attached: function () {
       // Set initial graph size
       this.async(this.handleResize);
@@ -118,7 +117,6 @@
       // Resize cannot be bound using `listeners`
       window.addEventListener('resize', this.handleResize.bind(this));
     },
-
     /**
      * Load the new artifact
      *
@@ -137,7 +135,7 @@
 
     handleAddNode: function (event) {
       var node = event.detail;
-      // @TODO (fdu): Get the cubble component from dependencies
+      // TODO (fdu): Get the cubble component from dependencies
       //              and add the new member
       console.log('handleAddNode', event.detail);
     },
@@ -256,18 +254,18 @@
 
     membersChanged: function (changeRecord) {
       if (!changeRecord) { return; }
-
-      changeRecord.indexSplices.forEach(function (s) {
-        s.removed.forEach(function (member) {
-          this.$.bdeGraph.removeMember(member);
-        }, this);
-
-        for (var i = 0; i < s.addedCount; i++) {
-          // Resolve the newly added member here and add
-          // definition to resolutions
-          this.$.bdeGraph.addMember(s.object[ s.index + i ]);
-        }
-      }, this);
+      console.log('members changed', changeRecord);
+      // changeRecord.indexSplices.forEach(function (s) {
+      //   s.removed.forEach(function (member) {
+      //     this.$.bdeGraph.removeMember(member);
+      //   }, this);
+      //
+      //   for (var i = 0; i < s.addedCount; i++) {
+      //     // Resolve the newly added member here and add
+      //     // definition to resolutions
+      //     this.$.bdeGraph.addMember(s.object[ s.index + i ]);
+      //   }
+      // }, this);
     },
 
     onLibraryUpdate: function (event) {
@@ -288,71 +286,85 @@
       this.set('_lastSelectedNode', void (0));
       this.set('_lastSelectedEdge', void (0));
 
-      var self = this;
+      // var self = this;
       // var settings = this.settings;
 
       var artifact = manifest.artifacts.compoundComponents.find(function (artifact) {
         return artifact.artifactId === artifactId;
       });
-      var endpoint = artifact.endpoints.find(function (endpoint) {
-        return endpoint.endpointId === endpointId;
-      });
+      // var endpoint = artifact.endpoints.find(function (endpoint) {
+      //   return endpoint.endpointId === endpointId;
+      // });
 
-      this.set('_artifact', artifact);
+      var bdeGraph = this.$.bdeGraph;
+      var promise = window.cubx.bde.bdeDataConverter.resolveArtifact(artifactId, manifest, this._baseUrl(), this.resolutions);
+      bdeGraph.rebuildGraph();
+      promise.then((data) => {
+        data.components.map((component) => {
+          bdeGraph.registerComponent(component);
+        });
+        var _artifact = artifact;
+        _artifact.members = data.members;
+        _artifact.slots = data.slots;
+        _artifact.connections = data.connections;
+        _artifact.inits = data.inits;
+        this.set('_artifact', _artifact);
+        requestAnimationFrame(() => bdeGraph.triggerAutolayout());
+      });
       // Go through all dependencies and resolve,
       // either from the same webpackage or by requesting the base
-      Promise.all(endpoint.dependencies.map(this._resolveDependency.bind(this)))
-        .then(function (resolutions) {
-          // We need to create a library for the graph
-          // and a library for the property-editor here.
-          var newLibrary = {};
-          var newResolutions = {};
-
-          resolutions.forEach(function (resolution) {
-            newResolutions[ resolution.artifact.artifactId ] = resolution.artifact;
-          });
-
-          resolutions.map(artifactToComponent)
-            .forEach(function (resolution) {
-              var componentId = resolution.componentId.replace(/\/[^\/]*$/, '');
-              newLibrary[ componentId ] = resolution.artifact.definition;
-            });
-
-          // We are done, load the graph
-          self.set('library', newLibrary);
-          self.set('resolutions', newResolutions);
-          self.set('graph', self._graphFromArtifact(artifact));
-          self.triggerAutolayout();
-        });
-
-      function artifactToComponent (resolution) {
-        var artifact = resolution.artifact;
-        return {
-          artifact: {
-            artifactId: artifact.artifactId,
-            definition: {
-              name: artifact.displayName || artifact.artifactId,
-              description: artifact.description,
-              icon: 'cog',
-              inports: artifact.slots ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
-              outports: artifact.slots ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
-            }
-          },
-          componentId: resolution.componentId
-        };
-      }
-
-      function filterInslots (slot) {
-        return (slot.direction.indexOf('input') !== -1);
-      }
-
-      function filterOutslots (slot) {
-        return (slot.direction.indexOf('output') !== -1);
-      }
-
-      function transformSlot (slot) {
-        return { name: slot.slotId, type: slot.type };
-      }
+      // Promise.all(endpoint.dependencies.map(this._resolveDependency.bind(this)))
+      //   .then(function (resolutions) {
+      //     // We need to create a library for the graph
+      //     // and a library for the property-editor here.
+      //     var newLibrary = {};
+      //     var newResolutions = {};
+      //
+      //     resolutions.forEach(function (resolution) {
+      //       newResolutions[ resolution.artifact.artifactId ] = resolution.artifact;
+      //     });
+      //
+      //     resolutions.map(artifactToComponent)
+      //       .forEach(function (resolution) {
+      //         var componentId = resolution.componentId.replace(/\/[^\/]*$/, '');
+      //         newLibrary[ componentId ] = resolution.artifact.definition;
+      //       });
+      //
+      //     // We are done, load the graph
+      //     self.set('library', newLibrary);
+      //     self.set('resolutions', newResolutions);
+      //     self.set('graph', self._graphFromArtifact(artifact));
+      //     self.triggerAutolayout();
+      //   });
+      //
+      // function artifactToComponent (resolution) {
+      //   var artifact = resolution.artifact;
+      //   return {
+      //     artifact: {
+      //       artifactId: artifact.artifactId,
+      //       definition: {
+      //         name: artifact.displayName || artifact.artifactId,
+      //         description: artifact.description,
+      //         icon: 'cog',
+      //         inports: artifact.slots ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
+      //         outports: artifact.slots ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
+      //       }
+      //     },
+      //     componentId: resolution.componentId
+      //   };
+      // }
+      //
+      // function filterInslots (slot) {
+      //   return (slot.direction.indexOf('input') !== -1);
+      // }
+      //
+      // function filterOutslots (slot) {
+      //   return (slot.direction.indexOf('output') !== -1);
+      // }
+      //
+      // function transformSlot (slot) {
+      //   return { name: slot.slotId, type: slot.type };
+      // }
     },
     selectedEdgesChanged: function (changeRecord) {
       var connections = this._selectedEdges.map(connectionForEdge.bind(this));
@@ -402,9 +414,9 @@
 
     showPropertyEditorChanged: function (showPropertyEditor) {
       if (showPropertyEditor) {
-        this.$.drawerPanel.openDrawer();
+        this.$.graphPanel.openDrawer();
       } else {
-        this.$.drawerPanel.closeDrawer();
+        this.$.graphPanel.closeDrawer();
       }
     },
 
@@ -434,18 +446,20 @@
         componentId: cubble.metadata.webpackageId + '/' + cubble.metadata.artifactId,
         displayName: cubble.displayName
       };
-
+      var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
+      promise.then((data) => {
+        this.$.bdeGraph.registerComponent(data.component);
+        this.push('_artifact.members', member);
+        this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
+          member.componentId + '/' + cubble.metadata.endpointId
+        );
+      });
       // Resolve and add to resolutions
-      this._resolveDependency(member.componentId)
-        .then(function (resolution) {
-          this.resolutions[ resolution.artifact.artifactId ] = resolution.artifact;
-          this.notifyPath('resolutions', this.resolutions);
-        }.bind(this));
-
-      this.push('_artifact.members', member);
-      this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
-        member.componentId + '/' + cubble.metadata.endpointId
-      );
+      // this._resolveDependency(member.componentId)
+      //   .then(function (resolution) {
+      //     this.resolutions[ resolution.artifact.artifactId ] = resolution.artifact;
+      //     this.notifyPath('resolutions', this.resolutions);
+      //   }.bind(this));
     },
 
     _addCubbleClass: function (showPropertyEditor) {
@@ -464,19 +478,19 @@
       this._updateGraph(changeRecord);
     },
 
-    _findInManifest: function (manifest, artifactId) {
-      // We don't care about webpackageId here
-      artifactId = artifactId.split('/')[ 1 ];
-
-      var artifacts = [];
-      Object.keys(manifest.artifacts).forEach(function (artifactType) {
-        artifacts = artifacts.concat(manifest.artifacts[ artifactType ]);
-      });
-
-      return artifacts.find(function (artifact) {
-        return artifact.artifactId === artifactId;
-      });
-    },
+    // _findInManifest: function (manifest, artifactId) {
+    //   // We don't care about webpackageId here
+    //   artifactId = artifactId.split('/')[ 1 ];
+    //
+    //   var artifacts = [];
+    //   Object.keys(manifest.artifacts).forEach(function (artifactType) {
+    //     artifacts = artifacts.concat(manifest.artifacts[ artifactType ]);
+    //   });
+    //
+    //   return artifacts.find(function (artifact) {
+    //     return artifact.artifactId === artifactId;
+    //   });
+    // },
 
     _graphFromArtifact: function (artifact) {
       if (!artifact) { return; }
@@ -583,23 +597,23 @@
       return graph;
     },
 
-    _resolveDependency: function (dependency) {
-      return new Promise(function (resolve, reject) {
-        if (dependency.startsWith('this')) {
-          // Resolve local dependency
-          var artifact = this._findInManifest(this.currentComponentMetadata.manifest, dependency);
-          resolve({ artifact: artifact, componentId: dependency });
-        } else {
-          // Resolve remote dependency
-          context.fetch(this._urlFor(dependency))
-            .then(function (response) { return response.json(); })
-            .then(function (manifest) {
-              var artifact = this._findInManifest(manifest, dependency);
-              resolve({ artifact: artifact, componentId: dependency });
-            }.bind(this));
-        }
-      }.bind(this));
-    },
+    // _resolveDependency: function (dependency) {
+    //   return new Promise(function (resolve, reject) {
+    //     if (dependency.startsWith('this')) {
+    //       // Resolve local dependency
+    //       var artifact = this._findInManifest(this.currentComponentMetadata.manifest, dependency);
+    //       resolve({ artifact: artifact, componentId: dependency });
+    //     } else {
+    //       // Resolve remote dependency
+    //       context.fetch(this._urlFor(dependency))
+    //         .then(function (response) { return response.json(); })
+    //         .then(function (manifest) {
+    //           var artifact = this._findInManifest(manifest, dependency);
+    //           resolve({ artifact: artifact, componentId: dependency });
+    //         }.bind(this));
+    //     }
+    //   }.bind(this));
+    // },
 
     _updateGraph: function (changeRecord) {
       if (changeRecord.path.indexOf('members') > 0 && changeRecord.path.endsWith('displayName')) {
@@ -628,10 +642,13 @@
       this.$.bdeGraph.rerender();
     },
 
+    _baseUrl: function () {
+      return this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
+    },
     _urlFor: function (dependency) {
       var webpackageId = dependency.split('/')[ 0 ];
 
-      var url = this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
+      var url = this._baseUrl();
       url += webpackageId + '/manifest.webpackage';
 
       return url;

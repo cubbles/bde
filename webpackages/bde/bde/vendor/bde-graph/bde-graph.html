@@ -1,0 +1,53 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="bde-graph-dark.html">
+<link rel="import" href="bde-graph-light.html">
+
+<dom-module id="bde-graph">
+    <template>
+        <style import="bde-graph-dark"></style>
+        <style import="bde-graph-light"></style>
+        <style>
+            @font-face {
+                /* we want the svg version */
+                font-family: 'FontAwesomeSVG';
+                src: url('../font-awesome/fonts/fontawesome-webfont.svg') format('svg'),
+                url('../font-awesome/fonts/fontawesome-webfont.eot') format('embedded-opentype'),
+                url('../font-awesome/fonts/fontawesome-webfont.woff') format('woff'),
+                url('../font-awesome/fonts/fontawesome-webfont.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            :host {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+
+        <div id="svgcontainer"></div>
+
+    </template>
+    <script src="../react/react.js" defer></script>
+    <script src="../react/react-dom.js" defer></script>
+    <script src="./lib/klay-cubbles.js" defer></script>
+    <script src="./lib/noflo-cubbles.js" defer></script>
+    <script src="./lib/the-graph.js" defer></script>
+    <script src="./lib/the-graph-app.js" defer></script>
+    <script src="./lib/the-graph-graph.js" defer></script>
+    <script src="./lib/the-graph-node.js" defer></script>
+    <script src="./lib/the-graph-node-menu.js" defer></script>
+    <script src="./lib/the-graph-node-menu-port.js" defer></script>
+    <script src="./lib/the-graph-node-menu-ports.js" defer></script>
+    <script src="./lib/the-graph-port.js" defer></script>
+    <script src="./lib/the-graph-edge.js" defer></script>
+    <script src="./lib/the-graph-iip.js" defer></script>
+    <script src="./lib/the-graph-group.js" defer></script>
+    <script src="./lib/the-graph-tooltip.js" defer></script>
+    <script src="./lib/the-graph-menu.js" defer></script>
+    <script src="./lib/the-graph-clipboard.js" defer></script>
+    <script src="./build/font-awesome-unicode-map.js" defer></script>
+    <script src="./lib/bde-data-converter.js"></script>
+    <script src="bde-graph.js"></script>
+
+</dom-module>

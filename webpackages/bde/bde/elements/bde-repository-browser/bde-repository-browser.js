@@ -1,5 +1,5 @@
 // @importedBy bde-repository-browser.html
-
+/* globals _ */
 'use strict';
 
 Polymer({
@@ -266,7 +266,7 @@ Polymer({
 
   /**
    * Observer for changes in the baseUrl.
-   * 
+   *
    * @param  {[String]} baseUrl [the given baseUrl]
    * @method baseUrlChanged
    */
