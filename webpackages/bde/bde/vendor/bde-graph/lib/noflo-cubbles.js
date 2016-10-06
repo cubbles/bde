@@ -679,6 +679,9 @@
     if (!metadata) {
       metadata = {};
     }
+    if (metadata.displayName){
+      metadata.label = metadata.displayName;
+    }
     node = {
       id: id,
       component: component,

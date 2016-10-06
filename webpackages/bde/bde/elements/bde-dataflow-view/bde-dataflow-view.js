@@ -15,6 +15,14 @@
         notify: true
       },
 
+      resolutions: {
+        type: Object,
+        notify: true,
+        value: function () {
+          return {};
+        }
+      },
+
       selectedMembers: {
         type: Array,
         notify: true,
@@ -71,12 +79,7 @@
         type: Number
       },
 
-      _resolutions: {
-        type: Object,
-        notify: true
-      },
-
-      _selectedNodes: {
+      _selectedMembers: {
         type: Array
       },
 
@@ -93,7 +96,7 @@
     observers: [
       'artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
       'membersChanged(_artifact.members.splices)',
-      'selectedNodesChanged(_selectedNodes.splices)',
+      'selectedMembersChanged(_selectedMembers.splices)',
       'selectedEdgesChanged(_selectedEdges.splices)',
       'showPropertyEditorChanged(showPropertyEditor)',
       '_artifactChanged(_artifact.*)'
@@ -133,12 +136,12 @@
       this.reload(manifest, artifactId, endpointId);
     },
 
-    handleAddNode: function (event) {
-      var node = event.detail;
-      // TODO (fdu): Get the cubble component from dependencies
-      //              and add the new member
-      console.log('handleAddNode', event.detail);
-    },
+    // handleAddNode: function (event) {
+    //   var node = event.detail;
+    //   // TODO (fdu): Get the cubble component from dependencies
+    //   //              and add the new member
+    //   console.log('handleAddNode', event.detail);
+    // },
 
     handleRemoveNode: function (event) {
       var node = event.detail;
@@ -281,7 +284,7 @@
       }
       if (!manifest || !artifactId || !endpointId) { return; }
 
-      this.set('_selectedNodes', []);
+      this.set('_selectedMembers', []);
       this.set('_selectedEdges', []);
       this.set('_lastSelectedNode', void (0));
       this.set('_lastSelectedEdge', void (0));
@@ -385,14 +388,14 @@
       }
     },
 
-    selectedNodesChanged: function (changeRecord) {
-      var members = this._selectedNodes.map(memberForNode, this);
+    selectedMembersChanged: function (changeRecord) {
+      var members = this._selectedMembers;
       // add selected member with polymer array api methods for register changes in selectedMembers
       this.splice('selectedMembers', 0);
       members.forEach(function (member) {
         // add artifact metadata to member
-        var artifactId = member.componentId.split('/')[ 1 ];
-        var metadata = this.resolutions[ artifactId ] || {};
+        var artifactId = member.componentId;
+        var metadata = this.resolutions[ artifactId ].artifact || {};
         member.metadata = metadata;
         this.push('selectedMembers', member);
       }.bind(this));
@@ -405,11 +408,11 @@
       // this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
       this.showPropertyEditor = (this.selectedMembers.length > 0);
 
-      function memberForNode (node) {
-        return this._artifact.members.find(function (member) {
-          return member.memberId === node.id;
-        });
-      }
+      // function memberForNode (_member) {
+      //   return this._artifact.members.find(function (member) {
+      //     return member.memberId === _member.memberId;
+      //   });
+      // }
     },
 
     showPropertyEditorChanged: function (showPropertyEditor) {
@@ -449,7 +452,7 @@
       var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
       promise.then((data) => {
         this.$.bdeGraph.registerComponent(data.component);
-        this.push('_artifact.members', member);
+        this.push('_artifact.members', data.member);
         this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
           member.componentId + '/' + cubble.metadata.endpointId
         );

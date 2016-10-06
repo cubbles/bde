@@ -61,7 +61,7 @@
         @apply(--shadow-elevation-3dp);
       }
 
-      #drawerPanel {
+      #graphPanel {
         --paper-drawer-panel-right-drawer-container: {
           background-color: var(--paper-grey-100);
           padding-left: 40px;
@@ -72,9 +72,6 @@
           @apply(--shadow-elevation-2dp);
         };
       }
-
-
-
 
     </style>
 
@@ -120,6 +117,7 @@
           connections="{{_artifact.connections}}"
           inits="{{_artifact.inits}}"
           members="{{_artifact.members}}"
+          selected-members="{{_selectedMembers}}"
           slots="{{_artifact.slots}}"
         ></bde-graph>
           <!--selected-nodes="{{_selectedNodes}}"-->
@@ -159,7 +157,7 @@
 
       <div id="propertiesPanel" drawer>
 
-        <bde-properties-editor id="propertyEditor"
+        <bde-properties-editor id="propertiesEditor"
           artifact="{{_artifact}}"
           selected-members="[[selectedMembers]]"
           connections="[[selectedConnections]]"
