@@ -2,6 +2,7 @@
   'use strict';
 
   var crcRoot = document.querySelector('#crcRoot');
+  // (erne-mt) TODO: needs update ???
   var rteWebpackage = 'cubx.core.rte@1.10.0-SNAPSHOT';
 
   // const DEBUG = false;
@@ -12,6 +13,11 @@
   //     }
   // };
 
+  /**
+   * Handles incoming message from the parent window.
+   *
+   * @param  {[Event]} event [Post message event from parent]
+   */
   function _handleMessage (event) {
     var data = event.data || {};
     if (!data || !data.message) {
@@ -31,15 +37,23 @@
     }
   };
 
+  /**
+   * Parses the manifest metadata and appends the new compoudn component as DOM element.
+   *
+   * @param  {[Object]} currentComponentMetadata [current component manifest metadata]
+   * @return {[type]}                          [description]
+   */
   function _handleCurrentComponentMetadata (currentComponentMetadata) {
     if (typeof currentComponentMetadata.manifest === 'string') {
       currentComponentMetadata.manifest = JSON.parse(currentComponentMetadata.manifest);
     }
+
     // Cannot handle resetting CIF container, yet
     if (window.cif) {
       document.location.reload();
       return;
     }
+
     var component = document.createElement(currentComponentMetadata.artifactId);
     crcRoot.appendChild(component);
 
@@ -67,6 +81,8 @@
         ]
       }
     };
+
+
     _injectScript(webComponentsUrl, function () {
       // console.log('Webcomponents injected...');
     });
@@ -81,6 +97,10 @@
     {'data-crcinit-loadcif': 'true', 'data-cubx-startevent': 'iframeReady'});
   };
 
+  /**
+   * Injects javascript of the component to the head of the iframe.
+   *
+   */
   function _injectScript (src, cb, additionalAttrs) {
     var head = document.querySelector('head');
     var script = document.createElement('script');
@@ -100,6 +120,10 @@
     head.appendChild(script);
   };
 
+  /**
+   * Post message to parent window.
+   *
+   */
   function _postMessage (incomingMessage, data) {
     var message = { message: incomingMessage };
 
