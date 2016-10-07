@@ -4,7 +4,27 @@
 <link rel="import" href="../../vendor/paper-toast/paper-toast.html">
 <link rel="import" href="../../vendor/paper-spinner/paper-spinner.html">
 
-<!-- -->
+<!--
+A BDE custom element, one of the three main views of the BDE application.
+
+It utilizes the cubbles RTE as a quasi preview of the combined cubbles components in an iframe.
+
+The settings attribute contains the current store data.
+
+The current-component-metadata attribute contains the specified manifest data of the current compound component.
+
+Example:
+
+      <bde-application-view id="applicationView"
+                            loaded="{{applicationViewLoaded}}"
+                            current-component-metadata="{{currentComponentMetadata}}"
+                            settings="{{settings}}">
+      </bde-application-view>
+
+@group BDE Custom Elements
+@element bde-application-view
+-->
+
 <dom-module id="bde-application-view">
 
     <style is="custom-style">

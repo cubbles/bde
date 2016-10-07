@@ -241,7 +241,7 @@ Polymer({
    * @param  {[Event]} event [Response of AJAX call.]
    * @method handleResponse
    */
-  // TODO (ene): use couchDB functionality for filtering certain document-attributes, like modelVersion...
+  // TODO (erne-mt): use couchDB functionality for filtering certain document-attributes, like modelVersion...
   handleResponse: function (event) {
     if (!Array.isArray(this.$.webblebase.lastResponse)) {
       this.set('cubbles', []);
