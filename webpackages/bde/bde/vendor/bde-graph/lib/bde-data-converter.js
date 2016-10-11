@@ -109,7 +109,7 @@
     }
 
     /**
-     * convert a member object to a data structurs for add to the graph.
+     * It resolve a member object to a data structure for adding a new member component to the graph.
      * <code><pre>
      *   {
      *      component: {
@@ -191,6 +191,9 @@
       var convertedMember = {
         memberId: member.memberId
       };
+      if (member.displayName) {
+        convertedMember.displayName = member.displayName;
+      }
       convertedMember.componentId = member.componentId.split('/')[ 1 ];
       return convertedMember;
     }

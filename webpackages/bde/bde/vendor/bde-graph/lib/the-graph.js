@@ -44,12 +44,13 @@
     showTooltip: function (event) {
       if ( !this.shouldShowTooltip() ) { return; }
 
-      var tooltipEvent = new CustomEvent('the-graph-tooltip', { 
+      // @jtrs: change the tooltip position -> correct with offset
+      var tooltipEvent = new CustomEvent('the-graph-tooltip', {
         detail: {
           tooltip: this.props.label,
-          x: event.clientX,
-          y: event.clientY
-        }, 
+          x: event.clientX - this.props.app.state.offsetX,
+          y: event.clientY - this.props.app.state.offsetY
+        },
         bubbles: true
       });
       ReactDOM.findDOMNode(this).dispatchEvent(tooltipEvent);
@@ -57,7 +58,7 @@
     hideTooltip: function (event) {
       if ( !this.shouldShowTooltip() ) { return; }
 
-      var tooltipEvent = new CustomEvent('the-graph-tooltip-hide', { 
+      var tooltipEvent = new CustomEvent('the-graph-tooltip-hide', {
         bubbles: true
       });
       if (this.isMounted()) {
@@ -258,7 +259,7 @@
     return radius * Math.sin(2*Math.PI * percent);
   };
   var makeArcPath = function (startPercent, endPercent, radius) {
-    return [ 
+    return [
       "M", angleToX(startPercent, radius), angleToY(startPercent, radius),
       "A", radius, radius, 0, 0, 0, angleToX(endPercent, radius), angleToY(endPercent, radius)
     ].join(" ");
@@ -408,7 +409,7 @@
 
     return React.DOM.svg.apply(React.DOM.svg, args);
   };
-  
+
   TheGraph.getOffset = function(domNode){
     var getElementOffset = function(element){
       var offset = { top: 0, left: 0},

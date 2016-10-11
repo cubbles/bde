@@ -31,6 +31,7 @@ BDE Graph has the following dependencies:
 	* [TheGraphTooltip](#thegraphtooltip)
 	* [noflo](#noflo)
 	* [Autolayouter](#autolayouter)
+	* [BdeDataConverter](#bdeDataConverter)
 * [License](#license)
 
 ## Installation
@@ -463,6 +464,86 @@ This module convertes cubble graphs to KGraphs for use with the [klayjs](https:/
 
 `cubblesToKieler(graph, portInfo, direction)` Convert the cubbles graph to a KGraph. PortInfo is a key-value-map of node-port information. Direction is a string `"RIGHT|DOWN"` selecting how the resulting graph will be layed out.
 
+### BdeDataConverter
+A class for convert cubbles manifest data for a data structure which can be used in the graph
+#### Methods
+
+`resolveArtifact(artifactId, manifest, baseUrl, resolutions)` Resolve an Artifact for display the artifactstructure in the graph. It returns an object with the following structure:
+
+      {
+         components: [
+           {
+             name: 'base-chart', // name_of_component
+             icon: 'cog', // icon for node cog for elementary and cogs for compound components
+             inports: [
+               {
+                 name: 'input', // name of the slot. this is the same as the slotId on slots array
+                 type: 'object' // type of the slot, all possible slottypes: number, boolean, string, object, array
+               }
+             ],
+             outports: [
+               {
+                 name: 'message', // name of the slot.
+                 type: 'string' // type of the slot, all possible slot types: number, boolean, string, object, array
+               }
+           }
+        ],
+        slots: [ // see schema-definition for manifest.webpacksge
+          {
+             slotId: 'input',
+             type: 'object',
+             directions: [ 'input', 'output'],
+             descripton: 'input data, with format',
+             value: {
+               a: 8
+             }
+          }
+        ],
+        members: [
+           {
+             memberId: 'firstMembet', // see schema-definition for manifest.webpacksge
+             componentId: 'my-artifact' // origin componentId is modified. Actuel is a artifactId
+           }
+        ],
+        connections: [
+           { // see schema-definition for manifest.webpacksge
+             ...
+           }
+        ],
+        inits: [
+           { // see schema-definition for manifest.webpacksge
+              ...
+           }
+        ],
+      }
+
+`resolveMember(member, manifest, baseUrl, resolutions)` It resolve a member object to a data structure for adding a new member component to the graph. The return value is the following object:
+  
+      {
+        component: {
+          name: 'base-chart', // name_of_component
+          icon: 'cog', // icon for node cog for elementary and cogs for compound components
+          inports: [
+            {
+              name: 'input', // name of the slot. this is the same as the slotId on slots array
+              type: 'object' // type of the slot, all possible slottypes: number, boolean, string, object, array
+            }
+          ],
+          outports: [
+            {
+              name: 'message', // name of the slot.
+              type: 'string' // type of the slot, all possible slot types: number, boolean, string, object, array
+            }
+        },
+        member: {
+          memberId: 'firstMembet', // see schema-definition for manifest.webpacksge
+          componentId: 'my-artifact' // origin componentId is modified. Actuel is a artifactId
+        }
+      }
 ## License
 
 [The MIT License](./LICENSE-MIT.txt)
+
+## Issue tracking
+
+Please report issues in the cubbles [JIRA](https://cubbles.atlassian.net) instance. 

@@ -28,6 +28,7 @@
     return array;
   }
 
+  // eslint-disable-next-line no-unused-vars
   var klayCubbles = context.klayCubbles = {
     /**
      * Initialize the layouter as a WebWorker
@@ -40,7 +41,7 @@
       var callback, workerScript;
 
       if ('onSuccess' in params) {
-        callback = params.onSuccess
+        callback = params.onSuccess;
       } else {
         callback = console.log.bind(console);
       }
@@ -175,7 +176,7 @@
       var inports = graph.inports;
       var inportsKeys = Object.keys(inports);
       var inportChildren = inportsKeys.map(function (key) {
-        var inport = inports[ key ];
+        // var inport = inports[ key ];
         var tempId = 'inport:::' + key;
         // Inports have just one output port
         var uniquePort = {
@@ -202,7 +203,7 @@
       var outports = graph.outports;
       var outportsKeys = Object.keys(outports);
       var outportChildren = outportsKeys.map(function (key) {
-        var outport = outports[ key ];
+        // var outport = outports[ key ];
         var tempId = 'outport:::' + key;
         // Outports have just one input port
         var uniquePort = {
@@ -322,7 +323,6 @@
 
           // Mark nodes inside the group to be removed from the graph
           kGraph.children[ idx[ n ] ] = null;
-
         });
         // Mark edges too
         node.edges.map(function (edge) {

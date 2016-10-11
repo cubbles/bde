@@ -1,6 +1,6 @@
 // @importedBy bde-app.html
 
-/*global XMLHttpRequest*/
+/* global XMLHttpRequest */
 
 (function () {
   'use strict';

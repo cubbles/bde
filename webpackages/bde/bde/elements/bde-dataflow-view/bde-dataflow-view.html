@@ -5,7 +5,7 @@
 <link rel="import" href="../../vendor/paper-fab/paper-fab.html">
 <script>
     window.KLAY_CONFIG = {
-        workerScript:   'vendor/klayjs/klay.js'
+        workerScript: 'vendor/klayjs/klay.js'
     }
 </script>
 
@@ -15,162 +15,162 @@
 <link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html">
 
 <dom-module id="bde-dataflow-view">
-  <template>
-    <style>
-      :host {
-        position: relative;
-        display: block;
-      }
+    <template>
+        <style>
+            :host {
+                position: relative;
+                display: block;
+            }
 
-      #graph {
-        @apply(--layout);
-        @apply(--layout-vertical);
+            #graph {
+                @apply(--layout);
+                @apply(--layout-vertical);
 
-        width: 100%;
-        height: 100%;
-      }
+                width: 100%;
+                height: 100%;
+            }
 
-      #toolbar {
-        position: absolute;
-        bottom: 1em;
-        width: 100%;
+            #toolbar {
+                position: absolute;
+                bottom: 1em;
+                width: 100%;
 
-        @apply(--layout-horizontal);
-      }
+                @apply(--layout-horizontal);
+            }
 
-      paper-fab {
-        margin: 0 1em;
-      }
+            paper-fab {
+                margin: 0 1em;
+            }
 
-      .tooltip {
-          font-family: 'Roboto', 'Noto', sans-serif;
-          font-size: 14px;
-      }
+            .tooltip {
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-size: 14px;
+            }
 
-      .flex {
-        @apply(--layout-flex);
-      }
+            .flex {
+                @apply(--layout-flex);
+            }
 
-      #addMemberButton {
-        transition: transform ease-in-out 0.3s;
-      }
+            #addMemberButton {
+                transition: transform ease-in-out 0.3s;
+            }
 
-      #addMemberButton.moveRight {
-        transform: translate3d(calc(28px + 1em),0,0);
+            #addMemberButton.moveRight {
+                transform: translate3d(calc(28px + 1em), 0, 0);
 
-        @apply(--shadow-elevation-3dp);
-      }
+                @apply(--shadow-elevation-3dp);
+            }
 
-      #graphPanel {
-        --paper-drawer-panel-right-drawer-container: {
-          background-color: var(--paper-grey-100);
-          padding-left: 40px;
-          padding-right: 20px;
-          overflow-y: auto;
-          z-index: 1;
+            #graphPanel {
+                --paper-drawer-panel-right-drawer-container: {
+                    background-color: var(--paper-grey-100);
+                    padding-left: 40px;
+                    padding-right: 20px;
+                    overflow-y: auto;
+                    z-index: 1;
 
-          @apply(--shadow-elevation-2dp);
-        };
-      }
+                    @apply(--shadow-elevation-2dp);
+                };
+            }
 
-    </style>
+        </style>
 
-    <!--<paper-dialog id="dialog" opened="{{dialogOpened}}" with-backdrop>-->
+        <!--<paper-dialog id="dialog" opened="{{dialogOpened}}" with-backdrop>-->
 
-      <!--<h2>Add member</h2>-->
+        <!--<h2>Add member</h2>-->
 
-      <!--<paper-dialog-scrollable>-->
+        <!--<paper-dialog-scrollable>-->
 
         <bde-base-browser id="browser"
-          on-iron-selected="_addMember"
-          settings="[[settings]]"
-          manifest="[[currentComponentMetadata.manifest]]"
-          current-component="[[_artifact]]"
+                          on-iron-selected="_addMember"
+                          settings="[[settings]]"
+                          manifest="[[currentComponentMetadata.manifest]]"
+                          current-component="[[_artifact]]"
         ></bde-base-browser>
 
-      <!--</paper-dialog-scrollable>-->
+        <!--</paper-dialog-scrollable>-->
 
-      <!--<div class="buttons">-->
+        <!--<div class="buttons">-->
         <!--<paper-button dialog-dismiss>Close</paper-button>-->
-      <!--</div>-->
+        <!--</div>-->
 
-    <!--</paper-dialog>-->
+        <!--</paper-dialog>-->
 
-    <paper-drawer-panel id="graphPanel"
-      drawer-width="400px"
-      right-drawer
-      force-narrow="[[!showPropertyEditor]]"
-      disable-swipe
-      disable-edge-swipe>
+        <paper-drawer-panel id="graphPanel"
+                            drawer-width="400px"
+                            right-drawer
+                            force-narrow="[[!showPropertyEditor]]"
+                            disable-swipe
+                            disable-edge-swipe>
 
-      <div id="mainPanel" main>
+            <div id="propertiesPanel" drawer>
 
-        <bde-graph id="bdeGraph"
-          graph="{{graph}}"
-          width="[[_graphWidth]]"
-          height="[[_graphHeight]]"
-          offset-x="[[_graphOffsetX]]"
-          offset-y="[[_graphOffsetY]]"
-          theme="light"
-          library="{{library}}"
-          artifact-id="{{currentComponentMetadata.artifactId}}"
-          connections="{{_artifact.connections}}"
-          inits="{{_artifact.inits}}"
-          members="{{_artifact.members}}"
-          selected-members="{{_selectedMembers}}"
-          slots="{{_artifact.slots}}"
-        ></bde-graph>
-          <!--selected-nodes="{{_selectedNodes}}"-->
-          <!--selected-edges="{{_selectedEdges}}"-->
-          <!--last-selected-node="{{_lastSelectedNode}}"-->
-          <!--last-selected-edge="{{_lastSelectedEdge}}"-->
+                <bde-properties-editor id="propertiesEditor"
+                                       artifact="{{_artifact}}"
+                                       selected-members="[[selectedMembers]]"
+                                       connections="[[selectedConnections]]"
+                                       resolutions="[[resolutions]]"
+                                       last-selected-member="[[lastSelectedMember]]"
+                                       last-selected-connection={{lastSelectedConnection}}
+                ></bde-properties-editor>
 
-        <div id="toolbar">
-          <paper-fab id="zoomToFit"
-            icon="icons:aspect-ratio"
-            on-tap="zoomToFit"
-          ></paper-fab>
-          <paper-tooltip for="zoomToFit" position="top">
-                <div class="tooltip">Zoom to fit</div>
-          </paper-tooltip>
-          <paper-fab id="triggerAutolayout"
-            icon="bde:magic-wand"
-            on-tap="triggerAutolayout"
-          ></paper-fab>
-          <paper-tooltip for="triggerAutolayout" position="top">
-                <div class="tooltip">Autolayout</div>
-          </paper-tooltip>
-          <div class="flex"></div>
+            </div>
 
-          <paper-fab id="addMemberButton"
-            class$="[[_addCubbleClass(showPropertyEditor)]]"
-            icon="icons:add"
-            on-tap="onAddMemberBtcClick">
-          </paper-fab>
-          <paper-tooltip for="addMemberButton" position="top">
-                <div class="tooltip">Add member</div>
-          </paper-tooltip>
-        </div>
+            <div id="mainPanel" main>
+
+                <!-- graph="{{graph}}"-->
+                <bde-graph id="bdeGraph"
+                           theme="light"
+                           library="{{library}}"
+                           artifact-id="{{currentComponentMetadata.artifactId}}"
+                           connections="{{_artifact.connections}}"
+                           inits="{{_artifact.inits}}"
+                           members="{{_artifact.members}}"
+                           selected-members="{{_selectedMembers}}"
+                           slots="{{_artifact.slots}}"
+                           width="[[_graphWidth]]"
+                           height="[[_graphHeight]]"
+                           offset-x="[[_graphOffsetX]]"
+                           offset-y="[[_graphOffsetY]]" {
+                ></bde-graph>
+                <!--selected-nodes="{{_selectedNodes}}"-->
+                <!--selected-edges="{{_selectedEdges}}"-->
+                <!--last-selected-node="{{_lastSelectedNode}}"-->
+                <!--last-selected-edge="{{_lastSelectedEdge}}"-->
+
+                <div id="toolbar">
+                    <paper-fab id="zoomToFit"
+                               icon="icons:aspect-ratio"
+                               on-tap="zoomToFit"
+                    ></paper-fab>
+                    <paper-tooltip for="zoomToFit" position="top">
+                        <div class="tooltip">Zoom to fit</div>
+                    </paper-tooltip>
+                    <paper-fab id="triggerAutolayout"
+                               icon="bde:magic-wand"
+                               on-tap="triggerAutolayout"
+                    ></paper-fab>
+                    <paper-tooltip for="triggerAutolayout" position="top">
+                        <div class="tooltip">Autolayout</div>
+                    </paper-tooltip>
+                    <div class="flex"></div>
+
+                    <paper-fab id="addMemberButton"
+                               class$="[[_addCubbleClass(showPropertyEditor)]]"
+                               icon="icons:add"
+                               on-tap="onAddMemberBtcClick">
+                    </paper-fab>
+                    <paper-tooltip for="addMemberButton" position="top">
+                        <div class="tooltip">Add member</div>
+                    </paper-tooltip>
+                </div>
 
 
-      </div>
+            </div>
 
-      <div id="propertiesPanel" drawer>
+        </paper-drawer-panel>
 
-        <bde-properties-editor id="propertiesEditor"
-          artifact="{{_artifact}}"
-          selected-members="[[selectedMembers]]"
-          connections="[[selectedConnections]]"
-          resolutions="[[resolutions]]"
-          last-selected-member="[[lastSelectedMember]]"
-          last-selected-connection={{lastSelectedConnection}}
-        ></bde-properties-editor>
-
-      </div>
-
-    </paper-drawer-panel>
-
-</template>
+    </template>
 </dom-module>
 
 <!-- Fetch API polyfill -->

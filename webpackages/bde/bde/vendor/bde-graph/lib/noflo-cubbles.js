@@ -11,7 +11,7 @@
   EventEmitter.prototype._maxListeners = undefined;
 
   // By default EventEmitters will print a warning if more than 10 listeners are
-  // added to it. This is a useful default which helps finding memory leaks.
+  // added to it. This is a useful default which helps finding memory leaks.thisnodes
   EventEmitter.defaultMaxListeners = 10;
 
   // Obviously not all Emitters should be limited to 10. This function allows
@@ -679,7 +679,7 @@
     if (!metadata) {
       metadata = {};
     }
-    if (metadata.displayName){
+    if (metadata.displayName) {
       metadata.label = metadata.displayName;
     }
     node = {
