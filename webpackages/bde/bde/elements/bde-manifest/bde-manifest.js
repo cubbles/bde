@@ -194,6 +194,9 @@ Polymer({
           if (member.metadata) {
             delete member.metadata;
           }
+          if (member.artifactId){
+            delete member.artifactId;
+          }
         });
       }
     });

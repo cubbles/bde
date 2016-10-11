@@ -194,7 +194,8 @@
       if (member.displayName) {
         convertedMember.displayName = member.displayName;
       }
-      convertedMember.componentId = member.componentId.split('/')[ 1 ];
+      convertedMember.componentId = member.componentId;
+      convertedMember.artifactId = member.componentId.split('/')[ 1 ];
       return convertedMember;
     }
 

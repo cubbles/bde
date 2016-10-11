@@ -828,10 +828,9 @@
             this._addMemberToGraph(changeRecord.value[ i ]);
           }
         }
-        // @todo: (fdu) Do we need to do something here?
       } else {
         // Member was modified
-        path = changeRecord.path.replace(/members\.#\d+(\.\S+)/, ''); // Strip everything after the index
+        path = changeRecord.path.replace(/(members\.#\d+)(\.\S+)/, '$1'); // Strip everything after the index
         member = this.get(path); // Get the referred member
         this._graph.setNodeMetadata(member.memberId, {
           label: member.displayName || member.memberId,
@@ -1110,9 +1109,9 @@
         x: member.x || coordinates.x,
         y: member.y || coordinates.y
       };
-      this._graph.addNode(member.memberId, member.componentId, metadata);
-      if (!this.library[ member.componentId ]) {
-        console.warn('Component', member.componentId, 'is not defined for the graph');
+      this._graph.addNode(member.memberId, member.artifactId, metadata);
+      if (!this.library[ member.artifactId ]) {
+        console.warn('Component', member.artifactId, 'is not defined for the graph');
       }
     },
 
@@ -1182,32 +1181,6 @@
      * @private
      */
     _calculateCoordiantes: function () {
-      // var minX = this.clientLeft + this.clientWidth;
-      // var minY = this.clientTop + this.clientHeight;
-      // this._graph.nodes.forEach((node) => {
-      //   minX = Math.min(minX, node.metadata.x);
-      //   minY = Math.min(minY, node.metadata.y);
-      // });
-      // Object.keys(this._graph.inports).forEach((inport) => {
-      //   if (this._graph.inports.hasOwnProperty(inport) && inport.metadata && inport.metadata.x && inport.metadata.y) {
-      //     minX = Math.min(minX, inport.metadata.x);
-      //     minY = Math.min(minY, inport.metadata.y);
-      //   }
-      // });
-      // Object.keys(this._graph.outports).forEach((outport) => {
-      //   if (this._graph.outports.hasOwnProperty(outport) && outport.metadata && outport.metadata.x && outport.metadata.y) {
-      //     minX = Math.min(minX, outport.metadata.x);
-      //     minY = Math.min(minY, outport.metadata.y);
-      //   }
-      // });
-      // var x = minX - this.grid;
-      // var y = minY - this.grid;
-      // if (x < 0) {
-      //   x = this._getRandomInt(0, this.grid);
-      // }
-      // if (y < 0) {
-      //   y = this._getRandomInt(0, this.grid);
-      // }
       var x = this._getRandomInt(0, this.grid);
       var y = this._getRandomInt(0, this.grid);
       var coord = {

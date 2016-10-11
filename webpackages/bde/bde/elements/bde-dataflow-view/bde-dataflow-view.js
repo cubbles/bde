@@ -394,7 +394,7 @@
       this.splice('selectedMembers', 0);
       members.forEach(function (member) {
         // add artifact metadata to member
-        var artifactId = member.componentId;
+        var artifactId = member.componentId.split('/')[1];
         var metadata = this.resolutions[ artifactId ].artifact || {};
         member.metadata = metadata;
         this.push('selectedMembers', member);
@@ -478,7 +478,7 @@
       path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + path);
 
       this.set(path, changeRecord.value);
-      this._updateGraph(changeRecord);
+      // this._updateGraph(changeRecord);
     },
 
     // _findInManifest: function (manifest, artifactId) {
@@ -618,32 +618,32 @@
     //   }.bind(this));
     // },
 
-    _updateGraph: function (changeRecord) {
-      if (changeRecord.path.indexOf('members') > 0 && changeRecord.path.endsWith('displayName')) {
-        // update graph for displayName
-        this._updateMemberDisplayName(changeRecord);
-      }
-      if (changeRecord.path.indexOf('init') > 0) {
-        this._updateInits(changeRecord);
-      }
-    },
+    // _updateGraph: function (changeRecord) {
+    //   if (changeRecord.path.indexOf('members') > 0 && changeRecord.path.endsWith('displayName')) {
+    //     // update graph for displayName
+    //  //  this._updateMemberDisplayName(changeRecord);
+    //   }
+    //   if (changeRecord.path.indexOf('init') > 0) {
+    //     this._updateInits(changeRecord);
+    //   }
+    // },
 
-    _updateInits: function (changeRecord) {
-      // new init
-      // path: "_artifact.inits.length"
-      // change init
-      // path: "_artifact.inits.#0.value"
-    },
-
-    _updateMemberDisplayName: function (changeRecord) {
-      var memberPath = changeRecord.path.substring(0, changeRecord.path.indexOf('.displayName'));
-      var member = this.get(memberPath);
-      var currentNode = this.$.bdeGraph.selectedNodes.find(function (node) {
-        return node.id === member.memberId;
-      });
-      currentNode.metadata.label = changeRecord.value;
-      this.$.bdeGraph.rerender();
-    },
+    // _updateInits: function (changeRecord) {
+    //   // new init
+    //   // path: "_artifact.inits.length"
+    //   // change init
+    //   // path: "_artifact.inits.#0.value"
+    // },
+    //
+    // _updateMemberDisplayName: function (changeRecord) {
+    //   var memberPath = changeRecord.path.substring(0, changeRecord.path.indexOf('.displayName'));
+    //   var member = this.get(memberPath);
+    //   var currentNode = this.$.bdeGraph.selectedMembers.find(function (node) {
+    //     return node.id === member.memberId;
+    //   });
+    //   currentNode.metadata.label = changeRecord.value;
+    //   this.$.bdeGraph.rerender();
+    // },
 
     _baseUrl: function () {
       return this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
