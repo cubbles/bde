@@ -102,7 +102,6 @@
     ],
 
     listeners: {
-      'library-update-required': 'onLibraryUpdate',
       'the-graph-add-node': 'handleAddNode',
       'the-graph-remove-node': 'handleRemoveNode',
       'the-graph-add-inport': 'handleAddInport',
@@ -254,11 +253,6 @@
       this._graphOffsetY = offsetY;
     },
 
-    onLibraryUpdate: function (event) {
-      var component = event.detail.item;
-      this.$.bdeGraph.registerComponent(component, false);
-      this.fire('bde-member-loaded');
-    },
     reload: function (manifest, artifactId, endpointId) {
       if (arguments.length === 0 && this.currentComponentMetadata) {
         manifest = this.currentComponentMetadata.manifest;
@@ -297,60 +291,6 @@
         this.set('_artifact', _artifact);
         requestAnimationFrame(() => bdeGraph.triggerAutolayout());
       });
-      // Go through all dependencies and resolve,
-      // either from the same webpackage or by requesting the base
-      // Promise.all(endpoint.dependencies.map(this._resolveDependency.bind(this)))
-      //   .then(function (resolutions) {
-      //     // We need to create a library for the graph
-      //     // and a library for the property-editor here.
-      //     var newLibrary = {};
-      //     var newResolutions = {};
-      //
-      //     resolutions.forEach(function (resolution) {
-      //       newResolutions[ resolution.artifact.artifactId ] = resolution.artifact;
-      //     });
-      //
-      //     resolutions.map(artifactToComponent)
-      //       .forEach(function (resolution) {
-      //         var componentId = resolution.componentId.replace(/\/[^\/]*$/, '');
-      //         newLibrary[ componentId ] = resolution.artifact.definition;
-      //       });
-      //
-      //     // We are done, load the graph
-      //     self.set('library', newLibrary);
-      //     self.set('resolutions', newResolutions);
-      //     self.set('graph', self._graphFromArtifact(artifact));
-      //     self.triggerAutolayout();
-      //   });
-      //
-      // function artifactToComponent (resolution) {
-      //   var artifact = resolution.artifact;
-      //   return {
-      //     artifact: {
-      //       artifactId: artifact.artifactId,
-      //       definition: {
-      //         name: artifact.displayName || artifact.artifactId,
-      //         description: artifact.description,
-      //         icon: 'cog',
-      //         inports: artifact.slots ? artifact.slots.filter(filterInslots).map(transformSlot) : [],
-      //         outports: artifact.slots ? artifact.slots.filter(filterOutslots).map(transformSlot) : []
-      //       }
-      //     },
-      //     componentId: resolution.componentId
-      //   };
-      // }
-      //
-      // function filterInslots (slot) {
-      //   return (slot.direction.indexOf('input') !== -1);
-      // }
-      //
-      // function filterOutslots (slot) {
-      //   return (slot.direction.indexOf('output') !== -1);
-      // }
-      //
-      // function transformSlot (slot) {
-      //   return { name: slot.slotId, type: slot.type };
-      // }
     },
     selectedEdgesChanged: function (changeRecord) {
       var connections = this._selectedEdges.map(connectionForEdge.bind(this));
@@ -439,13 +379,9 @@
         this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
           member.componentId + '/' + cubble.metadata.endpointId
         );
+        // End of loading animation - animation started with this.fire('bde-member-loading');
+        this.fire('bde-member-loaded');
       });
-      // Resolve and add to resolutions
-      // this._resolveDependency(member.componentId)
-      //   .then(function (resolution) {
-      //     this.resolutions[ resolution.artifact.artifactId ] = resolution.artifact;
-      //     this.notifyPath('resolutions', this.resolutions);
-      //   }.bind(this));
     },
 
     _addCubbleClass: function (showPropertyEditor) {
@@ -463,20 +399,6 @@
       this.set(path, changeRecord.value);
       // this._updateGraph(changeRecord);
     },
-
-    // _findInManifest: function (manifest, artifactId) {
-    //   // We don't care about webpackageId here
-    //   artifactId = artifactId.split('/')[ 1 ];
-    //
-    //   var artifacts = [];
-    //   Object.keys(manifest.artifacts).forEach(function (artifactType) {
-    //     artifacts = artifacts.concat(manifest.artifacts[ artifactType ]);
-    //   });
-    //
-    //   return artifacts.find(function (artifact) {
-    //     return artifact.artifactId === artifactId;
-    //   });
-    // },
 
     _graphFromArtifact: function (artifact) {
       if (!artifact) { return; }

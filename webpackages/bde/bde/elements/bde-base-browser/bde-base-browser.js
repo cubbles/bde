@@ -187,75 +187,16 @@ Polymer({
    * @method addMember
    */
   addMember: function (artifact, endpointId) {
+    // start of loading animation, must be ended with this.fire('bde-member-loaded');
     this.fire('bde-member-loading');
     this.filterList(this.$.search.value);
-    var webpackageId;
-    if (artifact.webpackageId === 'this') {
-      webpackageId = 'this';
-    } else {
-      webpackageId = artifact.webpackageId;
-    }
-
-    var component = {
-      name: webpackageId + '/' + artifact.artifactId,
-      icon: 'cog',
-      description: artifact.description || '',
-      inports: [],
-      outports: []
-    };
-
-    component.inports = artifact.slots
-      .filter(function (slot) {
-        return slot.direction.indexOf('input') !== -1;
-      })
-      .map(function (slot) {
-        return {
-          name: slot.slotId,
-          type: slot.type
-        };
-      });
-
-    component.outports = artifact.slots
-      .filter(function (slot) {
-        return slot.direction.indexOf('output') !== -1;
-      })
-      .map(function (slot) {
-        return {
-          name: slot.slotId,
-          type: slot.type
-        };
-      });
-
-    /**
-     * Determine the 'is' property for the members array
-     *
-     * This should probably be deprecated and the artifactType be used
-     * allover the app.
-     *
-     * @var {String} app|elementary|compound|utility
-     */
-    var is = (function (artifact) {
-      if (artifact.artifactType === 'app') { return 'app'; }
-      if (artifact.artifactType === 'elementaryComponent') { return 'elementary'; }
-      if (artifact.artifactType === 'compoundComponent') { return 'compound'; }
-      if (artifact.artifactType === 'utility') { return 'utility'; }
-      throw new Error("Unknown artifactType '" + artifact.artifactType + "'");
-    })(artifact);
-
     /**
      * Setting the cubble metadata.
      * @type {Object}
      */
     var cubble = {
-      artifactId: artifact.artifactId,
-      componentId: webpackageId + '/' + artifact.artifactId,
       memberId: artifact.artifactId + '-' + Math.random().toString(36).substring(7),
       displayName: this._generateDisplayName(artifact.artifactId),
-      is: is,
-      description: artifact.description,
-      endpoints: artifact.endpoints,
-      runnables: artifact.runnables,
-      slots: artifact.slots,
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId,
@@ -263,7 +204,6 @@ Polymer({
       }
     };
 
-    this.fire('library-update-required', { item: component });
     this.fire('iron-selected', { item: cubble });
   },
 

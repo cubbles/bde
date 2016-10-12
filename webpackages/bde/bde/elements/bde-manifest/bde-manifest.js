@@ -141,9 +141,9 @@ Polymer({
 
   },
 
-  listeners: {
-    'library-update-required': 'onLibraryUpdate'
-  },
+  // listeners: {
+  //   'library-update-required': 'onLibraryUpdate'
+  // },
 
   attached: function () {
     document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[ 0 ]);
