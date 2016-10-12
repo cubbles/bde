@@ -897,9 +897,7 @@
      * @param {Object} changeRecord the polymer chamgeRecord object
      */
     initsChanged: function (changeRecord) {
-      var i, index, init, metadata, path;
       if (!changeRecord) { return; }
-
       // Inits were added or removed
       if (changeRecord.path === 'inits.splices') {
         changeRecord.value.indexSplices.forEach(function (s) {
@@ -909,10 +907,10 @@
           });
 
           // Inits were added
-          for (i = 0; i < s.addedCount; i++) {
-            index = s.index + i;
+          for (let i = 0; i < s.addedCount; i++) {
+            let index = s.index + i;
             init = s.object[ index ];
-            metadata = {
+            let metadata = {
               description: init.description
             };
             this._graph.addInitial(init.value, init.memberIdRef, init.slot, metadata);
@@ -920,14 +918,24 @@
         }, this);
       } else if (changeRecord.path === 'inits' || changeRecord.path === 'inits.length') {
         // Inits were set
-
-        // @todo: (fdu) Do we need to do something here?
+        if (changeRecord.value instanceof Array && changeRecord.value.length > 0) {
+          this._graph.initializers = [];
+          for (let i = 0; i < changeRecord.value.length; i++) {
+            var init = changeRecord.value[ i ];
+            let metadata = {
+              description: init.description
+            };
+            this._graph.addInitial(init.value, init.memberIdRef, init.slot, metadata);
+          }
+        }
       } else {
         // Init was changed
-        path = changeRecord.replace(/inits\.#\d+(\.\S+)/, ''); // Strip everything after the index
+        let path = changeRecord.path.replace(/(inits\.#\d+)(\.\S+)/, '$1'); // Strip everything after the index
         init = this.get(path); // Get the referred init
-        // @todo: (fdu) Make it so
-        console.warn('Init changes are not implemented, yet!', path, 'changed to', init);
+        let metadata = {
+          description: init.description
+        };
+        this._graph.updateInitial(init.value, init.memberIdRef, init.slot, metadata);
       }
     },
 

@@ -29,7 +29,7 @@ BDE Graph has the following dependencies:
 	* [TheGraphNode](#thegraphnode)
 	* [TheGraphPort](#thegraphport)
 	* [TheGraphTooltip](#thegraphtooltip)
-	* [noflo](#noflo)
+	* [noflo-cubbles](#noflocubbles)
 	* [Autolayouter](#autolayouter)
 	* [BdeDataConverter](#bdeDataConverter)
 * [License](#license)

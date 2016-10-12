@@ -372,7 +372,8 @@
     if (!this.transaction.id) {
       return this.startTransaction('implicit');
     } else if (this.transaction.id === 'implicit') {
-      return this.transaction.depth += 1;
+      this.transaction.depth += 1;
+      return this.transaction.depth;
     }
   };
 
@@ -1035,10 +1036,21 @@
     return this.checkTransactionEnd();
   };
 
+  /**
+   * Add entry to initializer list.
+   * @param {object|String|Boolean|Number} data
+   * @param {string} node id of the node, wich ports initializations added
+   * @param {string} port this ports initializations added
+   * @param {object} metadata initalization metadata
+   * @returns {Array} initailisation list
+   */
   Graph.prototype.addInitial = function (data, node, port, metadata) {
     var initializer;
     if (!this.getNode(node)) {
       return;
+    }
+    if (data && typeof data !== 'string') {
+      data = JSON.stringify(data);
     }
     port = this.getPortName(port);
     this.checkTransactionStart();
@@ -1056,6 +1068,19 @@
     this.emit('addInitial', initializer);
     this.checkTransactionEnd();
     return initializer;
+  };
+
+  /**
+   * Updated initializer list
+   * @param {object|String|Boolean|Number} data
+   * @param {string} node id of the node, wich ports initializations added
+   * @param {string} port this ports initializations added
+   * @param {object} metadata initalization metadata
+   * @returns {Array} initailisation list
+   */
+  Graph.prototype.updateInitial = function (data, node, port, metadata) {
+    this.removeInitial(node, port);
+    this.addInitial(data, node, port, metadata);
   };
 
   Graph.prototype.addInitialIndex = function (data, node, port, index, metadata) {
