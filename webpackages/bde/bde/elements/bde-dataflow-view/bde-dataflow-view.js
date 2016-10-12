@@ -95,7 +95,6 @@
 
     observers: [
       'artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
-      'membersChanged(_artifact.members.splices)',
       'selectedMembersChanged(_selectedMembers.splices)',
       'selectedEdgesChanged(_selectedEdges.splices)',
       'showPropertyEditorChanged(showPropertyEditor)',
@@ -253,22 +252,6 @@
       this._graphHeight = height;
       this._graphOffsetX = offsetX;
       this._graphOffsetY = offsetY;
-    },
-
-    membersChanged: function (changeRecord) {
-      if (!changeRecord) { return; }
-      console.log('members changed', changeRecord);
-      // changeRecord.indexSplices.forEach(function (s) {
-      //   s.removed.forEach(function (member) {
-      //     this.$.bdeGraph.removeMember(member);
-      //   }, this);
-      //
-      //   for (var i = 0; i < s.addedCount; i++) {
-      //     // Resolve the newly added member here and add
-      //     // definition to resolutions
-      //     this.$.bdeGraph.addMember(s.object[ s.index + i ]);
-      //   }
-      // }, this);
     },
 
     onLibraryUpdate: function (event) {
@@ -599,51 +582,6 @@
 
       return graph;
     },
-
-    // _resolveDependency: function (dependency) {
-    //   return new Promise(function (resolve, reject) {
-    //     if (dependency.startsWith('this')) {
-    //       // Resolve local dependency
-    //       var artifact = this._findInManifest(this.currentComponentMetadata.manifest, dependency);
-    //       resolve({ artifact: artifact, componentId: dependency });
-    //     } else {
-    //       // Resolve remote dependency
-    //       context.fetch(this._urlFor(dependency))
-    //         .then(function (response) { return response.json(); })
-    //         .then(function (manifest) {
-    //           var artifact = this._findInManifest(manifest, dependency);
-    //           resolve({ artifact: artifact, componentId: dependency });
-    //         }.bind(this));
-    //     }
-    //   }.bind(this));
-    // },
-
-    // _updateGraph: function (changeRecord) {
-    //   if (changeRecord.path.indexOf('members') > 0 && changeRecord.path.endsWith('displayName')) {
-    //     // update graph for displayName
-    //  //  this._updateMemberDisplayName(changeRecord);
-    //   }
-    //   if (changeRecord.path.indexOf('init') > 0) {
-    //     this._updateInits(changeRecord);
-    //   }
-    // },
-
-    // _updateInits: function (changeRecord) {
-    //   // new init
-    //   // path: "_artifact.inits.length"
-    //   // change init
-    //   // path: "_artifact.inits.#0.value"
-    // },
-    //
-    // _updateMemberDisplayName: function (changeRecord) {
-    //   var memberPath = changeRecord.path.substring(0, changeRecord.path.indexOf('.displayName'));
-    //   var member = this.get(memberPath);
-    //   var currentNode = this.$.bdeGraph.selectedMembers.find(function (node) {
-    //     return node.id === member.memberId;
-    //   });
-    //   currentNode.metadata.label = changeRecord.value;
-    //   this.$.bdeGraph.rerender();
-    // },
 
     _baseUrl: function () {
       return this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
