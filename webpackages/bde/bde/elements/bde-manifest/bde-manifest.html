@@ -1,5 +1,33 @@
 <link rel="import" href="../../vendor/polymer/polymer.html">
 
+<!--
+A BDE custom element, represents teh data layer for the manifest metadata as specified by the Cubbles project.
+
+In the BDE application this element is used to bind the global app state to the metadata.
+
+Example:
+
+      <bde-manifest id="manifest"
+                    name="{{manifest.name}}"
+                    group-id="{{manifest.groupId}}"
+                    version="{{manifest.version}}"
+                    model-version="{{manifest.modelVersion}}"
+                    doc-type="{{manifest.docType}}"
+                    description="{{manifest.description}}"
+                    author="{{manifest.author}}"
+                    contributers="{{manifest.contributers}}"
+                    license="{{manifest.license}}"
+                    homepage="{{manifest.homepage}}"
+                    keywords="{{manifest.keywords}}"
+                    man="{{manifest.man}}"
+                    runnables="{{manifest.runnables}}"
+                    artifacts="{{manifest.artifacts}}">
+      </bde-manifest>
+
+@group BDE Custom Elements
+@element bde-manifest
+-->
+
 <dom-module id="bde-manifest">
     <template></template>
 </dom-module>
