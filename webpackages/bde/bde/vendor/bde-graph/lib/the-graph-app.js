@@ -195,7 +195,7 @@
       // Hammer.js
       this.pinching = false;
     },
-    onTrack: function(event) {     
+    onTrack: function(event) {
       if (event.detail.state === 'track') {
         if (this.pinching) { return; }
         this.setState({
@@ -478,7 +478,7 @@
             menu: menu,
             options: options,
             triggerHideContext: hide,
-            label: "Hello",
+            label: "", // jtrs: changed label
             graph: this.props.graph,
             node: this,
             ports: [],

@@ -262,27 +262,29 @@
     },
 
     observers: [
-      'slotsChanged(slots.*)',
-      'membersChanged(members.*)',
-      'connectionsChanged(connections.*)',
-      'initsChanged(inits.*)',
-      'panChanged(pan)',
-      'themeChanged(theme)',
-      'dimensionsChanged(width, height)',
-      'autolayoutChanged(autolayout)',
-      'displaySelectionGroupChanged(displaySelectionGroup)',
-      'forceSelectionChanged(forceSelection)',
-      'selectedMembersChanged(selectedMembers.splices)',
-      '_selectedEdgesChanged(_selectedEdges.splices)'
+      '_autolayoutChanged(autolayout)',
+      '_connectionsChanged(connections.*)',
+      '_dimensionsChanged(width, height)',
+      '_displaySelectionGroupChanged(displaySelectionGroup)',
+      '_forceSelectionChanged(forceSelection)',
+      '_initsChanged(inits.*)',
+      '_membersChanged(members.*)',
+      '_panChanged(pan)',
+      '_selectedEdgesChanged(_selectedEdges.splices)',
+      '_selectedMembersChanged(selectedMembers.*)',
+      '_slotsChanged(slots.*)',
+      '_themeChanged(theme)'
     ],
 
     listeners: {
-      'svgcontainer.track': 'noop',
-      'svgcontainer.tap': 'noop',
-      'svgcontainer.up': 'noop',
-      'svgcontainer.down': 'noop'
+      'svgcontainer.track': '_noop',
+      'svgcontainer.tap': '_noop',
+      'svgcontainer.up': '_noop',
+      'svgcontainer.down': '_noop'
     },
-
+    /* ***************************************************/
+    /* **************** Lifecycle Methods ****************/
+    /* ***************************************************/
     created: function () {
       // Initialize the autolayouter
       this._autolayouter = klayCubbles.init({
@@ -291,30 +293,170 @@
       });
 
       // Attach context menus
-      this.defineMenus();
+      this._defineMenus();
     },
 
     attached: function () {
       window.addEventListener('resize', this.onResize.bind(this));
       this.onResize();
     },
+    /* ***************************************************/
+    /* **************** Public Methods *******************/
+    /* ***************************************************/
+    /**
+     * This is called by the graph, when a context menu is shown.
+     */
+    getMenuDef: function (options) {
+      var defaultMenu;
 
-    onResize: function (event) {
-      this.width = this.parentElement.offsetWidth;
-      this.height = this.parentElement.offsetHeight;
+      // Options: type, graph, itemKey, item
+      if (options.type && this.menus[ options.type ]) {
+        defaultMenu = this.menus[ options.type ];
+        if (defaultMenu.callback) {
+          return defaultMenu.callback(defaultMenu, options);
+        }
+        return defaultMenu;
+      }
     },
 
-    noop: function (event) {
-      // Don't propagate events beyond the graph
-      event.stopPropagation();
+    /**
+     * Build or rebuild the graph.
+     */
+    rebuildGraph: function () {
+      if (!this._graph) { return; }
+
+      if (this._graph.removeListener) {
+        this._graph.removeListener('endTransaction', this.onGraphChanged.bind(this));
+      }
+
+      this._graph = window.createGraph(this.artifactId, { caseSensitive: true });
+
+      // Listen for graph changes
+      this._graph.on('endTransaction', this.onGraphChanged.bind(this));
+      this._graph.on('addEdge', this.onAddEdge.bind(this));
+      this._graph.on('addNode', this.onAddNode.bind(this));
+      this._graph.on('removeEdge', this.onRemoveEdge.bind(this));
+      this._graph.on('addInport', this.onAddInport.bind(this));
+      this._graph.on('removeInport', this.onRemoveInport.bind(this));
+      this._graph.on('addOutport', this.onAddOutport.bind(this));
+      this._graph.on('removeOutport', this.onRemoveOutport.bind(this));
+      this._graph.on('addInitial', this.onAddInitial.bind(this));
+      this._graph.on('removeInitial', this.onRemoveInitial.bind(this));
+
+      if (this._appView) {
+        // Remove previous instance
+        ReactDOM.unmountComponentAtNode(this.$.svgcontainer);
+        this._appView = null;
+      }
+
+      // Setup app
+      this.$.svgcontainer.innerHTML = '';
+      this._appView = ReactDOM.render(window.TheGraph.App({
+        graph: this._graph,
+        width: this.width,
+        height: this.height,
+        minZoom: this.minZoom,
+        maxZoom: this.maxZoom,
+        library: this.library,
+        menus: this.menus,
+        getMenuDef: this.getMenuDef,
+        displaySelectionGroup: this.displaySelectionGroup,
+        editable: this.editable,
+        forceSelection: this.forceSelection,
+        onEdgeSelection: this.onEdgeSelection.bind(this),
+        onNodeSelection: this.onNodeSelection.bind(this),
+        onPanScale: this.onPanScale.bind(this),
+        offsetY: this.offsetY,
+        offsetX: this.offsetX
+      }), this.$.svgcontainer);
+      this._graphView = this._appView.refs.graph;
     },
 
-    onGraphChanged: function (transaction, metadata) {
-      console.log('onGraphChanged', ...arguments);
+    /**
+     * This will register a component with the graph
+     * and force a _rerender
+     * @param {object}definition an object with node definition
+     * <code><pre>
+     *   {
+     *    "name": "my-component", // artifactId
+     *    "icon": "cogs", // icon for component
+     *    "inports": [
+     *      { // input slot as inport
+     *        "name": "firstInputSlot",
+     *        "type": "boolean"
+     *      }, {
+     *        "name": "secondInputSlot",
+     *        "type": "string"
+     *      },
+     *    ],
+     *    "outports": [
+     *      { // outputslot as outport
+     *        "name": "firstOutputSlot",
+     *        "type": "object"
+     *      },
+     *      {
+     *        "name": "secondOutputSlot",
+     *        "type": "string"
+     *      }
+     *    ]
+     *  },
+     * </pre><code>
+     */
+    registerComponent: function (definition) {
+      var component = this.library[ definition.name ];
+      if (component) {
+        // Don't override real definition with dummy
+        return;
+      }
+      this.library[ definition.name ] = definition;
+      this.notifyPath('library', this.library);
+
+      // Render changes
+      this._debounceLibraryRefresh();
     },
+
+    /**
+     * Trigger to run the autolayout.
+     */
+    triggerAutolayout: function () {
+      var portInfo = this._graphView ? this._graphView.portInfo : null;
+
+      // Call the autolayouter
+      this._autolayouter.layout({
+        'graph': this._graph,
+        'portInfo': portInfo,
+        'direction': 'RIGHT',
+        'options': {
+          'intCoordinates': true,
+          'algorithm': 'de.cau.cs.kieler.klay.layered',
+          'layoutHierarchy': true,
+          'spacing': 36,
+          'borderSpacing': 20,
+          'edgeSpacingFactor': 0.2,
+          'inLayerSpacingFactor': 2,
+          'nodePlace': 'BRANDES_KOEPF',
+          'nodeLayering': 'NETWORK_SIMPLEX',
+          'edgeRouting': 'POLYLINE',
+          'crossMin': 'LAYER_SWEEP',
+          'direction': 'RIGHT'
+        }
+      });
+    },
+
+    /**
+     * Trigger to run the fit to optimal zoomlevel
+     */
+    triggerFit: function () {
+      if (!this._appView) { return; }
+      this._appView.triggerFit();
+    },
+
+    /* ***************************************************/
+    /* **************** Graph Handler Methods ******************/
+    /* ***************************************************/
 
     onAddEdge: function (edge) {
-      var connection = this.getConnectionForEdge(edge);
+      var connection = this._getConnectionForEdge(edge);
       if (!connection) {
         this.push('connections', {
           connectionId: Math.random().toString(36).substring(2, 7),
@@ -330,16 +472,10 @@
       }
     },
 
-    onRemoveEdge: function (edge) {
-      var connection = this.getConnectionForEdge(edge);
-      var idx = this.connections.indexOf(connection);
-      if (idx !== -1) {
-        this.splice('connections', idx, 1);
-      }
-    },
+    onAddInitial: function (initializer) {},
 
     onAddInport: function (publicPort, port) {
-      var slot = this.getSlotForPort(publicPort);
+      var slot = this._getSlotForPort(publicPort);
       if (!slot) {
         this.push('slots', {
           slotId: publicPort,
@@ -350,21 +486,19 @@
       }
     },
 
-    onRemoveInport: function (key, port) {
-      var slot = this.getSlotForPort(key);
-      var idx = this.slots.indexOf(slot);
-      if (!slot) { return; }
-
-      this.splice('slots', idx, 1);
-
-      if (slot.direction.length > 1) {
-        slot.direction = [ 'output' ];
-        this.push('slots', slot);
+    onAddNode: function (node) {
+      var member = this._getMemberForNode(node);
+      if (!member) {
+        this.push('members', {
+          memberId: node.id,
+          artifactId: node.artifactId,
+          componentId: node.metadata.componentId
+        });
       }
     },
 
     onAddOutport: function (publicPort, port) {
-      var slot = this.getSlotForPort(publicPort);
+      var slot = this._getSlotForPort(publicPort);
       if (slot) {
         if (slot.direction.indexOf('output') === -1) {
           this.splice('slots', this.slots.indexOf(slot), 1);
@@ -381,8 +515,48 @@
       }
     },
 
+    onGraphChanged: function (transaction, metadata) {
+      console.log('onGraphChanged', ...arguments);
+    },
+
+    onRemoveEdge: function (edge) {
+      var connection = this._getConnectionForEdge(edge);
+      var idx = this.connections.indexOf(connection);
+      if (idx !== -1) {
+        this.splice('connections', idx, 1);
+      }
+    },
+
+    onResize: function (event) {
+      this.width = this.parentElement.offsetWidth;
+      this.height = this.parentElement.offsetHeight;
+    },
+
+    onRemoveInitial: function (initializer) {},
+
+    onRemoveInport: function (key, port) {
+      var slot = this._getSlotForPort(key);
+      var idx = this.slots.indexOf(slot);
+      if (!slot) { return; }
+
+      this.splice('slots', idx, 1);
+
+      if (slot.direction.length > 1) {
+        slot.direction = [ 'output' ];
+        this.push('slots', slot);
+      }
+    },
+
+    onRemoveNode: function (node) {
+      var member = this._getMemberForNode(node);
+      var idx = this.members.indexOf(member);
+      if (member) {
+        this.splice('members', idx, 1);
+      }
+    },
+
     onRemoveOutport: function (key, port) {
-      var slot = this.getSlotForPort(key);
+      var slot = this._getSlotForPort(key);
       var idx = this.slots.indexOf(slot);
       if (!slot) { return; }
 
@@ -394,34 +568,11 @@
       }
     },
 
-    onAddNode: function (node) {
-      var member = this.getMemberForNode(node);
-      if (!member) {
-        this.push('members', {
-          memberId: node.id,
-          component: node.component,
-          metadata: node.metadata
-        });
-      }
-    },
-
-    onRemoveNode: function (node) {
-      var member = this.getMemberForNode(node);
-      var idx = this.members.indexOf(member);
-      if (member) {
-        this.splice('members', idx, 1);
-      }
-    },
-
     onRenameNode: function (oldId, newId) {
       // @todo: (fdu) Do we need this?
       // Removing a member would trigger a change in graph
       // so this is actually a removeNode/addNode operation.
     },
-
-    onAddInitial: function (initializer) {},
-
-    onRemoveInitial: function (initializer) {},
 
     onEdgeSelection: function (itemKey, item, toggle) {
       var index, isSelected, shallowClone;
@@ -457,7 +608,7 @@
         return;
       }
 
-      member = this.getMemberForNode(item);
+      member = this._getMemberForNode(item);
       index = this.selectedMembers.indexOf(member);
       if (toggle) {
         isSelected = (index !== -1);
@@ -477,29 +628,169 @@
       this.set('scale', scale);
     },
 
-    debounceLibraryRefresh: function () {
+    /* ***********************************************************************/
+    /* ***************************** private methods *************************/
+    /* ***********************************************************************/
+    _addConnectionToGraph: function (conn) {
+      var metadata = {
+        connectionId: conn.connectionId,
+        copyValue: conn.copyValue,
+        repeatedValues: conn.repeatedValues,
+        hookFunction: conn.hookFunction,
+        description: conn.description
+      };
+      this._graph.addEdge(
+        conn.source.memberIdRef, conn.source.slot,
+        conn.destination.memberIdRef, conn.destination.slot,
+        metadata
+      );
+    },
+    /**
+     * Add a node for a member to the graph.
+     * @param {Object} member member of the compound
+     * @private
+     */
+    _addMemberToGraph: function (member) {
+      var coordinates = this._calculateCoordiantes();
+      if (!this._getNodeForMember(member)) {
+        var metadata = {
+          displayName: member.displayName || member.memberId,
+          description: member.description,
+          componentId: member.componentId,
+
+          x: member.x || coordinates.x,
+          y: member.y || coordinates.y
+        };
+        this._graph.addNode(member.memberId, member.artifactId, metadata);
+        if (!this.library[ member.artifactId ]) {
+          console.warn('Component', member.artifactId, 'is not defined for the graph');
+        }
+      }
+    },
+
+    _addSlotToGraph: function (slot) {
+      var metadata = {
+        description: slot.description
+      };
+      if (slot.direction.indexOf('input') !== -1) {
+        this._graph.addInport(slot.slotId, slot.type, metadata);
+      }
+      if (slot.direction.indexOf('output') !== -1) {
+        this._graph.addOutport(slot.slotId, slot.type, metadata);
+      }
+    },
+
+    _applyAutolayout: function (layoutedKGraph) {
+      var nofloNode, klayChild, idSplit, expDirection, expKey, metadata;
+
+      this._graph.startTransaction('autolayout');
+
+      // Update graph nodes with the new coordinates from KIELER graph
+      layoutedKGraph.children.forEach(function (klayNode) {
+        nofloNode = this._graph.getNode(klayNode.id);
+
+        // Nodes inside groups
+        if (klayNode.children) {
+          Object.keys(klayNode.children).forEach(function (idx) {
+            klayChild = klayNode.children[ idx ];
+            if (klayChild.id) {
+              this._graph.setNodeMetadata(klayChild.id, {
+                x: Math.round((klayNode.x + klayChild.x) / this.snap) * this.snap,
+                y: Math.round((klayNode.y + klayChild.y) / this.snap) * this.snap
+              });
+            }
+          }, this);
+        }
+
+        metadata = {
+          x: Math.round(klayNode.x / this.snap) * this.snap,
+          y: Math.round(klayNode.y / this.snap) * this.snap
+        };
+
+        // Nodes outside groups
+        if (nofloNode) {
+          this._graph.setNodeMetadata(klayNode.id, metadata);
+        } else {
+          // Find inport or outport
+          idSplit = klayNode.id.split(':::');
+          expDirection = idSplit[ 0 ];
+          expKey = idSplit[ 1 ];
+
+          if (expDirection === 'inport' && this._graph.inports[ expKey ]) {
+            this._graph.setInportMetadata(expKey, metadata);
+          } else if (expDirection === 'outport' && this._graph.outports[ expKey ]) {
+            this._graph.setOutportMetadata(expKey, metadata);
+          }
+        }
+      }, this);
+
+      this._graph.endTransaction('autolayout');
+
+      // Fit the window
+      this.triggerFit();
+    },
+
+    /**
+     * Calculate a x and y coordinates of a new member
+     * @returns {{x: number, y: number}}
+     * @private
+     */
+    _calculateCoordiantes: function () {
+      var x = this._getRandomInt(0, this.grid);
+      var y = this._getRandomInt(0, this.grid);
+      var coord = {
+        x: x,
+        y: y
+      };
+      return coord;
+    },
+
+    _debounceLibraryRefresh: function () {
       this.debounce('debounceLibraryRefresh', function () {
-        this.rerender({ libraryDirty: true });
+        this._rerender({ libraryDirty: true });
       }, 200);
+    },
+
+    /**
+     * Convert the coords for usage in graph sreen.
+     * @param {x: Nember, x: Number} coords coordinates
+     * @returns {{x: *, y: *}}
+     * @private
+     * @jtrs transform method
+     */
+    _transformMenuPosition: function (coords) {
+      var svg = this.querySelector('svg');
+      var point = svg.createSVGPoint();
+      point.x = coords.x;
+      point.y = coords.y;
+      // get svg elem with class= view (screen for graph
+      var CTMView = this.querySelector('.view').getScreenCTM();
+      // transform from menu coords to graph view coords
+      var transformedPoint = point.matrixTransform(CTMView.inverse());
+      return {
+        x: transformedPoint.x,
+        y: transformedPoint.y
+      };
     },
 
     /**
      * Define the circular context menus for the graph
      */
-    defineMenus: function () {
+    _defineMenus: function () {
       var pasteMenu = {
         icon: 'paste',
         iconLabel: 'paste',
-        action: function (graph, itemKey, item) {
-          var pasted = TheGraph.Clipboard.paste(graph);
-          this.set('selectedMembers', pasted.nodes.map(this.getMemberForNode));
+        action: function (graph, itemKey, item, position) {
+          var pasted = TheGraph.Clipboard.paste(graph, this._transformMenuPosition(position)); // @jtrs tran
+          var members = pasted.nodes.map(this._getMemberForNode.bind(this));
+          this.set('selectedMembers', members);
           this.set('selectedConnections', []);
         }.bind(this)
       };
 
       var nodeActions = {
-        delete: function (graph, itemKey, item) {
-          var member = this.getMemberForNode(item);
+        delete: function (graph, itemKey, item, position) {
+          var member = this._getMemberForNode(item);
           var index = this.members.indexOf(member);
           this.splice('members', index, 1);
 
@@ -510,15 +801,14 @@
           this.set('selectedMembers', newSelection);
         }.bind(this),
 
-        copy: function (graph, itemKey, item) {
-          // @todo: (fdu) handle this
-          // TheGraph.Clipboard.copy(graph, [itemKey]);
+        copy: function (graph, itemKey, item, position) {
+          TheGraph.Clipboard.copy(graph, [ itemKey ]);
         }.bind(this) // eslint-disable-line no-extra-bind
       };
 
       var edgeActions = {
-        delete: function (graph, itemKey, item) {
-          var connection = this.getConnectionForEdge(item);
+        delete: function (graph, itemKey, item, position) {
+          var connection = this._getConnectionForEdge(item);
           var index = this.connections.indexOf(connection);
           this.splice('connections', index, 1);
 
@@ -534,6 +824,7 @@
 
         // Background
         main: {
+
           icon: 'sitemap',
           e4: pasteMenu
         },
@@ -545,7 +836,7 @@
           s4: {
             icon: 'trash-o',
             iconLabel: 'delete',
-            actions: edgeActions.delete
+            action: edgeActions.delete
           }
         },
 
@@ -667,175 +958,102 @@
       });
     },
 
-    /**
-     * This is called by the graph, when a context menu is shown.
-     */
-    getMenuDef: function (options) {
-      var defaultMenu;
+    _getConnectionForEdge: function (edge) {
+      return this.connections.find(function (conn) {
+        return conn.source.memberIdRef === edge.from.node &&
+          conn.source.slot === edge.from.port &&
+          conn.destination.memberIdRef === edge.to.node &&
+          conn.destination.slot === edge.to.port;
+      });
+    },
 
-      // Options: type, graph, itemKey, item
-      if (options.type && this.menus[ options.type ]) {
-        defaultMenu = this.menus[ options.type ];
-        if (defaultMenu.callback) {
-          return defaultMenu.callback(defaultMenu, options);
+    _getEdgeFromConnection: function (connection) {
+      return {
+        'from': {
+          'node': connection.source.memberIdRef,
+          'port': connection.source.slot
+        },
+        'metadata': {},
+        'to': {
+          'node': connection.destination.memberIdRef,
+          'port': connection.destination.slot
         }
-        return defaultMenu;
-      }
+      };
+    },
+
+    _getNodeForMember: function (member) {
+      return this._graph.nodes.find(function (node) {
+        return member.memberId === node.id;
+      });
+    },
+
+    _getMemberForNode: function (node) {
+      return this.members.find(function (member) {
+        return member.memberId === node.id;
+      });
     },
 
     /**
-     * This will register a component with the graph
-     * and force a rerender
+     * Generet and get a random integer  between min and max
+     * @param {Number} min lower limit for the random integer
+     * @param {Number }max upper limit for the random integer
+     * @returns {number} the generated random integer
+     * @private
      */
-    registerComponent: function (definition) {
-      var component = this.library[ definition.name ];
-      if (component) {
-        // Don't override real definition with dummy
-        return;
-      }
-      this.library[ definition.name ] = definition;
-      this.notifyPath('library', this.library);
-
-      // Render changes
-      this.debounceLibraryRefresh();
+    _getRandomInt: function (min, max) {
+      var minInt = Math.ceil(min);
+      var maxInt = Math.floor(max);
+      return Math.floor(Math.random() * (maxInt - minInt)) + minInt;
     },
 
-    /**
-     * Build or rebuild the graph.
-     */
-    rebuildGraph: function () {
+    _getSlotForPort: function (publicPort) {
+      return this.slots.find(function (slot) {
+        return slot.slotId === publicPort;
+      });
+    },
+
+    _focusMember: function (member) {
+      if (!this._graph) { return; }
+      var node = this._graph.getNode(member.memberId);
+
+      if (!node) { return; }
+      this.$._appView.focusNode(node);
+    },
+
+    _noop: function (event) {
+      // Don't propagate events beyond the graph
+      event.stopPropagation();
+    },
+
+    _rerender: function (options) {
+      if (!this._graphView) { return; }
+      this._graphView.markDirty(options);
+    },
+    /* ***********************************************************************/
+    /* ***************************** change methods *************************/
+    /* ***********************************************************************/
+    _autolayoutChanged: function (autolayout) {
       if (!this._graph) { return; }
 
-      if (this._graph.removeListener) {
-        this._graph.removeListener('endTransaction', this.onGraphChanged.bind(this));
-      }
-
-      this._graph = window.createGraph(this.artifactId, { caseSensitive: true });
-
-      // Listen for graph changes
-
-      this._graph.on('endTransaction', this.onGraphChanged.bind(this));
-      this._graph.on('addEdge', this.onAddEdge.bind(this));
-      this._graph.on('removeEdge', this.onRemoveEdge.bind(this));
-      this._graph.on('addInport', this.onAddInport.bind(this));
-      this._graph.on('removeInport', this.onRemoveInport.bind(this));
-      this._graph.on('addOutport', this.onAddOutport.bind(this));
-      this._graph.on('removeOutport', this.onRemoveOutport.bind(this));
-      this._graph.on('addInitial', this.onAddInitial.bind(this));
-      this._graph.on('removeInitial', this.onRemoveInitial.bind(this));
-
-      if (this._appView) {
-        // Remove previous instance
-        ReactDOM.unmountComponentAtNode(this.$.svgcontainer);
-        this._appView = null;
-      }
-
-      // Setup app
-      this.$.svgcontainer.innerHTML = '';
-      this._appView = ReactDOM.render(window.TheGraph.App({
-        graph: this._graph,
-        width: this.width,
-        height: this.height,
-        minZoom: this.minZoom,
-        maxZoom: this.maxZoom,
-        library: this.library,
-        menus: this.menus,
-        getMenuDef: this.getMenuDef,
-        displaySelectionGroup: this.displaySelectionGroup,
-        editable: this.editable,
-        forceSelection: this.forceSelection,
-        onEdgeSelection: this.onEdgeSelection.bind(this),
-        onNodeSelection: this.onNodeSelection.bind(this),
-        onPanScale: this.onPanScale.bind(this),
-        offsetY: this.offsetY,
-        offsetX: this.offsetX
-      }), this.$.svgcontainer);
-      this._graphView = this._appView.refs.graph;
-    },
-
-    slotsChanged: function (changeRecord) {
-      var i, index, slot, path, key, value;
-
-      if (!changeRecord) { return; }
-
-      // Slots were added or removed
-      if (changeRecord.path === 'slots.splices') {
-        changeRecord.value.indexSplices.forEach(function (s) {
-          // Slots were removed
-          s.removed.forEach(function (slot) {
-            if (slot.direction.indexOf('input') !== -1) {
-              this._graph.removeInport(slot.slotId);
-            }
-            if (slot.direction.indexOf('output') !== -1) {
-              this._graph.removeOutport(slot.slotId);
-            }
-          }, this);
-
-          // Slot was added
-          for (i = 0; i < s.addedCount; i++) {
-            index = s.index + i;
-            slot = s.object[ index ];
-            this._addSlotToGraph(slot);
-          }
-        }, this);
-      } else if (changeRecord.path === 'slots' || changeRecord.path === 'slots.length') {
-        // Slots were set
-        if (changeRecord.value instanceof Array && changeRecord.value.length > 0) {
-          for (let i = 0; i < changeRecord.value.length; i++) {
-            this._addSlotToGraph(changeRecord.value[ i ]);
-          }
-        }
+      // Only listen to changes that affect layout
+      if (this.autolayout) {
+        this._graph.on('addNode', this.triggerAutolayout.bind(this));
+        this._graph.on('removeNode', this.triggerAutolayout.bind(this));
+        this._graph.on('addInport', this.triggerAutolayout.bind(this));
+        this._graph.on('removeInport', this.triggerAutolayout.bind(this));
+        this._graph.on('addOutport', this.triggerAutolayout.bind(this));
+        this._graph.on('removeOutport', this.triggerAutolayout.bind(this));
+        this._graph.on('addEdge', this.triggerAutolayout.bind(this));
+        this._graph.on('removeEdge', this.triggerAutolayout.bind(this));
       } else {
-        // Slot was modified
-        path = changeRecord.path.match(/slots\.(#\d+)\.(\S)$/);
-        key = path[ 0 ];
-        path = path[ 1 ].split('.');
-        value = changeRecord.value;
-        slot = Polymer.Collection.get(this.slots).getItem(key);
-
-        // @todo: (fdu) Make it so
-        console.warn('Slot changes are not implemented, yet!' + path.join('.') + ' changed to ' + value);
-      }
-    },
-
-    /**
-     * Called if the members list changed. (For Example added or removed members.)
-     * @param {Object} changeRecord the polymer changeRecord object
-     */
-    membersChanged: function (changeRecord) {
-      var i, index, member, path;
-
-      if (!changeRecord) { return; }
-
-      // Members were added or remove
-      if (changeRecord.path === 'members.splices') {
-        changeRecord.value.indexSplices.forEach(function (s) {
-          // Members were removed
-          s.removed.forEach(function (member) {
-            this._graph.removeNode(member.memberId);
-          }, this);
-          // Members were added
-          for (i = 0; i < s.addedCount; i++) {
-            index = s.index + i;
-            member = s.object[ index ];
-            this._addMemberToGraph(member);
-          }
-        }, this);
-      } else if (changeRecord.path === 'members' || changeRecord.path === 'members.length') {
-        // Members were set
-        if (changeRecord.value instanceof Array && changeRecord.value.length > 0) {
-          for (let i = 0; i < changeRecord.value.length; i++) {
-            this._addMemberToGraph(changeRecord.value[ i ]);
-          }
-        }
-      } else {
-        // Member was modified
-        path = changeRecord.path.replace(/(members\.#\d+)(\.\S+)/, '$1'); // Strip everything after the index
-        member = this.get(path); // Get the referred member
-        this._graph.setNodeMetadata(member.memberId, {
-          label: member.displayName || member.memberId,
-          description: member.description
-        });
+        this._graph.removeListener('addNode', this.triggerAutolayout.bind(this));
+        this._graph.removeListener('removeNode', this.triggerAutolayout.bind(this));
+        this._graph.removeListener('addInport', this.triggerAutolayout.bind(this));
+        this._graph.removeListener('removeInport', this.triggerAutolayout.bind(this));
+        this._graph.removeListener('addOutport', this.triggerAutolayout.bind(this));
+        this._graph.removeListener('removeOutport', this.triggerAutolayout.bind(this));
+        this._graph.removeListener('addEdge', this.triggerAutolayout.bind(this));
+        this._graph.removeListener('removeEdge', this.triggerAutolayout.bind(this));
       }
     },
 
@@ -843,7 +1061,7 @@
      * Called if the connections list changed. (Added or removed connections.)
      * @param {Object} changeRecord the polymer chamgeRecord object
      */
-    connectionsChanged: function (changeRecord) {
+    _connectionsChanged: function (changeRecord) {
       var i, index, conn, metadata, path;
 
       if (!changeRecord) { return; }
@@ -892,11 +1110,29 @@
         );
       }
     },
+
+    _dimensionsChanged: function (width, height) {
+      if (!this._appView) { return; }
+      this._appView.setState({
+        width: width,
+        height: height
+      });
+    },
+
+    _displaySelectionGroupChanged: function (displaySelectionGroup) {
+      if (!this._graphView) { return; }
+      this._graphView.setState({ displaySelectionGroup: displaySelectionGroup });
+    },
+
+    _forceSelectionChanged: function (forceSelection) {
+      if (!this._graphView) { return; }
+      this._graphView.setState({ forceSelection: forceSelection });
+    },
     /**
      * Called if the inits list changed. (Added or removed connections.)
      * @param {Object} changeRecord the polymer chamgeRecord object
      */
-    initsChanged: function (changeRecord) {
+    _initsChanged: function (changeRecord) {
       if (!changeRecord) { return; }
       // Inits were added or removed
       if (changeRecord.path === 'inits.splices') {
@@ -940,275 +1176,50 @@
     },
 
     /**
-     * Called, if the list of selectedMembers changed by selction or deselection of members,
-     * @param {Object} changeRecord the polymer chamgeRecord object
+     * Called if the members list changed. (For Example added or removed members.)
+     * @param {Object} changeRecord the polymer changeRecord object
      */
-    selectedMembersChanged: function (changeRecord) {
-      if (!changeRecord || !this._graphView) { return; }
+    _membersChanged: function (changeRecord) {
+      var i, index, member, path;
 
-      var selectedNodesHash = {};
-      this.selectedMembers.forEach(function (member) {
-        selectedNodesHash[ member.memberId ] = true;
-      });
+      if (!changeRecord) { return; }
 
-      this._graphView.setSelectedNodes(selectedNodesHash);
+      // Members were added or remove
+      if (changeRecord.path === 'members.splices') {
+        changeRecord.value.indexSplices.forEach(function (s) {
+          // Members were removed
+          s.removed.forEach(function (member) {
+            this._graph.removeNode(member.memberId);
+          }, this);
+          // Members were added
+          for (i = 0; i < s.addedCount; i++) {
+            index = s.index + i;
+            member = s.object[ index ];
+            this._addMemberToGraph(member);
+          }
+        }, this);
+      } else if (changeRecord.path === 'members' || changeRecord.path === 'members.length') {
+        // Members were set
+        if (changeRecord.value instanceof Array && changeRecord.value.length > 0) {
+          for (let i = 0; i < changeRecord.value.length; i++) {
+            this._addMemberToGraph(changeRecord.value[ i ]);
+          }
+        }
+      } else {
+        // Member was modified
+        path = changeRecord.path.replace(/(members\.#\d+)(\.\S+)/, '$1'); // Strip everything after the index
+        member = this.get(path); // Get the referred member
+        this._graph.setNodeMetadata(member.memberId, {
+          label: member.displayName || member.memberId,
+          description: member.description
+        });
+      }
     },
 
-    panChanged: function (pan) {
+    _panChanged: function (pan) {
       // Send pan back to React
       if (!this._appView) { return; }
       this._appView.setState(pan);
-    },
-
-    themeChanged: function (theme) {
-      this.$.svgcontainer.classList.remove('the-graph-dark', 'the-graph-light');
-      this.$.svgcontainer.classList.add('the-graph-' + theme);
-    },
-
-    dimensionsChanged: function (width, height) {
-      if (!this._appView) { return; }
-      this._appView.setState({
-        width: width,
-        height: height
-      });
-    },
-
-    autolayoutChanged: function (autolayout) {
-      if (!this._graph) { return; }
-
-      // Only listen to changes that affect layout
-      if (this.autolayout) {
-        this._graph.on('addNode', this.triggerAutolayout.bind(this));
-        this._graph.on('removeNode', this.triggerAutolayout.bind(this));
-        this._graph.on('addInport', this.triggerAutolayout.bind(this));
-        this._graph.on('removeInport', this.triggerAutolayout.bind(this));
-        this._graph.on('addOutport', this.triggerAutolayout.bind(this));
-        this._graph.on('removeOutport', this.triggerAutolayout.bind(this));
-        this._graph.on('addEdge', this.triggerAutolayout.bind(this));
-        this._graph.on('removeEdge', this.triggerAutolayout.bind(this));
-      } else {
-        this._graph.removeListener('addNode', this.triggerAutolayout.bind(this));
-        this._graph.removeListener('removeNode', this.triggerAutolayout.bind(this));
-        this._graph.removeListener('addInport', this.triggerAutolayout.bind(this));
-        this._graph.removeListener('removeInport', this.triggerAutolayout.bind(this));
-        this._graph.removeListener('addOutport', this.triggerAutolayout.bind(this));
-        this._graph.removeListener('removeOutport', this.triggerAutolayout.bind(this));
-        this._graph.removeListener('addEdge', this.triggerAutolayout.bind(this));
-        this._graph.removeListener('removeEdge', this.triggerAutolayout.bind(this));
-      }
-    },
-
-    displaySelectionGroupChanged: function (displaySelectionGroup) {
-      if (!this._graphView) { return; }
-      this._graphView.setState({ displaySelectionGroup: displaySelectionGroup });
-    },
-
-    forceSelectionChanged: function (forceSelection) {
-      if (!this._graphView) { return; }
-      this._graphView.setState({ forceSelection: forceSelection });
-    },
-
-    focusMember: function (member) {
-      if (!this._graph) { return; }
-      var node = this._graph.getNode(member.memberId);
-
-      if (!node) { return; }
-      this.$._appView.focusNode(node);
-    },
-
-    getConnectionForEdge: function (edge) {
-      return this.connections.find(function (conn) {
-        return conn.source.memberIdRef === edge.from.node &&
-          conn.source.slot === edge.from.port &&
-          conn.destination.memberIdRef === edge.to.node &&
-          conn.destination.slot === edge.to.port;
-      });
-    },
-
-    getEdgeFromConnection: function (connection) {
-      return {
-        'from': {
-          'node': connection.source.memberIdRef,
-          'port': connection.source.slot
-        },
-        'metadata': {},
-        'to': {
-          'node': connection.destination.memberIdRef,
-          'port': connection.destination.slot
-        }
-      };
-    },
-
-    getMemberForNode: function (node) {
-      return this.members.find(function (member) {
-        return member.memberId === node.id;
-      });
-    },
-
-    getSlotForPort: function (publicPort) {
-      return this.slots.find(function (slot) {
-        return slot.slotId === publicPort;
-      });
-    },
-
-    rerender: function (options) {
-      if (!this._graphView) { return; }
-      this._graphView.markDirty(options);
-    },
-
-    triggerFit: function () {
-      if (!this._appView) { return; }
-      this._appView.triggerFit();
-    },
-
-    triggerAutolayout: function () {
-      var portInfo = this._graphView ? this._graphView.portInfo : null;
-
-      // Call the autolayouter
-      this._autolayouter.layout({
-        'graph': this._graph,
-        'portInfo': portInfo,
-        'direction': 'RIGHT',
-        'options': {
-          'intCoordinates': true,
-          'algorithm': 'de.cau.cs.kieler.klay.layered',
-          'layoutHierarchy': true,
-          'spacing': 36,
-          'borderSpacing': 20,
-          'edgeSpacingFactor': 0.2,
-          'inLayerSpacingFactor': 2,
-          'nodePlace': 'BRANDES_KOEPF',
-          'nodeLayering': 'NETWORK_SIMPLEX',
-          'edgeRouting': 'POLYLINE',
-          'crossMin': 'LAYER_SWEEP',
-          'direction': 'RIGHT'
-        }
-      });
-    },
-    /* ***********************************************************************/
-    /* ***************************** private methods *************************/
-    /* ***********************************************************************/
-    _addConnectionToGraph: function (conn) {
-      var metadata = {
-        connectionId: conn.connectionId,
-        copyValue: conn.copyValue,
-        repeatedValues: conn.repeatedValues,
-        hookFunction: conn.hookFunction,
-        description: conn.description
-      };
-      this._graph.addEdge(
-        conn.source.memberIdRef, conn.source.slot,
-        conn.destination.memberIdRef, conn.destination.slot,
-        metadata
-      );
-    },
-    /**
-     * Add a node for a member to the graph.
-     * @param {Object} member member of the compound
-     * @private
-     */
-    _addMemberToGraph: function (member) {
-      var coordinates = this._calculateCoordiantes();
-
-      var metadata = {
-        displayName: member.displayName || member.memberId,
-        description: member.description,
-
-        x: member.x || coordinates.x,
-        y: member.y || coordinates.y
-      };
-      this._graph.addNode(member.memberId, member.artifactId, metadata);
-      if (!this.library[ member.artifactId ]) {
-        console.warn('Component', member.artifactId, 'is not defined for the graph');
-      }
-    },
-
-    _addSlotToGraph: function (slot) {
-      var metadata = {
-        description: slot.description
-      };
-      if (slot.direction.indexOf('input') !== -1) {
-        this._graph.addInport(slot.slotId, slot.type, metadata);
-      }
-      if (slot.direction.indexOf('output') !== -1) {
-        this._graph.addOutport(slot.slotId, slot.type, metadata);
-      }
-    },
-    _applyAutolayout: function (layoutedKGraph) {
-      var nofloNode, klayChild, idSplit, expDirection, expKey, metadata;
-
-      this._graph.startTransaction('autolayout');
-
-      // Update graph nodes with the new coordinates from KIELER graph
-      layoutedKGraph.children.forEach(function (klayNode) {
-        nofloNode = this._graph.getNode(klayNode.id);
-
-        // Nodes inside groups
-        if (klayNode.children) {
-          Object.keys(klayNode.children).forEach(function (idx) {
-            klayChild = klayNode.children[ idx ];
-            if (klayChild.id) {
-              this._graph.setNodeMetadata(klayChild.id, {
-                x: Math.round((klayNode.x + klayChild.x) / this.snap) * this.snap,
-                y: Math.round((klayNode.y + klayChild.y) / this.snap) * this.snap
-              });
-            }
-          }, this);
-        }
-
-        metadata = {
-          x: Math.round(klayNode.x / this.snap) * this.snap,
-          y: Math.round(klayNode.y / this.snap) * this.snap
-        };
-
-        // Nodes outside groups
-        if (nofloNode) {
-          this._graph.setNodeMetadata(klayNode.id, metadata);
-        } else {
-          // Find inport or outport
-          idSplit = klayNode.id.split(':::');
-          expDirection = idSplit[ 0 ];
-          expKey = idSplit[ 1 ];
-
-          if (expDirection === 'inport' && this._graph.inports[ expKey ]) {
-            this._graph.setInportMetadata(expKey, metadata);
-          } else if (expDirection === 'outport' && this._graph.outports[ expKey ]) {
-            this._graph.setOutportMetadata(expKey, metadata);
-          }
-        }
-      }, this);
-
-      this._graph.endTransaction('autolayout');
-
-      // Fit the window
-      this.triggerFit();
-    },
-    /**
-     * Calculate a x and y coordinates of a new member
-     * @returns {{x: number, y: number}}
-     * @private
-     */
-    _calculateCoordiantes: function () {
-      var x = this._getRandomInt(0, this.grid);
-      var y = this._getRandomInt(0, this.grid);
-      var coord = {
-        x: x,
-        y: y
-      };
-      return coord;
-    },
-
-    /**
-     * Genereta and get a random integer  between min and max
-     * @param {Number} min lower limit for the random integer
-     * @param {Number }max upper limit for the random integer
-     * @returns {number} the generated random integer
-     * @private
-     */
-    _getRandomInt: function (min, max) {
-      var minInt = Math.ceil(min);
-      var maxInt = Math.floor(max);
-      return Math.floor(Math.random() * (maxInt - minInt)) + minInt;
     },
     _selectedEdgesChanged: function (changeRecord) {
       var i, conn, index;
@@ -1217,7 +1228,7 @@
 
       changeRecord.indexSplices.forEach(function (s) {
         s.removed.forEach(function (edge) {
-          conn = this.getConnectionForEdge(edge);
+          conn = this._getConnectionForEdge(edge);
           index = this.selectedConnections.indexOf(edge);
           this.splice('selectedConnections', index, 1);
         }, this);
@@ -1231,6 +1242,71 @@
 
       this._graphView.setSelectedEdges(this._selectedEdges);
       this.fire('edges', this._selectedEdges);
+    },
+
+    /**
+     * Called, if the list of selectedMembers changed by selction or deselection of members,
+     * @param {Object} changeRecord the polymer chamgeRecord object
+     */
+    _selectedMembersChanged: function (changeRecord) {
+      if (!changeRecord || !this._graphView) { return; }
+
+      var selectedNodesHash = {};
+      this.selectedMembers.forEach(function (member) {
+        selectedNodesHash[ member.memberId ] = true;
+      });
+
+      this._graphView.setSelectedNodes(selectedNodesHash);
+    },
+
+    _slotsChanged: function (changeRecord) {
+      var i, index, slot, path, key, value;
+
+      if (!changeRecord) { return; }
+
+      // Slots were added or removed
+      if (changeRecord.path === 'slots.splices') {
+        changeRecord.value.indexSplices.forEach(function (s) {
+          // Slots were removed
+          s.removed.forEach(function (slot) {
+            if (slot.direction.indexOf('input') !== -1) {
+              this._graph.removeInport(slot.slotId);
+            }
+            if (slot.direction.indexOf('output') !== -1) {
+              this._graph.removeOutport(slot.slotId);
+            }
+          }, this);
+
+          // Slot was added
+          for (i = 0; i < s.addedCount; i++) {
+            index = s.index + i;
+            slot = s.object[ index ];
+            this._addSlotToGraph(slot);
+          }
+        }, this);
+      } else if (changeRecord.path === 'slots' || changeRecord.path === 'slots.length') {
+        // Slots were set
+        if (changeRecord.value instanceof Array && changeRecord.value.length > 0) {
+          for (let i = 0; i < changeRecord.value.length; i++) {
+            this._addSlotToGraph(changeRecord.value[ i ]);
+          }
+        }
+      } else {
+        // Slot was modified
+        path = changeRecord.path.match(/slots\.(#\d+)\.(\S)$/);
+        key = path[ 0 ];
+        path = path[ 1 ].split('.');
+        value = changeRecord.value;
+        slot = Polymer.Collection.get(this.slots).getItem(key);
+
+        // @todo: (fdu) Make it so
+        console.warn('Slot changes are not implemented, yet!' + path.join('.') + ' changed to ' + value);
+      }
+    },
+    _themeChanged: function (theme) {
+      this.$.svgcontainer.classList.remove('the-graph-dark', 'the-graph-light');
+      this.$.svgcontainer.classList.add('the-graph-' + theme);
     }
+
   });
 })();

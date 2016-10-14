@@ -674,7 +674,14 @@
     return this.checkTransactionEnd();
   };
 
-  Graph.prototype.addNode = function (id, component, metadata) {
+  /**
+   *  create and add a node to the graph
+   * @param {string} id node id
+   * @param {string} artifactId the artifactId of the component
+   * @param {object} metadata the meta data of the component
+   * @returns {{id: *, artifactId: *, metadata: *}|*}
+   */
+  Graph.prototype.addNode = function (id, artifactId, metadata) {
     var node;
     this.checkTransactionStart();
     if (!metadata) {
@@ -685,7 +692,7 @@
     }
     node = {
       id: id,
-      component: component,
+      artifactId: artifactId,
       metadata: metadata
     };
     this.nodes.push(node);

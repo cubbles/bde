@@ -222,7 +222,7 @@
               outports: outports
             };
           }
-          
+
           var i, port, len;
           for (i=0, len=component.outports.length; i<len; i++) {
             port = component.outports[i];
@@ -418,19 +418,19 @@
 
       // Nodes
       var nodes = graph.nodes.map(function (node) {
-        var componentInfo = self.getComponentInfo(node.component);
+        var componentInfo = self.getComponentInfo(node.arifactId);
         var key = node.id;
         if (!node.metadata) {
           node.metadata = {};
         }
-        if (node.metadata.x === undefined) { 
-          node.metadata.x = 0; 
+        if (node.metadata.x === undefined) {
+          node.metadata.x = 0;
         }
-        if (node.metadata.y === undefined) { 
-          node.metadata.y = 0; 
+        if (node.metadata.y === undefined) {
+          node.metadata.y = 0;
         }
-        if (node.metadata.width === undefined) { 
-          node.metadata.width = TheGraph.config.nodeWidth; 
+        if (node.metadata.width === undefined) {
+          node.metadata.width = TheGraph.config.nodeWidth;
         }
         node.metadata.height = TheGraph.config.nodeHeight;
         if (TheGraph.config.autoSizeNode && componentInfo) {
@@ -464,7 +464,7 @@
           x: node.metadata.x,
           y: node.metadata.y,
           label: node.metadata.label,
-          sublabel: node.metadata.sublabel || node.component,
+          sublabel: node.metadata.sublabel || node.artifactId, // jtrs: changed node.component to node.artifactId
           width: node.metadata.width,
           height: node.metadata.height,
           app: self.props.app,
@@ -473,7 +473,7 @@
           node: node,
           icon: icon,
           iconsvg: iconsvg,
-          ports: self.getPorts(graph, key, node.component),
+          ports: self.getPorts(graph, key, node.artifactId), // jtrs: changed node.component to node.artifactId
           onNodeSelection: self.props.onNodeSelection,
           selected: selected,
           error: (self.state.errorNodes[key] === true),
@@ -489,10 +489,10 @@
       var edges = graph.edges.map(function(edge) {
         var source = graph.getNode(edge.from.node);
         var target = graph.getNode(edge.to.node);
-        
+
         if (!source && !target) { return; }
 
-        // Handle connections to exported slots        
+        // Handle connections to exported slots
         if (!source) {
           source = graph.inports[edge.from.port];
         }
@@ -516,15 +516,15 @@
           label = 'export in ' +
             edge.from.port.toUpperCase() +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
-            edge.to.port.toUpperCase() + 
+            edge.to.port.toUpperCase() +
             (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') +
             edge.to.node;
           key = 'inport.edge.' + edge.from.port;
         } else if (!target.id) {
           label = edge.from.node + ' ' +
-            edge.from.port.toUpperCase() +             
+            edge.from.port.toUpperCase() +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
-            edge.to.port.toUpperCase() + 
+            edge.to.port.toUpperCase() +
             (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') +
             'export out';
           key = 'outport.edge.' + edge.to.port;
@@ -569,7 +569,7 @@
       var iips = graph.initializers.map(function (iip) {
         var target = graph.getNode(iip.to.node);
         if (!target) { return; }
-        
+
         var targetPort = self.getNodeInport(graph, iip.to.node, iip.to.port, 0, target.component);
         var tX = target.metadata.x;
         var tY = target.metadata.y + targetPort.y;
@@ -811,6 +811,6 @@
       return TheGraph.factories.graph.createGraphContainerGroup.call(this, containerOptions, containerContents);
 
     }
-  }));  
+  }));
 
 })(this);

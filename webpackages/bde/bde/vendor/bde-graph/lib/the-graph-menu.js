@@ -137,33 +137,33 @@
     onTapN4: function (event) {
       // Prevent "native" polymer events
       if (event.detail !== 1) { return; }
-      
+
       var options = this.props.options;
-      this.props.menu.n4.action(options.graph, options.itemKey, options.item);
+      this.props.menu.n4.action(options.graph, options.itemKey, options.item, this.getPosition()); // @jtrs added position parameter
       this.props.triggerHideContext();
     },
     onTapS4: function (event) {
       // Prevent "native" polymer events
       if (event.detail !== 1) { return; }
-      
+
       var options = this.props.options;
-      this.props.menu.s4.action(options.graph, options.itemKey, options.item);
+      this.props.menu.s4.action(options.graph, options.itemKey, options.item, this.getPosition()); // @jtrs added position parameter
       this.props.triggerHideContext();
     },
     onTapE4: function (event) {
       // Prevent "native" polymer events
       if (event.detail !== 1) { return; }
-      
+
       var options = this.props.options;
-      this.props.menu.e4.action(options.graph, options.itemKey, options.item);
+      this.props.menu.e4.action(options.graph, options.itemKey, options.item, this.getPosition()); // @jtrs added position parameter
       this.props.triggerHideContext();
     },
     onTapW4: function (event) {
       // Prevent "native" polymer events
       if (event.detail !== 1) { return; }
-      
+
       var options = this.props.options;
-      this.props.menu.w4.action(options.graph, options.itemKey, options.item);
+      this.props.menu.w4.action(options.graph, options.itemKey, options.item, this.getPosition()); // @jtrs added position parameter
       this.props.triggerHideContext();
     },
     componentDidMount: function () {
@@ -278,14 +278,14 @@
     displayName: "TheGraphModalBG",
     componentDidMount: function () {
       var domNode = ReactDOM.findDOMNode(this);
-      var rectNode = this.refs.rect; 
+      var rectNode = this.refs.rect;
       var handler = function(event) {
         // Only if outside of menu
         if (event && event.target == rectNode) {
           this.hideModal();
         }
       };
-      
+
       // Right-click on another item will show its menu
       domNode.addEventListener("mousedown", handler.bind(this));
       domNode.addEventListener("touchstart", handler.bind(this));
