@@ -452,7 +452,8 @@
 
     this.checkTransactionStart();
     this.inports[ publicPort ] = {
-      metadata: metadata
+      metadata: metadata,
+      id: publicPort // jtrs: added id property
     };
     this.emit('addInport', publicPort, this.inports[ publicPort ]);
     return this.checkTransactionEnd();
@@ -480,20 +481,6 @@
     this.emit('removeInport', publicPort, port);
     return this.checkTransactionEnd();
   };
-
-  // Graph.prototype.removeInport = function(publicPort) {
-  //   var port;
-  //   publicPort = this.getPortName(publicPort);
-  //   if (!this.inports[publicPort]) {
-  //     return;
-  //   }
-  //   this.checkTransactionStart();
-  //   port = this.inports[publicPort];
-  //   this.setInportMetadata(publicPort, {});
-  //   delete this.inports[publicPort];
-  //   this.emit('removeInport', publicPort, port);
-  //   return this.checkTransactionEnd();
-  // };
 
   Graph.prototype.renameInport = function (oldPort, newPort) {
     oldPort = this.getPortName(oldPort);
@@ -542,7 +529,8 @@
 
     this.checkTransactionStart();
     this.outports[ publicPort ] = {
-      metadata: metadata
+      metadata: metadata,
+      id: publicPort // jtrs: added id property
     };
     this.emit('addOutport', publicPort, this.outports[ publicPort ]);
     return this.checkTransactionEnd();
@@ -556,6 +544,16 @@
     }
     this.checkTransactionStart();
     port = this.outports[ publicPort ];
+    // Remove associated edges (jtrs)
+    this.edges
+      .filter(function (edge) {
+        return edge.to.node === undefined && edge.to.port === publicPort ||
+          edge.from.node === undefined && edge.from.port === publicPort;
+      })
+      .forEach(function (edge) {
+        this.removeEdge(edge.from.node, edge.from.port, edge.to.node, edge.to.port);
+      }, this);
+
     this.setOutportMetadata(publicPort, {});
     delete this.outports[ publicPort ];
     this.emit('removeOutport', publicPort, port);
@@ -970,7 +968,7 @@
     port2 = this.getPortName(port2);
     toRemove = [];
     toKeep = [];
-    if (node2 && port2) {
+    // if (node2 && port2) { // jtrs remover just unambiguous edges
       _ref = this.edges;
       for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
         edge = _ref[ index ];
@@ -981,18 +979,18 @@
           toKeep.push(edge);
         }
       }
-    } else {
-      _ref1 = this.edges;
-      for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
-        edge = _ref1[ index ];
-        if ((edge.from.node === node && edge.from.port === port) || (edge.to.node === node && edge.to.port === port)) {
-          this.setEdgeMetadata(edge.from.node, edge.from.port, edge.to.node, edge.to.port, {});
-          toRemove.push(edge);
-        } else {
-          toKeep.push(edge);
-        }
-      }
-    }
+    // } else { // jtrs remover just unambiguous edges
+    //   _ref1 = this.edges;
+    //   for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
+    //     edge = _ref1[ index ];
+    //     if ((edge.from.node === node && edge.from.port === port) || (edge.to.node === node && edge.to.port === port)) {
+    //       this.setEdgeMetadata(edge.from.node, edge.from.port, edge.to.node, edge.to.port, {});
+    //       toRemove.push(edge);
+    //     } else {
+    //       toKeep.push(edge);
+    //     }
+    //   }
+    // }
     this.edges = toKeep;
     for (_k = 0, _len2 = toRemove.length; _k < _len2; _k++) {
       edge = toRemove[ _k ];

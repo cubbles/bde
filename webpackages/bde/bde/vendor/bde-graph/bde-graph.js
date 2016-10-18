@@ -201,6 +201,33 @@
       },
 
       /**
+       * The list of selected connections.
+       *
+       * @type {Array}
+       * @property selectedConnections
+       */
+      selectedConnections: {
+        type: Array,
+        notify: true,
+        value: function () {
+          return [];
+        }
+      },
+
+      /**
+       * the list of selected input slots
+       * @type {Array}
+       * @property selectedInputSlots
+       */
+      selectedInputSlots: {
+        type: Array,
+        notify: true,
+        value: function () {
+          return [];
+        }
+      },
+
+      /**
        * The list of selected members.
        *
        * @type {Array}
@@ -215,12 +242,11 @@
       },
 
       /**
-       * The list of selected connections.
-       *
+       * the list of selected output slots
        * @type {Array}
-       * @property selectedConnections
+       * @property selectedOutputSlots
        */
-      selectedConnections: {
+      selectedOutputSlots: {
         type: Array,
         notify: true,
         value: function () {
@@ -272,6 +298,8 @@
       '_panChanged(pan)',
       '_selectedEdgesChanged(_selectedEdges.splices)',
       '_selectedMembersChanged(selectedMembers.*)',
+      '_selectedOutputSlotChanged(selectedOutputSlots.*)',
+      '_selectedInputSlotChanged(selectedInputSlots.*)',
       '_slotsChanged(slots.*)',
       '_themeChanged(theme)'
     ],
@@ -365,6 +393,8 @@
         forceSelection: this.forceSelection,
         onEdgeSelection: this.onEdgeSelection.bind(this),
         onNodeSelection: this.onNodeSelection.bind(this),
+        onInportSelection: this.onInportSelection.bind(this),
+        onOutportSelection: this.onOutportSelection.bind(this),
         onPanScale: this.onPanScale.bind(this),
         offsetY: this.offsetY,
         offsetX: this.offsetX
@@ -458,17 +488,25 @@
     onAddEdge: function (edge) {
       var connection = this._getConnectionForEdge(edge);
       if (!connection) {
-        this.push('connections', {
+        var newConnection = {
           connectionId: Math.random().toString(36).substring(2, 7),
+
           source: {
-            memberIdRef: edge.from.node,
+            //  memberIdRef: edge.from.node,
             slot: edge.from.port
           },
           destination: {
-            memberIdRef: edge.to.node,
+            // memberIdRef: edge.to.node,
             slot: edge.to.port
           }
-        });
+        }
+        if (edge.from.node) {
+          newConnection.source.memberIdRef = edge.from.node;
+        }
+        if (edge.to.node) {
+          newConnection.destination.memberIdRef = edge.to.node;
+        }
+        this.push('connections', newConnection);
       }
     },
 
@@ -600,6 +638,33 @@
       }
     },
 
+    onInportSelection: function (itemKey, metadata, toggle) {
+      console.log(' onInportSelection itemKey', itemKey, 'metadata', metadata, 'toggle', toggle);
+
+      var slot;
+      var index;
+      var isSelected;
+
+      if (itemKey === undefined) {
+        this.splice('selectedInputSlots', 0, this.selectedInputSlots.length);
+        return;
+      }
+
+      slot = this._getSlotForPort(itemKey);
+      index = this.slots.indexOf(slot);
+      if (toggle) {
+        isSelected = (index !== -1);
+        if (isSelected) {
+          this.splice('selectedInputSlots', this.selectedInputSlots.indexOf(slot), 1);
+        } else {
+          this.push('selectedInputSlots', slot);
+        }
+      } else {
+        this.splice('selectedInputSlots', 0, this.selectedInputSlots.length);
+        this.push('selectedInputSlots', slot);
+      }
+    },
+
     onNodeSelection: function (itemKey, item, toggle) {
       var member, index, isSelected;
 
@@ -627,7 +692,31 @@
       this.set('pan', { x: x, y: y });
       this.set('scale', scale);
     },
+    onOutportSelection: function (itemKey, metadata, toggle) {
+      console.log('onOutportSelection temKey', itemKey, 'metadata', metadata, 'toggle', toggle);
+      var slot;
+      var index;
+      var isSelected;
 
+      if (itemKey === undefined) {
+        this.splice('selectedOutputSlots', 0, this.selectedOutputSlots.length);
+        return;
+      }
+
+      slot = this._getSlotForPort(itemKey);
+      index = this.slots.indexOf(slot);
+      if (toggle) {
+        isSelected = (index !== -1);
+        if (isSelected) {
+          this.splice('selectedOutputSlots', this.selectedOutputSlots.indexOf(slot), 1);
+        } else {
+          this.push('selectedOutputSlots', slot);
+        }
+      } else {
+        this.splice('selectedOutputSlots', 0, this.selectedOutputSlots.length);
+        this.push('selectedOutputSlots', slot);
+      }
+    },
     /* ***********************************************************************/
     /* ***************************** private methods *************************/
     /* ***********************************************************************/
@@ -669,13 +758,32 @@
     },
 
     _addSlotToGraph: function (slot) {
+      var isOutputSlot = false;
+      var isInputSlot = false;
+      if (slot.direction && slot.direction.find((direction) => direction === 'output')) {
+        isOutputSlot = true;
+      }
+      if (slot.direction && slot.direction.find((direction) => direction === 'input')) {
+        isInputSlot = true;
+      }
+
+      if (!slot.direction) {
+        isOutputSlot = true;
+        isInputSlot = true;
+      }
+      if (isOutputSlot && this._graph.outports[ slot.slotId ]) {
+        return;
+      }
+      if (isInputSlot && this._graph.inports[ slot.slotId ]) {
+        return;
+      }
       var metadata = {
         description: slot.description
       };
-      if (slot.direction.indexOf('input') !== -1) {
+      if (isInputSlot) {
         this._graph.addInport(slot.slotId, slot.type, metadata);
       }
-      if (slot.direction.indexOf('output') !== -1) {
+      if (isOutputSlot) {
         this._graph.addOutport(slot.slotId, slot.type, metadata);
       }
     },
@@ -820,6 +928,53 @@
         }.bind(this)
       };
 
+      var exportOutportAction = function (graph, itemKey, item) {
+        var pub = item.port;
+        var count = 0;
+        // Make sure public is unique
+        while (graph.outports[ pub ]) {
+          pub = item.port + (++count);
+        }
+        var priNode = graph.getNode(item.process);
+        var metadata = {
+          x: priNode.metadata.x + 144,
+          y: priNode.metadata.y + this._getRandomInt(0, this.grid)
+        };
+
+        graph.addOutport(pub, item.type, metadata);
+        graph.addEdge(item.process, item.port, undefined, pub, {
+          route: 5
+        });
+      }.bind(this);
+
+      var exportInportAction = function (graph, itemKey, item) {
+        var pub = item.port;
+
+        if (pub === 'start') {
+          pub = 'start1';
+        }
+
+        if (pub === 'graph') {
+          pub = 'graph1';
+        }
+
+        var count = 0;
+        // Make sure public is unique
+        while (graph.inports[ pub ]) {
+          pub = item.port + (++count);
+        }
+        var priNode = graph.getNode(item.process);
+        var metadata = {
+          x: priNode.metadata.x - 144,
+          y: priNode.metadata.y + this._getRandomInt(0, this.grid)
+        };
+
+        graph.addInport(pub, item.type, metadata);
+        graph.addEdge(undefined, pub, item.process, item.port, {
+          route: 2
+        });
+      }.bind(this);
+
       this.set('menus', {
 
         // Background
@@ -859,32 +1014,7 @@
           w4: {
             icon: 'sign-in',
             iconLabel: 'export',
-            action: function (graph, itemKey, item) {
-              var pub = item.port;
-
-              if (pub === 'start') {
-                pub = 'start1';
-              }
-
-              if (pub === 'graph') {
-                pub = 'graph1';
-              }
-
-              var count = 0;
-              // Make sure public is unique
-              while (graph.inports[ pub ]) {
-                pub = item.port + (++count);
-              }
-              var priNode = graph.getNode(item.process);
-              var metadata = {
-                x: priNode.metadata.x - 144,
-                y: priNode.metadata.y
-              };
-              graph.addInport(pub, item.type, metadata);
-              graph.addEdge(undefined, pub, item.process, item.port, {
-                route: 2
-              });
-            }
+            action: exportInportAction
           }
         },
 
@@ -892,23 +1022,7 @@
           e4: {
             icon: 'sign-out',
             iconLabel: 'export',
-            action: function (graph, itemKey, item) {
-              var pub = item.port;
-              var count = 0;
-              // Make sure public is unique
-              while (graph.outports[ pub ]) {
-                pub = item.port + (++count);
-              }
-              var priNode = graph.getNode(item.process);
-              var metadata = {
-                x: priNode.metadata.x + 144,
-                y: priNode.metadata.y
-              };
-              graph.addOutport(pub, item.type, metadata);
-              graph.addEdge(item.process, item.port, undefined, pub, {
-                route: 5
-              });
-            }
+            action: exportOutportAction
           }
         },
 
@@ -959,6 +1073,8 @@
     },
 
     _getConnectionForEdge: function (edge) {
+      console.log('_getConnectionForEdge this.connections', this.connections);
+      console.log('_getConnectionForEdge edge', edge);
       return this.connections.find(function (conn) {
         return conn.source.memberIdRef === edge.from.node &&
           conn.source.slot === edge.from.port &&
@@ -994,7 +1110,7 @@
     },
 
     /**
-     * Generet and get a random integer  between min and max
+     * Generate and get a random integer  between min and max
      * @param {Number} min lower limit for the random integer
      * @param {Number }max upper limit for the random integer
      * @returns {number} the generated random integer
@@ -1254,6 +1370,24 @@
       var selectedNodesHash = {};
       this.selectedMembers.forEach(function (member) {
         selectedNodesHash[ member.memberId ] = true;
+      });
+
+      this._graphView.setSelectedNodes(selectedNodesHash);
+    },
+    _selectedInputSlotChanged: function (changeRecord) {
+      if (!changeRecord || !this._graphView) { return; }
+      var selectedNodesHash = {};
+      this.selectedInputSlots.forEach(function (port) {
+        selectedNodesHash[ port.slotId ] = true;
+      });
+
+      this._graphView.setSelectedNodes(selectedNodesHash);
+    },
+    _selectedOutputSlotChanged: function (changeRecord) {
+      if (!changeRecord || !this._graphView) { return; }
+      var selectedNodesHash = {};
+      this.selectedOutputSlots.forEach(function (port) {
+        selectedNodesHash[ port.slotId ] = true;
       });
 
       this._graphView.setSelectedNodes(selectedNodesHash);

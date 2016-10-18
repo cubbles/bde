@@ -1,31 +1,32 @@
+/* globals React,ReactDOM,unwrap */
 (function (context) {
-  "use strict";
+  'use strict';
 
   var TheGraph = context.TheGraph;
 
   TheGraph.config.app = {
     container: {
-      className: "the-graph-app",
-      name: "app"
+      className: 'the-graph-app',
+      name: 'app'
     },
     canvas: {
-      ref: "canvas",
-      className: "app-canvas"
+      ref: 'canvas',
+      className: 'app-canvas'
     },
     svg: {
-      className: "app-svg"
+      className: 'app-svg'
     },
     svgGroup: {
-      className: "view"
+      className: 'view'
     },
     graph: {
-      ref: "graph"
+      ref: 'graph'
     },
     tooltip: {
-      ref: "tooltip"
+      ref: 'tooltip'
     },
     modal: {
-      className: "context"
+      className: 'context'
     }
   };
 
@@ -41,8 +42,8 @@
   };
 
   // No need to promote DIV creation to TheGraph.js.
-  function createAppContainer(options, content) {
-    var args = [options];
+  function createAppContainer (options, content) {
+    var args = [ options ];
 
     if (Array.isArray(content)) {
       args = args.concat(content);
@@ -51,22 +52,22 @@
     return React.DOM.div.apply(React.DOM.div, args);
   }
 
-  function createAppGraph(options) {
+  function createAppGraph (options) {
     return TheGraph.Graph(options);
   }
 
-  function createAppTooltip(options) {
+  function createAppTooltip (options) {
     return TheGraph.Tooltip(options);
   }
 
-  function createAppModalBackground(options) {
+  function createAppModalBackground (options) {
     return TheGraph.ModalBG(options);
   }
 
-  TheGraph.App = React.createFactory( React.createClass({
-    displayName: "TheGraphApp",
-    mixins: [React.Animate],
-    getInitialState: function() {
+  TheGraph.App = React.createFactory(React.createClass({
+    displayName: 'TheGraphApp',
+    mixins: [ React.Animate ],
+    getInitialState: function () {
       // Autofit
       var fit = TheGraph.findFit(this.props.graph, this.props.width, this.props.height);
 
@@ -78,7 +79,7 @@
         height: this.props.height,
         minZoom: this.props.minZoom,
         maxZoom: this.props.maxZoom,
-        tooltip: "",
+        tooltip: '',
         tooltipX: 0,
         tooltipY: 0,
         tooltipVisible: false,
@@ -100,7 +101,7 @@
       }
 
       // Safari is wheelDeltaY
-      this.zoomFactor += event.deltaY ? event.deltaY : 0-event.wheelDeltaY;
+      this.zoomFactor += event.deltaY ? event.deltaY : 0 - event.wheelDeltaY;
       this.zoomX = event.clientX;
       this.zoomY = event.clientY;
       requestAnimationFrame(this.scheduleWheelZoom);
@@ -109,15 +110,14 @@
       if (isNaN(this.zoomFactor)) { return; }
 
       // Speed limit
-      var zoomFactor = this.zoomFactor/-500;
+      var zoomFactor = this.zoomFactor / -500;
       zoomFactor = Math.min(0.5, Math.max(-0.5, zoomFactor));
       var scale = this.state.scale + (this.state.scale * zoomFactor);
       this.zoomFactor = 0;
 
       if (scale < this.state.minZoom) {
         scale = this.state.minZoom;
-      }
-      else if (scale > this.state.maxZoom) {
+      } else if (scale > this.state.maxZoom) {
         scale = this.state.maxZoom;
       }
       if (scale === this.state.scale) { return; }
@@ -195,7 +195,7 @@
       // Hammer.js
       this.pinching = false;
     },
-    onTrack: function(event) {
+    onTrack: function (event) {
       if (event.detail.state === 'track') {
         if (this.pinching) { return; }
         this.setState({
@@ -229,7 +229,7 @@
 
       // Don't go over right edge
       var x = event.detail.x + 10;
-      var width = tooltip.length*6;
+      var width = tooltip.length * 6;
       if (x + width > this.props.width) {
         x = event.detail.x - width - 10;
       }
@@ -241,9 +241,9 @@
         tooltipY: event.detail.y + 20
       });
     },
-    hideTooltip: function (event) {
+    hideTooltip: function (event) { // eslint-disable-line no-unuse-vars
       this.setState({
-        tooltip: "",
+        tooltip: '',
         tooltipVisible: false
       });
     },
@@ -260,10 +260,11 @@
       var fit = TheGraph.findNodeFit(node, this.state.width, this.state.height);
       var start_point = {
         x: -(this.state.x - this.state.width / 2) / this.state.scale,
-        y: -(this.state.y - this.state.height / 2) / this.state.scale,
-      }, end_point = {
+        y: -(this.state.y - this.state.height / 2) / this.state.scale
+      };
+      var end_point = {
         x: node.metadata.x,
-        y: node.metadata.y,
+        y: node.metadata.y
       };
       var graphfit = TheGraph.findAreaFit(start_point, end_point, this.state.width, this.state.height);
       var scale_ratio_1 = Math.abs(graphfit.scale - this.state.scale);
@@ -274,12 +275,12 @@
       this.animate({
         x: graphfit.x,
         y: graphfit.y,
-        scale: graphfit.scale,
-      }, duration * (scale_ratio_1 / scale_ratio_diff), 'in-quint', function() {
+        scale: graphfit.scale
+      }, duration * (scale_ratio_1 / scale_ratio_diff), 'in-quint', function () {
         this.animate({
           x: fit.x,
           y: fit.y,
-          scale: fit.scale,
+          scale: fit.scale
         }, duration * (scale_ratio_2 / scale_ratio_diff), 'out-quint');
       }.bind(this));
     },
@@ -292,34 +293,34 @@
       var domNode = ReactDOM.findDOMNode(this);
 
       // Unselect edges and nodes
-      if (this.props.onNodeSelection) {
-        domNode.addEventListener("tap", this.unselectAll);
+      if (this.props.onNodeSelection || this.props.onInportSelection || this.props.onOutportSelection) { // jtrs: added onInportSelection, and onOutportSelection
+        domNode.addEventListener('tap', this.unselectAll);
       }
 
       // Pointer gesture event for pan
-      domNode.addEventListener("track", this.onTrack);
+      domNode.addEventListener('track', this.onTrack);
 
       // Wheel to zoom
-      if (domNode.onwheel!==undefined) {
+      if (domNode.onwheel !== undefined) {
         // Chrome and Firefox
-        domNode.addEventListener("wheel", this.onWheel);
-      } else if (domNode.onmousewheel!==undefined) {
+        domNode.addEventListener('wheel', this.onWheel);
+      } else if (domNode.onmousewheel !== undefined) {
         // Safari
-        domNode.addEventListener("mousewheel", this.onWheel);
+        domNode.addEventListener('mousewheel', this.onWheel);
       }
 
       // Tooltip listener
-      domNode.addEventListener("the-graph-tooltip", this.changeTooltip);
-      domNode.addEventListener("the-graph-tooltip-hide", this.hideTooltip);
+      domNode.addEventListener('the-graph-tooltip', this.changeTooltip);
+      domNode.addEventListener('the-graph-tooltip-hide', this.hideTooltip);
 
       // Edge preview
-      domNode.addEventListener("the-graph-edge-start", this.edgeStart);
+      domNode.addEventListener('the-graph-edge-start', this.edgeStart);
 
-      domNode.addEventListener("contextmenu",this.onShowContext);
+      domNode.addEventListener('contextmenu', this.onShowContext);
 
       // Start zoom from middle if zoom before mouse move
-      this.mouseX = Math.floor( this.props.width/2 );
-      this.mouseY = Math.floor( this.props.height/2 );
+      this.mouseX = Math.floor(this.props.width / 2);
+      this.mouseY = Math.floor(this.props.height / 2);
 
       // HACK metaKey global for taps https://github.com/Polymer/PointerGestures/issues/29
       document.addEventListener('keydown', this.keyDown);
@@ -329,7 +330,6 @@
       this.bgCanvas = unwrap(ReactDOM.findDOMNode(this.refs.canvas));
       this.bgContext = unwrap(this.bgCanvas.getContext('2d'));
       this.componentDidUpdate();
-
 
       // Rerender graph once to fix edges
       setTimeout(function () {
@@ -348,7 +348,7 @@
       // App.showContext
       this.showContext({
         element: this,
-        type: "main",
+        type: 'main',
         x: x,
         y: y,
         graph: this.props.graph,
@@ -362,58 +362,58 @@
         TheGraph.metaKeyPressed = true;
       }
 
-      var key = event.keyCode,
-          hotKeys = {
-            // Delete
-            46: function () {
-              var graph = this.refs.graph.state.graph,
-                  selectedNodes = this.refs.graph.state.selectedNodes,
-                  selectedEdges = this.refs.graph.state.selectedEdges,
-                  menus = this.props.menus,
-                  menuOption = null,
-                  menuAction = null,
-                  nodeKey = null,
-                  node = null,
-                  edge = null;
+      var key = event.keyCode;
+      var hotKeys = {
+        // Delete
+        46: function () {
+          var graph = this.refs.graph.state.graph;
+          var selectedNodes = this.refs.graph.state.selectedNodes;
+          var selectedEdges = this.refs.graph.state.selectedEdges;
+          var menus = this.props.menus;
+          var menuOption = null; // eslint-disable-line no-unused-vars
+          var menuAction = null; // eslint-disable-line no-unused-vars
+          var nodeKey = null;
+          var node = null;
+          var edge = null; // eslint-disable-line no-unused-vars
 
-              for (nodeKey in selectedNodes) {
-                if (selectedNodes.hasOwnProperty(nodeKey)) {
-                  node = graph.getNode(nodeKey);
-                  menus.node.actions.delete(graph, nodeKey, node);
-                }
-              }
-              selectedEdges.map(function (edge) {
-                menus.edge.actions.delete(graph, null, edge);
-              });
-            }.bind(this),
-            // f for fit
-            70: function () {
-              this.triggerFit();
-            }.bind(this),
-            // s for selected
-            83: function () {
-              var graph = this.refs.graph.state.graph,
-                  selectedNodes = this.refs.graph.state.selectedNodes,
-                  nodeKey = null,
-                  node = null;
+          for (nodeKey in selectedNodes) {
+            if (selectedNodes.hasOwnProperty(nodeKey)) {
+              node = graph.getNode(nodeKey);
+              menus.node.actions.delete(graph, nodeKey, node);
+            }
+          }
+          selectedEdges.map(function (edge) {
+            menus.edge.actions.delete(graph, null, edge);
+          });
+        }.bind(this),
+        // f for fit
+        70: function () {
+          this.triggerFit();
+        }.bind(this),
+        // s for selected
+        83: function () {
+          var graph = this.refs.graph.state.graph;
+          var selectedNodes = this.refs.graph.state.selectedNodes;
+          var nodeKey = null;
+          var node = null;
 
-              for (nodeKey in selectedNodes) {
-                if (selectedNodes.hasOwnProperty(nodeKey)) {
-                  node = graph.getNode(nodeKey);
-                  this.focusNode(node);
-                  break;
-                }
-              }
-            }.bind(this)
-          };
+          for (nodeKey in selectedNodes) {
+            if (selectedNodes.hasOwnProperty(nodeKey)) {
+              node = graph.getNode(nodeKey);
+              this.focusNode(node);
+              break;
+            }
+          }
+        }.bind(this)
+      };
 
-      if (hotKeys[key]) {
-        hotKeys[key]();
+      if (hotKeys[ key ]) {
+        hotKeys[ key ]();
       }
     },
     keyUp: function (event) {
       // Escape
-      if (event.keyCode===27) {
+      if (event.keyCode === 27) {
         if (!this.refs.graph) {
           return;
         }
@@ -427,6 +427,8 @@
     unselectAll: function (event) {
       // No arguments = clear selection
       this.props.onNodeSelection();
+      this.props.onInportSelection(); // jtrs: added onInportSelection
+      this.props.onOutportSelection(); // jtrs: added onOutportSelection
       this.props.onEdgeSelection();
     },
     renderGraph: function () {
@@ -434,7 +436,7 @@
     },
     componentDidUpdate: function (prevProps, prevState) {
       this.renderCanvas(this.bgContext);
-      if (!prevState || prevState.x!==this.state.x || prevState.y!==this.state.y || prevState.scale!==this.state.scale) {
+      if (!prevState || prevState.x !== this.state.x || prevState.y !== this.state.y || prevState.scale !== this.state.scale) {
         this.onPanScale();
       }
     },
@@ -451,62 +453,61 @@
       var cols = Math.floor(this.state.width / g) + 1;
       var row = Math.floor(this.state.height / g) + 1;
       // Origin row/col index
-      var oc = Math.floor(this.state.x / g) + (this.state.x<0 ? 1 : 0);
-      var or = Math.floor(this.state.y / g) + (this.state.y<0 ? 1 : 0);
+      var oc = Math.floor(this.state.x / g) + (this.state.x < 0 ? 1 : 0);
+      var or = Math.floor(this.state.y / g) + (this.state.y < 0 ? 1 : 0);
 
       while (row--) {
         var col = cols;
         while (col--) {
-          var x = Math.round(col*g+dx);
-          var y = Math.round(row*g+dy);
-          if ((oc-col)%3===0 && (or-row)%3===0) {
+          var x = Math.round(col * g + dx);
+          var y = Math.round(row * g + dy);
+          if ((oc - col) % 3 === 0 && (or - row) % 3 === 0) {
             // 3x grid
-            c.fillStyle = "white";
+            c.fillStyle = 'white';
             c.fillRect(x, y, 1, 1);
           } else if (scale > 0.5) {
             // 1x grid
-            c.fillStyle = "grey";
+            c.fillStyle = 'grey';
             c.fillRect(x, y, 1, 1);
           }
         }
       }
-
     },
 
     getContext: function (menu, options, hide) {
-        return TheGraph.Menu({
-            menu: menu,
-            options: options,
-            triggerHideContext: hide,
-            label: "", // jtrs: changed label
-            graph: this.props.graph,
-            node: this,
-            ports: [],
-            process: [],
-            processKey: null,
-            x: options.x,
-            y: options.y,
-            nodeWidth: this.props.width,
-            nodeHeight: this.props.height,
-            deltaX: 0,
-            deltaY: 0,
-            highlightPort: false
-        });
+      return TheGraph.Menu({
+        menu: menu,
+        options: options,
+        triggerHideContext: hide,
+        label: '', // jtrs: changed label
+        graph: this.props.graph,
+        node: this,
+        ports: [],
+        process: [],
+        processKey: null,
+        x: options.x,
+        y: options.y,
+        nodeWidth: this.props.width,
+        nodeHeight: this.props.height,
+        deltaX: 0,
+        deltaY: 0,
+        highlightPort: false
+      });
     },
-    render: function() {
-      // console.timeEnd("App.render");
-      // console.time("App.render");
+    render: function () {
+      // console.timeEnd('App.render');
+      // console.time('App.render');
 
       // pan and zoom
       var sc = this.state.scale;
       var x = this.state.x;
       var y = this.state.y;
-      var transform = "matrix("+sc+",0,0,"+sc+","+x+","+y+")";
+      var transform = 'matrix(' + sc + ',0,0,' + sc + ',' + x + ',' + y + ')';
 
-      var scaleClass = sc > TheGraph.zbpBig ? "big" : ( sc > TheGraph.zbpNormal ? "normal" : "small");
+      var scaleClass = sc > TheGraph.zbpBig ? 'big' : (sc > TheGraph.zbpNormal ? 'normal' : 'small');
 
       var contextMenu, contextModal;
-      if ( this.state.contextMenu ) {
+      if (this.state.contextMenu) {
         var options = this.state.contextMenu;
         var menu = this.props.getMenuDef(options);
         if (menu) {
@@ -514,8 +515,7 @@
         }
       }
       if (contextMenu) {
-
-        var modalBGOptions ={
+        var modalBGOptions = {
           width: this.state.width,
           height: this.state.height,
           triggerHideContext: this.hideContext,
@@ -536,6 +536,8 @@
         app: this,
         library: this.props.library,
         onNodeSelection: this.props.onNodeSelection,
+        onOutportSelection: this.props.onOutportSelection, // jtrs: added onOutportSelection
+        onInportSelection: this.props.onInportSelection, // jtrs: added onInportSelection
         onEdgeSelection: this.props.onEdgeSelection,
         showContext: this.showContext
       };
@@ -543,7 +545,7 @@
       var graphElement = TheGraph.factories.app.createAppGraph.call(this, graphElementOptions);
 
       var svgGroupOptions = TheGraph.merge(TheGraph.config.app.svgGroup, { transform: transform });
-      var svgGroup = TheGraph.factories.app.createAppSvgGroup.call(this, svgGroupOptions, [graphElement]);
+      var svgGroup = TheGraph.factories.app.createAppSvgGroup.call(this, svgGroupOptions, [ graphElement ]);
 
       var tooltipOptions = {
         x: this.state.tooltipX,
@@ -567,18 +569,24 @@
       var svgOptions = TheGraph.merge(TheGraph.config.app.svg, { width: this.state.width, height: this.state.height });
       var svg = TheGraph.factories.app.createAppSvg.call(this, svgOptions, svgContents);
 
-      var canvasOptions = TheGraph.merge(TheGraph.config.app.canvas, { width: this.state.width, height: this.state.height });
+      var canvasOptions = TheGraph.merge(TheGraph.config.app.canvas, {
+        width: this.state.width,
+        height: this.state.height
+      });
       var canvas = TheGraph.factories.app.createAppCanvas.call(this, canvasOptions);
 
       var appContents = [
         canvas,
         svg
       ];
-      var containerOptions = TheGraph.merge(TheGraph.config.app.container, { style: { width: this.state.width, height: this.state.height } });
-      containerOptions.className += " " + scaleClass;
+      var containerOptions = TheGraph.merge(TheGraph.config.app.container, {
+        style: {
+          width: this.state.width,
+          height: this.state.height
+        }
+      });
+      containerOptions.className += ' ' + scaleClass;
       return TheGraph.factories.app.createAppContainer.call(this, containerOptions, appContents);
     }
   }));
-
-
 })(this);

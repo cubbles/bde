@@ -82,7 +82,7 @@
 
   // Node view
   TheGraph.Node = React.createFactory( React.createClass({
-    
+
     displayName: "TheGraphNode",
 
     mixins: [
@@ -99,11 +99,17 @@
       if (this.props.onNodeSelection) {
         domNode.addEventListener("tap", this.onNodeSelection, true);
       }
+      if (this.props.onInportSelection) { // jtrs: added listener of select inport node
+        domNode.addEventListener("tap", this.onInportSelection, true);
+      }
+      if (this.props.onOutportSelection) { // jtrs: added listener of select outport node
+        domNode.addEventListener("tap", this.onOutportSelection, true);
+      }
 
       // Context menu
       if (this.props.showContext) {
         ReactDOM.findDOMNode(this).addEventListener("contextmenu", this.showContext);
-        
+
         // Emulate PolymerGestures "hold" event
         // @todo: (fdu) Emulate hold event here
         // ReactDOM.findDOMNode(this).addEventListener("touchstart", chargeEvent("context", this.showContext));
@@ -117,6 +123,28 @@
 
       var toggle = (event.detail.sourceEvent.metaKey || event.detail.sourceEvent.ctrlKey || event.type.startsWith("touch"));
       this.props.onNodeSelection(this.props.nodeID, this.props.node, toggle);
+    },
+    /**
+     * Handler method for select inport node
+     * @param {Event} event touch event
+     */
+    onInportSelection: function (event) { // jtrs:  handler method for on inport selection
+      // Don't tap app (unselect)
+      event.stopPropagation();
+
+      var toggle = (event.detail.sourceEvent.metaKey || event.detail.sourceEvent.ctrlKey || event.type.startsWith("touch"));
+      this.props.onInportSelection(this.props.export.id, this.props.export.metadata, toggle);
+    },
+    /**
+     * Handler method for selct outport node
+     * @param {Event} event touch event
+     */
+    onOutportSelection: function (event) { // jtrs:  handler method for on outport selection
+      // Don't tap app (unselect)
+      event.stopPropagation();
+
+      var toggle = (event.detail.sourceEvent.metaKey || event.detail.sourceEvent.ctrlKey || event.type.startsWith("touch"));
+      this.props.onOutportSelection(this.props.export.id, this.props.export.metadata, toggle);
     },
 
     onTrack: function (event) {
@@ -318,7 +346,7 @@
     shouldComponentUpdate: function (nextProps, nextState) {
       // Only rerender if changed
       return (
-        nextProps.x !== this.props.x || 
+        nextProps.x !== this.props.x ||
         nextProps.y !== this.props.y ||
         nextProps.icon !== this.props.icon ||
         nextProps.label !== this.props.label ||
@@ -455,7 +483,7 @@
         height: this.props.height
       });
       var borderRect = TheGraph.factories.node.createNodeBorderRect.call(this, borderRectOptions);
-      
+
       var innerRectOptions = TheGraph.merge(TheGraph.config.node.innerRect, {
         width: this.props.width - 6,
         height: this.props.height - 6
@@ -492,7 +520,7 @@
       var labelRect = TheGraph.factories.node.createNodeLabelRect.call(this, labelRectOptions);
       var labelGroup = TheGraph.factories.node.createNodeLabelGroup.call(this, TheGraph.config.node.labelBackground, [labelRect, labelText]);
 
-      var sublabelTextOptions = TheGraph.merge(TheGraph.config.node.sublabelText, { 
+      var sublabelTextOptions = TheGraph.merge(TheGraph.config.node.sublabelText, {
         x: this.props.width / 2,
         y: this.props.height + 30,
         children: sublabel

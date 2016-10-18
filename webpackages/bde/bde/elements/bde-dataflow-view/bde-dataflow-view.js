@@ -134,13 +134,6 @@
       this.reload(manifest, artifactId, endpointId);
     },
 
-    // handleAddNode: function (event) {
-    //   var node = event.detail;
-    //   // TODO (fdu): Get the cubble component from dependencies
-    //   //              and add the new member
-    //   console.log('handleAddNode', event.detail);
-    // },
-
     handleRemoveNode: function (event) {
       var node = event.detail;
       var memberIdx = this._artifact.members.findIndex((m) => m.memberId === node.id);
@@ -272,9 +265,6 @@
       var artifact = manifest.artifacts.compoundComponents.find(function (artifact) {
         return artifact.artifactId === artifactId;
       });
-      // var endpoint = artifact.endpoints.find(function (endpoint) {
-      //   return endpoint.endpointId === endpointId;
-      // });
 
       var bdeGraph = this.$.bdeGraph;
       var promise = window.cubx.bde.bdeDataConverter.resolveArtifact(artifactId, manifest, this._baseUrl(), this.resolutions);
@@ -330,12 +320,6 @@
       // Show PropertyEditor
       // this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
       this.showPropertyEditor = (this.selectedMembers.length > 0);
-
-      // function memberForNode (_member) {
-      //   return this._artifact.members.find(function (member) {
-      //     return member.memberId === _member.memberId;
-      //   });
-      // }
     },
 
     showPropertyEditorChanged: function (showPropertyEditor) {
@@ -400,110 +384,110 @@
       // this._updateGraph(changeRecord);
     },
 
-    _graphFromArtifact: function (artifact) {
-      if (!artifact) { return; }
-
-      var graph = {
-        'id': Math.random().toString(36).substring(7),
-        'project': '',
-        'properties': {
-          'name': artifact.artifactId
-        },
-        'caseSensitive': true,
-        'inports': {},
-        'outports': {},
-        'processes': {},
-        'connections': []
-      };
-
-      // External inslots
-      artifact.connections
-        .filter(function (connection) {
-          return (!connection.source.memberIdRef &&
-          connection.destination.memberIdRef);
-        })
-        .forEach(function (connection) {
-          var slot = artifact.slots
-            .filter(function (slot) {
-              return slot.direction.indexOf('input') !== -1;
-            })
-            .find(function (slot) {
-              return slot.slotId === connection.source.slot;
-            });
-
-          graph.inports[ slot.slotId ] = {
-            'process': connection.destination.memberIdRef,
-            'port': connection.destination.slot,
-            'metadata': { x: 15, y: 15 }
-          };
-        });
-
-      // External outslots
-      artifact.connections
-        .filter(function (connection) {
-          return (!connection.destination.memberIdRef &&
-          connection.source.memberIdRef);
-        })
-        .forEach(function (connection) {
-          var slot = artifact.slots
-            .filter(function (slot) {
-              return slot.direction.indexOf('output') !== -1;
-            })
-            .find(function (slot) {
-              return slot.slotId === connection.destination.slot;
-            });
-
-          graph.inports[ slot.slotId ] = {
-            'process': connection.source.memberIdRef,
-            'port': connection.source.slot,
-            'metadata': { x: 0, y: 0 }
-          };
-        });
-
-      // Members
-      artifact.members.forEach(function (member) {
-        graph.processes[ member.memberId ] = {
-          'component': member.componentId,
-          'metadata': {
-            'x': 0,
-            'y': 0,
-            'label': member.displayName || member.memberId
-          }
-        };
-      });
-
-      // Connections
-      artifact.connections.forEach(function (con) {
-        var connection = {
-          'src': {
-            'process': con.source.memberIdRef,
-            'port': con.source.slot
-          },
-          'tgt': {
-            'process': con.destination.memberIdRef,
-            'port': con.destination.slot
-          },
-          'metadata': {}
-        };
-
-        graph.connections.push(connection);
-      });
-
-      // Initializers
-      artifact.inits.forEach(function (init) {
-        var connection = {
-          'data': init.value,
-          'tgt': {
-            'process': init.memberIdRef,
-            'port': init.slot
-          }
-        };
-
-        graph.connections.push(connection);
-      });
-
-      return graph;
-    },
+    // _graphFromArtifact: function (artifact) {
+    //   if (!artifact) { return; }
+    //
+    //   var graph = {
+    //     'id': Math.random().toString(36).substring(7),
+    //     'project': '',
+    //     'properties': {
+    //       'name': artifact.artifactId
+    //     },
+    //     'caseSensitive': true,
+    //     'inports': {},
+    //     'outports': {},
+    //     'processes': {},
+    //     'connections': []
+    //   };
+    //
+    //   // External inslots
+    //   artifact.connections
+    //     .filter(function (connection) {
+    //       return (!connection.source.memberIdRef &&
+    //       connection.destination.memberIdRef);
+    //     })
+    //     .forEach(function (connection) {
+    //       var slot = artifact.slots
+    //         .filter(function (slot) {
+    //           return slot.direction.indexOf('input') !== -1;
+    //         })
+    //         .find(function (slot) {
+    //           return slot.slotId === connection.source.slot;
+    //         });
+    //
+    //       graph.inports[ slot.slotId ] = {
+    //         'process': connection.destination.memberIdRef,
+    //         'port': connection.destination.slot,
+    //         'metadata': { x: 15, y: 15 }
+    //       };
+    //     });
+    //
+    //   // External outslots
+    //   artifact.connections
+    //     .filter(function (connection) {
+    //       return (!connection.destination.memberIdRef &&
+    //       connection.source.memberIdRef);
+    //     })
+    //     .forEach(function (connection) {
+    //       var slot = artifact.slots
+    //         .filter(function (slot) {
+    //           return slot.direction.indexOf('output') !== -1;
+    //         })
+    //         .find(function (slot) {
+    //           return slot.slotId === connection.destination.slot;
+    //         });
+    //
+    //       graph.inports[ slot.slotId ] = {
+    //         'process': connection.source.memberIdRef,
+    //         'port': connection.source.slot,
+    //         'metadata': { x: 0, y: 0 }
+    //       };
+    //     });
+    //
+    //   // Members
+    //   artifact.members.forEach(function (member) {
+    //     graph.processes[ member.memberId ] = {
+    //       'component': member.componentId,
+    //       'metadata': {
+    //         'x': 0,
+    //         'y': 0,
+    //         'label': member.displayName || member.memberId
+    //       }
+    //     };
+    //   });
+    //
+    //   // Connections
+    //   artifact.connections.forEach(function (con) {
+    //     var connection = {
+    //       'src': {
+    //         'process': con.source.memberIdRef,
+    //         'port': con.source.slot
+    //       },
+    //       'tgt': {
+    //         'process': con.destination.memberIdRef,
+    //         'port': con.destination.slot
+    //       },
+    //       'metadata': {}
+    //     };
+    //
+    //     graph.connections.push(connection);
+    //   });
+    //
+    //   // Initializers
+    //   artifact.inits.forEach(function (init) {
+    //     var connection = {
+    //       'data': init.value,
+    //       'tgt': {
+    //         'process': init.memberIdRef,
+    //         'port': init.slot
+    //       }
+    //     };
+    //
+    //     graph.connections.push(connection);
+    //   });
+    //
+    //   return graph;
+    // },
 
     _baseUrl: function () {
       return this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
