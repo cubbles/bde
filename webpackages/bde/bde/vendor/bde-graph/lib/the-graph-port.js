@@ -1,25 +1,26 @@
+/* globals React,ReactDOM */
 (function (context) {
-  "use strict";
+  'use strict';
 
   var TheGraph = context.TheGraph;
 
   // Initialize configuration for the Port view.
   TheGraph.config.port = {
     container: {
-      className: "port arrow"
+      className: 'port arrow'
     },
     backgroundCircle: {
-      className: "port-circle-bg"
+      className: 'port-circle-bg'
     },
     arc: {
-      className: "port-arc"
+      className: 'port-arc'
     },
     innerCircle: {
-      ref: "circleSmall"
+      ref: 'circleSmall'
     },
     text: {
-      ref: "label",
-      className: "port-label drag"
+      ref: 'label',
+      className: 'port-label drag'
     }
   };
 
@@ -33,25 +34,24 @@
 
   // Port view
 
-  TheGraph.Port = React.createFactory( React.createClass({
-    displayName: "TheGraphPort",
+  TheGraph.Port = React.createFactory(React.createClass({
+    displayName: 'TheGraphPort',
     mixins: [
       TheGraph.mixins.Tooltip
     ],
     componentDidMount: function () {
-
       // Preview edge start
-      ReactDOM.findDOMNode(this).addEventListener("tap", this.edgeStart);
-      ReactDOM.findDOMNode(this).addEventListener("track", this.edgeStart);
+      ReactDOM.findDOMNode(this).addEventListener('tap', this.edgeStart);
+      ReactDOM.findDOMNode(this).addEventListener('track', this.edgeStart);
 
       // Make edge
-      ReactDOM.findDOMNode(this).addEventListener("track", this.triggerDropOnTarget);
-      ReactDOM.findDOMNode(this).addEventListener("the-graph-edge-drop", this.edgeStart);
+      ReactDOM.findDOMNode(this).addEventListener('track', this.triggerDropOnTarget);
+      ReactDOM.findDOMNode(this).addEventListener('the-graph-edge-drop', this.edgeStart);
 
       // Show context menu
       if (this.props.showContext) {
-        ReactDOM.findDOMNode(this).addEventListener("contextmenu", this.showContext);
-        ReactDOM.findDOMNode(this).addEventListener("hold", this.showContext);
+        ReactDOM.findDOMNode(this).addEventListener('contextmenu', this.showContext);
+        ReactDOM.findDOMNode(this).addEventListener('hold', this.showContext);
       }
     },
     getTooltipTrigger: function () {
@@ -86,7 +86,7 @@
       // App.showContext
       this.props.showContext({
         element: this,
-        type: (this.props.isIn ? "nodeInport" : "nodeOutport"),
+        type: (this.props.isIn ? 'nodeInport' : 'nodeOutport'),
         x: x,
         y: y,
         graph: this.props.graph,
@@ -108,7 +108,7 @@
       // if (this.props.isExport) {
       //   return;
       // }
-      
+
       // Don't tap graph
       event.stopPropagation();
 
@@ -118,7 +118,7 @@
       if (event && (event.target === ReactDOM.findDOMNode(this.refs.label))) {
         return;
       }
-      
+
       var edgeStartEvent = new CustomEvent('the-graph-edge-start', {
         detail: {
           isIn: this.props.isIn,
@@ -132,7 +132,7 @@
     },
     triggerDropOnTarget: function (event) {
       // If dropped on a child element will bubble up to port
-      if (event.type === "track" && event.detail.state !== "end") { return; }
+      if (event.type === 'track' && event.detail.state !== 'end') { return; }
 
       var relatedTarget = event.detail.sourceEvent.target;
       if (!relatedTarget) { return; }
@@ -152,11 +152,11 @@
       // });
       // hoverTarget.dispatchEvent(dropEvent);
     },
-    render: function() {
+    render: function () {
       var style;
       if (this.props.label.length > 7) {
         var fontSize = 6 * (30 / (4 * this.props.label.length));
-        style = { 'fontSize': fontSize+'px' };
+        style = { 'fontSize': fontSize + 'px' };
       }
       var r = 4;
       // Highlight matching ports
@@ -176,7 +176,7 @@
       var arc = TheGraph.factories.port.createPortArc.call(this, arcOptions);
 
       var innerCircleOptions = {
-        className: "port-circle-small fill route" + (this.props.route || 'null'),
+        className: 'port-circle-small fill route' + (this.props.route || 'null'),
         r: r - 1.5
       };
 
@@ -198,11 +198,8 @@
         labelText
       ];
 
-      var containerOptions = TheGraph.merge(TheGraph.config.port.container, { title: this.props.label, transform: "translate("+this.props.x+","+this.props.y+")" });
+      var containerOptions = TheGraph.merge(TheGraph.config.port.container, { title: this.props.label, transform: 'translate(' + this.props.x + ',' + this.props.y + ')' });
       return TheGraph.factories.port.createPortGroup.call(this, containerOptions, portContents);
-
     }
   }));
-
-
 })(this);

@@ -1,11 +1,12 @@
+/* globals React,ReactDOM */
 (function (context) {
-  "use strict";
+  'use strict';
 
   var TheGraph = context.TheGraph;
 
   TheGraph.config.nodeMenu = {
     container: {
-      className: "context-node"
+      className: 'context-node'
     },
     inports: {},
     outports: {},
@@ -22,16 +23,16 @@
     createNodeMenuMenu: createNodeMenuMenu
   };
 
-  function createNodeMenuPorts(options) {
+  function createNodeMenuPorts (options) {
     return TheGraph.NodeMenuPorts(options);
   }
 
-  function createNodeMenuMenu(options) {
+  function createNodeMenuMenu (options) {
     return TheGraph.Menu(options);
   }
 
-  TheGraph.NodeMenu = React.createFactory( React.createClass({
-    displayName: "TheGraphNodeMenu",
+  TheGraph.NodeMenu = React.createFactory(React.createClass({
+    displayName: 'TheGraphNodeMenu',
     radius: 72,
     stopPropagation: function (event) {
       // Don't drag graph
@@ -39,12 +40,12 @@
     },
     componentDidMount: function () {
       // Prevent context menu
-      ReactDOM.findDOMNode(this).addEventListener("contextmenu", function (event) {
+      ReactDOM.findDOMNode(this).addEventListener('contextmenu', function (event) {
         event.stopPropagation();
         event.preventDefault();
       }, false);
     },
-    render: function() {
+    render: function () {
       var scale = this.props.node.props.app.state.scale;
       var ports = this.props.ports;
       var deltaX = this.props.deltaX;
@@ -96,14 +97,11 @@
       ];
 
       var containerOptions = {
-        transform: "translate("+this.props.x+","+this.props.y+")",
+        transform: 'translate(' + this.props.x + ',' + this.props.y + ')',
         children: children
       };
       containerOptions = TheGraph.merge(TheGraph.config.nodeMenu.container, containerOptions);
       return TheGraph.factories.nodeMenu.createNodeMenuGroup.call(this, containerOptions);
-
     }
   }));
-
-
 })(this);

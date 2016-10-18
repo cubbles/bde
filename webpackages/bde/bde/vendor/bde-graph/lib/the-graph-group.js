@@ -1,23 +1,24 @@
+/* globals React,ReactDOM */
 (function (context) {
-  "use strict";
+  'use strict';
 
   var TheGraph = context.TheGraph;
 
   TheGraph.config.group = {
     container: {
-      className: "group"
+      className: 'group'
     },
     boxRect: {
-      ref: "box",
+      ref: 'box',
       rx: TheGraph.config.nodeRadius,
       ry: TheGraph.config.nodeRadius
     },
     labelText: {
-      ref: "label",
-      className: "group-label drag"
+      ref: 'label',
+      className: 'group-label drag'
     },
     descriptionText: {
-      className: "group-description"
+      className: 'group-description'
     }
   };
 
@@ -30,26 +31,26 @@
 
   // Group view
 
-  TheGraph.Group = React.createFactory( React.createClass({
-    displayName: "TheGraphGroup",
+  TheGraph.Group = React.createFactory(React.createClass({
+    displayName: 'TheGraphGroup',
     componentDidMount: function () {
       // Move group
       if (this.props.isSelectionGroup) {
         // Drag selection by bg
-        ReactDOM.findDOMNode(this.refs.box).addEventListener("trackstart", this.onTrackStart);
+        ReactDOM.findDOMNode(this.refs.box).addEventListener('trackstart', this.onTrackStart);
       } else {
-        ReactDOM.findDOMNode(this.refs.label).addEventListener("trackstart", this.onTrackStart);
+        ReactDOM.findDOMNode(this.refs.label).addEventListener('trackstart', this.onTrackStart);
       }
 
       var domNode = ReactDOM.findDOMNode(this);
 
       // Don't pan under menu
-      domNode.addEventListener("trackstart", this.dontPan);
+      domNode.addEventListener('trackstart', this.dontPan);
 
       // Context menu
       if (this.props.showContext) {
-        domNode.addEventListener("contextmenu", this.showContext);
-        domNode.addEventListener("hold", this.showContext);
+        domNode.addEventListener('contextmenu', this.showContext);
+        domNode.addEventListener('hold', this.showContext);
       }
     },
     showContext: function (event) {
@@ -67,7 +68,7 @@
       // App.showContext
       this.props.showContext({
         element: this,
-        type: (this.props.isSelectionGroup ? "selection" : "group"),
+        type: (this.props.isSelectionGroup ? 'selection' : 'group'),
         x: x,
         y: y,
         graph: this.props.graph,
@@ -95,25 +96,25 @@
 
       if (this.props.isSelectionGroup) {
         var box = ReactDOM.findDOMNode(this.refs.box);
-        box.addEventListener("track", this.onTrack);
-        box.addEventListener("trackend", this.onTrackEnd);
+        box.addEventListener('track', this.onTrack);
+        box.addEventListener('trackend', this.onTrackEnd);
       } else {
         var label = ReactDOM.findDOMNode(this.refs.label);
-        label.addEventListener("track", this.onTrack);
-        label.addEventListener("trackend", this.onTrackEnd);
+        label.addEventListener('track', this.onTrack);
+        label.addEventListener('trackend', this.onTrackEnd);
       }
 
       this.props.graph.startTransaction('movegroup');
     },
     onTrack: function (event) {
-      // Dont listen to "new" polymer gestures
+      // Dont listen to 'new' polymer gestures
       if (!event.ddx || !event.ddy) { return; }
 
       // Don't fire on graph
       event.stopPropagation();
 
-      var deltaX = Math.round( event.ddx / this.props.scale );
-      var deltaY = Math.round( event.ddy / this.props.scale );
+      var deltaX = Math.round(event.ddx / this.props.scale);
+      var deltaY = Math.round(event.ddy / this.props.scale);
 
       this.props.triggerMoveGroup(this.props.item.nodes, deltaX, deltaY);
     },
@@ -129,17 +130,17 @@
 
       if (this.props.isSelectionGroup) {
         var box = ReactDOM.findDOMNode(this.refs.box);
-        box.removeEventListener("track", this.onTrack);
-        box.removeEventListener("trackend", this.onTrackEnd);
+        box.removeEventListener('track', this.onTrack);
+        box.removeEventListener('trackend', this.onTrackEnd);
       } else {
         var label = ReactDOM.findDOMNode(this.refs.label);
-        label.removeEventListener("track", this.onTrack);
-        label.removeEventListener("trackend", this.onTrackEnd);
+        label.removeEventListener('track', this.onTrack);
+        label.removeEventListener('trackend', this.onTrackEnd);
       }
 
       this.props.graph.endTransaction('movegroup');
     },
-    render: function() {
+    render: function () {
       var x = this.props.minX - TheGraph.config.nodeWidth / 2;
       var y = this.props.minY - TheGraph.config.nodeHeight / 2;
       var color = (this.props.color ? this.props.color : 0);
@@ -147,12 +148,12 @@
       var boxRectOptions = {
         x: x,
         y: y,
-        width: this.props.maxX - x + TheGraph.config.nodeWidth*0.5,
-        height: this.props.maxY - y + TheGraph.config.nodeHeight*0.75,
-        className: "group-box color"+color + selection
+        width: this.props.maxX - x + TheGraph.config.nodeWidth * 0.5,
+        height: this.props.maxY - y + TheGraph.config.nodeHeight * 0.75,
+        className: 'group-box color' + color + selection
       };
       boxRectOptions = TheGraph.merge(TheGraph.config.group.boxRect, boxRectOptions);
-      var boxRect =  TheGraph.factories.group.createGroupBoxRect.call(this, boxRectOptions);
+      var boxRect = TheGraph.factories.group.createGroupBoxRect.call(this, boxRectOptions);
 
       var labelTextOptions = {
         x: x + TheGraph.config.nodeRadius,
@@ -178,9 +179,6 @@
 
       var containerOptions = TheGraph.merge(TheGraph.config.group.container, {});
       return TheGraph.factories.group.createGroupGroup.call(this, containerOptions, groupContents);
-
     }
   }));
-
-
 })(this);

@@ -3,7 +3,7 @@
  */
 
 (function (context) {
-  "use strict";
+  'use strict';
   var TheGraph = context.TheGraph;
 
   TheGraph.Clipboard = {};
@@ -24,9 +24,9 @@
   };
 
   TheGraph.Clipboard.copy = function (graph, keys) {
-    //Duplicate all the nodes before putting them in clipboard
-    //this will make this work also with cut/Paste and once we
-    //decide if/how we will implement cross-document copy&paste will work there too
+    // Duplicate all the nodes before putting them in clipboard
+    // this will make this work also with cut/Paste and once we
+    // decide if/how we will implement cross-document copy&paste will work there too
     clipboardContent = { nodes: [], edges: [] };
     var map = {};
     var i, len;
@@ -48,7 +48,6 @@
         clipboardContent.edges.push(newEdge);
       }
     }
-
   };
 
   TheGraph.Clipboard.paste = function (graph, position) { // @jtrs added position parameter
@@ -88,5 +87,4 @@
     }
     return pasted;
   };
-
 })(this);

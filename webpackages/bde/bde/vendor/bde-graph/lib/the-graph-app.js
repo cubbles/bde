@@ -342,8 +342,10 @@
       if (event.preventTap) { event.preventTap(); }
 
       // Get mouse position
-      var x = event.x || event.clientX || 0;
-      var y = event.y || event.clientY || 0;
+      // var x = event.x || event.clientX || 0;
+      // var y = event.y || event.clientY || 0;
+      var x = event.x - this.props.offsetX || event.clientX - this.props.offsetX || 0; // jtrs: correcture with offset
+      var y = event.y - this.props.offsetY|| event.clientY - this.props.offsetY || 0; // jtrs: correcture with offset
 
       // App.showContext
       this.showContext({

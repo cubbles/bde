@@ -1,18 +1,19 @@
+/* globals React */
 (function (context) {
-  "use strict";
+  'use strict';
 
   var TheGraph = context.TheGraph;
 
   TheGraph.config.nodeMenuPorts = {
     container: {},
     linesGroup: {
-      className: "context-ports-lines"
+      className: 'context-ports-lines'
     },
     portsGroup: {
-      className: "context-ports-ports"
+      className: 'context-ports-ports'
     },
     portPath: {
-      className: "context-port-path"
+      className: 'context-port-path'
     },
     nodeMenuPort: {}
   };
@@ -25,13 +26,13 @@
     createNodeMenuPortsNodeMenuPort: createNodeMenuPort
   };
 
-  function createNodeMenuPort(options) {
+  function createNodeMenuPort (options) {
     return TheGraph.NodeMenuPort(options);
   }
 
-  TheGraph.NodeMenuPorts = React.createFactory( React.createClass({
-    displayName: "TheGraphNodeMenuPorts",
-    render: function() {
+  TheGraph.NodeMenuPorts = React.createFactory(React.createClass({
+    displayName: 'TheGraphNodeMenuPorts',
+    render: function () {
       var portViews = [];
       var lines = [];
 
@@ -43,17 +44,17 @@
       var keys = Object.keys(this.props.ports);
       var h = keys.length * TheGraph.contextPortSize;
       var len = keys.length;
-      for (var i=0; i<len; i++) {
+      for (var i = 0; i < len; i++) {
         var key = keys[i];
         var port = ports[key];
 
         var x = (this.props.isIn ? -100 : 100);
-        var y = 0 - h/2 + i*TheGraph.contextPortSize + TheGraph.contextPortSize/2;
-        var ox = (port.x - this.props.nodeWidth/2) * scale + deltaX;
-        var oy = (port.y - this.props.nodeHeight/2) * scale + deltaY;
+        var y = 0 - h / 2 + i * TheGraph.contextPortSize + TheGraph.contextPortSize / 2;
+        var ox = (port.x - this.props.nodeWidth / 2) * scale + deltaX;
+        var oy = (port.y - this.props.nodeHeight / 2) * scale + deltaY;
 
         // Make path from graph port to menu port
-        var lineOptions = TheGraph.merge(TheGraph.config.nodeMenuPorts.portPath, { d: [ "M", ox, oy, "L", x, y ].join(" ") });
+        var lineOptions = TheGraph.merge(TheGraph.config.nodeMenuPorts.portPath, { d: [ 'M', ox, oy, 'L', x, y ].join(' ') });
         var line = TheGraph.factories.menuPorts.createNodeMenuPortsPortPath.call(this, lineOptions);
 
         var portViewOptions = {
@@ -73,9 +74,9 @@
         portViews.push(portView);
       }
 
-      var transform = "";
+      var transform = '';
       if (this.props.translateX !== undefined) {
-        transform = "translate("+this.props.translateX+","+this.props.translateY+")";
+        transform = 'translate(' + this.props.translateX + ',' + this.props.translateY + ')';
       }
 
       var linesGroupOptions = TheGraph.merge(TheGraph.config.nodeMenuPorts.linesGroup, { children: lines });
@@ -86,13 +87,11 @@
 
       var containerContents = [linesGroup, portsGroup];
       var containerOptions = {
-        className: "context-ports context-ports-"+(this.props.isIn ? "in" : "out"),
+        className: 'context-ports context-ports-' + (this.props.isIn ? 'in' : 'out'),
         transform: transform
       };
       containerOptions = TheGraph.merge(TheGraph.config.nodeMenuPorts.container, containerOptions);
       return TheGraph.factories.menuPorts.createNodeMenuPortsGroup.call(this, containerOptions, containerContents);
     }
   }));
-
-
 })(this);

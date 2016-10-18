@@ -1,5 +1,6 @@
+/* globals React,ReactDOM */
 (function (context) {
-  "use strict";
+  'use strict';
 
   var TheGraph = context.TheGraph;
 
@@ -24,32 +25,32 @@
       w4LabelY: 15
     },
     container: {
-      className: "context-menu"
+      className: 'context-menu'
     },
     arcPath: {
-      className: "context-arc context-node-info-bg"
+      className: 'context-arc context-node-info-bg'
     },
     sliceIconText: {
-      className: "icon context-icon context-node-info-icon"
+      className: 'icon context-icon context-node-info-icon'
     },
     sliceLabelText: {
-      className: "context-arc-label"
+      className: 'context-arc-label'
     },
     sliceIconLabelText: {
-      className: "context-arc-icon-label"
+      className: 'context-arc-icon-label'
     },
     circleXPath: {
-      className: "context-circle-x",
-      d: "M -51 -51 L 51 51 M -51 51 L 51 -51"
+      className: 'context-circle-x',
+      d: 'M -51 -51 L 51 51 M -51 51 L 51 -51'
     },
     outlineCircle: {
-      className: "context-circle"
+      className: 'context-circle'
     },
     labelText: {
-      className: "context-node-label"
+      className: 'context-node-label'
     },
     iconRect: {
-      className: "context-node-rect",
+      className: 'context-node-rect',
       x: -24,
       y: -24,
       width: 48,
@@ -74,20 +75,19 @@
     createMenuMiddleIconText: TheGraph.factories.createText
   };
 
-  function createMenuSlice(options) {
-    /*jshint validthis:true */
+  function createMenuSlice (options) {
     var direction = options.direction;
-    var arcPathOptions = TheGraph.merge(TheGraph.config.menu.arcPath, { d: TheGraph.arcs[direction] });
+    var arcPathOptions = TheGraph.merge(TheGraph.config.menu.arcPath, { d: TheGraph.arcs[ direction ] });
     var children = [
       TheGraph.factories.menu.createMenuSliceArcPath(arcPathOptions)
     ];
 
-    if (this.props.menu[direction]) {
-      var slice = this.props.menu[direction];
+    if (this.props.menu[ direction ]) {
+      var slice = this.props.menu[ direction ];
       if (slice.icon) {
         var sliceIconTextOptions = {
-          x: TheGraph.config.menu.positions[direction+"IconX"],
-          y: TheGraph.config.menu.positions[direction+"IconY"],
+          x: TheGraph.config.menu.positions[ direction + 'IconX' ],
+          y: TheGraph.config.menu.positions[ direction + 'IconY' ],
           children: TheGraph.FONT_AWESOME[ slice.icon ]
         };
         sliceIconTextOptions = TheGraph.merge(TheGraph.config.menu.sliceIconText, sliceIconTextOptions);
@@ -95,8 +95,8 @@
       }
       if (slice.label) {
         var sliceLabelTextOptions = {
-          x: TheGraph.config.menu.positions[direction+"IconX"],
-          y: TheGraph.config.menu.positions[direction+"IconY"],
+          x: TheGraph.config.menu.positions[ direction + 'IconX' ],
+          y: TheGraph.config.menu.positions[ direction + 'IconY' ],
           children: slice.label
         };
         sliceLabelTextOptions = TheGraph.merge(TheGraph.config.menu.sliceLabelText, sliceLabelTextOptions);
@@ -104,8 +104,8 @@
       }
       if (slice.iconLabel) {
         var sliceIconLabelTextOptions = {
-          x: TheGraph.config.menu.positions[direction+"LabelX"],
-          y: TheGraph.config.menu.positions[direction+"LabelY"],
+          x: TheGraph.config.menu.positions[ direction + 'LabelX' ],
+          y: TheGraph.config.menu.positions[ direction + 'LabelY' ],
           children: slice.iconLabel
         };
         sliceIconLabelTextOptions = TheGraph.merge(TheGraph.config.menu.sliceIconLabelText, sliceIconLabelTextOptions);
@@ -115,27 +115,27 @@
 
     var containerOptions = {
       ref: direction,
-      className: "context-slice context-node-info" + (this.state[direction+"tappable"] ? " click" : ""),
+      className: 'context-slice context-node-info' + (this.state[ direction + 'tappable' ] ? ' click' : ''),
       children: children
     };
     containerOptions = TheGraph.merge(TheGraph.config.menu.container, containerOptions);
     return TheGraph.factories.menu.createMenuGroup.call(this, containerOptions);
   }
 
-  TheGraph.Menu = React.createFactory( React.createClass({
-    displayName: "TheGraphMenu",
+  TheGraph.Menu = React.createFactory(React.createClass({
+    displayName: 'TheGraphMenu',
     radius: TheGraph.config.menu.radius,
-    getInitialState: function() {
+    getInitialState: function () {
       // Use these in CSS for cursor and hover, and to attach listeners
       return {
         n4tappable: (this.props.menu.n4 && this.props.menu.n4.action),
         s4tappable: (this.props.menu.s4 && this.props.menu.s4.action),
         e4tappable: (this.props.menu.e4 && this.props.menu.e4.action),
-        w4tappable: (this.props.menu.w4 && this.props.menu.w4.action),
+        w4tappable: (this.props.menu.w4 && this.props.menu.w4.action)
       };
     },
     onTapN4: function (event) {
-      // Prevent "native" polymer events
+      // Prevent 'native' polymer events
       if (event.detail !== 1) { return; }
 
       var options = this.props.options;
@@ -143,7 +143,7 @@
       this.props.triggerHideContext();
     },
     onTapS4: function (event) {
-      // Prevent "native" polymer events
+      // Prevent 'native' polymer events
       if (event.detail !== 1) { return; }
 
       var options = this.props.options;
@@ -151,7 +151,7 @@
       this.props.triggerHideContext();
     },
     onTapE4: function (event) {
-      // Prevent "native" polymer events
+      // Prevent 'native' polymer events
       if (event.detail !== 1) { return; }
 
       var options = this.props.options;
@@ -159,7 +159,7 @@
       this.props.triggerHideContext();
     },
     onTapW4: function (event) {
-      // Prevent "native" polymer events
+      // Prevent 'native' polymer events
       if (event.detail !== 1) { return; }
 
       var options = this.props.options;
@@ -168,24 +168,24 @@
     },
     componentDidMount: function () {
       if (this.state.n4tappable) {
-        this.refs.n4.addEventListener("mouseup", this.onTapN4);
-        this.refs.n4.addEventListener("touchend", this.onTapN4);
+        this.refs.n4.addEventListener('mouseup', this.onTapN4);
+        this.refs.n4.addEventListener('touchend', this.onTapN4);
       }
       if (this.state.s4tappable) {
-        this.refs.s4.addEventListener("mouseup", this.onTapS4);
-        this.refs.s4.addEventListener("touchend", this.onTapS4);
+        this.refs.s4.addEventListener('mouseup', this.onTapS4);
+        this.refs.s4.addEventListener('touchend', this.onTapS4);
       }
       if (this.state.e4tappable) {
-        this.refs.e4.addEventListener("mouseup", this.onTapE4);
-        this.refs.e4.addEventListener("touchend", this.onTapE4);
+        this.refs.e4.addEventListener('mouseup', this.onTapE4);
+        this.refs.e4.addEventListener('touchend', this.onTapE4);
       }
       if (this.state.w4tappable) {
-        this.refs.w4.addEventListener("mouseup", this.onTapW4);
-        this.refs.w4.addEventListener("touchend", this.onTapW4);
+        this.refs.w4.addEventListener('mouseup', this.onTapW4);
+        this.refs.w4.addEventListener('touchend', this.onTapW4);
       }
 
       // Prevent context menu
-      ReactDOM.findDOMNode(this).addEventListener("contextmenu", function (event) {
+      ReactDOM.findDOMNode(this).addEventListener('contextmenu', function (event) {
         if (event) {
           event.stopPropagation();
           event.preventDefault();
@@ -198,27 +198,26 @@
         y: this.props.y !== undefined ? this.props.y : this.props.options.y || 0
       };
     },
-    render: function() {
+    render: function () {
       var menu = this.props.menu;
-      var options = this.props.options;
+      // var options = this.props.options;
       var position = this.getPosition();
 
       var circleXOptions = TheGraph.merge(TheGraph.config.menu.circleXPath, {});
-      var outlineCircleOptions = TheGraph.merge(TheGraph.config.menu.outlineCircle, {r: this.radius });
+      var outlineCircleOptions = TheGraph.merge(TheGraph.config.menu.outlineCircle, { r: this.radius });
 
       var children = [
         // Directional slices
-        TheGraph.factories.menu.createMenuSlice.call(this, { direction: "n4" }),
-        TheGraph.factories.menu.createMenuSlice.call(this, { direction: "s4" }),
-        TheGraph.factories.menu.createMenuSlice.call(this, { direction: "e4" }),
-        TheGraph.factories.menu.createMenuSlice.call(this, { direction: "w4" }),
+        TheGraph.factories.menu.createMenuSlice.call(this, { direction: 'n4' }),
+        TheGraph.factories.menu.createMenuSlice.call(this, { direction: 's4' }),
+        TheGraph.factories.menu.createMenuSlice.call(this, { direction: 'e4' }),
+        TheGraph.factories.menu.createMenuSlice.call(this, { direction: 'w4' }),
         // Outline and X
         TheGraph.factories.menu.createMenuCircleXPath.call(this, circleXOptions),
         TheGraph.factories.menu.createMenuOutlineCircle.call(this, outlineCircleOptions)
       ];
       // Menu label
       if (this.props.label || menu.icon) {
-
         var labelTextOptions = {
           x: 0,
           y: 0 - this.radius - 15,
@@ -230,17 +229,17 @@
       }
       // Middle icon
       if (this.props.icon || menu.icon) {
-        var iconColor = (this.props.iconColor!==undefined ? this.props.iconColor : menu.iconColor);
-        var iconStyle = "";
+        var iconColor = (this.props.iconColor !== undefined ? this.props.iconColor : menu.iconColor);
+        var iconStyle = '';
         if (iconColor) {
-          iconStyle = " fill route"+iconColor;
+          iconStyle = ' fill route' + iconColor;
         }
 
         var middleIconRectOptions = TheGraph.merge(TheGraph.config.menu.iconRect, {});
         var middleIcon = TheGraph.factories.menu.createMenuMiddleIconRect.call(this, middleIconRectOptions);
 
         var middleIconTextOptions = {
-          className: "icon context-node-icon"+iconStyle,
+          className: 'icon context-node-icon' + iconStyle,
           children: TheGraph.FONT_AWESOME[ (this.props.icon ? this.props.icon : menu.icon) ]
         };
         middleIconTextOptions = TheGraph.merge(TheGraph.config.menu.iconText, middleIconTextOptions);
@@ -250,21 +249,20 @@
       }
 
       var containerOptions = {
-        transform: "translate("+position.x+","+position.y+")",
+        transform: 'translate(' + position.x + ',' + position.y + ')',
         children: children
       };
 
       containerOptions = TheGraph.merge(TheGraph.config.menu.container, containerOptions);
       return TheGraph.factories.menu.createMenuGroup.call(this, containerOptions);
-
     }
   }));
 
   TheGraph.config.modalBG = {
     container: {},
     rect: {
-      ref: "rect",
-      className: "context-modal-bg"
+      ref: 'rect',
+      className: 'context-modal-bg'
     }
   };
 
@@ -273,29 +271,26 @@
     createModalBackgroundRect: TheGraph.factories.createRect
   };
 
-
-  TheGraph.ModalBG = React.createFactory( React.createClass({
-    displayName: "TheGraphModalBG",
+  TheGraph.ModalBG = React.createFactory(React.createClass({
+    displayName: 'TheGraphModalBG',
     componentDidMount: function () {
       var domNode = ReactDOM.findDOMNode(this);
       var rectNode = this.refs.rect;
-      var handler = function(event) {
+      var handler = function (event) {
         // Only if outside of menu
-        if (event && event.target == rectNode) {
+        if (event && event.target === rectNode) {
           this.hideModal();
         }
       };
 
       // Right-click on another item will show its menu
-      domNode.addEventListener("mousedown", handler.bind(this));
-      domNode.addEventListener("touchstart", handler.bind(this));
+      domNode.addEventListener('mousedown', handler.bind(this));
+      domNode.addEventListener('touchstart', handler.bind(this));
     },
     hideModal: function (event) {
       this.props.triggerHideContext();
     },
     render: function () {
-
-
       var rectOptions = {
         width: this.props.width,
         height: this.props.height
@@ -304,11 +299,9 @@
       rectOptions = TheGraph.merge(TheGraph.config.modalBG.rect, rectOptions);
       var rect = TheGraph.factories.modalBG.createModalBackgroundRect.call(this, rectOptions);
 
-      var containerContents = [rect, this.props.children];
+      var containerContents = [ rect, this.props.children ];
       var containerOptions = TheGraph.merge(TheGraph.config.modalBG.container, {});
       return TheGraph.factories.modalBG.createModalBackgroundGroup.call(this, containerOptions, containerContents);
     }
   }));
-
-
 })(this);

@@ -1,5 +1,6 @@
+/* globals React,ReactDOM */
 (function (context) {
-  "use strict";
+  'use strict';
 
   var defaultNodeSize = 72;
   var defaultNodeRadius = 8;
@@ -42,7 +43,7 @@
   // Class must have getTooltipTrigger (dom node) and shouldShowTooltip (boolean)
   TheGraph.mixins.Tooltip = {
     showTooltip: function (event) {
-      if ( !this.shouldShowTooltip() ) { return; }
+      if (!this.shouldShowTooltip()) { return; }
 
       // @jtrs: change the tooltip position -> correct with offset
       var tooltipEvent = new CustomEvent('the-graph-tooltip', {
@@ -56,7 +57,7 @@
       ReactDOM.findDOMNode(this).dispatchEvent(tooltipEvent);
     },
     hideTooltip: function (event) {
-      if ( !this.shouldShowTooltip() ) { return; }
+      if (!this.shouldShowTooltip()) { return; }
 
       var tooltipEvent = new CustomEvent('the-graph-tooltip-hide', {
         bubbles: true
@@ -66,21 +67,21 @@
       }
     },
     componentDidMount: function () {
-      if (navigator && navigator.userAgent.indexOf("Firefox") !== -1) {
+      if (navigator && navigator.userAgent.indexOf('Firefox') !== -1) {
         // HACK Ff does native tooltips on svg elements
         return;
       }
       var tooltipper = this.getTooltipTrigger();
-      tooltipper.addEventListener("tap", this.showTooltip);
-      tooltipper.addEventListener("mouseenter", this.showTooltip);
-      tooltipper.addEventListener("mouseleave", this.hideTooltip);
+      tooltipper.addEventListener('tap', this.showTooltip);
+      tooltipper.addEventListener('mouseenter', this.showTooltip);
+      tooltipper.addEventListener('mouseleave', this.hideTooltip);
     }
   };
 
   TheGraph.findMinMax = function (graph, nodes) {
     var inports, outports;
     if (nodes === undefined) {
-      nodes = graph.nodes.map( function (node) {
+      nodes = graph.nodes.map(function (node) {
         return node.id;
       });
       // Only look at exports when calculating the whole graph
@@ -97,8 +98,8 @@
 
     // Loop through nodes
     var len = nodes.length;
-    for (var i=0; i<len; i++) {
-      var key = nodes[i];
+    for (var i = 0; i < len; i++) {
+      var key = nodes[ i ];
       var node = graph.getNode(key);
       if (!node || !node.metadata) {
         continue;
@@ -115,8 +116,8 @@
     if (inports) {
       keys = Object.keys(inports);
       len = keys.length;
-      for (i=0; i<len; i++) {
-        exp = inports[keys[i]];
+      for (i = 0; i < len; i++) {
+        exp = inports[ keys[ i ] ];
         if (!exp.metadata) { continue; }
         if (exp.metadata.x < minX) { minX = exp.metadata.x; }
         if (exp.metadata.y < minY) { minY = exp.metadata.y; }
@@ -127,8 +128,8 @@
     if (outports) {
       keys = Object.keys(outports);
       len = keys.length;
-      for (i=0; i<len; i++) {
-        exp = outports[keys[i]];
+      for (i = 0; i < len; i++) {
+        exp = outports[ keys[ i ] ];
         if (!exp.metadata) { continue; }
         if (exp.metadata.x < minX) { minX = exp.metadata.x; }
         if (exp.metadata.y < minY) { minY = exp.metadata.y; }
@@ -151,7 +152,7 @@
   TheGraph.findFit = function (graph, width, height) {
     var limits = TheGraph.findMinMax(graph);
     if (!limits) {
-      return {x:0, y:0, scale:1};
+      return { x: 0, y: 0, scale: 1 };
     }
     limits.minX -= TheGraph.config.nodeSize;
     limits.minY -= TheGraph.config.nodeSize;
@@ -168,10 +169,10 @@
     if (scaleX < scaleY) {
       scale = scaleX;
       x = 0 - limits.minX * scale;
-      y = 0 - limits.minY * scale + (height-(gHeight*scale))/2;
+      y = 0 - limits.minY * scale + (height - (gHeight * scale)) / 2;
     } else {
       scale = scaleY;
-      x = 0 - limits.minX * scale + (width-(gWidth*scale))/2;
+      x = 0 - limits.minX * scale + (width - (gWidth * scale)) / 2;
       y = 0 - limits.minY * scale;
     }
 
@@ -205,10 +206,10 @@
     if (scaleX < scaleY) {
       scale = scaleX;
       x = 0 - limits.minX * scale;
-      y = 0 - limits.minY * scale + (height-(gHeight*scale))/2;
+      y = 0 - limits.minY * scale + (height - (gHeight * scale)) / 2;
     } else {
       scale = scaleY;
-      x = 0 - limits.minX * scale + (width-(gWidth*scale))/2;
+      x = 0 - limits.minX * scale + (width - (gWidth * scale)) / 2;
       y = 0 - limits.minY * scale;
     }
 
@@ -237,10 +238,10 @@
     if (scaleX < scaleY) {
       scale = scaleX;
       x = 0 - limits.minX * scale;
-      y = 0 - limits.minY * scale + (height-(gHeight*scale))/2;
+      y = 0 - limits.minY * scale + (height - (gHeight * scale)) / 2;
     } else {
       scale = scaleY;
-      x = 0 - limits.minX * scale + (width-(gWidth*scale))/2;
+      x = 0 - limits.minX * scale + (width - (gWidth * scale)) / 2;
       y = 0 - limits.minY * scale;
     }
 
@@ -253,79 +254,78 @@
 
   // SVG arc math
   var angleToX = function (percent, radius) {
-    return radius * Math.cos(2*Math.PI * percent);
+    return radius * Math.cos(2 * Math.PI * percent);
   };
   var angleToY = function (percent, radius) {
-    return radius * Math.sin(2*Math.PI * percent);
+    return radius * Math.sin(2 * Math.PI * percent);
   };
   var makeArcPath = function (startPercent, endPercent, radius) {
     return [
-      "M", angleToX(startPercent, radius), angleToY(startPercent, radius),
-      "A", radius, radius, 0, 0, 0, angleToX(endPercent, radius), angleToY(endPercent, radius)
-    ].join(" ");
+      'M', angleToX(startPercent, radius), angleToY(startPercent, radius),
+      'A', radius, radius, 0, 0, 0, angleToX(endPercent, radius), angleToY(endPercent, radius)
+    ].join(' ');
   };
   TheGraph.arcs = {
-    n4: makeArcPath(7/8, 5/8, 36),
-    s4: makeArcPath(3/8, 1/8, 36),
-    e4: makeArcPath(1/8, -1/8, 36),
-    w4: makeArcPath(5/8, 3/8, 36),
-    inport: makeArcPath(-1/4, 1/4, 4),
-    outport: makeArcPath(1/4, -1/4, 4),
-    inportBig: makeArcPath(-1/4, 1/4, 6),
-    outportBig: makeArcPath(1/4, -1/4, 6),
+    n4: makeArcPath(7 / 8, 5 / 8, 36),
+    s4: makeArcPath(3 / 8, 1 / 8, 36),
+    e4: makeArcPath(1 / 8, -1 / 8, 36),
+    w4: makeArcPath(5 / 8, 3 / 8, 36),
+    inport: makeArcPath(-1 / 4, 1 / 4, 4),
+    outport: makeArcPath(1 / 4, -1 / 4, 4),
+    inportBig: makeArcPath(-1 / 4, 1 / 4, 6),
+    outportBig: makeArcPath(1 / 4, -1 / 4, 6)
   };
 
-
   // Reusable React classes
-  TheGraph.SVGImage = React.createFactory( React.createClass({
-    displayName: "TheGraphSVGImage",
-    render: function() {
-        var html = '<image ';
-        html = html +'xlink:href="'+ this.props.src + '"';
-        html = html +'x="' + this.props.x + '"';
-        html = html +'y="' + this.props.y + '"';
-        html = html +'width="' + this.props.width + '"';
-        html = html +'height="' + this.props.height + '"';
-        html = html +'/>';
+  TheGraph.SVGImage = React.createFactory(React.createClass({
+    displayName: 'TheGraphSVGImage',
+    render: function () {
+      var html = '<image ';
+      html = html + 'xlink:href="' + this.props.src + '"';
+      html = html + 'x="' + this.props.x + '"';
+      html = html + 'y="' + this.props.y + '"';
+      html = html + 'width="' + this.props.width + '"';
+      html = html + 'height="' + this.props.height + '"';
+      html = html + '/>';
 
-        return React.DOM.g({
-            className: this.props.className,
-            dangerouslySetInnerHTML:{__html: html}
-        });
+      return React.DOM.g({
+        className: this.props.className,
+        dangerouslySetInnerHTML: { __html: html }
+      });
     }
   }));
 
-  TheGraph.TextBG = React.createFactory( React.createClass({
-    displayName: "TheGraphTextBG",
-    render: function() {
+  TheGraph.TextBG = React.createFactory(React.createClass({
+    displayName: 'TheGraphTextBG',
+    render: function () {
       var text = this.props.text;
       if (!text) {
-        text = "";
+        text = '';
       }
       var height = this.props.height;
-      var width = text.length * this.props.height * 2/3;
-      var radius = this.props.height/2;
+      var width = text.length * this.props.height * 2 / 3;
+      var radius = this.props.height / 2;
 
-      var textAnchor = "start";
-      var dominantBaseline = "central";
+      var textAnchor = 'start'; // eslint-disable-line no-unused-vars
+      var dominantBaseline = 'central'; // eslint-disable-line no-unused-vars
       var x = this.props.x;
-      var y = this.props.y - height/2;
+      var y = this.props.y - height / 2;
 
-      if (this.props.halign === "center") {
-        x -= width/2;
-        textAnchor = "middle";
+      if (this.props.halign === 'center') {
+        x -= width / 2;
+        textAnchor = 'middle';
       }
-      if (this.props.halign === "right") {
+      if (this.props.halign === 'right') {
         x -= width;
-        textAnchor = "end";
+        textAnchor = 'end';
       }
 
       return React.DOM.g(
         {
-          className: (this.props.className ? this.props.className : "text-bg"),
+          className: (this.props.className ? this.props.className : 'text-bg')
         },
         React.DOM.rect({
-          className: "text-bg-rect",
+          className: 'text-bg-rect',
           x: x,
           y: y,
           rx: radius,
@@ -334,7 +334,7 @@
           width: width
         }),
         React.DOM.text({
-          className: (this.props.textClassName ? this.props.textClassName : "text-bg-text"),
+          className: (this.props.textClassName ? this.props.textClassName : 'text-bg-text'),
           x: this.props.x,
           y: this.props.y,
           children: text
@@ -344,25 +344,26 @@
   }));
 
   // The `merge` function provides simple property merging.
-  TheGraph.merge = function(src, dest, overwrite) {
+  TheGraph.merge = function (src, dest, overwrite) {
     // Do nothing if neither are true objects.
-    if (Array.isArray(src) || Array.isArray(dest) || typeof src !== 'object' || typeof dest !== 'object')
+    if (Array.isArray(src) || Array.isArray(dest) || typeof src !== 'object' || typeof dest !== 'object') {
       return dest;
-
+    }
     // Default overwriting of existing properties to false.
     overwrite = overwrite || false;
 
     for (var key in src) {
       // Only copy properties, not functions.
-      if (typeof src[key] !== 'function' && (!dest[key] || overwrite))
-        dest[key] = src[key];
+      if (typeof src[ key ] !== 'function' && (!dest[ key ] || overwrite)) {
+        dest[ key ] = src[ key ];
+      }
     }
 
     return dest;
   };
 
-  TheGraph.factories.createGroup = function(options, content) {
-    var args = [options];
+  TheGraph.factories.createGroup = function (options, content) {
+    var args = [ options ];
 
     if (Array.isArray(content)) {
       args = args.concat(content);
@@ -371,37 +372,36 @@
     return React.DOM.g.apply(React.DOM.g, args);
   };
 
-  TheGraph.factories.createRect = function(options) {
+  TheGraph.factories.createRect = function (options) {
     return React.DOM.rect(options);
   };
 
-  TheGraph.factories.createText = function(options) {
+  TheGraph.factories.createText = function (options) {
     return React.DOM.text(options);
   };
 
-  TheGraph.factories.createCircle = function(options) {
+  TheGraph.factories.createCircle = function (options) {
     return React.DOM.circle(options);
   };
 
-  TheGraph.factories.createPath = function(options) {
+  TheGraph.factories.createPath = function (options) {
     return React.DOM.path(options);
   };
 
-  TheGraph.factories.createPolygon = function(options) {
+  TheGraph.factories.createPolygon = function (options) {
     return React.DOM.polygon(options);
   };
 
-  TheGraph.factories.createImg = function(options) {
+  TheGraph.factories.createImg = function (options) {
     return TheGraph.SVGImage(options);
   };
 
-  TheGraph.factories.createCanvas = function(options) {
+  TheGraph.factories.createCanvas = function (options) {
     return React.DOM.canvas(options);
   };
 
-  TheGraph.factories.createSvg = function(options, content) {
-
-    var args = [options];
+  TheGraph.factories.createSvg = function (options, content) {
+    var args = [ options ];
 
     if (Array.isArray(content)) {
       args = args.concat(content);
@@ -410,11 +410,11 @@
     return React.DOM.svg.apply(React.DOM.svg, args);
   };
 
-  TheGraph.getOffset = function(domNode){
-    var getElementOffset = function(element){
-      var offset = { top: 0, left: 0},
-          parentOffset;
-      if(!element){
+  TheGraph.getOffset = function (domNode) {
+    var getElementOffset = function (element) {
+      var offset = { top: 0, left: 0 };
+      var parentOffset;
+      if (!element) {
         return offset;
       }
       offset.top += (element.offsetTop || 0);
@@ -424,11 +424,10 @@
       offset.left += parentOffset.left;
       return offset;
     };
-    try{
-      return getElementOffset( domNode );
-    }catch(e){
+    try {
+      return getElementOffset(domNode);
+    } catch (e) {
       return getElementOffset();
     }
   };
-
 })(this);

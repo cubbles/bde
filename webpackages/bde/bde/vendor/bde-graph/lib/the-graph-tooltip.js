@@ -1,12 +1,13 @@
+/* globals React */
 (function (context) {
-  "use strict";
+  'use strict';
 
   var TheGraph = context.TheGraph;
 
   TheGraph.config.tooltip = {
     container: {},
     rect: {
-      className: "tooltip-bg",
+      className: 'tooltip-bg',
       x: 0,
       y: -7,
       rx: 3,
@@ -14,8 +15,8 @@
       height: 16
     },
     text: {
-      className: "tooltip-label",
-      ref: "label"
+      className: 'tooltip-label',
+      ref: 'label'
     }
   };
 
@@ -27,10 +28,9 @@
 
   // Port view
 
-  TheGraph.Tooltip = React.createFactory( React.createClass({
-    displayName: "TheGraphTooltip",
-    render: function() {
-
+  TheGraph.Tooltip = React.createFactory(React.createClass({
+    displayName: 'TheGraphTooltip',
+    render: function () {
       var rectOptions = TheGraph.merge(TheGraph.config.tooltip.rect, {width: this.props.label.length * 6});
       var rect = TheGraph.factories.tooltip.createTooltipRect.call(this, rectOptions);
 
@@ -40,14 +40,11 @@
       var containerContents = [rect, text];
 
       var containerOptions = {
-        className: "tooltip" + (this.props.visible ? "" : " hidden"),
-        transform: "translate("+this.props.x+","+this.props.y+")",
+        className: 'tooltip' + (this.props.visible ? '' : ' hidden'),
+        transform: 'translate(' + this.props.x + ',' + this.props.y + ')'
       };
       containerOptions = TheGraph.merge(TheGraph.config.tooltip.container, containerOptions);
       return TheGraph.factories.tooltip.createTooltipGroup.call(this, containerOptions, containerContents);
-
     }
   }));
-
-
 })(this);
