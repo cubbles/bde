@@ -38,13 +38,14 @@ Polymer({
   },
 
   listeners: {
-    'change': '_handleChangedInitValue',
-    'inits.dom-change': '_bindValidators'
+    'change': '_handleChangedInitValue'
   },
   observers: [
     'artifactChanged(artifact.*)'
   ],
-
+  ready: function () {
+    this._bindValidators();
+  },
   addNewItem: function (e) {
     var path = e.currentTarget.dataset.path;
     if (!this.get(path)) {
@@ -155,12 +156,10 @@ Polymer({
   },
 
   _bindValidators: function (event) {
-    var validatorElements = this.querySelectorAll('.validJson');
-    for (var i = 0; i < validatorElements.length; i++) {
-      var validatorEl = validatorElements[ i ];
-      validatorEl.validate = this._validateJson.bind(this);
-    }
+    var validatorElement = this.querySelector('.validJson');
+    validatorElement.validate = this._validateJson.bind(this);
   },
+
   _artifactIsApp: function (artifact) {
     return this.artifactType === 'appComponent';
   },
@@ -248,18 +247,16 @@ Polymer({
   },
   _handleChangedInitValue: function (event) {
     if (event.target.tagName.toLowerCase() === 'textarea') {
-      var textareaElem = event.target.closest('paper-textarea');
+      var textareaElem = event.target.closest('bde-textarea');
       if (textareaElem.classList.contains('initValue')) {
         var value = textareaElem.value;
-        // For an Object or array must be parsed
-        if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
-          try {
-            value = JSON.parse(value);
-          } catch (err) {
 
-          }
+        try {
+          value = JSON.parse(value);
+          this.set(textareaElem.dataset.path, value);
+        } catch (err) {
+          console.err(err);
         }
-        this.set(textareaElem.dataset.path, value);
       }
     }
   },
@@ -270,9 +267,6 @@ Polymer({
     return 'validJson' + index;
   },
 
-  _initTextareaValidatorName: function (index) {
-    return 'jsonValidator' + index;
-  },
   _initValueDataPath: function (index) {
     return '_editingArtifact.inits.' + index + '.value';
   },
@@ -312,7 +306,8 @@ Polymer({
   },
   _validateJson: function (value) {
     // validation code
-    if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
+
+    if (value && typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
       try {
         JSON.parse(value);
         return true;

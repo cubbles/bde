@@ -29,15 +29,21 @@ Polymer({
     artifact: {
       type: Object,
       notify: true
+    },
+    _validForm: {
+      type: Boolean,
+      value: true
     }
 
   },
   listeners: {
-    'initDialog.iron-overlay-closed': '_handleDialogClosed',
     'initDialog.iron-overlay-opened': '_handleDialogOpened',
     'otherInitValue.change': '_handleOtherInitValueChanged'
   },
 
+  ready: function () {
+    this._bindValidators();
+  },
   onKeydown: function (event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -51,6 +57,9 @@ Polymer({
     event.preventDefault();
   },
 
+  _bindValidators: function (event) {
+    this.$.validJson.validate = this._validateJson.bind(this);
+  },
   _findInitializer: function (slot) {
     // TODO für ownSlots anpassen
     var init;
@@ -89,13 +98,13 @@ Polymer({
     this.set('_initialiser', newInitialiser);
   },
 
-  _handleDialogClosed: function (event) {
-    if (event.detail.confirmed) {
-      this._saveEditedInit();
-    }
-  },
   _handleOtherInitValueChanged: function (event) {
-    this._initialiser.value = JSON.parse(this.$.otherInitValue.value);
+    console.log('_handleOtherInitValueChanged value', this.$.otherInitValue.value);
+    try {
+      this._initialiser.value = JSON.parse(this.$.otherInitValue.value);
+    } catch (err) {
+      console.log(err);
+    }
   },
   _saveEditedInit: function () {
     var init = this._findInitializer(this.slot);
@@ -138,6 +147,26 @@ Polymer({
 
   _slotIsOther: function (slot) {
     return !this._slotIsBoolean(slot) && !this._slotIsNumber(slot) && !this._slotIsText(slot);
-  }
+  },
+  _validateAndSave: function () {
+    if (this.$.editMemberSlotInitForm.validate()) {
+      this._saveEditedInit();
+      this.$.initDialog.close();
+    } else {
+      this.set('_validForm', false);
+    }
+  },
+  _validateJson: function (value) {
+    // validation code
+    if (value && typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
+      try {
+        JSON.parse(value);
+        return true;
+      } catch (err) {
 
+        return false;
+      }
+    }
+    return true;
+  }
 });

@@ -4,7 +4,8 @@
 <link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../vendor/paper-input/paper-input.html">
-<link rel="import" href="../../vendor/paper-input/paper-textarea.html">
+<link rel="import" href="../bde-textarea/bde-textarea.html">
+<!--<link rel="import" href="../custom-validator/custom-validator.html" />-->
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
 <link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
@@ -111,6 +112,7 @@
 
             <paper-dialog-scrollable>
                 <form is="iron-form" id="artifactForm" on-dom-change="_validateForm">
+                    <custom-validator class="validJson" validator-name="validator"></custom-validator>
                     <!-- artifactId -->
                     <paper-input tabindex="-1"
                                  label="Artifact id"
@@ -652,6 +654,7 @@
                                                        data-path$="[[_createPath('inits')]]"
                                                        data-item-index$="[[initi]]"></iron-icon>
                                         </div>
+
                                         <iron-collapse id$="[[_idForCollapse(initi, 'init_')]]"
                                                        class="collapse-item item-body">
                                             <div class="collapse-content">
@@ -669,16 +672,17 @@
                                                              error-message="The slot name is required"
                                                              value="{{init.slot}}">
                                                 </paper-input>
-                                                
-                                                <paper-textarea auto-validate
-                                                                validator$="{{_initTextareaValidatorName(initi)}}"
+
+                                                <bde-textarea auto-validate
+                                                                validator="validator"
                                                                 label="Value"
-                                                                id="{{_initTextareaId(initi)}}"
+                                                                id$="{{_initTextareaId(initi)}}"
                                                                 class="initValue"
                                                                 placeholder="The value to init the slot with."
                                                                 value="{{_serialize(init.value)}}"
-                                                                data-path$="[[_initValueDataPath(initi)]]">
-                                                </paper-textarea>
+                                                                data-path$="[[_initValueDataPath(initi)]]"
+                                                                error-message="The value must be a valid json.">
+                                                </bde-textarea>
 
                                                 <paper-textarea label="Description"
                                                                 placeholder="A short description of this init item: responsibility etc."

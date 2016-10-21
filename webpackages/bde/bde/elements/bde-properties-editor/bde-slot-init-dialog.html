@@ -1,11 +1,14 @@
 <link rel="import" href="../../vendor/polymer/polymer.html">
 <link rel="import" href="../../vendor/paper-input/paper-input.html">
-<link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-input/paper-input.html">
 <link rel="import" href="../../vendor/paper-dialog/paper-dialog.html"/>
-<link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html" />
-<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html" />
-<link rel="import" href="../../vendor/iron-form/iron-form.html" />
+<link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html"/>
+<link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html"/>
+<link rel="import" href="../../vendor/iron-form/iron-form.html"/>
+<link rel="import" href="../../vendor/iron-validator-behavior"/>
+<!--<link rel="import" href="../custom-validator/custom-validator.html"/>-->
+<link rel="import" href="../bde-textarea/bde-textarea.html"/>
+
 
 <dom-module id="bde-slot-init-dialog">
     <template>
@@ -31,25 +34,38 @@
                 margin-top: 2px;
                 max-width: 150px;
             }
+            .errorMessage {
+                background: #EEEEEE;
+                color: #DD2C00;
+                padding: 20px;
+            }
         </style>
         <paper-dialog id="initDialog" opened="{{dialogOpened}}" no-cancel-on-esc-key="true">
             <h2>Initialiser for <code>[[slot.slotId]]</code></h2>
             <p>Set the initial slot value here.</p>
+            <p class="errorMessage" hidden="[[_validForm]]">Please correct the errors in the form</p>
             <paper-dialog-scrollable>
-                <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
+                <form is="iron-form" id="editMemberSlotInitForm" on-iron-form-presubmit="onPreSubmit">
                     <paper-input label="Description" type="Text" value="{{_initialiser.description}}"></paper-input>
-                    <paper-checkbox hidden$="[[!_slotIsBoolean(slot)]]" checked="[[_serializeBoolean(_initialiser.value)]]">
+                    <paper-checkbox hidden$="[[!_slotIsBoolean(slot)]]"
+                                    checked="[[_serializeBoolean(_initialiser.value)]]">
                         Enabled
                         <span class="subtitle">Initial Value</span>
                     </paper-checkbox>
-                    <paper-input hidden$="[[!_slotIsNumber(slot)]]" label="Initial Value" type="Number" value="{{_initialiser.value}}"></paper-input>
-                    <paper-input hidden$="[[!_slotIsText(slot)]]" label="Initial Value" value="{{_initialiser.value}}"></paper-input>
-                    <paper-textarea id="otherInitValue" hidden$="[[!_slotIsOther(slot)]]" label="Initial Value" value="{{_serializeOther(_initialiser.value)}}"></paper-textarea>
+                    <paper-input hidden$="[[!_slotIsNumber(slot)]]" label="Initial Value" type="Number"
+                                 value="{{_initialiser.value}}"></paper-input>
+                    <paper-input hidden$="[[!_slotIsText(slot)]]" label="Initial Value"
+                                 value="{{_initialiser.value}}"></paper-input>
+                    <custom-validator id="validJson" validator-name="jsonValidator"></custom-validator>
+                    <bde-textarea auto-validate
+                                  validator="jsonValidator" id="otherInitValue" hidden$="[[!_slotIsOther(slot)]]"
+                                  label="Initial Value" value="{{_serializeOther(_initialiser.value)}}" error-message="The Initial value must be a valid json."></bde-textarea>
+                    <br>
                 </form>
             </paper-dialog-scrollable>
             <div class="buttons">
+                <paper-button on-tap="_validateAndSave">Save</paper-button>
                 <paper-button dialog-dismiss>Cancel</paper-button>
-                <paper-button dialog-confirm>Save</paper-button>
             </div>
         </paper-dialog>
     </template>
