@@ -28,6 +28,7 @@ bde/test-results
 bde/test/vendor/*
 !bde/test/vendor/mocha-config.js
 !bde/test/vendor/test.html
+!bde/vendor/bde-graph/build/
 
 bde/vendor/**/demo
 bde/vendor/**/test
