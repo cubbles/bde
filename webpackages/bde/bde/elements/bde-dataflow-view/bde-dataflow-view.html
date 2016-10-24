@@ -12,6 +12,7 @@
 <link rel="import" href="../../vendor/bde-graph/bde-graph.html">
 <link rel="import" href="../bde-base-browser/bde-base-browser.html">
 <link rel="import" href="../bde-properties-editor/bde-properties-editor.html">
+<link rel="import" href="../bde-properties-editor/bde-slot-init-dialog.html"/>
 <link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html">
 
 <dom-module id="bde-dataflow-view">
@@ -82,7 +83,7 @@
         <!--<paper-dialog-scrollable>-->
 
         <bde-base-browser id="browser"
-                          on-iron-selected="_addMember"
+                          on-iron-selected="addMember"
                           settings="[[settings]]"
                           manifest="[[currentComponentMetadata.manifest]]"
                           current-component="[[_artifact]]"
@@ -107,16 +108,18 @@
 
                 <bde-properties-editor id="propertiesEditor"
                                        artifact="{{_artifact}}"
-                                       selected-members="[[selectedMembers]]"
+                                       selected-members="[[selectedMembersForProperties]]"
                                        connections="[[selectedConnections]]"
                                        resolutions="[[resolutions]]"
                                        last-selected-member="[[lastSelectedMember]]"
                                        last-selected-connection={{lastSelectedConnection}}
                 ></bde-properties-editor>
 
+
             </div>
 
             <div id="mainPanel" main>
+                <bde-slot-init-dialog id="bdeSlotInitDialog" always-on-top="true" artifact="{{_artifact}}"></bde-slot-init-dialog>
 
                 <!-- graph="{{graph}}"-->
                 <bde-graph id="bdeGraph"
@@ -130,7 +133,8 @@
                            width="[[_graphWidth]]"
                            height="[[_graphHeight]]"
                            offset-x="[[_graphOffsetX]]"
-                           offset-y="[[_graphOffsetY]]" {
+                           offset-y="[[_graphOffsetY]]"
+                           edit-actions="[[editActions]]"
                 ></bde-graph>
                 <!--selected-nodes="{{_selectedNodes}}"-->
                 <!--selected-edges="{{_selectedEdges}}"-->
@@ -157,7 +161,7 @@
                     <paper-fab id="addMemberButton"
                                class$="[[_addCubbleClass(showPropertyEditor)]]"
                                icon="icons:add"
-                               on-tap="onAddMemberBtcClick">
+                               on-tap="onAddMemberBtnClick">
                     </paper-fab>
                     <paper-tooltip for="addMemberButton" position="top">
                         <div class="tooltip">Add member</div>

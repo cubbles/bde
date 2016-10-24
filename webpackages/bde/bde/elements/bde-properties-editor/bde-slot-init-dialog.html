@@ -40,13 +40,19 @@
                 padding: 20px;
             }
         </style>
-        <paper-dialog id="initDialog" opened="{{dialogOpened}}" no-cancel-on-esc-key="true">
-            <h2>Initialiser for <code>[[slot.slotId]]</code></h2>
-            <p>Set the initial slot value here.</p>
-            <p class="errorMessage" hidden="[[_validForm]]">Please correct the errors in the form</p>
+        <paper-dialog id="slotInitDialog" opened="{{dialogOpened}}" no-cancel-on-esc-key="true">
+            <h2>slot "<code>[[slot.slotId]]</code>"</h2>
+
+           <p class="errorMessage" hidden="[[_validForm]]">Please correct the errors in the form</p>
             <paper-dialog-scrollable>
                 <form is="iron-form" id="editMemberSlotInitForm" on-iron-form-presubmit="onPreSubmit">
-                    <paper-input label="Description" type="Text" value="{{_initialiser.description}}"></paper-input>
+                    <div hidden$="[[!ownSlot]]">
+                        <paper-input label="Slot id" value="{{_slot.slotId}}"></paper-input>
+                        <paper-input label="Description of the slot" value="{{_slot.description}}"></paper-input>
+                    </div>
+                    <h3>Initialise</h3>
+                    <p>Set the initial slot value here.</p>
+                    <paper-input label="Description of the initialisation" type="Text" value="{{_initialiser.description}}"></paper-input>
                     <paper-checkbox hidden$="[[!_slotIsBoolean(slot)]]"
                                     checked="[[_serializeBoolean(_initialiser.value)]]">
                         Enabled
@@ -54,12 +60,12 @@
                     </paper-checkbox>
                     <paper-input hidden$="[[!_slotIsNumber(slot)]]" label="Initial Value" type="Number"
                                  value="{{_initialiser.value}}"></paper-input>
-                    <paper-input hidden$="[[!_slotIsText(slot)]]" label="Initial Value"
+                    <paper-input hidden$="[[!_slotIsString(slot)]]" label="Initial Value"
                                  value="{{_initialiser.value}}"></paper-input>
                     <custom-validator id="validJson" validator-name="jsonValidator"></custom-validator>
                     <bde-textarea auto-validate
-                                  validator="jsonValidator" id="otherInitValue" hidden$="[[!_slotIsOther(slot)]]"
-                                  label="Initial Value" value="{{_serializeOther(_initialiser.value)}}" error-message="The Initial value must be a valid json."></bde-textarea>
+                                  validator="jsonValidator" id="objectInitValue" hidden$="[[!_slotIsObject(slot)]]"
+                                  label="Initial Value" value="{{_serializeObject(_initialiser.value)}}" error-message="The Initial value must be a valid json."></bde-textarea>
                     <br>
                 </form>
             </paper-dialog-scrollable>

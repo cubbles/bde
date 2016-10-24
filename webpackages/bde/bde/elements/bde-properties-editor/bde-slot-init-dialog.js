@@ -4,32 +4,68 @@ Polymer({
   is: 'bde-slot-init-dialog',
 
   properties: {
-    slot: {
+
+    /**
+     * The artifact object, which is shown in dataflowview
+     * @type Object
+     */
+    artifact: {
       type: Object,
       notify: true
     },
-    memberId: {
-      type: Object
-    },
+
+    /**
+     * Indicate, if this dialog opened or not.
+     * @type Boolean
+     */
     dialogOpened: {
       type: Boolean,
-      notify: true
+      notify: true,
+      value: false
     },
-    _initialiser: {
-      type: Object
+
+    /**
+     * The memberId of the member, which slot to be initialize
+     * @type String
+     */
+    memberId: {
+      type: String
     },
+
     /**
      * indicate the slot is a own slot of the shown component, and initialiser shoudn't have the property memberIdRef
+     * @type Boolean
+     * // TODO is this nessecary?
      */
     ownSlot: {
       type: Boolean,
       value: false
     },
 
-    artifact: {
+    /**
+     * The slot object.
+     * @type Object
+     */
+    slot: {
       type: Object,
       notify: true
     },
+
+    /**
+     * This internal init object. The form save the data in this internal object. The values will tranfer to manifest just by save action.
+     * @type Object
+     */
+    _initialiser: {
+      type: Object
+    },
+
+    _slot: {
+      type: Object
+    },
+    /**
+     * Indicate, that the form is valid.
+     * @type Boolean
+     */
     _validForm: {
       type: Boolean,
       value: true
@@ -37,13 +73,14 @@ Polymer({
 
   },
   listeners: {
-    'initDialog.iron-overlay-opened': '_handleDialogOpened',
-    'otherInitValue.change': '_handleOtherInitValueChanged'
+    'slotInitDialog.iron-overlay-opened': '_handleDialogOpened',
+    'objectInitValue.change': '_handleObjectInitValueChanged'
   },
 
   ready: function () {
     this._bindValidators();
   },
+
   onKeydown: function (event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -57,9 +94,20 @@ Polymer({
     event.preventDefault();
   },
 
-  _bindValidators: function (event) {
+  /**
+   * Bind the validator function to the validator element.
+   * @private
+   */
+  _bindValidators: function () {
     this.$.validJson.validate = this._validateJson.bind(this);
   },
+
+  /**
+   * Find the init object in artifact.
+   * @param {object} slot
+   * @returns {object|undefined} the found init object or undefined, if no init object exists for this slot in the artifact.
+   * @private
+   */
   _findInitializer: function (slot) {
     // TODO für ownSlots anpassen
     var init;
@@ -69,14 +117,16 @@ Polymer({
           init.slot === slot.slotId;
       }, this);
     }
-    // var info = {};
-    // var path = new Polymer.Collection(this.artifact.inits).getKey(init);
-    // var arrayPath = this._get('this.artifact.inits' + path, this, info);
-    // this.linkPaths(initializer, info.path);
     return init;
   },
 
+  /**
+   * Initialise the dialog after this was opened.
+   * @param (Event}event dialog open event
+   * @private
+   */
   _handleDialogOpened: function (event) {
+    console.log('_handleDialogOpened');
     // Create a temporare initialiser object for the dialog
     var newInitialiser = {
 
@@ -96,16 +146,27 @@ Polymer({
       newInitialiser.value = init.value;
     }
     this.set('_initialiser', newInitialiser);
+    if (this.ownSlot) {
+      this.set('_slot', JSON.parse(JSON.stringify(this.slot)));
+    }
   },
-
-  _handleOtherInitValueChanged: function (event) {
-    console.log('_handleOtherInitValueChanged value', this.$.otherInitValue.value);
+  /**
+   * Handle change the value, if the slot type array or object.
+   * @param {Event} event
+   * @private
+   */
+  _handleObjectInitValueChanged: function (event) {
+    console.log('_handleObjectInitValueChanged value', this.$.objectInitValue.value);
     try {
-      this._initialiser.value = JSON.parse(this.$.otherInitValue.value);
+      this._initialiser.value = JSON.parse(this.$.objectInitValue.value);
     } catch (err) {
       console.log(err);
     }
   },
+  /**
+   * Save the formular data. Add this.Initialiser property values to the corresponding artifact.inits object, or add anew init object.
+   * @private
+   */
   _saveEditedInit: function () {
     var init = this._findInitializer(this.slot);
     if (!init) {
@@ -113,7 +174,7 @@ Polymer({
         delete this._initialiser.description;
       }
       if (!this.artifact.inits) {
-        this.artifact.inits = [];
+        this.set('artifact.inits', []);
       }
       this.push('artifact.inits', this._initialiser);
     } else {
@@ -125,37 +186,88 @@ Polymer({
     }
   },
 
+  _saveEditedSlot: function(){
+    console.log('_saveEditedSlot');
+  },
+
+  /**
+   * Serialise the boolean value. (true -> checked, false -> ''
+   * @param {boolean} value the value
+   * @returns {string} serialised value
+   * @private
+   */
   _serializeBoolean: function (value) {
     return value ? 'checked' : '';
   },
 
-  _serializeOther: function (value) {
+  /**
+   * Serialise an object or an array.
+   * @param {object|array}value
+   * @private
+   */
+  _serializeObject: function (value) {
     return JSON.stringify(value, null, 2);
   },
 
+  /**
+   * Check if the slot type is boolean.
+   * @param {object}slot the slot object
+   * @returns {boolean}
+   * @private
+   */
   _slotIsBoolean: function (slot) {
-    return slot.type.toLowerCase() === 'boolean';
+    return slot.type && slot.type.toLowerCase() === 'boolean';
   },
 
+  /**
+   * Check if the slot type is number.
+   * @param slot
+   * @returns {boolean}
+   * @private
+   */
   _slotIsNumber: function (slot) {
-    return slot.type.toLowerCase() === 'number';
+    return slot.type && slot.type.toLowerCase() === 'number';
   },
 
-  _slotIsText: function (slot) {
-    return slot.type.toLowerCase() === 'string';
+  /**
+   * Check if the slot type is string.
+   * @param {object}slot the slot object
+   * @returns {boolean}
+   * @private
+   */
+  _slotIsString: function (slot) {
+    return slot.type && slot.type.toLowerCase() === 'string';
   },
-
-  _slotIsOther: function (slot) {
-    return !this._slotIsBoolean(slot) && !this._slotIsNumber(slot) && !this._slotIsText(slot);
+  /**
+   * Check if the slot type is not string, number or boolean.
+   * @param {object}slot the slot object
+   * @returns {boolean}
+   * @private
+   */
+  _slotIsObject: function (slot) {
+    return !this._slotIsBoolean(slot) && !this._slotIsNumber(slot) && !this._slotIsString(slot);
   },
+  /**
+   * Validate the formular inputs, and by valid values save this to the artifact.
+   * @private
+   */
   _validateAndSave: function () {
     if (this.$.editMemberSlotInitForm.validate()) {
       this._saveEditedInit();
-      this.$.initDialog.close();
+      if (this.ownSlot) {
+        this._saveEditedSlot();
+      }
+      this.$.slotInitDialog.close();
     } else {
       this.set('_validForm', false);
     }
   },
+  /**
+   * Validate the input as a valid json.
+   * @param {*} value
+   * @returns {boolean}
+   * @private
+   */
   _validateJson: function (value) {
     // validation code
     if (value && typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
@@ -163,7 +275,6 @@ Polymer({
         JSON.parse(value);
         return true;
       } catch (err) {
-
         return false;
       }
     }

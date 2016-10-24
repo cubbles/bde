@@ -16,7 +16,7 @@ Polymer({
       type: Object
     },
 
-    dialogOpened: {
+    active: {
       type: Boolean,
       value: false
     },
@@ -25,8 +25,15 @@ Polymer({
       type: Object,
       notify: true
     }
+
   },
 
+  _inputSlotDialogButton: function () {
+    this.fire('bde-edit-slot-init-dialog-open', {
+      slot: this.slot,
+      memberId: this.memberId
+    });
+  },
   _getSlotIcon: function (slot) {
     return (this.direction === 'input') ? 'bde:inslot' : 'bde:outslot';
   },

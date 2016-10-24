@@ -35,7 +35,6 @@
       }
     </style>
 
-    <bde-slot-init-dialog id="bdeInitDialog" artifact="{{artifact}}" slot="[[slot]]" member-id="[[memberId]]" dialog-opened="{{dialogOpened}}"></bde-slot-init-dialog>
 
     <paper-icon-item>
       <iron-icon icon="[[_getSlotIcon(slot)]]" item-icon></iron-icon>
@@ -44,7 +43,7 @@
         <div hidden$="[[!slot.description]]" secondary>[[slot.description]]</div>
         <div secondary>[[slot.type]]</div>
       </paper-item-body>
-      <paper-icon-button hidden$="[[!_isInputSlot(slot)]]" icon="icons:settings" active="{{dialogOpened}}" toggles></paper-icon-button>
+      <paper-icon-button hidden$="[[!_isInputSlot(slot)]]" icon="icons:settings" on-tap="_inputSlotDialogButton"></paper-icon-button>
     </paper-icon-item>
   </template>
 

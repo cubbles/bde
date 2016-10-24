@@ -83,7 +83,7 @@ Polymer({
   },
 
   _slotIsOther: function (slot) {
-    return !this._slotIsBoolean(slot) && !this._slotIsNumber(slot) && !this._slotIsText(slot);
+    return !this._slotIsBoolean(slot) && !this._slotIsNumber(slot) && !this._slotIsTxt(slot);
   },
 
   _slotIsText: function (slot) {

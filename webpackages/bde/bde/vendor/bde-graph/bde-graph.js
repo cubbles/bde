@@ -8,150 +8,14 @@
 
     properties: {
 
-      editable: {
-        type: Boolean,
-        value: true
-      },
-
-      displaySelectionGroup: {
-        type: Boolean,
-        value: true,
-        notify: true
-      },
-
-      forceSelection: {
-        type: Boolean,
-        value: false,
-        notify: true
-      },
-      /**
-       * width of the graph
-       *
-       * @type {Number}
-       * @property width
-       */
-      width: {
-        type: Number,
-        notify: true,
-        reflectToAttribute: true,
-        value: 800
-      },
-
-      /**
-       * height of the graph
-       *
-       * @type {Number}
-       * @property height
-       */
-      height: {
-        type: Number,
-        notify: true,
-        reflectToAttribute: true,
-        value: 600
-      },
-
-      /**
-       * A distance of grid points,
-       *
-       * @type {Number}
-       * @property grid
-       */
-      grid: {
-        type: Number,
-        value: 72
-      },
-
-      snap: {
-        type: Number,
-        value: 36
-      },
-
-      /**
-       * offset for x position of the graph. (left side distance distance  of the graph)
-       *
-       * @type {Number}
-       * @property offsetX
-       */
-      offsetX: {
-        type: Number,
-        notify: true,
-        value: null
-      },
-      /**
-       * offset for y position of the graph. (top distance  of the graph)
-       *
-       * @type {Number}
-       * @property offsetY
-       */
-      offsetY: {
-        type: Number,
-        notify: true,
-        value: null
-      },
-
-      minZoom: {
-        type: Number,
-        value: 0.15,
-        notify: true
-      },
-
-      maxZoom: {
-        type: Number,
-        value: 15,
-        notify: true
-      },
-
-      pan: {
-        type: Object,
-        notify: true,
-        value: function () {
-          return { x: 0, y: 0 };
-        }
-      },
-
-      scale: {
-        type: Number,
-        value: 1,
-        notify: true
-      },
-
-      theme: {
-        type: String,
-        notify: true,
-        reflectToAttribute: true,
-        value: 'dark'
-      },
-
-      autolayout: {
-        type: Boolean,
-        value: true
-      },
-
       artifactId: {
         type: String,
         notify: true
       },
 
-      slots: {
-        type: Array,
-        notify: true,
-        value: function () {
-          return [];
-        }
-      },
-
-      /**
-       * The list of the members components (nodes) in the graph
-       *
-       * @type {Array}
-       * @property members
-       */
-      members: {
-        type: Array,
-        notify: true,
-        value: function () {
-          return [];
-        }
+      autolayout: {
+        type: Boolean,
+        value: true
       },
 
       /**
@@ -168,6 +32,75 @@
         }
       },
 
+      displaySelectionGroup: {
+        type: Boolean,
+        value: true,
+        notify: true
+      },
+
+      editActions: {
+        type: Object,
+        value: function () {
+          return {
+            main: function () {
+              alert('Edit the main document: comming soon ...');
+            },
+            edge: function () {
+              alert('Edit edge: comming soon ...');
+            },
+            node: function () {
+              alert('Edit node: comming soon ...');
+            },
+            nodeInport: function () {
+              alert('Edit node inport: comming soon ...');
+            },
+            nodeOutport: function () {
+              alert('Edit node outport: comming soon ...');
+            },
+            graphInport: function () {
+              alert('Edit graph inport: comming soon ...');
+            },
+            graphOutport: function () {
+              alert('Edit graph outport: comming soon ...');
+            }
+          };
+        }
+      },
+
+      editable: {
+        type: Boolean,
+        value: true
+      },
+
+      forceSelection: {
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+
+      /**
+       * A distance of grid points,
+       *
+       * @type {Number}
+       * @property grid
+       */
+      grid: {
+        type: Number,
+        value: 72
+      },
+
+      /**
+       * height of the graph
+       *
+       * @type {Number}
+       * @property height
+       */
+      height: {
+        type: Number,
+        notify: true,
+        reflectToAttribute: true,
+        value: 600
+      },
       /**
        * The list of initialisation objects inside of the shown compound components.
        * @type {Array}
@@ -193,11 +126,75 @@
         }
       },
 
+      maxZoom: {
+        type: Number,
+        value: 15,
+        notify: true
+      },
+
       menus: {
         type: Object,
         value: function () {
           return {};
         }
+      },
+
+      minZoom: {
+        type: Number,
+        value: 0.15,
+        notify: true
+      },
+
+      /**
+       * The list of the members components (nodes) in the graph
+       *
+       * @type {Array}
+       * @property members
+       */
+      members: {
+        type: Array,
+        notify: true,
+        value: function () {
+          return [];
+        }
+      },
+
+      /**
+       * offset for x position of the graph. (left side distance distance  of the graph)
+       *
+       * @type {Number}
+       * @property offsetX
+       */
+      offsetX: {
+        type: Number,
+        notify: true,
+        value: null
+      },
+
+      /**
+       * offset for y position of the graph. (top distance  of the graph)
+       *
+       * @type {Number}
+       * @property offsetY
+       */
+      offsetY: {
+        type: Number,
+        notify: true,
+        value: null
+      },
+
+      pan: {
+        type: Object,
+        notify: true,
+        value: function () {
+          return { x: 0, y: 0 };
+        }
+      },
+
+      scale: {
+        type: Number,
+        value: 1,
+        notify: true
       },
 
       /**
@@ -254,6 +251,39 @@
         }
       },
 
+      slots: {
+        type: Array,
+        notify: true,
+        value: function () {
+          return [];
+        }
+      },
+
+      snap: {
+        type: Number,
+        value: 36
+      },
+
+      theme: {
+        type: String,
+        notify: true,
+        reflectToAttribute: true,
+        value: 'dark'
+      },
+
+      /**
+       * width of the graph
+       *
+       * @type {Number}
+       * @property width
+       */
+      width: {
+        type: Number,
+        notify: true,
+        reflectToAttribute: true,
+        value: 800
+      },
+
       _autolayouter: {
         type: Object,
         value: function () {
@@ -301,7 +331,8 @@
       '_selectedOutputSlotChanged(selectedOutputSlots.*)',
       '_selectedInputSlotChanged(selectedInputSlots.*)',
       '_slotsChanged(slots.*)',
-      '_themeChanged(theme)'
+      '_themeChanged(theme)',
+      '_editActionsChanged(editActions.*)'
     ],
 
     listeners: {
@@ -319,11 +350,11 @@
         onSuccess: this._applyAutolayout.bind(this),
         workerScript: '../../klayjs/klay.js'
       });
-
+    },
+    ready: function () {
       // Attach context menus
       this._defineMenus();
     },
-
     attached: function () {
       window.addEventListener('resize', this.onResize.bind(this));
       this.onResize();
@@ -499,7 +530,7 @@
             // memberIdRef: edge.to.node,
             slot: edge.to.port
           }
-        }
+        };
         if (edge.from.node) {
           newConnection.source.memberIdRef = edge.from.node;
         }
@@ -692,6 +723,7 @@
       this.set('pan', { x: x, y: y });
       this.set('scale', scale);
     },
+
     onOutportSelection: function (itemKey, metadata, toggle) {
       console.log('onOutportSelection temKey', itemKey, 'metadata', metadata, 'toggle', toggle);
       var slot;
@@ -981,6 +1013,11 @@
         main: {
 
           icon: 'sitemap',
+          n4: {
+            iconLabel: 'edit',
+            icon: 'pencil-square-o',
+            action: this.editActions.main
+          },
           e4: pasteMenu
         },
 
@@ -988,6 +1025,11 @@
         edge: {
           actions: edgeActions,
           icon: 'long-arrow-right',
+          n4: {
+            iconLabel: 'edit',
+            icon: 'pencil-square-o',
+            action: this.editActions.edge
+          },
           s4: {
             icon: 'trash-o',
             iconLabel: 'delete',
@@ -998,6 +1040,11 @@
         // Members
         node: {
           actions: nodeActions,
+          n4: {
+            iconLabel: 'edit',
+            icon: 'pencil-square-o',
+            action: this.editActions.node
+          },
           s4: {
             icon: 'trash-o',
             iconLabel: 'delete',
@@ -1011,6 +1058,11 @@
         },
 
         nodeInport: {
+          n4: {
+            iconLabel: 'edit',
+            icon: 'pencil-square-o',
+            action: this.editActions.nodeInport
+          },
           w4: {
             icon: 'sign-in',
             iconLabel: 'export',
@@ -1019,6 +1071,11 @@
         },
 
         nodeOutport: {
+          n4: {
+            iconLabel: 'edit',
+            icon: 'pencil-square-o',
+            action: this.editActions.nodeOutport
+          },
           e4: {
             icon: 'sign-out',
             iconLabel: 'export',
@@ -1031,7 +1088,9 @@
           icon: 'sign-in',
           iconColor: 2,
           n4: {
-            label: 'inport'
+            iconLabel: 'edit',
+            icon: 'pencil-square-o',
+            action: this.editActions.graphInport
           },
           s4: {
             icon: 'trash-o',
@@ -1046,7 +1105,9 @@
           icon: 'sign-out',
           iconColor: 5,
           n4: {
-            'label': 'outport'
+            iconLabel: 'edit',
+            icon: 'pencil-square-o',
+            action: this.editActions.graphOutport
           },
           s4: {
             icon: 'trash-o',
@@ -1240,6 +1301,25 @@
       this._graphView.setState({ displaySelectionGroup: displaySelectionGroup });
     },
 
+    _editActionsChanged: function (changeRecord) {
+      console.log(changeRecord);
+      if (changeRecord.path === 'editActions') { // the whole object changed
+        var actionsObject = changeRecord.value;
+        for (let action in actionsObject) {
+          if (actionsObject.hasOwnProperty(action)) {
+            if (this.menus && this.menus[ action ]) {
+              this.menus[ action ].n4.action = actionsObject[ action ];
+            }
+          }
+        }
+      } else if (changeRecord.path.startsWith('editActions.')) { // one of the menus changed
+        var action = changeRecord.path.split('.')[1];
+        if (this.menus && this.menus[ action ]) {
+          this.menus[ action ].n4.action = changeRecord.value;
+        }
+      }
+    },
+
     _forceSelectionChanged: function (forceSelection) {
       if (!this._graphView) { return; }
       this._graphView.setState({ forceSelection: forceSelection });
@@ -1337,6 +1417,7 @@
       if (!this._appView) { return; }
       this._appView.setState(pan);
     },
+
     _selectedEdgesChanged: function (changeRecord) {
       var i, conn, index;
 
@@ -1374,6 +1455,7 @@
 
       this._graphView.setSelectedNodes(selectedNodesHash);
     },
+
     _selectedInputSlotChanged: function (changeRecord) {
       if (!changeRecord || !this._graphView) { return; }
       var selectedNodesHash = {};
@@ -1383,6 +1465,7 @@
 
       this._graphView.setSelectedNodes(selectedNodesHash);
     },
+
     _selectedOutputSlotChanged: function (changeRecord) {
       if (!changeRecord || !this._graphView) { return; }
       var selectedNodesHash = {};
@@ -1437,6 +1520,7 @@
         console.warn('Slot changes are not implemented, yet!' + path.join('.') + ' changed to ' + value);
       }
     },
+
     _themeChanged: function (theme) {
       this.$.svgcontainer.classList.remove('the-graph-dark', 'the-graph-light');
       this.$.svgcontainer.classList.add('the-graph-' + theme);

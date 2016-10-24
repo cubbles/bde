@@ -10,11 +10,63 @@
 
     properties: {
 
+      /**
+       * The metadata of the current component with properies artifactId, endpointId and manifest object.
+       * @type Object
+       */
       currentComponentMetadata: {
         type: Object,
         notify: true
       },
 
+      /**
+       * The edit actions of the bde-graph contextmenu
+       * @type Object
+       */
+      editActions: {
+        type: Object,
+        value: function () {
+          return {
+            main: function () {
+              alert('Edit the main document: comming soon ...');
+            },
+            edge: function () {
+              alert('Edit edge: comming soon ...');
+            },
+            node: function () {
+              alert('Edit node: comming soon ...');
+            },
+            nodeInport: function (graph, itemKey, item) {
+              // TODO
+              console.log('node inport edit action');
+              console.log('itemKey', itemKey, 'item', item);
+              this.fire('bde-edit-slot-init-dialog-open', {
+                slot: this._findSlotInMemberArtifact(item.process, item.port),
+                memberId: item.process
+              });
+            }.bind(this),
+            nodeOutport: function () {
+              alert('Edit node outport: comming soon ...');
+            },
+            graphInport: function (graph, itemKey, item) {
+              console.log('node inport edit action');
+              console.log('itemKey', itemKey, 'item', item);
+              this.fire('bde-edit-slot-init-dialog-open', {
+                slot: this._findSlotInCurrentArtifact(itemKey),
+                ownSlot: true
+              });
+            }.bind(this),
+            graphOutport: function () {
+              alert('Edit graph outport: comming soon ...');
+            }.bind(this)
+          };
+        }
+      },
+
+      /**
+       * A map to cache the already resolved components. The key is the artifactId, the value has the property artifact with the artifact object, and the property componentId.
+       * @type Object
+       */
       resolutions: {
         type: Object,
         notify: true,
@@ -23,7 +75,11 @@
         }
       },
 
-      selectedMembers: {
+      /**
+       * The list of the selected member components, completed with metadata for property editor.
+       * @type Array
+       */
+      selectedMembersForProperties: {
         type: Array,
         notify: true,
         value: function () {
@@ -31,6 +87,10 @@
         }
       },
 
+      /**
+       * The list of selected connections.
+       * @type Array
+       */
       selectedConnections: {
         type: Array,
         notify: true,
@@ -39,78 +99,122 @@
         }
       },
 
+      /**
+       * @type Object
+       */
       settings: {
         type: Object
       },
 
+      /**
+       * Indicate if the property editor is visible or not
+       * @type Boolean
+       */
       showPropertyEditor: {
         type: Boolean,
         value: false
       },
 
+      /**
+       * The last selected member (node).
+       * @type object
+       */
       lastSelectedMember: {
         type: Object,
         notify: true
       },
 
+      /**
+       * The last selected connection.
+       * @type Object
+       */
       lastSelectedConnection: {
         type: Object,
         notify: true
       },
 
+      /**
+       * Current compound component, which is editing from the user.
+       * @type Object
+       */
       _artifact: {
         type: Object,
         notify: true
       },
 
+      /**
+       * The width of the graph.
+       * @type Number
+       */
       _graphWidth: {
         type: Number
       },
 
+      /**
+       * The height of the graph.
+       * @type Number
+       */
       _graphHeight: {
         type: Number
       },
 
+      /**
+       * The offset the x coordinate of the graph
+       * @type Number
+       */
       _graphOffsetX: {
         type: Number
       },
 
+      /**
+       * The offset the y coordinate of the graph
+       * @type Number
+       */
       _graphOffsetY: {
         type: Number
       },
 
+      /**
+       * the list of selected members (nodes) in the graph. The selected members has the  object structure of members used in the graph.
+       * @type Array
+       */
       _selectedMembers: {
         type: Array
       },
 
+      /**
+       * The list of selected edges in the graph.
+       * @type Array
+       */
       _selectedEdges: {
         type: Array
-      },
-
-      _sidepanel: {
-        type: Boolean,
-        value: false
       }
+
     },
 
     observers: [
-      'artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
-      'selectedMembersChanged(_selectedMembers.splices)',
-      'selectedEdgesChanged(_selectedEdges.splices)',
-      'showPropertyEditorChanged(showPropertyEditor)',
+      '_artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
+      '_selectedMembersChanged(_selectedMembers.splices)',
+      '_selectedEdgesChanged(_selectedEdges.splices)',
+      '_showPropertyEditorChanged(showPropertyEditor)',
       '_artifactChanged(_artifact.*)'
     ],
 
     listeners: {
       'the-graph-add-node': 'handleAddNode',
-      'the-graph-remove-node': 'handleRemoveNode',
-      'the-graph-add-inport': 'handleAddInport',
-      'the-graph-remove-inport': 'handleRemoveInport',
-      'the-graph-add-outport': 'handleAddOutport',
-      'the-graph-remove-outport': 'handleRemoveOutport',
-      'the-graph-add-edge': 'handleAddEdge',
-      'the-graph-remove-edge': 'handleRemoveEdge'
+      'the-graph-remove-node': '_handleRemoveNode',
+      'the-graph-add-inport': '_handleAddInport',
+      'the-graph-remove-inport': '_handleRemoveInport',
+      'the-graph-add-outport': '_handleAddOutport',
+      'the-graph-remove-outport': '_handleRemoveOutport',
+      'the-graph-add-edge': '_handleAddEdge',
+      'the-graph-remove-edge': '_handleRemoveEdge',
+      'bde-edit-slot-init-dialog-open': '_openSlotInitEditDialog'
     },
+
+    /* ********************************************************************/
+    /* *********************** Lifecycle method ***************************/
+    /* ********************************************************************/
     attached: function () {
       // Set initial graph size
       this.async(this.handleResize);
@@ -118,118 +222,43 @@
       // Resize cannot be bound using `listeners`
       window.addEventListener('resize', this.handleResize.bind(this));
     },
+    /* ********************************************************************/
+    /* ************************** public methods **************************/
+    /* ********************************************************************/
+
     /**
-     * Load the new artifact
-     *
-     * 1. Resolve dependencies
-     * 2. Rebuild Graph
-     * 3. ???
-     * 4. Profit!
-     *
-     * @param  {Object} manifest   [description]
-     * @param  {String} artifactId [description]
-     * @param  {String} endpointId [description]
+     * Called if a new member selected in base browser
+     * @param {Evnt} event
      */
-    artifactIdChanged: function (manifest, artifactId, endpointId) {
-      this.reload(manifest, artifactId, endpointId);
-    },
+    addMember: function (event) {
+      var cubble = event.detail.item;
+      var endpointId = this.currentComponentMetadata.endpointId;
+      var endpoint = this._artifact.endpoints.find(function (endpoint) { return endpoint.endpointId === endpointId; });
+      var endpointPath = Polymer.Collection.get(this._artifact.endpoints).getKey(endpoint); // e.g. #0
 
-    handleRemoveNode: function (event) {
-      var node = event.detail;
-      var memberIdx = this._artifact.members.findIndex((m) => m.memberId === node.id);
-      this.splice('_artifact.members', memberIdx, 1);
-    },
+      // Close the search dialog
+      this.$.browser.close();
 
-    handleAddInport: function (event, port) {
-      var inport = this.$.bdeGraph.nofloGraph.inports[ port ];
-      this.push('_artifact.slots', {
-        slotId: port,
-        type: 'all', // @TODO (fdu): Fix this to be type of source slot
-        direction: [ 'input' ]
-      });
-      this.push('_artifact.connections', {
-        connectionId: Math.random().toString(36).substring(7),
-        source: {
-          slot: port
-        },
-        destination: {
-          memberIdRef: inport.process,
-          slot: inport.port
-        }
+      var member = {
+        memberId: cubble.memberId,
+        componentId: cubble.metadata.webpackageId + '/' + cubble.metadata.artifactId,
+        displayName: cubble.displayName
+      };
+      var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
+      promise.then((data) => {
+        this.$.bdeGraph.registerComponent(data.component);
+        this.push('_artifact.members', data.member);
+        this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
+          member.componentId + '/' + cubble.metadata.endpointId
+        );
+        // End of loading animation - animation started with this.fire('bde-member-loading');
+        this.fire('bde-member-loaded');
       });
     },
 
-    handleRemoveInport: function (event, port) {
-      var slotIdx = this._artifact.slots.findIndex((s) => s.slotId === port);
-      this._artifact.connections.forEach(function (connection, connectionIdx) {
-        if (!connection.source.memberIdRef &&
-          connection.source.slot === port) {
-          this.splice('_artifact.connections', connectionIdx, 1);
-        }
-      }, this);
-      this.splice('_artifact.slots', slotIdx, 1);
-    },
-
-    handleAddOutport: function (event, port) {
-      var outport = this.$.bdeGraph.nofloGraph.outports[ port ];
-      this.push('_artifact.slots', {
-        slotId: port,
-        type: 'all', // @TODO (fdu): Fix this to be type of source slot
-        direction: [ 'output' ]
-      });
-      this.push('_artifact.connections', {
-        connectionId: Math.random().toString(36).substring(7),
-        source: {
-          memberIdRef: outport.process,
-          slot: outport.port
-        },
-        destination: {
-          slot: port
-        }
-      });
-    },
-
-    handleRemoveOutport: function (event, port) {
-      var slotIdx = this._artifact.slots.findIndex((s) => s.slotId === port);
-      this._artifact.connections.forEach(function (connection, connectionIdx) {
-        if (!connection.destination.memberIdRef &&
-          connection.destination.slot === port) {
-          this.splice('_artifact.connections', connectionIdx, 1);
-        }
-      }, this);
-      this.splice('_artifact.slots', slotIdx, 1);
-    },
-
-    handleAddEdge: function (event) {
-      var edge = event.detail;
-
-      this.push('_artifact.connections', {
-        connectionId: 'connection-' + Math.random().toString(36).substring(7),
-        source: {
-          memberIdRef: edge.from.node,
-          slot: edge.from.port
-        },
-        destination: {
-          memberIdRef: edge.to.node,
-          slot: edge.to.port
-        },
-        copyValue: true,
-        repeatedValues: false
-      });
-    },
-
-    handleRemoveEdge: function (event) {
-      var edge = event.detail;
-      var cIdx = this._artifact.connections.findIndex(function (connection) {
-        return connection.source.memberIdRef === edge.from.node &&
-          connection.source.slot === edge.from.port &&
-          connection.destination.memberIdRef === edge.to.node &&
-          connection.destination.slot === edge.to.port;
-      });
-
-      this.splice('_artifact.connections', cIdx, 1);
-    },
-
+    /**
+     * Handle the resize event
+     */
     handleResize: function () {
       var clientRects = this.getClientRects();
       if (clientRects.length === 0) {
@@ -246,6 +275,23 @@
       this._graphOffsetY = offsetY;
     },
 
+    /**
+     * The method called on cklick of add member Button.
+     */
+    onAddMemberBtnClick: function () {
+      this.$.browser.open();
+    },
+
+    /**
+     * Reload the graf with the changed manifest or artifact.
+     * 1. Reset slections
+     * 2. resolve members
+     * 3. init the graph
+     * Resolved the member components
+     * @param {object} manifest the webpackage manifest
+     * @param {string} artifactId the current artifactId
+     * @param {string} endpointId the current endpointId
+     */
     reload: function (manifest, artifactId, endpointId) {
       if (arguments.length === 0 && this.currentComponentMetadata) {
         manifest = this.currentComponentMetadata.manifest;
@@ -282,96 +328,30 @@
         requestAnimationFrame(() => bdeGraph.triggerAutolayout());
       });
     },
-    selectedEdgesChanged: function (changeRecord) {
-      var connections = this._selectedEdges.map(connectionForEdge.bind(this));
-      this.set('selectedConnections', connections);
-      this.set('lastSelectedConnection', connections[ connections.length - 1 ]);
-      this.fire('iron-selected', { item: this._lastSelectedEdge, type: 'edge' });
 
-      // Show PropertyEditor
-      this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
-
-      function connectionForEdge (edge) {
-        return this._artifact.connections.find(function (connection) {
-          return edge.from.node === connection.source.memberIdRef &&
-            edge.to.node === connection.destination.memberIdRef &&
-            edge.from.port === connection.source.slot &&
-            edge.to.port === connection.destination.slot;
-        });
-      }
-    },
-
-    selectedMembersChanged: function (changeRecord) {
-      var members = this._selectedMembers;
-      // add selected member with polymer array api methods for register changes in selectedMembers
-      this.splice('selectedMembers', 0);
-      members.forEach(function (member) {
-        // add artifact metadata to member
-        var artifactId = member.componentId.split('/')[1];
-        var metadata = this.resolutions[ artifactId ].artifact || {};
-        member.metadata = metadata;
-        this.push('selectedMembers', member);
-      }.bind(this));
-
-      this.showPropertyEditor = false;
-      this.set('lastSelectedMember', this.selectedMembers[ members.length - 1 ]);
-      // this.fire('iron-selected', { item: this.lastSelectedMember, type: 'member' });
-
-      // Show PropertyEditor
-      // this.showPropertyEditor = (this.selectedMembers.length > 0 || this.selectedConnections.length > 0);
-      this.showPropertyEditor = (this.selectedMembers.length > 0);
-    },
-
-    showPropertyEditorChanged: function (showPropertyEditor) {
-      if (showPropertyEditor) {
-        this.$.graphPanel.openDrawer();
-      } else {
-        this.$.graphPanel.closeDrawer();
-      }
-    },
-
+    /**
+     * Trigger the aotulayout.
+     */
     triggerAutolayout: function () {
       this.$.bdeGraph.triggerAutolayout(true);
     },
 
+    /**
+     * Trigger to zoom for optimal presentation of the nodes.
+     */
     zoomToFit: function () {
       this.$.bdeGraph.triggerFit();
     },
 
-    onAddMemberBtcClick: function () {
-      this.$.browser.open();
-    },
+    /* ********************************************************************/
+    /* ********************** prperty event listener**********************/
+    /* ********************************************************************/
 
-    _addMember: function (event) {
-      var cubble = event.detail.item;
-      var endpointId = this.currentComponentMetadata.endpointId;
-      var endpoint = this._artifact.endpoints.find(function (endpoint) { return endpoint.endpointId === endpointId; });
-      var endpointPath = Polymer.Collection.get(this._artifact.endpoints).getKey(endpoint); // e.g. #0
-
-      // Close the search dialog
-      this.$.browser.close();
-
-      var member = {
-        memberId: cubble.memberId,
-        componentId: cubble.metadata.webpackageId + '/' + cubble.metadata.artifactId,
-        displayName: cubble.displayName
-      };
-      var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
-      promise.then((data) => {
-        this.$.bdeGraph.registerComponent(data.component);
-        this.push('_artifact.members', data.member);
-        this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
-          member.componentId + '/' + cubble.metadata.endpointId
-        );
-        // End of loading animation - animation started with this.fire('bde-member-loading');
-        this.fire('bde-member-loaded');
-      });
-    },
-
-    _addCubbleClass: function (showPropertyEditor) {
-      return (showPropertyEditor) ? 'moveRight' : '';
-    },
-
+    /**
+     * Called if the property _artifact changed.
+     * @param { object}changeRecord
+     * @private
+     */
     _artifactChanged: function (changeRecord) {
       console.log('bde-dataflow-view _artifactChanged', changeRecord);
       if (!changeRecord) { return; }
@@ -384,114 +364,283 @@
       // this._updateGraph(changeRecord);
     },
 
-    // _graphFromArtifact: function (artifact) {
-    //   if (!artifact) { return; }
-    //
-    //   var graph = {
-    //     'id': Math.random().toString(36).substring(7),
-    //     'project': '',
-    //     'properties': {
-    //       'name': artifact.artifactId
-    //     },
-    //     'caseSensitive': true,
-    //     'inports': {},
-    //     'outports': {},
-    //     'processes': {},
-    //     'connections': []
-    //   };
-    //
-    //   // External inslots
-    //   artifact.connections
-    //     .filter(function (connection) {
-    //       return (!connection.source.memberIdRef &&
-    //       connection.destination.memberIdRef);
-    //     })
-    //     .forEach(function (connection) {
-    //       var slot = artifact.slots
-    //         .filter(function (slot) {
-    //           return slot.direction.indexOf('input') !== -1;
-    //         })
-    //         .find(function (slot) {
-    //           return slot.slotId === connection.source.slot;
-    //         });
-    //
-    //       graph.inports[ slot.slotId ] = {
-    //         'process': connection.destination.memberIdRef,
-    //         'port': connection.destination.slot,
-    //         'metadata': { x: 15, y: 15 }
-    //       };
-    //     });
-    //
-    //   // External outslots
-    //   artifact.connections
-    //     .filter(function (connection) {
-    //       return (!connection.destination.memberIdRef &&
-    //       connection.source.memberIdRef);
-    //     })
-    //     .forEach(function (connection) {
-    //       var slot = artifact.slots
-    //         .filter(function (slot) {
-    //           return slot.direction.indexOf('output') !== -1;
-    //         })
-    //         .find(function (slot) {
-    //           return slot.slotId === connection.destination.slot;
-    //         });
-    //
-    //       graph.inports[ slot.slotId ] = {
-    //         'process': connection.source.memberIdRef,
-    //         'port': connection.source.slot,
-    //         'metadata': { x: 0, y: 0 }
-    //       };
-    //     });
-    //
-    //   // Members
-    //   artifact.members.forEach(function (member) {
-    //     graph.processes[ member.memberId ] = {
-    //       'component': member.componentId,
-    //       'metadata': {
-    //         'x': 0,
-    //         'y': 0,
-    //         'label': member.displayName || member.memberId
-    //       }
-    //     };
-    //   });
-    //
-    //   // Connections
-    //   artifact.connections.forEach(function (con) {
-    //     var connection = {
-    //       'src': {
-    //         'process': con.source.memberIdRef,
-    //         'port': con.source.slot
-    //       },
-    //       'tgt': {
-    //         'process': con.destination.memberIdRef,
-    //         'port': con.destination.slot
-    //       },
-    //       'metadata': {}
-    //     };
-    //
-    //     graph.connections.push(connection);
-    //   });
-    //
-    //   // Initializers
-    //   artifact.inits.forEach(function (init) {
-    //     var connection = {
-    //       'data': init.value,
-    //       'tgt': {
-    //         'process': init.memberIdRef,
-    //         'port': init.slot
-    //       }
-    //     };
-    //
-    //     graph.connections.push(connection);
-    //   });
-    //
-    //   return graph;
-    // },
+    /**
+     * Load a new artifact results  areload of the graph.
+     *
+     * @param  {Object} manifest   [description]
+     * @param  {String} artifactId [description]
+     * @param  {String} endpointId [description]
+     */
+    _artifactIdChanged: function (manifest, artifactId, endpointId) {
+      this.reload(manifest, artifactId, endpointId);
+    },
 
+    /**
+     * This called if the property showPropertyEditor is changed.
+     * @param showPropertyEditor
+     * @private
+     */
+    _showPropertyEditorChanged: function (showPropertyEditor) {
+      if (showPropertyEditor) {
+        this.$.graphPanel.openDrawer();
+      } else {
+        this.$.graphPanel.closeDrawer();
+      }
+    },
+
+    /* ********************************************************************/
+    /* *********************** Graph event listener ***********************/
+    /* ********************************************************************/
+    /**
+     * Handle the remove node event of the graph
+     * @param {Event}event
+     */
+    _handleRemoveNode: function (event) {
+      var node = event.detail;
+      var memberIdx = this._artifact.members.findIndex((m) => m.memberId === node.id);
+      this.splice('_artifact.members', memberIdx, 1);
+    },
+
+    /**
+     * Handle the add inport event of the graph.
+     * @param {Event} event
+     * @param {object} port the port object
+     * @private
+     */
+    _handleAddInport: function (event, port) {
+      var inport = this.$.bdeGraph.nofloGraph.inports[ port ];
+      this.push('_artifact.slots', {
+        slotId: port,
+        type: 'all', // @TODO (fdu): Fix this to be type of source slot
+        direction: [ 'input' ]
+      });
+      this.push('_artifact.connections', {
+        connectionId: Math.random().toString(36).substring(7),
+        source: {
+          slot: port
+        },
+        destination: {
+          memberIdRef: inport.process,
+          slot: inport.port
+        }
+      });
+    },
+    /**
+     * Handle the remove inport event of the graph.
+     * @param {Event} event
+     * @param {object} port the port object
+     * @private
+     */
+    _handleRemoveInport: function (event, port) {
+      var slotIdx = this._artifact.slots.findIndex((s) => s.slotId === port);
+      this._artifact.connections.forEach(function (connection, connectionIdx) {
+        if (!connection.source.memberIdRef &&
+          connection.source.slot === port) {
+          this.splice('_artifact.connections', connectionIdx, 1);
+        }
+      }, this);
+      this.splice('_artifact.slots', slotIdx, 1);
+    },
+    /**
+     * Handle the add outport event of the graph.
+     * @param {Event} event
+     * @param {object} port the port object
+     * @private
+     */
+    _handleAddOutport: function (event, port) {
+      var outport = this.$.bdeGraph.nofloGraph.outports[ port ];
+      this.push('_artifact.slots', {
+        slotId: port,
+        type: 'all', // @TODO (fdu): Fix this to be type of source slot
+        direction: [ 'output' ]
+      });
+      this.push('_artifact.connections', {
+        connectionId: Math.random().toString(36).substring(7),
+        source: {
+          memberIdRef: outport.process,
+          slot: outport.port
+        },
+        destination: {
+          slot: port
+        }
+      });
+    },
+    /**
+     * Handle the remove outport event of the graph.
+     * @param {Event} event
+     * @param {object} port the port object
+     * @private
+     */
+    _handleRemoveOutport: function (event, port) {
+      var slotIdx = this._artifact.slots.findIndex((s) => s.slotId === port);
+      this._artifact.connections.forEach(function (connection, connectionIdx) {
+        if (!connection.destination.memberIdRef &&
+          connection.destination.slot === port) {
+          this.splice('_artifact.connections', connectionIdx, 1);
+        }
+      }, this);
+      this.splice('_artifact.slots', slotIdx, 1);
+    },
+
+    /**
+     * Handle the add edge event of the graph.
+     * @param {Event} event
+     *
+     * @private
+     */
+    _handleAddEdge: function (event) {
+      var edge = event.detail;
+
+      this.push('_artifact.connections', {
+        connectionId: 'connection-' + Math.random().toString(36).substring(7),
+        source: {
+          memberIdRef: edge.from.node,
+          slot: edge.from.port
+        },
+        destination: {
+          memberIdRef: edge.to.node,
+          slot: edge.to.port
+        },
+        copyValue: true,
+        repeatedValues: false
+      });
+    },
+    /**
+     * Handle the remove edge event of the graph.
+     * @param {Event} event
+     *
+     * @private
+     */
+    _handleRemoveEdge: function (event) {
+      var edge = event.detail;
+      var cIdx = this._artifact.connections.findIndex(function (connection) {
+        return connection.source.memberIdRef === edge.from.node &&
+          connection.source.slot === edge.from.port &&
+          connection.destination.memberIdRef === edge.to.node &&
+          connection.destination.slot === edge.to.port;
+      });
+
+      this.splice('_artifact.connections', cIdx, 1);
+    },
+
+    /**
+     * This handler method is called, if the selected edges changed.
+     * @param {object} changeRecord
+     */
+    _selectedEdgesChanged: function (changeRecord) {
+      var connections = this._selectedEdges.map(connectionForEdge.bind(this));
+      this.set('selectedConnections', connections);
+      this.set('lastSelectedConnection', connections[ connections.length - 1 ]);
+      this.fire('iron-selected', { item: this._lastSelectedEdge, type: 'edge' });
+
+      // Show PropertyEditor
+      this.showPropertyEditor = (this.selectedMembersForProperties.length > 0 || this.selectedConnections.length > 0);
+
+      function connectionForEdge (edge) {
+        return this._artifact.connections.find(function (connection) {
+          return edge.from.node === connection.source.memberIdRef &&
+            edge.to.node === connection.destination.memberIdRef &&
+            edge.from.port === connection.source.slot &&
+            edge.to.port === connection.destination.slot;
+        });
+      }
+    },
+
+    /**
+     * This handler method is called, if the selected members (nodes) changed.
+     * @param {object} changeRecord
+     * @private
+     */
+    _selectedMembersChanged: function (changeRecord) {
+      var members = this._selectedMembers;
+      // add selected member with polymer array api methods for register changes in selectedMembersForProperties
+      this.splice('selectedMembersForProperties', 0);
+      members.forEach(function (member) {
+        // add artifact metadata to member
+        var artifactId = member.componentId.split('/')[ 1 ];
+        var metadata = this.resolutions[ artifactId ].artifact || {};
+        member.metadata = metadata;
+        this.push('selectedMembersForProperties', member);
+      }.bind(this));
+
+      this.showPropertyEditor = false;
+      this.set('lastSelectedMember', this.selectedMembersForProperties[ members.length - 1 ]);
+      // this.fire('iron-selected', { item: this.lastSelectedMember, type: 'member' });
+
+      // Show PropertyEditor
+      // this.showPropertyEditor = (this.selectedMembersForProperties.length > 0 || this.selectedConnections.length > 0);
+      this.showPropertyEditor = (this.selectedMembersForProperties.length > 0);
+    },
+
+    /* ********************************************************************/
+    /* *********************** private methods ****************************/
+    /* ********************************************************************/
+
+    _addCubbleClass: function (showPropertyEditor) {
+      return (showPropertyEditor) ? 'moveRight' : '';
+    },
+
+    /**
+     * Get the store url
+     * @returns {string}
+     * @private
+     */
     _baseUrl: function () {
       return this.settings.baseUrl.replace(/\/?$/, '/') + this.settings.store + '/';
     },
+
+    /**
+     * Find a slot in current artifact.
+     * @param {string} slotId the slotId
+     * @return {object} the slot object
+     */
+    _findSlotInCurrentArtifact: function (slotId) {
+      return this._artifact.slots.find((slot) => slot.slotId === slotId);
+
+    },
+    /**
+     * Find the slot definition in the member artifact.
+     * @param {string} memberId the memberId
+     * @param {string} slotId the slotId
+     * @returns {object|undefined} the found slot object or undefined
+     * @private
+     */
+    _findSlotInMemberArtifact: function (memberId, slotId) {
+      var member = this._artifact.members.find((member) => member.memberId === memberId);
+      if (member) {
+        if (!member.metadata) {
+          var artifactId = member.componentId.split('/')[ 1 ];
+          var metadata = this.resolutions[ artifactId ].artifact || {};
+          member.metadata = metadata;
+        }
+        var slot = member.metadata.slots.find((slot) => slot.slotId === slotId);
+        return slot;
+      }
+      return null;
+    },
+
+    /**
+     * Init and open the slot init edit dialog.
+     * @param {Event} evt
+     * @private
+     */
+    _openSlotInitEditDialog: function (evt) {
+      this.$.bdeSlotInitDialog.set('slot', evt.detail.slot);
+      if (evt.detail.memberId && evt.detail.memberId.trim().length > 0) {
+        this.$.bdeSlotInitDialog.set('memberId', evt.detail.memberId);
+      }
+      if (typeof evt.detail.ownSlot !== 'undefined') {
+        this.$.bdeSlotInitDialog.set('ownSlot', evt.detail.ownSlot);
+      }
+      this.$.bdeSlotInitDialog.set('dialogOpened', true);
+    },
+
+    /**
+     * Get the url for the dependency
+     * @param dependency
+     * @returns {string}
+     * @private
+     */
     _urlFor: function (dependency) {
       var webpackageId = dependency.split('/')[ 0 ];
 
