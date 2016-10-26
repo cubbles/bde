@@ -9,6 +9,9 @@
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
 <link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../vendor/paper-dropdown-menu/paper-dropdown-menu.html" />
+<link rel="import" href="../../vendor/paper-listbox/paper-listbox.html" />
+
 
 <dom-module id="bde-explorer-details">
     <template>
@@ -408,21 +411,30 @@
                                                              auto-validate
                                                              value="{{slot.slotId}}">
                                                 </paper-input>
-                                                <paper-input label="Type" list="slotTypes"
-                                                             placeholder="Data type of the slot."
-                                                             auto-validate
-                                                             error-message="The slot type is required"
-                                                             value="{{slot.type}}">
-                                                </paper-input>
-                                                <datalist id="slotTypes">
-                                                    <option value="boolean"></option>
-                                                    <option value="string"></option>
-                                                    <option value="number"></option>
-                                                    <option value="object"></option>
-                                                    <option value="array"></option>
-                                                </datalist>
+                                                <paper-dropdown-menu label="Type"> <!-- not work yet -->
+                                                    <paper-listbox class="dropdown-content" attr-for-selected="data-type" selected="string">
+                                                        <paper-item data-type="string">string</paper-item>
+                                                        <paper-item data-type="number">number</paper-item>
+                                                        <paper-item data-type="boolean">boolean</paper-item>
+                                                        <paper-item data-type="object">object</paper-item>
+                                                        <paper-item data-type="array">array</paper-item>
+                                                    </paper-listbox>
+                                                </paper-dropdown-menu>
+                                                <!--<paper-input label="Type" list="slotTypes"--> <!-- just autocomplet -->
+                                                             <!--placeholder="Data type of the slot."-->
+                                                             <!--auto-validate-->
+                                                             <!--error-message="The slot type is required"-->
+                                                             <!--value="{{slot.type}}">-->
+                                                <!--</paper-input>-->
+                                                <!--<datalist id="slotTypes">-->
+                                                    <!--<option value="string"></option>-->
+                                                    <!--<option value="number"></option>-->
+                                                    <!--<option value="boolean"></option>-->
+                                                    <!--<option value="object"></option>-->
+                                                    <!--<option value="array"></option>-->
+                                                <!--</datalist>-->
                                                 <paper-textarea label="Description"
-                                                                placeholder="Description of this slot: responsibility, expected data-structure etc.">
+                                                                placeholder="Description of this slot: responsibility, expected data-structure etc." value="{{slot.description}}">
                                                 </paper-textarea>
                                                 <div class="label">
                                                     <label class="label" title="A slot can be public accessible as input-slot (receive data), output-slot (propagate data) or both. If this attribute not exist, is the slot bidirectional">
@@ -433,6 +445,14 @@
                                                 </paper-checkbox>
                                                 <paper-checkbox checked="[[_isOutputSlot(slot)]]">Output
                                                 </paper-checkbox>
+                                                <br>
+                                                <br>
+                                                <br>
+                                                <br>
+                                                <br>
+                                                <br>
+                                                <br>
+                                                <br>
                                             </div>
                                         </iron-collapse>
                                     </div>

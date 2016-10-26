@@ -314,6 +314,14 @@
         value: function () {
           return [];
         }
+      },
+      /**
+       * Hold intern the slot-Array. Changes for the slot property should be after the update actions to the graph updated with the slots properties.
+       * @type Array
+       *
+       */
+      _slots: {
+        type: Array
       }
     },
 
@@ -350,10 +358,11 @@
         onSuccess: this._applyAutolayout.bind(this),
         workerScript: '../../klayjs/klay.js'
       });
-    },
-    ready: function () {
       // Attach context menus
       this._defineMenus();
+    },
+    ready: function () {
+
     },
     attached: function () {
       window.addEventListener('resize', this.onResize.bind(this));
@@ -520,7 +529,7 @@
       var connection = this._getConnectionForEdge(edge);
       if (!connection) {
         var newConnection = {
-          connectionId: Math.random().toString(36).substring(2, 7),
+          connectionId: 'con_' + Math.random().toString(36).substring(2, 7).toLowerCase(),
 
           source: {
             //  memberIdRef: edge.from.node,
@@ -548,7 +557,7 @@
       if (!slot) {
         this.push('slots', {
           slotId: publicPort,
-          type: port.type,
+          type: port.metadata.type,
           description: port.metadata.description,
           direction: [ 'input' ]
         });
@@ -577,7 +586,7 @@
       } else {
         this.push('slots', {
           slotId: publicPort,
-          type: port.type,
+          type: port.metadata.type,
           description: port.metadata.description,
           direction: [ 'output' ]
         });
@@ -1007,17 +1016,17 @@
         });
       }.bind(this);
 
-      this.set('menus', {
+      var menus = {
 
         // Background
         main: {
 
           icon: 'sitemap',
-          n4: {
-            iconLabel: 'edit',
-            icon: 'pencil-square-o',
-            action: this.editActions.main
-          },
+          // n4: {
+          //   iconLabel: 'edit',
+          //   icon: 'pencil-square-o',
+          //   action: this.editActions.main
+          // },
           e4: pasteMenu
         },
 
@@ -1025,11 +1034,11 @@
         edge: {
           actions: edgeActions,
           icon: 'long-arrow-right',
-          n4: {
-            iconLabel: 'edit',
-            icon: 'pencil-square-o',
-            action: this.editActions.edge
-          },
+          // n4: {
+          //   iconLabel: 'edit',
+          //   icon: 'pencil-square-o',
+          //   action: this.editActions.edge
+          // },
           s4: {
             icon: 'trash-o',
             iconLabel: 'delete',
@@ -1040,11 +1049,11 @@
         // Members
         node: {
           actions: nodeActions,
-          n4: {
-            iconLabel: 'edit',
-            icon: 'pencil-square-o',
-            action: this.editActions.node
-          },
+          // n4: {
+          //   iconLabel: 'edit',
+          //   icon: 'pencil-square-o',
+          //   action: this.editActions.node
+          // },
           s4: {
             icon: 'trash-o',
             iconLabel: 'delete',
@@ -1058,11 +1067,11 @@
         },
 
         nodeInport: {
-          n4: {
-            iconLabel: 'edit',
-            icon: 'pencil-square-o',
-            action: this.editActions.nodeInport
-          },
+          // n4: {
+          //   iconLabel: 'edit',
+          //   icon: 'pencil-square-o',
+          //   action: this.editActions.nodeInport
+          // },
           w4: {
             icon: 'sign-in',
             iconLabel: 'export',
@@ -1071,11 +1080,11 @@
         },
 
         nodeOutport: {
-          n4: {
-            iconLabel: 'edit',
-            icon: 'pencil-square-o',
-            action: this.editActions.nodeOutport
-          },
+          // n4: {
+          //   iconLabel: 'edit',
+          //   icon: 'pencil-square-o',
+          //   action: this.editActions.nodeOutport
+          // },
           e4: {
             icon: 'sign-out',
             iconLabel: 'export',
@@ -1087,11 +1096,11 @@
         graphInport: {
           icon: 'sign-in',
           iconColor: 2,
-          n4: {
-            iconLabel: 'edit',
-            icon: 'pencil-square-o',
-            action: this.editActions.graphInport
-          },
+          // n4: {
+          //   iconLabel: 'edit',
+          //   icon: 'pencil-square-o',
+          //   action: this.editActions.graphInport
+          // },
           s4: {
             icon: 'trash-o',
             iconLabel: 'delete',
@@ -1104,11 +1113,11 @@
         graphOutport: {
           icon: 'sign-out',
           iconColor: 5,
-          n4: {
-            iconLabel: 'edit',
-            icon: 'pencil-square-o',
-            action: this.editActions.graphOutport
-          },
+          // n4: {
+          //   iconLabel: 'edit',
+          //   icon: 'pencil-square-o',
+          //   action: this.editActions.graphOutport
+          // },
           s4: {
             icon: 'trash-o',
             iconLabel: 'delete',
@@ -1130,7 +1139,9 @@
           },
           e4: pasteMenu
         }
-      });
+      };
+
+      this.set('menus', menus);
     },
 
     _getConnectionForEdge: function (edge) {
@@ -1308,12 +1319,23 @@
         for (let action in actionsObject) {
           if (actionsObject.hasOwnProperty(action)) {
             if (this.menus && this.menus[ action ]) {
-              this.menus[ action ].n4.action = actionsObject[ action ];
+              this.menus[ action ].n4 = {
+                iconLabel: 'edit',
+                icon: 'pencil-square-o',
+                action: actionsObject[ action ]
+              };
+            }
+          }
+        }
+        for (let m in this.menus) {
+          if (this.menus.hasOwnProperty(m)) {
+            if (!actionsObject[ m ]) {
+              delete this.menus[ m ].n4;
             }
           }
         }
       } else if (changeRecord.path.startsWith('editActions.')) { // one of the menus changed
-        var action = changeRecord.path.split('.')[1];
+        var action = changeRecord.path.split('.')[ 1 ];
         if (this.menus && this.menus[ action ]) {
           this.menus[ action ].n4.action = changeRecord.value;
         }
@@ -1477,6 +1499,7 @@
     },
 
     _slotsChanged: function (changeRecord) {
+      console.log('##########_slotsChanged changeRecord', changeRecord);
       var i, index, slot, path, key, value;
 
       if (!changeRecord) { return; }
@@ -1510,21 +1533,92 @@
         }
       } else {
         // Slot was modified
-        path = changeRecord.path.match(/slots\.(#\d+)\.(\S)$/);
-        key = path[ 0 ];
-        path = path[ 1 ].split('.');
+        path = changeRecord.path.match(/slots\.(#\d+)(\.(\S*))?$/);
+        key = path[ 1 ];
+
         value = changeRecord.value;
         slot = Polymer.Collection.get(this.slots).getItem(key);
 
-        // @todo: (fdu) Make it so
-        console.warn('Slot changes are not implemented, yet!' + path.join('.') + ' changed to ' + value);
+        if (path.length === 4) {
+          let changeKey = path[ 3 ];
+          if (changeKey === 'description' || changeKey === 'type') {
+            this._updateSlotMetadata(slot, { key: changeKey, value: value });
+          }
+
+          if (changeKey === 'slotId') {
+            let oldSlot = Polymer.Collection.get(this._slots).getItem(key);
+            this._updateSlotInGraph(slot, oldSlot);
+          }
+        }
       }
+
+      this._updateInternalSlotProperty();
     },
 
     _themeChanged: function (theme) {
       this.$.svgcontainer.classList.remove('the-graph-dark', 'the-graph-light');
       this.$.svgcontainer.classList.add('the-graph-' + theme);
-    }
+    },
 
+    _updateInternalSlotProperty: function () {
+      if (this.slots) {
+        let _slots = [];
+        this.slots.forEach((slot) => {
+          let _slot = JSON.parse(JSON.stringify(slot));
+          _slots.push(_slot);
+        });
+        this.set('_slots', _slots);
+      }
+    },
+    _updateSlotMetadata: function (slot, changes) {
+      if (!slot.direction || slot.direction.includes('input')) {
+        let metadata = this._graph.getInportMetadata(slot.slotId);
+        for (let prop in changes) {
+          if (changes.hasOwnProperty(prop)) {
+            metadata[ prop ] = changes[ prop ];
+          }
+        }
+        this._graph.setInportMetadata(slot.slotId, metadata);
+      }
+      if (!slot.direction || slot.direction.includes('output')) {
+        let metadata = this._graph.getOutportMetadata(slot.slotId);
+        for (let prop in changes) {
+          if (changes.hasOwnProperty(prop)) {
+            metadata[ prop ] = changes[ prop ];
+          }
+        }
+        this._graph.setOutportMetadata(slot.slotId, metadata);
+      }
+    },
+
+    _updateSlotInGraph: function (slot, oldSlot) {
+      if (!slot.direction || slot.direction.includes('input')) {
+        let oldPort = this._graph.inports[ oldSlot.slotId ];
+        // TODO getEdges with old inport
+        let slotEdges = this._graph.edges.filter((edge) => (edge.from.port === oldSlot.slotId));
+        this._addSlotToGraph(slot);
+        let newPort = this._graph.inports[ slot.slotId ];
+        newPort.metadata.x = oldPort.metadata.x;
+        newPort.metadata.y = oldPort.metadata.y;
+        slotEdges.forEach((edge) => {
+          this._graph.addEdge(undefined, slot.slotId, edge.to.node, edge.to.port, edge.metadata);
+          this._graph.removeEdge(undefined, oldSlot.slotId, edge.to.node, edge.to.port);
+        });
+        this._graph.removeInport(oldSlot.slotId);
+      }
+      if (!slot.direction || slot.direction.includes('output')) {
+        let oldPort = this._graph.outports[ oldSlot.slotId ];
+        let slotEdges = this._graph.edges.filter((edge) => (edge.to.port === oldSlot.slotId));
+        this._addSlotToGraph(slot);
+        let newPort = this._graph.outports[ slot.slotId ];
+        newPort.metadata.x = oldPort.metadata.x;
+        newPort.metadata.y = oldPort.metadata.y;
+        slotEdges.forEach((edge) => {
+          this._graph.addEdge(edge.from.node, edge.from.port, undefined, slot.slotId, edge.metadata);
+          this._graph.removeEdge(edge.from.node, edge.from.port, undefined, oldSlot.slotId);
+        });
+        this._graph.removeOutport(oldSlot.slotId);
+      }
+    }
   });
 })();

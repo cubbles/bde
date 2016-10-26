@@ -163,6 +163,17 @@ Polymer({
       console.log(err);
     }
   },
+
+  /**
+   * Check, if the slot is an input slot.
+   * @param {object} slot the slot object
+   * @returns {boolean}
+   * @private
+   */
+  _isInputSlot: function (slot) {
+    return !slot.direction || slot.direction.includes('input');
+  },
+
   /**
    * Save the formular data. Add this.Initialiser property values to the corresponding artifact.inits object, or add anew init object.
    * @private
@@ -186,8 +197,28 @@ Polymer({
     }
   },
 
-  _saveEditedSlot: function(){
-    console.log('_saveEditedSlot');
+  _saveEditedSlot: function () {
+    var slotIdChanged = false;
+    var slotDescriptionChanged = false;
+    if (this.slot.slotId !== this._slot.slotId) {
+      slotIdChanged = true;
+    }
+    if (this._slot.description !== this.slot.description) {
+      slotDescriptionChanged = true;
+    }
+    if (slotIdChanged || slotDescriptionChanged) {
+      var slot = this.artifact.slots.find((sl) => sl.slotId === this.slot.slotId);
+      var slotPath = new Polymer.Collection(this.artifact.slots).getKey(slot);
+    }
+    if (slotIdChanged) {
+      this.slot.slotId = this._slot.slotId;
+      this.notifyPath('artifact.slots.' + slotPath + '.slotId', this._slot.slotId);
+    }
+
+    if (slotDescriptionChanged) {
+      this.slot.description = this._slot.description;
+      this.notifyPath('artifact.slots.' + slotPath + '.description', this._slot.description);
+    }
   },
 
   /**
@@ -253,10 +284,10 @@ Polymer({
    */
   _validateAndSave: function () {
     if (this.$.editMemberSlotInitForm.validate()) {
-      this._saveEditedInit();
       if (this.ownSlot) {
         this._saveEditedSlot();
       }
+      this._saveEditedInit();
       this.$.slotInitDialog.close();
     } else {
       this.set('_validForm', false);

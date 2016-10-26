@@ -45,9 +45,9 @@
                 memberId: item.process
               });
             }.bind(this),
-            nodeOutport: function () {
-              alert('Edit node outport: comming soon ...');
-            },
+            // nodeOutport: function () {
+            //   alert('Edit node outport: comming soon ...');
+            // },
             graphInport: function (graph, itemKey, item) {
               console.log('node inport edit action');
               console.log('itemKey', itemKey, 'item', item);
@@ -56,8 +56,13 @@
                 ownSlot: true
               });
             }.bind(this),
-            graphOutport: function () {
-              alert('Edit graph outport: comming soon ...');
+            graphOutport: function (graph, itemKey, item) {
+              console.log('node inport edit action');
+              console.log('itemKey', itemKey, 'item', item);
+              this.fire('bde-edit-slot-init-dialog-open', {
+                slot: this._findSlotInCurrentArtifact(itemKey),
+                ownSlot: true
+              });
             }.bind(this)
           };
         }
@@ -631,6 +636,8 @@
       }
       if (typeof evt.detail.ownSlot !== 'undefined') {
         this.$.bdeSlotInitDialog.set('ownSlot', evt.detail.ownSlot);
+      } else {
+        this.$.bdeSlotInitDialog.set('ownSlot', undefined);
       }
       this.$.bdeSlotInitDialog.set('dialogOpened', true);
     },

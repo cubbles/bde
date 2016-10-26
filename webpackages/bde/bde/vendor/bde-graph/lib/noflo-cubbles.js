@@ -449,6 +449,7 @@
     metadata.y = metadata.y || 0;
     metadata.height = metadata.height || TheGraph.config.nodeHeight;
     metadata.width = metadata.width || TheGraph.config.nodeWidth;
+    metadata.type = type;
 
     this.checkTransactionStart();
     this.inports[ publicPort ] = {
@@ -495,6 +496,14 @@
     return this.checkTransactionEnd();
   };
 
+  Graph.prototype.getInportMetadata = function (publicPort) {
+    publicPort = this.getPortName(publicPort);
+    if (!this.inports[ publicPort ]) {
+      return;
+    }
+    return this.inports[ publicPort ].metadata;
+  };
+
   Graph.prototype.setInportMetadata = function (publicPort, metadata) {
     var before, item, val;
     publicPort = this.getPortName(publicPort);
@@ -526,6 +535,7 @@
     metadata.y = metadata.y || 0;
     metadata.height = metadata.height || TheGraph.config.nodeHeight;
     metadata.width = metadata.width || TheGraph.config.nodeWidth;
+    metadata.type = type;
 
     this.checkTransactionStart();
     this.outports[ publicPort ] = {
@@ -571,6 +581,14 @@
     delete this.outports[ oldPort ];
     this.emit('renameOutport', oldPort, newPort);
     return this.checkTransactionEnd();
+  };
+
+  Graph.prototype.getOutportMetadata = function (publicPort) {
+    publicPort = this.getPortName(publicPort);
+    if (!this.outports[ publicPort ]) {
+      return;
+    }
+    return this.outports[ publicPort ].metadata;
   };
 
   Graph.prototype.setOutportMetadata = function (publicPort, metadata) {
