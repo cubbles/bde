@@ -980,23 +980,23 @@
   };
 
   Graph.prototype.removeEdge = function (node, port, node2, port2) {
-    var edge, index, toKeep, toRemove, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+    var edge, index, toKeep, toRemove, _i, _k, _len, _len2, _ref;
     this.checkTransactionStart();
     port = this.getPortName(port);
     port2 = this.getPortName(port2);
     toRemove = [];
     toKeep = [];
     // if (node2 && port2) { // jtrs remover just unambiguous edges
-      _ref = this.edges;
-      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
-        edge = _ref[ index ];
-        if (edge.from.node === node && edge.from.port === port && edge.to.node === node2 && edge.to.port === port2) {
-          this.setEdgeMetadata(edge.from.node, edge.from.port, edge.to.node, edge.to.port, {});
-          toRemove.push(edge);
-        } else {
-          toKeep.push(edge);
-        }
+    _ref = this.edges;
+    for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+      edge = _ref[ index ];
+      if (edge.from.node === node && edge.from.port === port && edge.to.node === node2 && edge.to.port === port2) {
+        this.setEdgeMetadata(edge.from.node, edge.from.port, edge.to.node, edge.to.port, {});
+        toRemove.push(edge);
+      } else {
+        toKeep.push(edge);
       }
+    }
     // } else { // jtrs remover just unambiguous edges
     //   _ref1 = this.edges;
     //   for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {

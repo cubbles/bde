@@ -601,7 +601,6 @@
      */
     _findSlotInCurrentArtifact: function (slotId) {
       return this._artifact.slots.find((slot) => slot.slotId === slotId);
-
     },
     /**
      * Find the slot definition in the member artifact.
@@ -630,16 +629,16 @@
      * @private
      */
     _openSlotInitEditDialog: function (evt) {
-      this.$.bdeSlotInitDialog.set('slot', evt.detail.slot);
-      if (evt.detail.memberId && evt.detail.memberId.trim().length > 0) {
-        this.$.bdeSlotInitDialog.set('memberId', evt.detail.memberId);
-      }
+      this.$.bdeSlotEditDialog.set('slot', evt.detail.slot);
+      // if (evt.detail.memberId && evt.detail.memberId.trim().length > 0) {
+      this.$.bdeSlotEditDialog.set('memberId', evt.detail.memberId);
+      // }
       if (typeof evt.detail.ownSlot !== 'undefined') {
-        this.$.bdeSlotInitDialog.set('ownSlot', evt.detail.ownSlot);
+        this.$.bdeSlotEditDialog.set('ownSlot', evt.detail.ownSlot);
       } else {
-        this.$.bdeSlotInitDialog.set('ownSlot', undefined);
+        this.$.bdeSlotEditDialog.set('ownSlot', undefined);
       }
-      this.$.bdeSlotInitDialog.set('dialogOpened', true);
+      this.$.bdeSlotEditDialog.set('dialogOpened', true);
     },
 
     /**

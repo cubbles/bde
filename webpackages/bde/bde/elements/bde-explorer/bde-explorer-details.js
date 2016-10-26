@@ -141,7 +141,6 @@ Polymer({
       }
     }
   },
-
   validateAndSave: function () {
     if (this.$.artifactForm.validate()) {
       if (!_.isEqual(this.artifact, this._editingArtifact)) {
@@ -250,19 +249,14 @@ Polymer({
       var textareaElem = event.target.closest('bde-textarea');
       if (textareaElem.classList.contains('initValue')) {
         var value = textareaElem.value;
-
-        try {
-          value = JSON.parse(value);
-          this.set(textareaElem.dataset.path, value);
-        } catch (err) {
-          console.err(err);
-        }
+        this.set(textareaElem.dataset.path, value);
       }
     }
   },
   _initTextareaId: function (index) {
     return 'initValue' + index;
   },
+
   _initTextareaValidatorId: function (index) {
     return 'validJson' + index;
   },

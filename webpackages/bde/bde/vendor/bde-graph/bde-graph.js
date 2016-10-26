@@ -529,7 +529,7 @@
       var connection = this._getConnectionForEdge(edge);
       if (!connection) {
         var newConnection = {
-          connectionId: 'con_' + Math.random().toString(36).substring(2, 7).toLowerCase(),
+          connectionId: 'con-' + Math.random().toString(36).substring(2, 7).toLowerCase(),
 
           source: {
             //  memberIdRef: edge.from.node,

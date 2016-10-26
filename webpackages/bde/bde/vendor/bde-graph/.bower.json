@@ -27,12 +27,12 @@
     "url": "https://github.com/cubbles/bde-graph.git"
   },
   "homepage": "https://github.com/cubbles/bde-graph",
-  "version": "1.4.4",
-  "_release": "1.4.4",
+  "version": "1.4.5",
+  "_release": "1.4.5",
   "_resolution": {
     "type": "version",
-    "tag": "1.4.4",
-    "commit": "248f09ace4fd83daeca3324ebd756fedfd94033a"
+    "tag": "1.4.5",
+    "commit": "1ff3a1e665bffc83359dab9ca4a6e48b5361b855"
   },
   "_source": "https://github.com/cubbles/bde-graph.git",
   "_target": "^1.4.0",
