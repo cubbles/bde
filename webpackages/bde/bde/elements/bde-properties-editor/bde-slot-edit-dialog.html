@@ -52,7 +52,8 @@
                     <div hidden$="[[!ownSlot]]">
                         <paper-input label="Slot id" value="{{_slot.slotId}}"></paper-input>
                         <paper-dropdown-menu label="Type">
-                            <paper-listbox class="dropdown-content" attr-for-selected="data-type" selected="{{slot.type}}">
+                            <!--selected="{{slot.type}}"   attr-for-selected="data-type"-->
+                            <paper-listbox class="dropdown-content" selected="{{_slot.type}}"   attr-for-selected="data-type">
                                 <paper-item data-type="string">string</paper-item>
                                 <paper-item data-type="number">number</paper-item>
                                 <paper-item data-type="boolean">boolean</paper-item>
@@ -77,6 +78,7 @@
                     <br>
                 </form>
             </paper-dialog-scrollable>
+
             <div class="buttons">
                 <paper-button on-tap="_validateAndSave">Save</paper-button>
                 <paper-button dialog-dismiss>Cancel</paper-button>

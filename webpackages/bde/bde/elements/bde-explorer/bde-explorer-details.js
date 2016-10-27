@@ -27,7 +27,7 @@ Polymer({
       type: Number
     },
 
-    validForm: {
+    _validForm: {
       type: Boolean,
       value: true
     },
@@ -41,7 +41,8 @@ Polymer({
     'change': '_handleChangedInitValue'
   },
   observers: [
-    'artifactChanged(artifact.*)'
+    'artifactChanged(artifact.*)',
+    '_validFormChanged(_validForm)'
   ],
   ready: function () {
     this._bindValidators();
@@ -57,7 +58,7 @@ Polymer({
 
   artifactChanged: function (changeRecord) {
     this.set('_editingArtifact', _.cloneDeep(this.artifact));
-    this.set('validForm', true);
+    this.set('_validForm', true);
   },
 
   close: function () {
@@ -102,9 +103,12 @@ Polymer({
   },
 
   dialogOpenHandler: function (event) {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
     this.set('_editingArtifact', JSON.parse(JSON.stringify(this.artifact)));
     this.$.members.render();
-    this.set('validForm', true);
+    this.set('_validForm', true);
   },
   membersDomChanged: function (event) {
     if (this._editingArtifact && this._editingArtifact.members && this._editingArtifact.members.length > 0) {
@@ -148,9 +152,9 @@ Polymer({
         this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
         this.fire('bde-dataflow-view-reload-required');
       }
-      this.$.dialog.close();
+      this.$.compoundDialog.close();
     } else {
-      this.set('validForm', false);
+      this.set('_validForm', false);
     }
   },
 
@@ -310,5 +314,8 @@ Polymer({
       }
     }
     return true;
+  },
+  _validFormChanged: function () {
+    this.$.compoundDialog.fit();
   }
 });

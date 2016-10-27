@@ -24,7 +24,7 @@ Polymer({
   listeners: {
     'iron-form-presubmit': 'handleFormPresubmit',
     'input': 'handleInput',
-    'dialog.iron-overlay-closed': 'handleDialogClosed'
+    'newCompoundDialog.iron-overlay-closed': 'handleDialogClosed'
   },
 
   close: function () {

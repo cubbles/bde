@@ -107,11 +107,11 @@
             }
         </style>
 
-        <paper-dialog id="dialog" opened="{{opened}}" on-iron-overlay-opened="dialogOpenHandler">
+        <paper-dialog id="compoundDialog" opened="{{opened}}" on-iron-overlay-opened="dialogOpenHandler">
 
             <h2><span>[[_editingArtifact.artifactId]]</span></h2>
 
-            <div class="errorMessage" hidden="[[validForm]]">Please correct the errors in the form</div>
+            <div class="errorMessage" hidden="[[_validForm]]">Please correct the errors in the form</div>
 
             <paper-dialog-scrollable>
                 <form is="iron-form" id="artifactForm" on-dom-change="_validateForm">

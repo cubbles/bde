@@ -76,6 +76,10 @@ Polymer({
     'editDialog.iron-overlay-opened': '_handleDialogOpened'
   },
 
+  observers: [
+    '_validFormChanged(_validForm)'
+  ],
+
   ready: function () {
     this._bindValidators();
   },
@@ -126,6 +130,9 @@ Polymer({
    */
   _handleDialogOpened: function (event) {
     console.log('_handleDialogOpened');
+    if (event.target !== event.currentTarget) {
+      return;
+    }
     // Create a temporare initialiser object for the dialog
     var newInitialiser = {
 
@@ -148,6 +155,8 @@ Polymer({
     if (this.ownSlot) {
       this.set('_slot', JSON.parse(JSON.stringify(this.slot)));
     }
+
+    this.set('_validForm', this.$.editMemberSlotInitForm.validate());
   },
 
   /**
@@ -287,6 +296,7 @@ Polymer({
    */
   _validateAndSave: function () {
     if (this.$.editMemberSlotInitForm.validate()) {
+      this.set('_validForm', true);
       this._saveEditedInit();
       if (this.ownSlot) {
         this._saveEditedSlot();
@@ -313,5 +323,8 @@ Polymer({
       }
     }
     return true;
+  },
+  _validFormChanged: function () {
+    this.$.editDialog.fit();
   }
 });
