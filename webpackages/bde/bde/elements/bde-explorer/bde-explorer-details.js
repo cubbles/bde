@@ -1,37 +1,84 @@
+// @importedBy bde-explorer-details.html
 /* global _*/
+
 Polymer({
   is: 'bde-explorer-details',
   properties: {
 
+    /**
+     * The current selected artifact of the project.
+     *
+     * @type {Object}
+     * @property artifact
+     */
     artifact: {
       type: Object,
       notify: true
     },
 
+    /**
+     * The manifest metadata of the current project.
+     *
+     * @type {Object}
+     * @property manifest
+     */
     manifest: {
       type: Object,
       notify: true
     },
 
+    /**
+     * Opened attribute of the paper-dialog.
+     *
+     * @type {Boolean}
+     * @property opened
+     */
     opened: {
       type: Boolean,
       value: false
     },
 
+    /**
+     * Value for the artifactType of the project.
+     * Uses to determine the affiliation of the artifact in the explorer element.
+     *
+     * @type {String}
+     * @property artifactType
+     */
     artifactType: {
       type: String,
       value: 'compoundComponent'
     },
 
+    /**
+     * Index of the current edited artifact.
+     * Used for the order in which the components are displayed in the explorer.
+     *
+     * @type {Number}
+     * @property artifactIndex
+     */
     artifactIndex: {
       type: Number
     },
 
+    /**
+     * Helper property to determine if the form is valid.
+     *
+     * @type {Boolean}
+     * @property _validForm
+     */
     _validForm: {
       type: Boolean,
       value: true
     },
 
+    /**
+     * The currently edited artifact of the project.
+     * Helper property.
+     *
+     * @type {Object}
+     * @property _editingArtifact
+     */
     _editingArtifact: {
       type: Object
     }
@@ -40,13 +87,27 @@ Polymer({
   listeners: {
     'change': '_handleChangedInitValue'
   },
+
   observers: [
     'artifactChanged(artifact.*)',
     '_validFormChanged(_validForm)'
   ],
+
+  /**
+   * Polymer ready function. Calls _bindValidators function.
+   *
+   * @method ready
+   */
   ready: function () {
     this._bindValidators();
   },
+
+  /**
+   * Adds a new component to the project, using the tap-event to determine, which item is to be added.
+   *
+   * @param {[Event]} e [tap event from paper-button]
+   * @method addNewItem
+   */
   addNewItem: function (e) {
     var path = e.currentTarget.dataset.path;
     if (!this.get(path)) {
@@ -56,14 +117,32 @@ Polymer({
     this.push(path, item);
   },
 
+  /**
+   * Artifact change handler.
+   *
+   * @param  {[type]} changeRecord [description]
+   * @method artifactChanged
+   */
   artifactChanged: function (changeRecord) {
     this.set('_editingArtifact', _.cloneDeep(this.artifact));
     this.set('_validForm', true);
   },
 
+  /**
+   * Closes the encompassing paper-dialog by setting the openend property to false.
+   *
+   * @method close
+   */
   close: function () {
     this.opened = false;
   },
+
+  /**
+   * Connections change handler..
+   *
+   * @param  {[type]} event [description]
+   * @method connectionsDomChanged
+   */
   connectionsDomChanged: function (event) {
     if (this._editingArtifact && this._editingArtifact.connections && this._editingArtifact.connections.length > 0) {
       var id = this._idForCollapse(this._editingArtifact.connections.length - 1, 'connection_');
@@ -73,6 +152,13 @@ Polymer({
       }
     }
   },
+
+  /**
+   * Endpoints change handler
+   *
+   * @param  {[type]} event [description]
+   * @method endpointsDomChanged
+   */
   endpointsDomChanged: function (event) {
     if (this._editingArtifact && this._editingArtifact.endpoints && this._editingArtifact.endpoints.length > 0) {
       var id = this._idForCollapse(this._editingArtifact.endpoints.length - 1, 'endpoint_');
@@ -82,6 +168,13 @@ Polymer({
       }
     }
   },
+
+  /**
+   * Inits change handler.
+   *
+   * @param  {[type]} event [description]
+   * @method initsDomChanged
+   */
   initsDomChanged: function (event) {
     if (this._editingArtifact && this._editingArtifact.inits && this._editingArtifact.inits.length > 0) {
       var id = this._idForCollapse(this._editingArtifact.inits.length - 1, 'init_');
@@ -92,6 +185,11 @@ Polymer({
     }
   },
 
+  /**
+   * Runnables change handler.
+   * @param  {[type]} event [description]
+   * @method runnablesDomChanged
+   */
   runnablesDomChanged: function (event) {
     if (this._editingArtifact && this._editingArtifact.runnables && this._editingArtifact.runnables.length > 0) {
       var id = this._idForCollapse(this._editingArtifact.runnables.length - 1, 'runnable_');
@@ -102,6 +200,12 @@ Polymer({
     }
   },
 
+  /**
+   * Dialog opened handler. Parses the current artifact metadata.
+   *
+   * @param  {[Event]} event [iron-overlay opened event]
+   * @method dialogOpenHandler
+   */
   dialogOpenHandler: function (event) {
     if (event.target !== event.currentTarget) {
       return;
@@ -110,6 +214,13 @@ Polymer({
     this.$.members.render();
     this.set('_validForm', true);
   },
+
+  /**
+   * Members change handler.
+   *
+   * @param  {[type]} event [description]
+   * @method membersDomChanged
+   */
   membersDomChanged: function (event) {
     if (this._editingArtifact && this._editingArtifact.members && this._editingArtifact.members.length > 0) {
       var id = this._idForCollapse(this._editingArtifact.members.length - 1, 'member_');
@@ -120,22 +231,45 @@ Polymer({
     }
   },
 
+  /**
+   * Dialog open function, sets opened property to true.
+   *
+   * @method open
+   */
   open: function () {
     this.opened = true;
   },
 
+  /**
+   * Removes the current artifact from the project by determining the target of the actual tap.
+   *
+   * @param  {[Event]} e [tap Event from the corresponding 'delete' button]
+   * @method removeItem
+   */
   removeItem: function (e) {
     var itemIndex = e.currentTarget.dataset.itemIndex;
     var path = e.currentTarget.dataset.path;
     this.splice(path, itemIndex, 1);
   },
 
+  /**
+   * Toggles the current div, by determining the target of the tap.
+   *
+   * @param  {[Event]} e [Tap event, to determine the current tap target.]
+   * @method toggleCollapse
+   */
   toggleCollapse: function (e) {
     var collapseDiv = this.$$('#' + e.currentTarget.dataset.collapseId);
     collapseDiv.toggle();
     Polymer.dom(e.currentTarget).querySelector('iron-icon').icon = this._calculateToggleIcon(collapseDiv.opened);
   },
 
+  /**
+   * Slots change handler.
+   *
+   * @param  {[type]} event [description]
+   * @method slotsDomChanged
+   */
   slotsDomChanged: function (event) {
     if (this._editingArtifact && this._editingArtifact.slots && this._editingArtifact.slots.length > 0) {
       var id = this._idForCollapse(this._editingArtifact.slots.length - 1, 'slot_');
@@ -145,6 +279,13 @@ Polymer({
       }
     }
   },
+
+  /**
+   * Validation function called on submit of the form.
+   * Validating the form and setting the respective input data to metadata.
+   *
+   * @method validateAndSave
+   */
   validateAndSave: function () {
     if (this.$.artifactForm.validate()) {
       if (!_.isEqual(this.artifact, this._editingArtifact)) {
@@ -158,36 +299,91 @@ Polymer({
     }
   },
 
+  /**
+   * Binds a custom validator to the _validateJson function.+
+   *
+   * @param  {[type]} event [description]
+   * @method _bindValidators
+   */
   _bindValidators: function (event) {
     var validatorElement = this.querySelector('.validJson');
     validatorElement.validate = this._validateJson.bind(this);
   },
 
+  /**
+   * Returns artifactType as 'appComponent'
+   *
+   * @param  {[type]} artifact [description]
+   * @return {[String]}          [artifactType]
+   * @method _artifactIsApp
+   */
   _artifactIsApp: function (artifact) {
     return this.artifactType === 'appComponent';
   },
 
+  /**
+   * Returns artifactType as 'compoundComponent'
+   *
+   * @param  {[type]} artifact [description]
+   * @return {[String]}          [artifactType]
+   * @method _artifactIsCompound
+   */
   _artifactIsCompound: function (artifact) {
     return this.artifactType === 'compoundComponent';
   },
 
+  /**
+   * Returns artifactType as 'elementaryComponent'
+   *
+   * @param  {[type]} artifact [description]
+   * @return {[String]}          [artifactType]
+   * @method _artifactIsElementary
+   */
   _artifactIsElementary: function (artifact) {
     return this.artifactType === 'elementaryComponent';
   },
 
+  /**
+   * Returns artifactType as 'utilityComponent'
+   *
+   * @param  {[type]} artifact [description]
+   * @return {[String]}          [artifactType]
+   * @method _artifactIsUtility
+   */
   _artifactIsUtility: function (artifact) {
     return this.artifactType === 'utilityComponent';
   },
 
+  /**
+   * Helper function to determine the id of the current collapsable element.
+   *
+   * @param  {[type]} index  [description]
+   * @param  {[type]} prefix [description]
+   * @return {[String]}        [compound string]
+   * @method _idForCollapse
+   */
   _idForCollapse: function (index, prefix) {
     prefix = prefix || '';
     return prefix + 'collapse' + index;
   },
 
+  /**
+   * Determines the current toggle state and return the corresponding value.
+   *
+   * @param  {[String]} state [attribute of the collapse]
+   * @method _calculateToggleIcon
+   */
   _calculateToggleIcon: function (state) {
     return state ? 'icons:expand-less' : 'icons:expand-more';
   },
 
+  /**
+   * Sets the metadata according the inputs.
+   *
+   * @param  {[String]} itemName
+   * @param  {[String]} path
+   * @method _createItem
+   */
   _createItem: function (itemName, path) {
     var newIndex;
     switch (itemName) {
@@ -238,16 +434,38 @@ Polymer({
         return {};
     }
   },
+
+  /**
+   * Determines he path of the inputted artifact.
+   *
+   * @return {[String]} [path of the artifact]
+   * @method _createPath
+   */
   _createPath: function () {
     var path = Array.prototype.slice.call(arguments).join('.');
     return '_editingArtifact.' + path;
   },
+
+  /**
+   * Evaluates the checked 'copy' field to set a copyValue flag.
+   *
+   * @param  {[type]} connection [description]
+   * @return {[Boolean]}            [copyValue flag]
+   * @method _copyValue
+   */
   _copyValue: function (connection) {
     if (typeof connection.copyValue === 'undefined') {
       connection.copyValue = true;
     }
     return connection.copyValue;
   },
+
+  /**
+   * Init value change handler
+   *
+   * @param  {[type]} event [description]
+   * @method _handleChangedInitValue
+   */
   _handleChangedInitValue: function (event) {
     if (event.target.tagName.toLowerCase() === 'textarea') {
       var textareaElem = event.target.closest('bde-textarea');
@@ -257,17 +475,47 @@ Polymer({
       }
     }
   },
+
+  /**
+   * Returns an id for the element.
+   *
+   * @param  {[type]} index [description]
+   * @return {[String]}       [id]
+   * @method _initTextareaId
+   */
   _initTextareaId: function (index) {
     return 'initValue' + index;
   },
 
+  /**
+   * Returns id for the element.
+   *
+   * @param  {[type]} index [description]
+   * @return {[String]}       [id]
+   * @method _initTextareaValidatorId
+   */
   _initTextareaValidatorId: function (index) {
     return 'validJson' + index;
   },
 
+  /**
+   * Returns the data path for the inits.
+   *
+   * @param  {[type]} index [description]
+   * @return {[String]}       [dataPath]
+   * @method _initValueDataPath
+   */
   _initValueDataPath: function (index) {
     return '_editingArtifact.inits.' + index + '.value';
   },
+
+  /**
+   * Checks if the current slot is an input slot.
+   *
+   * @param  {[Object]} slot [slots of the artifact]
+   * @return {Boolean}      [Corresponding to result of the check]
+   * @method _isInputSlot
+   */
   _isInputSlot: function (slot) {
     for (var i = 0; i < slot.direction.length; i++) {
       if (slot.direction[ i ] === 'input') {
@@ -276,12 +524,25 @@ Polymer({
     }
     return false;
   },
-  _initTextareId: function (index) {
-    return 'initValue' + index;
-  },
+
+  /**
+   * Determines if the parameter value is an Object.
+   * Helper function.
+   *
+   * @param  {[Object]} value [description]
+   * @return {Boolean}       [result of the object check]
+   * @method _isObject
+   */
   _isObject: function (value) {
     return typeof value === 'object';
   },
+
+  /**
+   * Checks if the current slot is an output slot.
+   *
+   * @param  {[Object]} slot [slots of the artifact]
+   * @return {Boolean}      [Corresponding to result of the check]
+   */
   _isOutputSlot: function (slot) {
     for (var i = 0; i < slot.direction.length; i++) {
       if (slot.direction[ i ] === 'output') {
@@ -297,14 +558,27 @@ Polymer({
     }
     return value;
   },
+
+  /**
+   * Calls form validator.
+   *
+   * @method _validateForm
+   */
   _validateForm: function () {
     this.debounce('validateForm', function () {
       this.$.artifactForm.validate();
     }, 2);
   },
+
+  /**
+   * Custom JSON validator, checks if the pattern of a JSON file matches.
+   *
+   * @param  {[type]} value [description]
+   * @return {[Boolean]}       [result of the validation]
+   * @method _validateJson
+   */
   _validateJson: function (value) {
     // validation code
-
     if (value && typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
       try {
         JSON.parse(value);
@@ -315,6 +589,12 @@ Polymer({
     }
     return true;
   },
+
+  /**
+   * Helper function, fits the dialog to window.
+   *
+   * @method _validFormChanged
+   */
   _validFormChanged: function () {
     this.$.compoundDialog.fit();
   }

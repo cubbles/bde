@@ -5,13 +5,27 @@
 <link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../vendor/paper-input/paper-input.html">
 <link rel="import" href="../bde-textarea/bde-textarea.html">
-<!--<link rel="import" href="../custom-validator/custom-validator.html" />-->
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
 <link rel="import" href="../../vendor/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../vendor/paper-dropdown-menu/paper-dropdown-menu.html" />
 <link rel="import" href="../../vendor/paper-listbox/paper-listbox.html" />
 
+<!--
+A BDE custom element, to edit the details of an artifact in the project, using a paper-dialog and extensivly collapsable content and input fields.
+
+The input data are bound to the manifest data of the current project. 
+
+Example:
+
+      <bde-explorer-details id="explorerDetails"
+                            artifact="{{selectedCompound}}"
+                            manifest="{{manifest}}">
+      </bde-explorer-details>
+
+@group BDE Custom Elements
+@element bde-explorer-details
+-->
 
 <dom-module id="bde-explorer-details">
     <template>
