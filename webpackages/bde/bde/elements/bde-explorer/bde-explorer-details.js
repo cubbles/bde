@@ -1,6 +1,5 @@
 // @importedBy bde-explorer-details.html
 /* global _*/
-
 Polymer({
   is: 'bde-explorer-details',
   properties: {
@@ -14,6 +13,29 @@ Polymer({
     artifact: {
       type: Object,
       notify: true
+    },
+
+    /**
+     * Index of the current edited artifact.
+     * Used for the order in which the components are displayed in the explorer.
+     *
+     * @type {Number}
+     * @property artifactIndex
+     */
+    artifactIndex: {
+      type: Number
+    },
+
+    /**
+     * Value for the artifactType of the project.
+     * Uses to determine the affiliation of the artifact in the explorer element.
+     *
+     * @type {String}
+     * @property artifactType
+     */
+    artifactType: {
+      type: String,
+      value: 'compoundComponent'
     },
 
     /**
@@ -36,29 +58,6 @@ Polymer({
     opened: {
       type: Boolean,
       value: false
-    },
-
-    /**
-     * Value for the artifactType of the project.
-     * Uses to determine the affiliation of the artifact in the explorer element.
-     *
-     * @type {String}
-     * @property artifactType
-     */
-    artifactType: {
-      type: String,
-      value: 'compoundComponent'
-    },
-
-    /**
-     * Index of the current edited artifact.
-     * Used for the order in which the components are displayed in the explorer.
-     *
-     * @type {Number}
-     * @property artifactIndex
-     */
-    artifactIndex: {
-      type: Number
     },
 
     /**
@@ -87,12 +86,14 @@ Polymer({
   listeners: {
     'change': '_handleChangedInitValue'
   },
-
   observers: [
     'artifactChanged(artifact.*)',
     '_validFormChanged(_validForm)'
   ],
 
+  /* *********************************************************************/
+  /* ************************* Lifecycle Methods *************************/
+  /* *********************************************************************/
   /**
    * Polymer ready function. Calls _bindValidators function.
    *
@@ -101,6 +102,10 @@ Polymer({
   ready: function () {
     this._bindValidators();
   },
+
+  /* *********************************************************************/
+  /* ************************* public Methods ****************************/
+  /* *********************************************************************/
 
   /**
    * Adds a new component to the project, using the tap-event to determine, which item is to be added.
@@ -253,18 +258,6 @@ Polymer({
   },
 
   /**
-   * Toggles the current div, by determining the target of the tap.
-   *
-   * @param  {[Event]} e [Tap event, to determine the current tap target.]
-   * @method toggleCollapse
-   */
-  toggleCollapse: function (e) {
-    var collapseDiv = this.$$('#' + e.currentTarget.dataset.collapseId);
-    collapseDiv.toggle();
-    Polymer.dom(e.currentTarget).querySelector('iron-icon').icon = this._calculateToggleIcon(collapseDiv.opened);
-  },
-
-  /**
    * Slots change handler.
    *
    * @param  {[type]} event [description]
@@ -278,6 +271,18 @@ Polymer({
         lastElem.toggle();
       }
     }
+  },
+
+  /**
+   * Toggles the current div, by determining the target of the tap.
+   *
+   * @param  {[Event]} e [Tap event, to determine the current tap target.]
+   * @method toggleCollapse
+   */
+  toggleCollapse: function (e) {
+    var collapseDiv = this.$$('#' + e.currentTarget.dataset.collapseId);
+    collapseDiv.toggle();
+    Polymer.dom(e.currentTarget).querySelector('iron-icon').icon = this._calculateToggleIcon(collapseDiv.opened);
   },
 
   /**
@@ -299,17 +304,9 @@ Polymer({
     }
   },
 
-  /**
-   * Binds a custom validator to the _validateJson function.+
-   *
-   * @param  {[type]} event [description]
-   * @method _bindValidators
-   */
-  _bindValidators: function (event) {
-    var validatorElement = this.querySelector('.validJson');
-    validatorElement.validate = this._validateJson.bind(this);
-  },
-
+  /* *********************************************************************/
+  /* ************************* private Methods ***************************/
+  /* *********************************************************************/
   /**
    * Returns artifactType as 'appComponent'
    *
@@ -355,16 +352,14 @@ Polymer({
   },
 
   /**
-   * Helper function to determine the id of the current collapsable element.
+   * Binds a custom validator to the _validateJson function.+
    *
-   * @param  {[type]} index  [description]
-   * @param  {[type]} prefix [description]
-   * @return {[String]}        [compound string]
-   * @method _idForCollapse
+   * @param  {[type]} event [description]
+   * @method _bindValidators
    */
-  _idForCollapse: function (index, prefix) {
-    prefix = prefix || '';
-    return prefix + 'collapse' + index;
+  _bindValidators: function (event) {
+    var validatorElement = this.querySelector('.validJson');
+    validatorElement.validate = this._validateJson.bind(this);
   },
 
   /**
@@ -375,6 +370,20 @@ Polymer({
    */
   _calculateToggleIcon: function (state) {
     return state ? 'icons:expand-less' : 'icons:expand-more';
+  },
+
+  /**
+   * Evaluates the checked 'copy' field to set a copyValue flag.
+   *
+   * @param  {[type]} connection [description]
+   * @return {[Boolean]}            [copyValue flag]
+   * @method _copyValue
+   */
+  _copyValue: function (connection) {
+    if (typeof connection.copyValue === 'undefined') {
+      connection.copyValue = true;
+    }
+    return connection.copyValue;
   },
 
   /**
@@ -408,7 +417,7 @@ Polymer({
         return {
           slotId: 'slot' + this._editingArtifact.slots.length,
           type: '',
-          direction: [],
+          direction: ['input', 'output'],
           description: ''
         };
       case 'member':
@@ -446,18 +455,8 @@ Polymer({
     return '_editingArtifact.' + path;
   },
 
-  /**
-   * Evaluates the checked 'copy' field to set a copyValue flag.
-   *
-   * @param  {[type]} connection [description]
-   * @return {[Boolean]}            [copyValue flag]
-   * @method _copyValue
-   */
-  _copyValue: function (connection) {
-    if (typeof connection.copyValue === 'undefined') {
-      connection.copyValue = true;
-    }
-    return connection.copyValue;
+  _getSlotDirectionId: function (i, direction) {
+    return 'slot_' + direction + '_' + i;
   },
 
   /**
@@ -467,13 +466,33 @@ Polymer({
    * @method _handleChangedInitValue
    */
   _handleChangedInitValue: function (event) {
-    if (event.target.tagName.toLowerCase() === 'textarea') {
-      var textareaElem = event.target.closest('bde-textarea');
+    var sourceEl = event.target;
+    if (sourceEl.tagName.toLowerCase() === 'textarea') {
+      var textareaElem = sourceEl.closest('bde-textarea');
       if (textareaElem.classList.contains('initValue')) {
         var value = textareaElem.value;
         this.set(textareaElem.dataset.path, value);
       }
     }
+    if (sourceEl.classList.contains('slotDirectionInput')) {
+      this._setSlotDirection(sourceEl.dataset.slotId, 'input', sourceEl.checked);
+    }
+    if (sourceEl.classList.contains('slotDirectionOutput')) {
+      this._setSlotDirection(sourceEl.dataset.slotId, 'output', sourceEl.checked);
+    }
+  },
+
+  /**
+   * Helper function to determine the id of the current collapsable element.
+   *
+   * @param  {[type]} index  [description]
+   * @param  {[type]} prefix [description]
+   * @return {[String]}        [compound string]
+   * @method _idForCollapse
+   */
+  _idForCollapse: function (index, prefix) {
+    prefix = prefix || '';
+    return prefix + 'collapse' + index;
   },
 
   /**
@@ -552,11 +571,40 @@ Polymer({
     return false;
   },
 
-  _serialize: function (value) {
-    if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
-      return JSON.stringify(value, null, 2);
+  // _serialize: function (value) {
+  //   if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+  //     return JSON.stringify(value, null, 2);
+  //   }
+  //   return value;
+  // },
+
+  /**
+   * Set a direction attribute in the slot with slotId of the compound.
+   * @param {string} slotId the slotId of the slot
+   * @param {string} direction the direction
+   * @param {boolean} checked the checked attribute of the form
+   * @private
+   */
+  _setSlotDirection: function (slotId, direction, checked) {
+    if (!this._editingArtifact.slots) {
+      return;
     }
-    return value;
+    var slot = this._editingArtifact.slots.find((slot) => slot.slotId === slotId);
+    if (slot.direction && slot.direction.includes(direction) && !checked) {
+      // remove direction  form slot.direction array
+      var index = slot.direction.indexOf(direction);
+      slot.direction.splice(index, 1);
+    }
+    if (!slot.direction && checked) {
+      // create lot.direction property and add direction to slot.direction array
+      slot.direction = [];
+      slot.direction.push(direction);
+    }
+
+    if (slot.direction && !slot.direction.includes(direction) && checked) {
+      // add direction to slot.direction array
+      slot.direction.push(direction);
+    }
   },
 
   /**
@@ -579,6 +627,7 @@ Polymer({
    */
   _validateJson: function (value) {
     // validation code
+
     if (value && typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
       try {
         JSON.parse(value);

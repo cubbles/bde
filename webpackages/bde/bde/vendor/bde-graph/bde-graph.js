@@ -808,7 +808,7 @@
         isInputSlot = true;
       }
 
-      if (!slot.direction) {
+      if (!slot.direction || slot.direction.length === 0) {
         isOutputSlot = true;
         isInputSlot = true;
       }

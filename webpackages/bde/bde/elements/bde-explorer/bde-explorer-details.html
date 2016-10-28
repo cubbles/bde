@@ -455,9 +455,9 @@ Example:
                                                         Direction
                                                     </label>
                                                 </div>
-                                                <paper-checkbox checked="[[_isInputSlot(slot)]]">Input
+                                                <paper-checkbox id$="[[_getSlotDirectionId(sloti,'input')]]" data-slot-id$="{{slot.slotId}}" checked="[[_isInputSlot(slot)]]" class="slotDirectionInput">Input
                                                 </paper-checkbox>
-                                                <paper-checkbox checked="[[_isOutputSlot(slot)]]">Output
+                                                <paper-checkbox id$="[[_getSlotDirectionId(sloti,'output')]]" data-slot-id$="{{slot.slotId}}" checked="[[_isOutputSlot(slot)]]" class="slotDirectionOutput">Output
                                                 </paper-checkbox>
                                             </div>
                                         </iron-collapse>

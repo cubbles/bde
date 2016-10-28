@@ -597,12 +597,16 @@
         var inport = graph.inports[ key ];
         // Export info
         var label = key;
+        var icon = 'sign-in';
+        if (graph.outports[key]){
+          icon = 'exchange';
+        }
         var metadata = inport.metadata = TheGraph.merge({
           x: 0,
           y: 0,
           width: TheGraph.config.nodeWidth,
           height: TheGraph.config.nodeHeight,
-          icon: 'sign-in'
+          icon: icon
         }, inport.metadata);
 
         var selected = (self.state.selectedNodes[ key ] === true); // jtrs: selected inports
@@ -639,11 +643,15 @@
         var outport = graph.outports[ key ];
         // Export info
         var label = key;
+        var icon = 'sign-out';
+        if (graph.inports[key]) {
+          icon = 'exchange';
+        }
         var metadata = outport.metadata = TheGraph.merge({
           x: 0, y: 0,
           width: TheGraph.config.nodeWidth,
           height: TheGraph.config.nodeHeight,
-          icon: 'sign-out'
+          icon: icon
         }, outport.metadata);
         var selected = (self.state.selectedNodes[ key ] === true); // jtrs: selected outports
         if (selected) {

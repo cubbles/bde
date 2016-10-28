@@ -192,104 +192,37 @@ Polymer({
       this.set('artifact.inits.' + path + '.value', this._initialiser.value);
     }
   },
-  // _initDataFormat: function () {
-  //   var value = this._initializer.value
-  //   if (value !== 'true' && value !== 'false' && !Number.isNaN(value)) {
-  //     this._initializer.value = Number(value);
-  //   }
-  //   if (value === 'true') {
-  //     this._initializer.value = true;
-  //   }
-  //   if (value === 'false') {
-  //     this._initializer.value = false;
-  //   }
-  // },
   _saveEditedSlot: function () {
-    var slotIdChanged = false;
-    var slotDescriptionChanged = false;
-    if (this.slot.slotId !== this._slot.slotId) {
-      slotIdChanged = true;
-    }
-    if (this._slot.description !== this.slot.description) {
-      slotDescriptionChanged = true;
-    }
-    if (slotIdChanged || slotDescriptionChanged) {
-      var slot = this.artifact.slots.find((sl) => sl.slotId === this.slot.slotId);
-      var slotPath = new Polymer.Collection(this.artifact.slots).getKey(slot);
-    }
-    if (slotIdChanged) {
-      // Change the slotId in existing inits
-      if (this.artifact.inits) {
-        let inits = this.artifact.inits.filter((init) => !init.memberIdRef && init.slot === this.slot.slotId);
-        inits.forEach((init) => { init.slot = this._slot.slotId; });
+    if (!_.isEqual(this.slot, this._slot)) {
+      var slotIdChanged = false;
+      var slotDescriptionChanged = false;
+      if (this.slot.slotId !== this._slot.slotId) {
+        slotIdChanged = true;
       }
-      this.slot.slotId = this._slot.slotId;
-      this.notifyPath('artifact.slots.' + slotPath + '.slotId', this._slot.slotId);
-    }
+      if (this._slot.description !== this.slot.description) {
+        slotDescriptionChanged = true;
+      }
+      if (slotIdChanged || slotDescriptionChanged) {
+        var slot = this.artifact.slots.find((sl) => sl.slotId === this.slot.slotId);
+        var slotPath = new Polymer.Collection(this.artifact.slots).getKey(slot);
+      }
+      if (slotIdChanged) {
+        // Change the slotId in existing inits
+        if (this.artifact.inits) {
+          let inits = this.artifact.inits.filter((init) => !init.memberIdRef && init.slot === this.slot.slotId);
+          inits.forEach((init) => { init.slot = this._slot.slotId; });
+        }
+        this.slot.slotId = this._slot.slotId;
+        this.notifyPath('artifact.slots.' + slotPath + '.slotId', this._slot.slotId);
+      }
 
-    if (slotDescriptionChanged) {
-      this.slot.description = this._slot.description;
-      this.notifyPath('artifact.slots.' + slotPath + '.description', this._slot.description);
+      if (slotDescriptionChanged) {
+        this.slot.description = this._slot.description;
+        this.notifyPath('artifact.slots.' + slotPath + '.description', this._slot.description);
+      }
     }
   },
 
-  // /**
-  //  * Serialise the boolean value. (true -> checked, false -> ''
-  //  * @param {boolean} value the value
-  //  * @returns {string} serialised value
-  //  * @private
-  //  */
-  // _serializeBoolean: function (value) {
-  //   return value ? 'checked' : '';
-  // },
-
-  // /**
-  //  * Serialise an object or an array.
-  //  * @param {object|array}value
-  //  * @private
-  //  */
-  // _serializeObject: function (value) {
-  //   return JSON.stringify(value, null, 2);
-  // },
-
-  // /**
-  //  * Check if the slot type is boolean.
-  //  * @param {object}slot the slot object
-  //  * @returns {boolean}
-  //  * @private
-  //  */
-  // _slotIsBoolean: function (slot) {
-  //   return slot.type && slot.type.toLowerCase() === 'boolean';
-  // },
-
-  // /**
-  //  * Check if the slot type is number.
-  //  * @param slot
-  //  * @returns {boolean}
-  //  * @private
-  //  */
-  // _slotIsNumber: function (slot) {
-  //   return slot.type && slot.type.toLowerCase() === 'number';
-  // },
-  //
-  // /**
-  //  * Check if the slot type is string.
-  //  * @param {object}slot the slot object
-  //  * @returns {boolean}
-  //  * @private
-  //  */
-  // _slotIsString: function (slot) {
-  //   return slot.type && slot.type.toLowerCase() === 'string';
-  // },
-  // /**
-  //  * Check if the slot type is not string, number or boolean.
-  //  * @param {object}slot the slot object
-  //  * @returns {boolean}
-  //  * @private
-  //  */
-  // _slotIsObject: function (slot) {
-  //   return !this._slotIsBoolean(slot) && !this._slotIsNumber(slot) && !this._slotIsString(slot);
-  // },
   /**
    * Validate the formular inputs, and by valid values save this to the artifact.
    * @private
