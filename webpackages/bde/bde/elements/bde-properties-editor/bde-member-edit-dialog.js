@@ -12,7 +12,8 @@ Polymer({
     },
     dialogOpened: {
       type: Boolean,
-      notify: true
+      notify: true,
+      value: false
     }
   },
 

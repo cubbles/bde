@@ -13,7 +13,9 @@ Polymer({
       notify: true
     },
     memberDialogOpened: {
-      type: Boolean
+      type: Boolean,
+      observer: 'memberDialogOpenedChanged'
+
     },
     _dummy: {
       type: String
@@ -30,6 +32,13 @@ Polymer({
   ],
 
   handleSlotChange: function (event) {
+
+  },
+
+  memberDialogOpenedChanged: function (newValue, oldValue) {
+    if (newValue === true) {
+      this.fire('bde-member-edit-dialog-open', this.member);
+    }
 
   },
 

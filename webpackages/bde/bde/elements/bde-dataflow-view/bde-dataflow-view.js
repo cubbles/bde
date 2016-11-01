@@ -30,16 +30,15 @@
             main: function () {
               alert('Edit the main document: comming soon ...');
             },
-            edge: function () {
+            edge: function (graph, itemKey, item) {
               alert('Edit edge: comming soon ...');
             },
-            node: function () {
-              alert('Edit node: comming soon ...');
-            },
+            node: function (graph, itemKey, item, position) {
+              var member = this._artifact.members.find((m) => m.memberId === itemKey);
+              this.fire('bde-member-edit-dialog-open', member);
+            }.bind(this),
             nodeInport: function (graph, itemKey, item) {
               // TODO
-              console.log('node inport edit action');
-              console.log('itemKey', itemKey, 'item', item);
               this.fire('bde-edit-slot-init-dialog-open', {
                 slot: this._findSlotInMemberArtifact(item.process, item.port),
                 memberId: item.process
@@ -214,7 +213,8 @@
       'the-graph-remove-outport': '_handleRemoveOutport',
       'the-graph-add-edge': '_handleAddEdge',
       'the-graph-remove-edge': '_handleRemoveEdge',
-      'bde-edit-slot-init-dialog-open': '_openSlotInitEditDialog'
+      'bde-edit-slot-init-dialog-open': '_openSlotInitEditDialog',
+      'bde-member-edit-dialog-open': '_openMemberEditDialog'
     },
 
     /* ********************************************************************/
@@ -623,6 +623,11 @@
       return null;
     },
 
+    _openMemberEditDialog: function (evt) {
+      var member = evt.detail;
+      this.$.bdeMemberDialog.set('member', member);
+      this.$.bdeMemberDialog.set('dialogOpened', true);
+    },
     /**
      * Init and open the slot init edit dialog.
      * @param {Event} evt
