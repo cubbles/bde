@@ -28,8 +28,9 @@
         value: function () {
           return {
             main: function () {
-              alert('Edit the main document: comming soon ...');
-            },
+              this.$.bdeCompoundDialog.set('artifact', this._artifact);
+              this.$.bdeCompoundDialog.set('dialogOpened', true);
+            }.bind(this),
             edge: function (graph, itemKey, item) {
               alert('Edit edge: comming soon ...');
             },
@@ -362,10 +363,15 @@
       if (!changeRecord) { return; }
 
       var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
-      var path = new Polymer.Collection(compoundComponents).getKey(this._artifact);
-      path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + path);
+      var pathIndex = new Polymer.Collection(compoundComponents).getKey(this._artifact);
+      var path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + pathIndex);
 
       this.set(path, changeRecord.value);
+      if (changeRecord.path.indexOf('artifactId') > -1) {
+        this.set('currentComponentMetadata.artifactId', changeRecord.value);
+        this.set('manifest.artifactId', changeRecord.value);
+      }
+
       // this._updateGraph(changeRecord);
     },
 

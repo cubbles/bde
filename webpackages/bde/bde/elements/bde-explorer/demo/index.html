@@ -97,14 +97,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             hljs.highlightBlock(this.$.code);
         });
 
-        this.$.explorer.addEventListener('bde-explorer-open-settings', function (e) {
-            var allArtifacts = [].concat(
-                    app.testObject.manifest.artifacts.apps,
-                    app.testObject.manifest.artifacts.compoundComponents,
-                    app.testObject.manifest.artifacts.elementaryComponents,
-                    app.testObject.manifest.artifacts.utilities
-            );
-        });
     });
 </script>
 

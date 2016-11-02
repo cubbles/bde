@@ -87,7 +87,7 @@ Polymer({
     this._editingManifest.keywords = [];
     var keywords = this.keywords.split(',');
     keywords.forEach(function (keyword) {
-      this.push('_editingManifest.keywords', keyword.trim())
+      this.push('_editingManifest.keywords', keyword.trim());
     }.bind(this));
   },
   manDomChanged: function (event) {
@@ -105,13 +105,13 @@ Polymer({
     }
   },
   manifestChanged: function () {
-    if (this.manifest.man && typeof this.manifest.man === 'string') {
+    if (this.manifest && this.manifest.man && typeof this.manifest.man === 'string') {
       this.set('manifest.man', [ this.manifest.man ]);
     }
-    if (this.manifest.license) {
+    if (this.manifest && this.manifest.license) {
       this.selectedLicense = this.manifest.license;
     }
-    if (this.manifest.keywords) {
+    if (this.manifest && this.manifest.keywords) {
       this.keywords = this.manifest.keywords.join(', ');
     }
   },
@@ -202,5 +202,5 @@ Polymer({
     this.debounce('validateForm', function () {
       this.$.manifestForm.validate();
     }, 2);
-  },
+  }
 });

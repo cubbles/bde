@@ -23,6 +23,17 @@
                 -webkit-transform: translate3d(-50%, 0, 0);
                 -ms-transform: translate3d(-50%, 0, 0);
             }
+
+            paper-input[readonly=true]{
+                --paper-input-container-underline: {
+                    display: none;
+                };
+                --paper-input-container-disabled: {
+                    opacity: 1;
+                };
+            }
+
+
         </style>
 
         <paper-dialog id="memberDialog" opened="{{dialogOpened}}" no-cancel-on-esc-key="true" on-iron-overlay-opened="_handleDialogOpened" on-iron-overlay-closed="_handleDialogClosed">
@@ -30,8 +41,8 @@
             <p>Set the <code>Display name</code> or <code>Description</code> of the member here.</p>
             <paper-dialog-scrollable>
                 <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
-                    <paper-input label="Member id" value="[[_member.memberId]]" readonly="true"></paper-input>
-                    <paper-input label="Component id" readonly="true" value="[[_member.componentId]]"></paper-input>
+                    <paper-input label="Member id" value="[[_member.memberId]]" readonly="true" disabled></paper-input>
+                    <paper-input label="Component id" readonly="true" value="[[_member.componentId]]" disabled></paper-input>
                     <paper-input label="Display name" type="Text" value="{{_member.displayName}}"></paper-input>
                     <paper-input label="Description" type="Text" value="{{_member.description}}"></paper-input>
                 </form>

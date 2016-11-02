@@ -12,6 +12,7 @@
 
       /**
        * Metadata of the current element, which is beeing created via the BDE.
+       * It has the properties "manifest", "artifactId" and "endpointId".
        *
        * @type {Object}
        * @property currentComponentMetadata

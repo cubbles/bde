@@ -8,6 +8,7 @@ Polymer({
     /**
      * The artifact object, which is shown in dataflowview
      * @type Object
+     * @property artifact
      */
     artifact: {
       type: Object,
@@ -17,6 +18,7 @@ Polymer({
     /**
      * Indicate, if this dialog opened or not.
      * @type Boolean
+     * @property dialogOpened
      */
     dialogOpened: {
       type: Boolean,
@@ -27,6 +29,7 @@ Polymer({
     /**
      * The memberId of the member, which slot to be initialize
      * @type String
+     * @property memberId
      */
     memberId: {
       type: String
@@ -35,7 +38,7 @@ Polymer({
     /**
      * indicate the slot is a own slot of the shown component, and initialiser shoudn't have the property memberIdRef
      * @type Boolean
-     * // TODO is this nessecary?
+     * @property ownSlot
      */
     ownSlot: {
       type: Boolean,
@@ -45,6 +48,7 @@ Polymer({
     /**
      * The slot object.
      * @type Object
+     * @property slot
      */
     slot: {
       type: Object,
@@ -54,17 +58,25 @@ Polymer({
     /**
      * This internal init object. The form save the data in this internal object. The values will tranfer to manifest just by save action.
      * @type Object
+     * @property _initialiser
      */
     _initialiser: {
       type: Object
     },
 
+    /**
+     * An internal _slot object
+     * @type Object
+     * @property _slot
+     */
     _slot: {
       type: Object
     },
+
     /**
      * Indicate, that the form is valid.
      * @type Boolean
+     * @property _validForm
      */
     _validForm: {
       type: Boolean,
@@ -72,6 +84,7 @@ Polymer({
     }
 
   },
+
   listeners: {
     'editDialog.iron-overlay-opened': '_handleDialogOpened'
   },
@@ -81,6 +94,7 @@ Polymer({
   ],
 
   ready: function () {
+    // Bind the validator functions
     this._bindValidators();
   },
 
@@ -92,6 +106,10 @@ Polymer({
     }
   },
 
+  /**
+   * Stop send the form
+   * @param event
+   */
   onPreSubmit: function (event) {
     // Don't try to send the form
     event.preventDefault();
@@ -192,6 +210,10 @@ Polymer({
       this.set('artifact.inits.' + path + '.value', this._initialiser.value);
     }
   },
+  /**
+   * Save the edited slot values
+   * @private
+   */
   _saveEditedSlot: function () {
     if (!_.isEqual(this.slot, this._slot)) {
       var slotIdChanged = false;
@@ -257,6 +279,10 @@ Polymer({
     }
     return true;
   },
+  /**
+   * Fit the dialog, if show or dissapear the Error message.
+   * @private
+   */
   _validFormChanged: function () {
     this.$.editDialog.fit();
   }
