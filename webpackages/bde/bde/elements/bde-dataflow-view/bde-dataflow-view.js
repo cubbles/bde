@@ -32,14 +32,19 @@
               this.$.bdeCompoundDialog.set('dialogOpened', true);
             }.bind(this),
             edge: function (graph, itemKey, item) {
-              alert('Edit edge: comming soon ...');
-            },
+              if (!item || !item.metadata || !item.metadata.connectionId){
+                console.error('Not a valid item.metadata.connectionId. Can not search for the connection.');
+                return;
+              }
+              var connection = this._findConnectionInCurrentArtifact(item.metadata.connectionId);
+              this.$.bdeConnectionDialog.set('connection', connection);
+              this.$.bdeConnectionDialog.$.connectionDialog.open();
+            }.bind(this),
             node: function (graph, itemKey, item, position) {
               var member = this._artifact.members.find((m) => m.memberId === itemKey);
               this.fire('bde-member-edit-dialog-open', member);
             }.bind(this),
             nodeInport: function (graph, itemKey, item) {
-              // TODO
               this.fire('bde-edit-slot-init-dialog-open', {
                 slot: this._findSlotInMemberArtifact(item.process, item.port),
                 memberId: item.process
@@ -49,8 +54,6 @@
             //   alert('Edit node outport: comming soon ...');
             // },
             graphInport: function (graph, itemKey, item) {
-              console.log('node inport edit action');
-              console.log('itemKey', itemKey, 'item', item);
               this.fire('bde-edit-slot-init-dialog-open', {
                 slot: this._findSlotInCurrentArtifact(itemKey),
                 ownSlot: true
@@ -601,6 +604,14 @@
     },
 
     /**
+     * Find the connection with connection id in the current artifact.
+     * @param {String} connectionId connection Id
+     * @private
+     */
+    _findConnectionInCurrentArtifact: function (connectionId) {
+      return this._artifact.connections.find((con) => con.connectionId === connectionId);
+    },
+    /**
      * Find a slot in current artifact.
      * @param {string} slotId the slotId
      * @return {object} the slot object
@@ -647,7 +658,7 @@
       if (typeof evt.detail.ownSlot !== 'undefined') {
         this.$.bdeSlotEditDialog.set('ownSlot', evt.detail.ownSlot);
       } else {
-        this.$.bdeSlotEditDialog.set('ownSlot', undefined);
+        this.$.bdeSlotEditDialog.set('ownSlot', false);
       }
       this.$.bdeSlotEditDialog.set('dialogOpened', true);
     },

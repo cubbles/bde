@@ -909,7 +909,9 @@
     var edge;
 
     metadata = metadata || {};
-
+    if (!metadata.connectionId) {
+      metadata.connectionId = 'con-' + Math.random().toString(36).substring(2, 7).toLowerCase();
+    }
     outPort = this.getPortName(outPort);
     inPort = this.getPortName(inPort);
 

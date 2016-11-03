@@ -373,19 +373,35 @@ Polymer({
   },
 
   /**
-   * Evaluates the checked 'copy' field to set a copyValue flag.
+   * Evaluates copy value flag for check or not check the checkbox.
    *
    * @param  {[type]} connection [description]
-   * @return {[Boolean]}            [copyValue flag]
-   * @method _copyValue
+   * @return {[Boolean]}  [repeatedValues flag]
+   * @method _repeatedValues
    */
   _copyValue: function (connection) {
-    if (typeof connection.copyValue === 'undefined') {
+    if (connection && typeof connection.copyValue === 'undefined') {
       connection.copyValue = true;
     }
     return connection.copyValue;
   },
 
+  /**
+   * This handler method is called after changed a copy value checkbox for a connection.
+   * Save the changed value in the _editedArtifact property
+   * @param {Event} evt change event
+   * @private
+   */
+  _copyValueChanged: function (evt) {
+    var connectionId = evt.target.dataset.connectionId;
+    var connection = this._editingArtifact.connections.find((con) => con.connectionId === connectionId);
+    var path = Polymer.Collection.get(this._editingArtifact.connections).getKey(connection);
+    if (evt.target.checked) {
+      this.set('_editingArtifact.connections.' + path + '.copyValue', true);
+    } else {
+      this.set('_editingArtifact.connections.' + path + '.copyValue', false);
+    }
+  },
   /**
    * Sets the metadata according the inputs.
    *
@@ -417,7 +433,7 @@ Polymer({
         return {
           slotId: 'slot' + this._editingArtifact.slots.length,
           type: '',
-          direction: ['input', 'output'],
+          direction: [ 'input', 'output' ],
           description: ''
         };
       case 'member':
@@ -569,6 +585,35 @@ Polymer({
       }
     }
     return false;
+  },
+  /**
+   * Evaluates repeated values flag for check or not check the checkbox.
+   *
+   * @param  {[type]} connection [description]
+   * @return {[Boolean]}  [repeatedValues flag]
+   * @method _repeatedValues
+   */
+  _repeatedValues: function (connection) {
+    if (connection && typeof connection.repeatedValues === 'undefined') {
+      connection.repeatedValues = false;
+    }
+    return connection.repeatedValues;
+  },
+  /**
+   * This handler method is called after changed a repeated values checkbox for a connection.
+   * Save the changed value in the _editedArtifact property
+   * @param {Event} evt change event
+   * @private
+   */
+  _repeatedValuesChanged: function (evt) {
+    var connectionId = evt.target.dataset.connectionId;
+    var connection = this._editingArtifact.connections.find((con) => con.connectionId === connectionId);
+    var path = Polymer.Collection.get(this._editingArtifact.connections).getKey(connection);
+    if (evt.target.checked) {
+      this.set('_editingArtifact.connections.' + path + '.repeatedValues', true);
+    } else {
+      this.set('_editingArtifact.connections.' + path + '.repeatedValues', false);
+    }
   },
 
   // _serialize: function (value) {

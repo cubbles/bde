@@ -24,7 +24,7 @@ Polymer({
       value: false
     },
     /**
-     * Temporary artifact for the edit dilaog. If the dialog is saved, it should add the changes to the artifact property.
+     * Temporary artifact for the edit dialog. If the dialog is saved, it should add the changes to the artifact property.
      * @type Object
      * @property _artifact
      * @private
@@ -37,15 +37,38 @@ Polymer({
     }
   },
 
+  /**
+   * Stop send the form
+   * @param event
+   */
+  onPreSubmit: function (event) {
+    // Don't try to send the form
+    event.preventDefault();
+  },
+
+  /**
+   * Handler method after dialog opened.
+   * @param event
+   * @private
+   */
   _handleDialogOpened: function (event) {
     this.set('_artifact.artifactId', this.artifact.artifactId);
     this.set('_artifact.description', this.artifact.description);
   },
+  /**
+   * Handle method fter dialog closed.
+   * @param event
+   * @private
+   */
   _handleDialogClosed: function (event) {
     if (event.detail.confirmed) {
       this._save();
     }
   },
+  /**
+   * Save the changed properties of _artifact to artifact
+   * @private
+   */
   _save: function () {
     if (this._artifact.artifactId !== this.artifact.artifactId) {
       this.set('artifact.artifactId', this._artifact.artifactId);

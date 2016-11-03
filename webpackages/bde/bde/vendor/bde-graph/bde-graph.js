@@ -529,7 +529,7 @@
       var connection = this._getConnectionForEdge(edge);
       if (!connection) {
         var newConnection = {
-          connectionId: 'con-' + Math.random().toString(36).substring(2, 7).toLowerCase(),
+          connectionId: edge.metadata.connectionId,
 
           source: {
             //  memberIdRef: edge.from.node,
@@ -545,6 +545,9 @@
         }
         if (edge.to.node) {
           newConnection.destination.memberIdRef = edge.to.node;
+        }
+        if (edge.metadata.description){
+          newConnection.description = edge.metadata.description;
         }
         this.push('connections', newConnection);
       }
@@ -767,7 +770,8 @@
         copyValue: conn.copyValue,
         repeatedValues: conn.repeatedValues,
         hookFunction: conn.hookFunction,
-        description: conn.description
+        description: conn.description,
+
       };
       this._graph.addEdge(
         conn.source.memberIdRef, conn.source.slot,

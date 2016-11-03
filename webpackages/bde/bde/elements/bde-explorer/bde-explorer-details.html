@@ -14,7 +14,7 @@
 <!--
 A BDE custom element, to edit the details of an artifact in the project, using a paper-dialog and extensivly collapsable content and input fields.
 
-The input data are bound to the manifest data of the current project. 
+The input data are bound to the manifest data of the current project.
 
 Example:
 
@@ -594,13 +594,17 @@ Example:
                                                                 value="{{connection.hookFunction}}">
                                                 </paper-textarea>
                                                 <paper-checkbox
+                                                        data-connection-id$="[[connection.connectionId]]"
                                                         title="If repeatedValues is true, the same value consecutively will propagated, otherwise not. The default value is false."
-                                                        checked="{{connection.repeatedValues}}">
+                                                        checked="{{_repeatedValues(connection)}}"
+                                                        on-change="_repeatedValuesChanged">
                                                     Repeated Values
                                                 </paper-checkbox>
                                                 <paper-checkbox
+                                                        data-connection-id$="[[connection.connectionId]]"
                                                         title="Indicate to copy or not to copy the payload (inc case the payload is an object). true: make a copy, false: do not make a copy - pass by reference. (default == true)"
-                                                        checked="{{_copyValue(connection)}}">
+                                                        checked="{{_copyValue(connection)}}"
+                                                        on-change="_copyValueChanged">
                                                     Copy Value
                                                 </paper-checkbox>
                                                 <div class="list-item-container">

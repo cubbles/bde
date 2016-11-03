@@ -1,5 +1,5 @@
 // @importedBy bde-slot.html
-
+/* globals _ */
 Polymer({
   is: 'bde-slot-edit-dialog',
 

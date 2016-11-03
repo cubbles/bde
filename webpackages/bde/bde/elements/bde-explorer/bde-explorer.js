@@ -497,7 +497,7 @@ Polymer({
   },
 
   /**
-   * This EMthod set the selected Endpoint in currentComponentMetadata
+   * This Method set the selected Endpoint in currentComponentMetadata
    * @param {String} endpointId endpoint id
    * @private
    */
