@@ -1,16 +1,80 @@
+// @importedBy bde-webpackage-meta-info.html
 /* global _ */
 Polymer({
   is: 'bde-webpackage-meta-info',
   properties: {
+
+    /**
+     * The manifest element
+     * @type Object
+     * @property manifest
+     */
     manifest: {
       type: Object,
       notify: true
     },
+    /**
+     * Opened attribute of the paper-dialog.
+     *
+     * @type {Boolean}
+     * @property opened
+     */
     opened: {
       type: Boolean,
       value: false
     },
-    licenses: {
+    /**
+     * Internal property for editing manifest properties without save them in manifest property (Cancel possieble)
+     * @type Object
+     * @property _editingManifest
+     */
+    _editingManifest: {
+      type: Object
+    },
+
+    /**
+     * Indicate, that the contributors are initialized
+     * @type Boolean
+     * @property _initializedContributors
+     */
+    _initializedContributors: {
+      type: Boolean,
+      value: false
+    },
+    /**
+     * Indicate, that the manuals are initialized.
+     * @type Boolean
+     * @property _initializedMan
+     */
+    _initializedMan: {
+      type: Boolean,
+      value: false
+    },
+
+    /**
+     * Indicate, that the runnables are initialized.
+     * @type Boolean
+     * @property _initializedRunnables
+     */
+    _initializedRunnables: {
+      type: Boolean,
+      value: false
+    },
+    /**
+     * Internal Attribute for comma separated keywords string.
+     * @type String
+     * @property _keywords
+     */
+    _keywords: {
+      type: String,
+      value: ''
+    },
+    /**
+     * Internal Attribute for license list
+     * @type Array
+     * @property _licenses
+     */
+    _licenses: {
       type: Array,
       value: [
         { value: 'None', label: 'None' },
@@ -20,42 +84,48 @@ Polymer({
         { value: '', label: 'Other' }
       ]
     },
-    selectedLicense: {
+    /**
+     * Internal propert for hold the selected license from  _linceses
+     * @type String
+     * @property _selectedLicense
+     */
+    _selectedLicense: {
       type: String,
       value: 'None'
     },
-    keywords: {
-      type: String,
-      value: ''
-    },
-    _editingManifest: {
-      type: Object
-    },
+    /**
+     * Internal property indicates, if the form is valid.
+     * @type Boolean
+     * @property _validForm
+     */
     _validForm: {
       type: Boolean,
       value: true
-    },
-    initializedContributors: {
-      type: Boolean,
-      value: false
-    },
-    initializedMan: {
-      type: Boolean,
-      value: false
-    },
-    initializedRunnables: {
-      type: Boolean,
-      value: false
     }
   },
   observers: [
-    'manifestChanged(manifest.*)'
+    '_manifestChanged(manifest.*)'
   ],
-
-  contributorsDomChanged: function (event) {
+  /**
+   * Open the dialog
+   */
+  open: function () {
+    this.opened = true;
+  },
+  /**
+   * Close the dialog
+   */
+  close: function () {
+    this.opened = false;
+  },
+  /**
+   * Handler method after the contributor list changed in dom
+   * @param {Evnt} event dom-change event
+   */
+  _contributorsDomChanged: function (event) {
     // first time (initial) not expand the last element, just by add new item
-    if (!this.initializedContributors) {
-      this.set('initializedContributors', true);
+    if (!this._initializedContributors) {
+      this.set('_initializedContributors', true);
       return;
     }
     if (this._editingManifest && this._editingManifest.contributors && this._editingManifest.contributors.length > 0) {
@@ -66,10 +136,21 @@ Polymer({
       }
     }
   },
-  dialogOpenHandler: function (event) {
+  /**
+   * This handler method is called after the dialog openend.
+   * @param event
+   * @private
+   */
+  _dialogOpenHandler: function (event) {
     this.set('_editingManifest', _.cloneDeep(this.manifest.toValidManifest()));
     this.set('_validForm', true);
   },
+  /**
+   * Save the selected licence if exists or the manual edited licence.
+   * @param {String} selectedLicense the selected licence
+   * @param {String} otherLicense typed l
+   * @private
+   */
   _decideLicense: function (selectedLicense, otherLicense) {
     if (!this._editingManifest) {
       return;
@@ -80,20 +161,20 @@ Polymer({
       this._editingManifest.license = otherLicense;
     }
   },
-  keywordsChanged: function () {
+  _keywordsChanged: function () {
     if (!this._editingManifest) {
       return;
     }
     this._editingManifest.keywords = [];
-    var keywords = this.keywords.split(',');
+    var keywords = this._keywords.split(',');
     keywords.forEach(function (keyword) {
       this.push('_editingManifest.keywords', keyword.trim());
     }.bind(this));
   },
-  manDomChanged: function (event) {
+  _manDomChanged: function (event) {
     // first time (initial) not expand the last element, just by add new item
-    if (!this.initializedMan) {
-      this.set('initializedMan', true);
+    if (!this._initializedMan) {
+      this.set('_initializedMan', true);
       return;
     }
     if (this._editingManifest && this._editingManifest.man && this._editingManifest.man.length > 0) {
@@ -104,7 +185,7 @@ Polymer({
       }
     }
   },
-  manifestChanged: function () {
+  _manifestChanged: function () {
     if (this.manifest && this.manifest.man && typeof this.manifest.man === 'string') {
       this.set('manifest.man', [ this.manifest.man ]);
     }
@@ -112,13 +193,13 @@ Polymer({
       this.selectedLicense = this.manifest.license;
     }
     if (this.manifest && this.manifest.keywords) {
-      this.keywords = this.manifest.keywords.join(', ');
+      this._keywords = this.manifest.keywords.join(', ');
     }
   },
-  runnablesDomChanged: function (event) {
+  _runnablesDomChanged: function (event) {
     // first time (initial) not expand the last element, just by add new item
-    if (!this.initializedRunnables) {
-      this.set('initializedRunnables', true);
+    if (!this._initializedRunnables) {
+      this.set('_initializedRunnables', true);
       return;
     }
     if (this._editingManifest && this._editingManifest.runnables && this._editingManifest.runnables.length > 0) {
@@ -129,12 +210,7 @@ Polymer({
       }
     }
   },
-  open: function () {
-    this.opened = true;
-  },
-  close: function () {
-    this.opened = false;
-  },
+
   toggleCollapse: function (e) {
     var collapseDiv = this.$$('#' + e.currentTarget.dataset.collapseId);
     collapseDiv.toggle();
@@ -156,8 +232,7 @@ Polymer({
   validateAndSave: function () {
     if (this.$.manifestForm.validate()) {
       if (!_.isEqual(this.manifest, this._editingManifest)) {
-        var tempManifest = this.manifest;
-        _.extend(tempManifest, this._editingManifest);
+        var tempManifest = _.extend(this.manifest, this._editingManifest);
         this.set('manifest', tempManifest);
         this.$.manifestDialog.close();
       }

@@ -296,7 +296,6 @@ Polymer({
       if (!_.isEqual(this.artifact, this._editingArtifact)) {
         this.set('artifact', this._editingArtifact);
         this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
-        this.fire('bde-dataflow-view-reload-required');
       }
       this.$.compoundDialog.close();
     } else {

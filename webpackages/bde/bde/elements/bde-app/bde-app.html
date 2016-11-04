@@ -176,7 +176,7 @@ Example:
         <iron-localstorage id="appSettings"
                            name="app-settings"
                            value="{{settings}}"
-                           on-iron-localstorage-load-empty="initializeDefaultSettings"
+                           on-iron-localstorage-load-empty="_initializeDefaultSettings"
         ></iron-localstorage>
 
         <!-- About dialog, containing copyright and actual version  -->
@@ -204,7 +204,7 @@ Example:
                 <p>By creating a new Webpackage you'll be losing all of your work </p>
             </div>
             <div class="buttons">
-                <paper-button dialog-confirm raised on-tap="newWebpackageBtnHandler">Confirm</paper-button>
+                <paper-button dialog-confirm raised on-tap="_newWebpackageBtnHandler">Confirm</paper-button>
                 <paper-button dialog-dismiss raised>Cancel</paper-button>
             </div>
         </paper-dialog>
@@ -257,7 +257,7 @@ Example:
                                    title="Create new webpackage..."
                                    aria-label="newWebpackage"
                                    icon="editor:insert-drive-file"
-                                   on-tap="confirmationHandler"
+                                   on-tap="_confirmationHandler"
                 ></paper-icon-button>
 
                 <paper-icon-button id="compoundBtn"
@@ -271,7 +271,7 @@ Example:
                                    title="Deploy..."
                                    aria-label="compounds"
                                    icon="icons:cloud-upload"
-                                   on-tap="openDeployDialog"
+                                   on-tap="_openDeployDialog"
                 ></paper-icon-button>
 
                 <div class="storeSettingsZone" on-tap="storeSettingsBtnHandler">
@@ -291,7 +291,7 @@ Example:
                                        title="change to dataflow-view"
                                        icon="gesture"
                                        class="route-buttons"
-                                       on-tap = "activateFlow"
+                                       on-tap = "_activateFlow"
                                        selected
                     ></paper-icon-button>
 
@@ -300,7 +300,7 @@ Example:
                                        title="change to design-view"
                                        icon="open-with"
                                        class="route-buttons"
-                                       on-tap="activateDesign"
+                                       on-tap="_activateDesign"
 
                     ></paper-icon-button>
 
@@ -309,7 +309,7 @@ Example:
                                        title="change to application-view"
                                        icon="apps"
                                        class="route-buttons"
-                                       on-tap="activateApp"
+                                       on-tap="_activateApp"
 
                     ></paper-icon-button>
                 </page-select-menu>
@@ -318,14 +318,14 @@ Example:
                                    title="About..."
                                    aria-label="about"
                                    icon="icons:copyright"
-                                   on-tap="aboutBtnHandler"
+                                   on-tap="_aboutBtnHandler"
                 ></paper-icon-button>
 
                 <paper-icon-button id="helpBtn"
                                    title="Help Page"
                                    aria-label="help"
                                    icon="icons:help-outline"
-                                   on-tap="helpBtnHandler"
+                                   on-tap="_helpBtnHandler"
                 ></paper-icon-button>
             </paper-toolbar>
 

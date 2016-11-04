@@ -10,6 +10,10 @@
 
     properties: {
 
+      autolayoutAfterRerender: {
+        type: Boolean,
+        value: false
+      },
       /**
        * The metadata of the current component with properies artifactId, endpointId and manifest object.
        * @type Object
@@ -32,7 +36,7 @@
               this.$.bdeCompoundDialog.set('dialogOpened', true);
             }.bind(this),
             edge: function (graph, itemKey, item) {
-              if (!item || !item.metadata || !item.metadata.connectionId){
+              if (!item || !item.metadata || !item.metadata.connectionId) {
                 console.error('Not a valid item.metadata.connectionId. Can not search for the connection.');
                 return;
               }
@@ -201,7 +205,7 @@
     },
 
     observers: [
-      '_artifactIdChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
+      '_currentComponentMetadataChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
       '_selectedMembersChanged(_selectedMembers.splices)',
       '_selectedEdgesChanged(_selectedEdges.splices)',
       '_showPropertyEditorChanged(showPropertyEditor)',
@@ -237,7 +241,7 @@
 
     /**
      * Called if a new member selected in base browser
-     * @param {Evnt} event
+     * @param {Event} addMember event
      */
     addMember: function (event) {
       var cubble = event.detail.item;
@@ -301,12 +305,13 @@
      * @param {string} artifactId the current artifactId
      * @param {string} endpointId the current endpointId
      */
-    reload: function (manifest, artifactId, endpointId) {
-      if (arguments.length === 0 && this.currentComponentMetadata) {
-        manifest = this.currentComponentMetadata.manifest;
-        artifactId = this.currentComponentMetadata.artifactId;
-        endpointId = this.currentComponentMetadata.endpointId;
-      }
+    // reload: function (manifest, artifactId, endpointId) {
+    reload: function () {
+      // if (arguments.length === 0 && this.currentComponentMetadata) {
+      let manifest = this.currentComponentMetadata.manifest;
+      let artifactId = this.currentComponentMetadata.artifactId;
+      let endpointId = this.currentComponentMetadata.endpointId;
+      // }
       if (!manifest || !artifactId || !endpointId) { return; }
 
       this.set('_selectedMembers', []);
@@ -322,8 +327,12 @@
       });
 
       var bdeGraph = this.$.bdeGraph;
+      if (bdeGraph.graphInitialized) {
+        bdeGraph.rerender();
+      } else {
+        bdeGraph.rebuildGraph();
+      }
       var promise = window.cubx.bde.bdeDataConverter.resolveArtifact(artifactId, manifest, this._baseUrl(), this.resolutions);
-      bdeGraph.rebuildGraph();
       promise.then((data) => {
         data.components.map((component) => {
           bdeGraph.registerComponent(component);
@@ -334,10 +343,19 @@
         _artifact.connections = data.connections;
         _artifact.inits = data.inits;
         this.set('_artifact', _artifact);
-        requestAnimationFrame(() => bdeGraph.triggerAutolayout());
+        //
+        if (this.autolayoutAfterRerender) {
+          this.async(() => {
+            requestAnimationFrame(() => bdeGraph.triggerAutolayout());
+            this.set('autolayoutAfterRerender', false);
+          }, 200);
+        }
       });
     },
 
+    reset: function () {
+      this.$.bdeGraph.reset();
+    },
     /**
      * Trigger the aotulayout.
      */
@@ -374,7 +392,6 @@
         this.set('currentComponentMetadata.artifactId', changeRecord.value);
         this.set('manifest.artifactId', changeRecord.value);
       }
-
       // this._updateGraph(changeRecord);
     },
 
@@ -385,8 +402,11 @@
      * @param  {String} artifactId [description]
      * @param  {String} endpointId [description]
      */
-    _artifactIdChanged: function (manifest, artifactId, endpointId) {
-      this.reload(manifest, artifactId, endpointId);
+    _currentComponentMetadataChanged: function (manifest, artifactId, endpointId) {
+      // this.reload(manifest, artifactId, endpointId);
+      this.debounce('reload_graph', function () {
+        this.reload();
+      }, 100);
     },
 
     /**
@@ -662,7 +682,19 @@
       }
       this.$.bdeSlotEditDialog.set('dialogOpened', true);
     },
-
+    // _updateArtifactIdForGraph: function (evt) {
+    //   var artifactId = evt.detail;
+    //   var res = this.resolutions[artifactId.old];
+    //   res.artifact.artifactId = artifactId.new;
+    //   res.componentId = 'this/' + artifactId.new;
+    //   this.resolutions[artifactId.new] = res;
+    //   delete this.resolutions[artifactId.old];
+    //
+    //   var library = this.$.bdeGraph.library[artifactId.old];
+    //   library.name = artifactId.new;
+    //   this.$.bdeGraph.library[artifactId.new] = library;
+    //   delete this.$.bdeGraph.library[artifactId.old];
+    // },
     /**
      * Get the url for the dependency
      * @param dependency

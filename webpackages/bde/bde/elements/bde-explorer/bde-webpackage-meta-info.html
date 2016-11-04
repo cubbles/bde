@@ -79,7 +79,7 @@
             }
         </style>
 
-        <paper-dialog id="manifestDialog" opened="{{opened}}" on-iron-overlay-opened="dialogOpenHandler">
+        <paper-dialog id="manifestDialog" opened="{{opened}}" on-iron-overlay-opened="_dialogOpenHandler">
 
             <h2>Webpackage Meta Information</h2>
                 <paper-dialog-scrollable>
@@ -110,7 +110,7 @@
 
                     <paper-textarea label="Description"
                                     placeholder="A short description of the webpackage"
-                                    value="{{manifest.description}}">
+                                    value="{{_editingManifest.description}}">
                     </paper-textarea>
 
                     <paper-input label="Model Version"
@@ -121,19 +121,19 @@
 
 
                 <div class="layout horizontal">
-                    <paper-dropdown-menu label="License" selected-item-label="{{selectedLicenseLabel}}">
+                    <paper-dropdown-menu label="License" selected-item-label="{{_selectedLicenseLabel}}">
                         <paper-menu class="dropdown-content" attr-for-selected="data-value"
-                                    selected="{{selectedLicense}}">
-                            <template is="dom-repeat" items="{{licenses}}">
+                                    selected="{{_selectedLicense}}" >
+                            <template is="dom-repeat" items="{{_licenses}}">
                                 <paper-item data-value$="{{item.value}}">{{item.label}}</paper-item>
                             </template>
                         </paper-menu>
                     </paper-dropdown-menu>
                     <input is="iron-input" type="hidden" name="license"
-                           value="[[_decideLicense(selectedLicense, otherLicense)]]">
+                           value="[[_decideLicense(_selectedLicense, _otherLicense)]]">
                     <paper-input placeholder="License name"
-                                 value="{{otherLicense}}"
-                                 hidden="[[!_equals(selectedLicenseLabel, 'Other')]]">
+                                 value="{{_otherLicense}}"
+                                 hidden="[[!_equals(_selectedLicenseLabel, 'Other')]]">
                     </paper-input>
                 </div>
                 <paper-input label="Homepage"
@@ -148,8 +148,8 @@
                              pattern="^([\w][\s\w-]*)(,\s*([\w][\s*\w-]*))*"
                              auto-validate
                              error-message="It should be a comma separated list of keywords. The keywords can contains letter, number, and the character '-' and '_'."
-                             on-change="keywordsChanged"
-                             value="{{keywords}}">
+                             on-change="_keywordsChanged"
+                             value="{{_keywords}}">
                 </paper-input>
                 <div class="main-collapse-header collapse-header"><span>Author</span></div>
                 <div class="collapse-content collapse-item item-body">
@@ -187,7 +187,7 @@
                         <div class="collapse-content">
                             <template is="dom-repeat"
                                       id="contributors"
-                                      on-dom-change="contributorsDomChanged"
+                                      on-dom-change="_contributorsDomChanged"
                                       items="{{_editingManifest.contributors}}"
                                       as="contributor"
                                       index-as="contributori">
@@ -256,7 +256,7 @@
                                 <template is="dom-repeat"
                                           id="manuals"
                                           items="{{_editingManifest.man}}"
-                                          on-dom-change="manDomChanged"
+                                          on-dom-change="_manDomChanged"
                                           as="man"
                                           index-as="mani">
                                     <div tabindex="0"
@@ -299,7 +299,7 @@
                         <div class="collapse-content main-collapse-body">
                             <template is="dom-repeat"
                                       id="runnables"
-                                      on-dom-change="runnablesDomChanged"
+                                      on-dom-change="_runnablesDomChanged"
                                       items="{{_editingManifest.runnables}}"
                                       as="runnable"
                                       index-as="runnablei">

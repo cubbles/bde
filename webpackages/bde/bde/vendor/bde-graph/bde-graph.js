@@ -90,6 +90,15 @@
       },
 
       /**
+       * Indicate, if the graph already initialized
+       * @property graphInitialized
+       */
+      graphInitialized: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
        * height of the graph
        *
        * @type {Number}
@@ -386,6 +395,26 @@
         return defaultMenu;
       }
     },
+    /**
+     * triger rerender of the graph
+     */
+    rerender: function () {
+      this._rerender({ libraryDirty: true });
+    },
+    /**
+     * Reset the graph
+     */
+    reset: function () {
+      this.library = {};
+      this._graph.properties = {};
+      this._graph.nodes = [];
+      this._graph.edges = [];
+      this._graph.initializers = [];
+      this._graph.exports = [];
+      this._graph.inports = {};
+      this._graph.outports = {};
+      this._graph.groups = [];
+    },
 
     /**
      * Build or rebuild the graph.
@@ -440,6 +469,7 @@
         offsetX: this.offsetX
       }), this.$.svgcontainer);
       this._graphView = this._appView.refs.graph;
+      this.graphInitialized = true;
     },
 
     /**
@@ -546,7 +576,7 @@
         if (edge.to.node) {
           newConnection.destination.memberIdRef = edge.to.node;
         }
-        if (edge.metadata.description){
+        if (edge.metadata.description) {
           newConnection.description = edge.metadata.description;
         }
         this.push('connections', newConnection);
@@ -770,8 +800,7 @@
         copyValue: conn.copyValue,
         repeatedValues: conn.repeatedValues,
         hookFunction: conn.hookFunction,
-        description: conn.description,
-
+        description: conn.description
       };
       this._graph.addEdge(
         conn.source.memberIdRef, conn.source.slot,
@@ -1380,8 +1409,9 @@
           this._graph.initializers = [];
           for (let i = 0; i < changeRecord.value.length; i++) {
             var init = changeRecord.value[ i ];
-            let metadata = {
-              description: init.description
+            let metadata = {};
+            if (init) {
+              metadata.description = init.description;
             };
             this._graph.addInitial(init.value, init.memberIdRef, init.slot, metadata);
           }

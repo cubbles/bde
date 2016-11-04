@@ -49,8 +49,7 @@
        */
       settings: {
         type: Object
-      },
-
+      }
   },
 
     observers: [
@@ -173,7 +172,7 @@
 
     /**
      * Posts a message to the inherit iframe. Used for submitting tha actual manifest metadata to the iframe.
-     * 
+     *
      * @param  {[Object]} message [description]
      * @param  {[Object]} data    [description]
      * @method _postMessage

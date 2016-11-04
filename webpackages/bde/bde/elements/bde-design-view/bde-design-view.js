@@ -126,7 +126,7 @@ Polymer({
    * @method handleTap
    */
   handleTap: function () {
-    this.selectedPage = "dataflowView";
+    this.selectedPage = 'dataflowView';
   },
 
   /**
