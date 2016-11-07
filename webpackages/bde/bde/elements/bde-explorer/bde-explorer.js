@@ -6,6 +6,14 @@ Polymer({
   properties: {
 
     /**
+     * Will be setted true, if the artifactId from edit dialog edited.
+     * If this property is true, no reset and autolayout for datafloview.
+     */
+    isArtifactIdEdited: {
+      type: Boolean,
+      value: false
+    },
+    /**
      * The manifest element
      * @type Object
      * @property manifest
@@ -185,6 +193,12 @@ Polymer({
     if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
       this._deselectCompound();
       this._selectCompound(item.dataset.artifactId, item.dataset.endpointId);
+      // If isArtifactIdEdited is true, no reset and autolayout for datafloview .
+      if (this.isArtifactIdEdited) {
+        this.set('isArtifactIdEdited', false);
+      } else {
+        this.fire('bde-current-artifact-change');
+      }
     } else if (item.dataset.endpointId && item.dataset.endpointId !== this._createEndpointMenuItemId(this.currentComponentMetadata.artifactId, this.currentComponentMetadata.endpointId)) {
       this._selectEndpoint(item.dataset.endpointId);
     }
@@ -390,9 +404,14 @@ Polymer({
     if (elem) {
       elem.is = 'compound';
     }
-    if (artifactId && (artifactId !== this.currentComponentMetadata.artifactId || artifactId !== this.$.compoundSelector.selected )) {
+    if (artifactId && (artifactId !== this.currentComponentMetadata.artifactId || artifactId !== this.$.compoundSelector.selected)) {
       this._deselectCompound();
       this._selectCompound(artifactId);
+      if (this.isArtifactIdEdited) {
+        this.set('isArtifactIdEdited', false);
+      } else {
+        this.fire('bde-current-artifact-change');
+      }
     }
   },
 

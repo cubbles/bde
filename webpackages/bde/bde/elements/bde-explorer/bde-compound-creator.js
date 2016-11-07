@@ -90,6 +90,7 @@ Polymer({
   handleFormPresubmit: function (event) {
     event.preventDefault();
     this.set('lastArtifact', this._compoundFrom(this.$.form.serialize()));
+    this.fire('bde-current-artifact-change');
     this.close();
   },
 

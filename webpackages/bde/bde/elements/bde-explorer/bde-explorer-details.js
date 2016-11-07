@@ -294,6 +294,10 @@ Polymer({
   validateAndSave: function () {
     if (this.$.artifactForm.validate()) {
       if (!_.isEqual(this.artifact, this._editingArtifact)) {
+        if (this.artifactId !== this._editingArtifact.artifactId) {
+          // special handling for artifactId changes nessecary. If the artifactId changed, will the artifact selected without reset the graph and autolayout
+          this.fire('bde-current-artifact-id-edited');
+        }
         this.set('artifact', this._editingArtifact);
         this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
       }

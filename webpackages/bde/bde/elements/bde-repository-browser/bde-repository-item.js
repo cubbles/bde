@@ -96,7 +96,7 @@ Polymer({
 
     this.set('lastItemSelected', artifact);
     document.querySelector('#manifest').loadManifest(manifest);
-    this.fire('bde-new-component-loaded');
+    // this.fire('bde-new-component-loaded');
     return;
 
     function getWebpackageId (item) {

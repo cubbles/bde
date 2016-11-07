@@ -405,15 +405,19 @@
      * Reset the graph
      */
     reset: function () {
-      this.library = {};
-      this._graph.properties = {};
-      this._graph.nodes = [];
-      this._graph.edges = [];
-      this._graph.initializers = [];
-      this._graph.exports = [];
-      this._graph.inports = {};
-      this._graph.outports = {};
-      this._graph.groups = [];
+      if (!this._graph || !this._graph.nodes) {
+        // graph is not yet created with new Graph()
+        return;
+      }
+      Object.keys(this.library).forEach((key) => { delete this.library[ key ]; });
+      Object.keys(this._graph.properties).forEach((key) => { delete this._graph.properties[ key ]; });
+      this._graph.nodes.splice(0, this._graph.nodes.length);
+      this._graph.edges.splice(0, this._graph.edges.length);
+      this._graph.initializers.splice(0, this._graph.initializers.length);
+      this._graph.exports.splice(0, this._graph.exports.length);
+      Object.keys(this._graph.inports).forEach((key) => { delete this._graph.inports[ key ]; });
+      Object.keys(this._graph.outports).forEach((key) => { delete this._graph.outports[ key ]; });
+      this._graph.groups.splice(0, this._graph.groups.length);
     },
 
     /**
@@ -1412,7 +1416,8 @@
             let metadata = {};
             if (init) {
               metadata.description = init.description;
-            };
+            }
+            ;
             this._graph.addInitial(init.value, init.memberIdRef, init.slot, metadata);
           }
         }

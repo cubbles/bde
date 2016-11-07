@@ -139,7 +139,8 @@
       'bde-member-loading': 'handleLoading',
       'iron-select': '_handlePageSelect',
       'iron_deselect': '_handlePageDeselect',
-      'bde-new-component-loaded': '_newComponentLoaded'
+      'bde-current-artifact-change': '_currentArtifactChanged',
+      'bde-current-artifact-id-edited': '_setIsCurrentArtifactIdEdited'
     },
 
     /* ********************************************************************/
@@ -393,7 +394,12 @@
       xhr.open('GET', '../manifest.webpackage', true);
       xhr.send();
     },
-    _newComponentLoaded: function () {
+
+    /**
+     * Handler Metzhod for the event "bde-current-artifact-change".
+      * @private
+     */
+    _currentArtifactChanged: function () {
       this.$.dataflowView.reset();
       this.$.dataflowView.set('autolayoutAfterRerender', true);
     },
@@ -423,6 +429,10 @@
      */
     _resizeView: function (view) {
       view.handleResize();
+    },
+
+    _setIsCurrentArtifactIdEdited: function () {
+      this.$.explorer.set('isArtifactIdEdited', true);
     }
   });
 })();

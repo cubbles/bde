@@ -70,7 +70,10 @@ Polymer({
    * @private
    */
   _save: function () {
+
     if (this._artifact.artifactId !== this.artifact.artifactId) {
+      // special handling for artifactId changes nessecary. If the artifactId changed, will the artifact selected without reset the graph and autolayout
+      this.fire('bde-current-artifact-id-edited');
       this.set('artifact.artifactId', this._artifact.artifactId);
     }
     if (this._artifact.description !== this.artifact.description) {
