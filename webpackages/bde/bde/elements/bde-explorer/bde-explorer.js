@@ -442,12 +442,12 @@ Polymer({
         this.set('selectedCompound', compoundInManifest);
       }
     }
-    if (this.manifest) {
-      var menu = this.$$('#compoundSelector');
-      Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
-        subMenu.close();
-      });
-    }
+    // if (this.manifest) {
+    //   var menu = this.$$('#compoundSelector');
+    //   // Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
+    //   //   subMenu.close();
+    //   // });
+    // }
   },
 
   /**
