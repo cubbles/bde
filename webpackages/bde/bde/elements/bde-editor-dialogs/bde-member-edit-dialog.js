@@ -134,7 +134,8 @@ Polymer({
       this.splice('artifact.members', index, 1);
       // Set the memberId
       this.set('member', newMember);
+      // Trigger autolayout
+      this.fire('bde-want-autolayout');
     }
-
   }
 });

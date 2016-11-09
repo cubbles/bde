@@ -513,7 +513,9 @@ Example:
                                                              required
                                                              error-message="The member id can contain letters, numbers or '-'. (e.g. 'my-member-1' or 'myMember1)"
                                                              auto-validate
-                                                             value="{{member.memberId}}">
+                                                             value="{{member.memberId}}"
+                                                             id$="{{_memberDomId(memberi)}}"
+                                                             on-change="_memberIdChanged">
                                                 </paper-input>
                                                 <paper-input label="Component Id"
                                                              placeholder="Id of the component for this member item (e.g. 'org.example.my-package@1.0/artifact1')"

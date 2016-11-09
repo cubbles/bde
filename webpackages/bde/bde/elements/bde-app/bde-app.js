@@ -139,7 +139,8 @@
       'bde-member-loading': 'handleLoading',
       'iron-select': '_handlePageSelect',
       'iron_deselect': '_handlePageDeselect',
-      'bde-current-artifact-change': '_currentArtifactChanged',
+      'bde-current-artifact-change': '_currentArtifactReset',
+      'bde-current-artifact-edited': '_currentArtifactReload',
       'bde-current-artifact-id-edited': '_setIsCurrentArtifactIdEdited'
     },
 
@@ -396,12 +397,22 @@
     },
 
     /**
-     * Handler Metzhod for the event "bde-current-artifact-change".
+     * Handler Method for the event "bde-current-artifact-edited".
+     * REset and reload the dataflowview.
+     * @private
+     */
+    _currentArtifactReload: function () {
+      this._currentArtifactReset();
+      this.$.dataflowView.reload();
+    },
+    /**
+     * Handler Method for the event "bde-current-artifact-change".
+     * Reset the dataflowview.
       * @private
      */
-    _currentArtifactChanged: function () {
+    _currentArtifactReset: function () {
       this.$.dataflowView.reset();
-      this.$.dataflowView.set('autolayoutAfterRerender', true);
+      // this.$.dataflowView.set('autolayoutAfterRerender', true);
     },
     /**
      * Handler function to create a new webpackage; calls resetBDE.

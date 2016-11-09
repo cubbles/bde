@@ -294,12 +294,9 @@ Polymer({
   validateAndSave: function () {
     if (this.$.artifactForm.validate()) {
       if (!_.isEqual(this.artifact, this._editingArtifact)) {
-        if (this.artifactId !== this._editingArtifact.artifactId) {
-          // special handling for artifactId changes nessecary. If the artifactId changed, will the artifact selected without reset the graph and autolayout
-          this.fire('bde-current-artifact-id-edited');
-        }
         this.set('artifact', this._editingArtifact);
         this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
+        this.fire('bde-current-artifact-edited');
       }
       this.$.compoundDialog.close();
     } else {
@@ -589,6 +586,37 @@ Polymer({
     }
     return false;
   },
+
+  _memberDomId: function (index) {
+    return 'member_' + index;
+  },
+  _memberIdChanged: function (event) {
+    console.log('!!!event.target', event.target);
+    var element = event.target.closest('paper-input');
+    var index = element.id.split('_')[ 1 ];
+    var oldMember = this.artifact.members[ index ];
+    var newMember = this._editingArtifact.members[ index ];
+    if (this._editingArtifact.connections) {
+      let connections = this._editingArtifact.connections.filter((connection) => connection.source.memberIdRef === oldMember.memberId);
+      connections.forEach((connection) => {
+        let key = new Polymer.Collection(this._editingArtifact.connections).getKey(connection);
+        this.set('_editingArtifact.connections.' + key + '.source.memberIdRef', newMember.memberId);
+      });
+      connections = this._editingArtifact.connections.filter((connection) => connection.destination.memberIdRef === oldMember.memberId);
+      connections.forEach((connection) => {
+        let key = new Polymer.Collection(this._editingArtifact.connections).getKey(connection);
+        this.set('_editingArtifact.connections.' + key + '.destination.memberIdRef', newMember.memberId);
+      });
+    }
+    if (this._editingArtifact.inits) {
+      let inits = this._editingArtifact.inits.filter((init) => init.memberIdRef === oldMember.memberId);
+      inits.forEach((init) => {
+        let key = new Polymer.Collection(this._editingArtifact.inits).getKey(init);
+        this.set('_editingArtifact.inits.' + key + '.memberIdRef', newMember.memberId);
+      });
+    }
+  },
+
   /**
    * Evaluates repeated values flag for check or not check the checkbox.
    *
@@ -619,14 +647,7 @@ Polymer({
     }
   },
 
-  // _serialize: function (value) {
-  //   if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
-  //     return JSON.stringify(value, null, 2);
-  //   }
-  //   return value;
-  // },
-
-  /**
+   /**
    * Set a direction attribute in the slot with slotId of the compound.
    * @param {string} slotId the slotId of the slot
    * @param {string} direction the direction

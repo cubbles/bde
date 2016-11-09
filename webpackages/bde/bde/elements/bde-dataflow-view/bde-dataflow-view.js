@@ -10,10 +10,10 @@
 
     properties: {
 
-      autolayoutAfterRerender: {
-        type: Boolean,
-        value: false
-      },
+      // autolayoutAfterRerender: {
+      //   type: Boolean,
+      //   value: false
+      // },
       /**
        * The metadata of the current component with properies artifactId, endpointId and manifest object.
        * @type Object
@@ -64,8 +64,6 @@
               });
             }.bind(this),
             graphOutport: function (graph, itemKey, item) {
-              console.log('node inport edit action');
-              console.log('itemKey', itemKey, 'item', item);
               this.fire('bde-edit-slot-init-dialog-open', {
                 slot: this._findSlotInCurrentArtifact(itemKey),
                 ownSlot: true
@@ -222,7 +220,8 @@
       'the-graph-add-edge': '_handleAddEdge',
       'the-graph-remove-edge': '_handleRemoveEdge',
       'bde-edit-slot-init-dialog-open': '_openSlotInitEditDialog',
-      'bde-member-edit-dialog-open': '_openMemberEditDialog'
+      'bde-member-edit-dialog-open': '_openMemberEditDialog',
+      'bde-want-autolayout': '_triggerAutolayout'
     },
 
     /* ********************************************************************/
@@ -343,13 +342,14 @@
         _artifact.connections = data.connections;
         _artifact.inits = data.inits;
         this.set('_artifact', _artifact);
-        //
-        if (this.autolayoutAfterRerender) {
-          this.async(() => {
-            requestAnimationFrame(() => bdeGraph.triggerAutolayout());
-            this.set('autolayoutAfterRerender', false);
-          }, 200);
-        }
+
+        // if (this.autolayoutAfterRerender) {
+        //   this.async(() => {
+        //     requestAnimationFrame(() => bdeGraph.triggerAutolayout());
+        //     this.set('autolayoutAfterRerender', false);
+        //   }, 200);
+        // }
+        requestAnimationFrame(() => bdeGraph.triggerAutolayout());
       });
     },
 
@@ -380,7 +380,6 @@
      * @private
      */
     _artifactChanged: function (changeRecord) {
-      console.log('bde-dataflow-view _artifactChanged', changeRecord);
       if (!changeRecord) { return; }
 
       var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
@@ -392,7 +391,6 @@
         this.set('currentComponentMetadata.artifactId', changeRecord.value);
         this.set('manifest.artifactId', changeRecord.value);
       }
-      // this._updateGraph(changeRecord);
     },
 
     /**
@@ -682,19 +680,13 @@
       }
       this.$.bdeSlotEditDialog.set('dialogOpened', true);
     },
-    // _updateArtifactIdForGraph: function (evt) {
-    //   var artifactId = evt.detail;
-    //   var res = this.resolutions[artifactId.old];
-    //   res.artifact.artifactId = artifactId.new;
-    //   res.componentId = 'this/' + artifactId.new;
-    //   this.resolutions[artifactId.new] = res;
-    //   delete this.resolutions[artifactId.old];
-    //
-    //   var library = this.$.bdeGraph.library[artifactId.old];
-    //   library.name = artifactId.new;
-    //   this.$.bdeGraph.library[artifactId.new] = library;
-    //   delete this.$.bdeGraph.library[artifactId.old];
-    // },
+    /**
+     * Trigger autolayout
+     * @private
+     */
+    _triggerAutolayout: function () {
+      requestAnimationFrame(() => this.$.bdeGraph.triggerAutolayout());
+    },
     /**
      * Get the url for the dependency
      * @param dependency
