@@ -117,15 +117,6 @@
       },
 
       /**
-       * Indicate if the property editor is visible or not
-       * @type Boolean
-       */
-      showPropertyEditor: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
        * The last selected member (node).
        * @type object
        */
@@ -206,7 +197,6 @@
       '_currentComponentMetadataChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
       '_selectedMembersChanged(_selectedMembers.splices)',
       '_selectedEdgesChanged(_selectedEdges.splices)',
-      '_showPropertyEditorChanged(showPropertyEditor)',
       '_artifactChanged(_artifact.*)'
     ],
 
@@ -304,22 +294,16 @@
      * @param {string} artifactId the current artifactId
      * @param {string} endpointId the current endpointId
      */
-    // reload: function (manifest, artifactId, endpointId) {
     reload: function () {
-      // if (arguments.length === 0 && this.currentComponentMetadata) {
       let manifest = this.currentComponentMetadata.manifest;
       let artifactId = this.currentComponentMetadata.artifactId;
       let endpointId = this.currentComponentMetadata.endpointId;
-      // }
       if (!manifest || !artifactId || !endpointId) { return; }
 
       this.set('_selectedMembers', []);
       this.set('_selectedEdges', []);
       this.set('_lastSelectedNode', void (0));
       this.set('_lastSelectedEdge', void (0));
-
-      // var self = this;
-      // var settings = this.settings;
 
       var artifact = manifest.artifacts.compoundComponents.find(function (artifact) {
         return artifact.artifactId === artifactId;
@@ -401,24 +385,12 @@
      * @param  {String} endpointId [description]
      */
     _currentComponentMetadataChanged: function (manifest, artifactId, endpointId) {
-      // this.reload(manifest, artifactId, endpointId);
       this.debounce('reload_graph', function () {
         this.reload();
       }, 100);
     },
 
-    /**
-     * This called if the property showPropertyEditor is changed.
-     * @param showPropertyEditor
-     * @private
-     */
-    _showPropertyEditorChanged: function (showPropertyEditor) {
-      if (showPropertyEditor) {
-        this.$.graphPanel.openDrawer();
-      } else {
-        this.$.graphPanel.closeDrawer();
-      }
-    },
+
 
     /* ********************************************************************/
     /* *********************** Graph event listener ***********************/
@@ -566,7 +538,7 @@
       this.fire('iron-selected', { item: this._lastSelectedEdge, type: 'edge' });
 
       // Show PropertyEditor
-      this.showPropertyEditor = (this.selectedMembersForProperties.length > 0 || this.selectedConnections.length > 0);
+      // this.showPropertyEditor = (this.selectedMembersForProperties.length > 0 || this.selectedConnections.length > 0);
 
       function connectionForEdge (edge) {
         return this._artifact.connections.find(function (connection) {
@@ -595,22 +567,12 @@
         this.push('selectedMembersForProperties', member);
       }.bind(this));
 
-      this.showPropertyEditor = false;
-      this.set('lastSelectedMember', this.selectedMembersForProperties[ members.length - 1 ]);
-      // this.fire('iron-selected', { item: this.lastSelectedMember, type: 'member' });
-
-      // Show PropertyEditor
-      // this.showPropertyEditor = (this.selectedMembersForProperties.length > 0 || this.selectedConnections.length > 0);
-      this.showPropertyEditor = (this.selectedMembersForProperties.length > 0);
+       this.set('lastSelectedMember', this.selectedMembersForProperties[ members.length - 1 ]);
     },
 
     /* ********************************************************************/
     /* *********************** private methods ****************************/
     /* ********************************************************************/
-
-    _addCubbleClass: function (showPropertyEditor) {
-      return (showPropertyEditor) ? 'moveRight' : '';
-    },
 
     /**
      * Get the store url

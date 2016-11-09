@@ -11,11 +11,11 @@
 
 <link rel="import" href="../../vendor/bde-graph/bde-graph.html">
 <link rel="import" href="../bde-base-browser/bde-base-browser.html">
-<link rel="import" href="../bde-editor-dialogs/bde-properties-editor.html">
+<link rel="import" href="../bde-editor-dialogs/bde-member-edit-dialog.html" />
 <link rel="import" href="../bde-editor-dialogs/bde-slot-edit-dialog.html"/>
 <link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../bde-editor-dialogs/bde-compound-edit-dialog.html" />
-<link rel="import" href="../bde-editor-dialogs/bde-connection-edit-dialog.html" />
+<link rel="import" href="../bde-editor-dialogs/bde-compound-edit-dialog.html"/>
+<link rel="import" href="../bde-editor-dialogs/bde-connection-edit-dialog.html"/>
 
 <dom-module id="bde-dataflow-view">
     <template>
@@ -91,91 +91,58 @@
                           current-component="[[_artifact]]"
         ></bde-base-browser>
 
-        <!--</paper-dialog-scrollable>-->
+        <div id="mainPanel" main>
+            <bde-slot-edit-dialog id="bdeSlotEditDialog" always-on-top="true"
+                                  artifact="{{_artifact}}"></bde-slot-edit-dialog>
+            <bde-member-edit-dialog id="bdeMemberDialog" artifact="{{_artifact}}" member="{{member}}"
+                                    dialog-opened="{{memberDialogOpened}}"></bde-member-edit-dialog>
+            <bde-compound-edit-dialog id="bdeCompoundDialog" artifact="{{_artifact}}"></bde-compound-edit-dialog>
+            <bde-connection-edit-dialog id="bdeConnectionDialog"></bde-connection-edit-dialog>
+            <!-- graph="{{graph}}"-->
+            <bde-graph id="bdeGraph"
+                       theme="light"
+                       artifact-id="{{currentComponentMetadata.artifactId}}"
+                       connections="{{_artifact.connections}}"
+                       inits="{{_artifact.inits}}"
+                       members="{{_artifact.members}}"
+                       selected-members="{{_selectedMembers}}"
+                       slots="{{_artifact.slots}}"
+                       width="[[_graphWidth]]"
+                       height="[[_graphHeight]]"
+                       offset-x="[[_graphOffsetX]]"
+                       offset-y="[[_graphOffsetY]]"
+                       edit-actions="[[editActions]]"
+            ></bde-graph>
+            <div id="toolbar">
+                <paper-fab id="zoomToFit"
+                           icon="icons:aspect-ratio"
+                           on-tap="zoomToFit"
+                ></paper-fab>
+                <paper-tooltip for="zoomToFit" position="top">
+                    <div class="tooltip">Zoom to fit</div>
+                </paper-tooltip>
+                <paper-fab id="triggerAutolayout"
+                           icon="bde:magic-wand"
+                           on-tap="triggerAutolayout"
+                ></paper-fab>
+                <paper-tooltip for="triggerAutolayout" position="top">
+                    <div class="tooltip">Autolayout</div>
+                </paper-tooltip>
+                <div class="flex"></div>
 
-        <!--<div class="buttons">-->
-        <!--<paper-button dialog-dismiss>Close</paper-button>-->
-        <!--</div>-->
-
-        <!--</paper-dialog>-->
-
-        <paper-drawer-panel id="graphPanel"
-                            drawer-width="400px"
-                            right-drawer
-                            force-narrow="[[!showPropertyEditor]]"
-                            disable-swipe
-                            disable-edge-swipe>
-
-            <div id="propertiesPanel" drawer>
-
-                <bde-properties-editor id="propertiesEditor"
-                                       artifact="{{_artifact}}"
-                                       selected-members="[[selectedMembersForProperties]]"
-                                       connections="[[selectedConnections]]"
-                                       resolutions="[[resolutions]]"
-                                       last-selected-member="[[lastSelectedMember]]"
-                                       last-selected-connection="{{lastSelectedConnection}}"
-                ></bde-properties-editor>
-
-
+                <paper-fab id="addMemberButton"
+                           icon="icons:add"
+                           on-tap="onAddMemberBtnClick">
+                </paper-fab>
+                <paper-tooltip for="addMemberButton" position="top">
+                    <div class="tooltip">Add member</div>
+                </paper-tooltip>
             </div>
 
-            <div id="mainPanel" main>
-                <bde-slot-edit-dialog id="bdeSlotEditDialog" always-on-top="true" artifact="{{_artifact}}"></bde-slot-edit-dialog>
-                <bde-member-edit-dialog id="bdeMemberDialog" artifact="{{_artifact}}" member="{{member}}" dialog-opened="{{memberDialogOpened}}"></bde-member-edit-dialog>
-                <bde-compound-edit-dialog id="bdeCompoundDialog" artifact="{{_artifact}}"></bde-compound-edit-dialog>
-                <bde-connection-edit-dialog id="bdeConnectionDialog"></bde-connection-edit-dialog>
-                <!-- graph="{{graph}}"-->
-                <bde-graph id="bdeGraph"
-                           theme="light"
-                           artifact-id="{{currentComponentMetadata.artifactId}}"
-                           connections="{{_artifact.connections}}"
-                           inits="{{_artifact.inits}}"
-                           members="{{_artifact.members}}"
-                           selected-members="{{_selectedMembers}}"
-                           slots="{{_artifact.slots}}"
-                           width="[[_graphWidth]]"
-                           height="[[_graphHeight]]"
-                           offset-x="[[_graphOffsetX]]"
-                           offset-y="[[_graphOffsetY]]"
-                           edit-actions="[[editActions]]"
-                ></bde-graph>
-                <!--selected-nodes="{{_selectedNodes}}"-->
-                <!--selected-edges="{{_selectedEdges}}"-->
-                <!--last-selected-node="{{_lastSelectedNode}}"-->
-                <!--last-selected-edge="{{_lastSelectedEdge}}"-->
 
-                <div id="toolbar">
-                    <paper-fab id="zoomToFit"
-                               icon="icons:aspect-ratio"
-                               on-tap="zoomToFit"
-                    ></paper-fab>
-                    <paper-tooltip for="zoomToFit" position="top">
-                        <div class="tooltip">Zoom to fit</div>
-                    </paper-tooltip>
-                    <paper-fab id="triggerAutolayout"
-                               icon="bde:magic-wand"
-                               on-tap="triggerAutolayout"
-                    ></paper-fab>
-                    <paper-tooltip for="triggerAutolayout" position="top">
-                        <div class="tooltip">Autolayout</div>
-                    </paper-tooltip>
-                    <div class="flex"></div>
+        </div>
 
-                    <paper-fab id="addMemberButton"
-                               class$="[[_addCubbleClass(showPropertyEditor)]]"
-                               icon="icons:add"
-                               on-tap="onAddMemberBtnClick">
-                    </paper-fab>
-                    <paper-tooltip for="addMemberButton" position="top">
-                        <div class="tooltip">Add member</div>
-                    </paper-tooltip>
-                </div>
-
-
-            </div>
-
-        </paper-drawer-panel>
+        <!--</paper-drawer-panel>-->
 
     </template>
 </dom-module>
