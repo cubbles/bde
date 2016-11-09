@@ -147,7 +147,6 @@ Polymer({
    * @private
    */
   _handleDialogOpened: function (event) {
-    console.log('_handleDialogOpened');
     if (event.target !== event.currentTarget) {
       return;
     }
@@ -163,6 +162,7 @@ Polymer({
     if (!this.ownSlot) {
       newInitialiser.memberIdRef = this.memberId;
     }
+
     if (init && init.description) {
       newInitialiser.description = init.description;
     }
@@ -194,6 +194,10 @@ Polymer({
   _saveEditedInit: function () {
     // this._initDataFormat();
     var init = this._findInitializer(this.slot);
+    // Outputslot has no initialisation
+    if (this._slot.direction && this._slot.direction.length === 1 && this._slot.direction[0] === 'output') {
+      return;
+    }
     if (!init) {
       if (this._initialiser.description.length === 0) {
         delete this._initialiser.description;
@@ -218,6 +222,7 @@ Polymer({
     if (!_.isEqual(this.slot, this._slot)) {
       var slotIdChanged = false;
       var slotDescriptionChanged = false;
+      var slotPath;
       if (this.slot.slotId !== this._slot.slotId) {
         slotIdChanged = true;
       }
@@ -225,8 +230,8 @@ Polymer({
         slotDescriptionChanged = true;
       }
       if (slotIdChanged || slotDescriptionChanged) {
-        var slot = this.artifact.slots.find((sl) => sl.slotId === this.slot.slotId);
-        var slotPath = new Polymer.Collection(this.artifact.slots).getKey(slot);
+        let slot = this.artifact.slots.find((sl) => sl.slotId === this.slot.slotId);
+        slotPath = new Polymer.Collection(this.artifact.slots).getKey(slot);
       }
       if (slotIdChanged) {
         // Change the slotId in existing inits
