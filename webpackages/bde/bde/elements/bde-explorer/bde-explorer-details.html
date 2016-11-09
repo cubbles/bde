@@ -423,6 +423,8 @@ Example:
                                                              required
                                                              error-message="The slot id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'my-endpoint-1' or 'myEndpoint1')"
                                                              auto-validate
+                                                             id$="{{_slotDomId(sloti)}}"
+                                                             on-change="_slotIdChanged"
                                                              value="{{slot.slotId}}">
                                                 </paper-input>
                                                 <paper-dropdown-menu label="Type"> <!-- not work yet -->

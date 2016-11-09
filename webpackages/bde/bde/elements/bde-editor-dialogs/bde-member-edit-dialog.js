@@ -107,25 +107,28 @@ Polymer({
       if (this.artifact.connections) {
         // Update connection: add a new connection and remove the old connection -> eventlistener for the graph works
         let connections = this.artifact.connections.filter((c) => c.source.memberIdRef === this.member.memberId);
-        connections.forEach((connection, index) => {
+        connections.forEach((connection) => {
           let newConnection = JSON.parse(JSON.stringify(connection));
           newConnection.source.memberIdRef = this._member.memberId;
+          var index = this.artifact.connections.indexOf(connection);
           this.push('artifact.connections', newConnection);
           this.splice('artifact.connections', index, 1);
         });
         connections = this.artifact.connections.filter((c) => c.destination.memberIdRef === this.member.memberId);
-        connections.forEach((connection, index) => {
+        connections.forEach((connection) => {
           let newConnection = JSON.parse(JSON.stringify(connection));
           newConnection.destination.memberIdRef = this._member.memberId;
+          let index = this.artifact.connections.indexOf(connection);
           this.push('artifact.connections', newConnection);
           this.splice('artifact.connections', index, 1);
         });
       }
       if (this.artifact.inits) {
         let inits = this.artifact.inits.filter((i) => i.memberIdRef === this.member.memberId);
-        inits.forEach((init, index) => {
+        inits.forEach((init) => {
           let newInit = JSON.parse(JSON.stringify(init));
           newInit.memberIdRef = this._member.memberId;
+          let index = this.artifact.inits.indexOf(init);
           this.push('artifact.inits', newInit);
           this.splice('artifact.inits', index, 1);
         });

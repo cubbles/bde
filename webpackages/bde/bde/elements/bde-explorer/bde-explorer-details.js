@@ -587,11 +587,22 @@ Polymer({
     return false;
   },
 
+  /**
+   * Generate an id attribute value for the dom element.
+   * @param {Number} index index of the member object in members
+   * @returns {string} the generated member id, wich is a combination of 'member_' and the index.
+   * @private
+   */
   _memberDomId: function (index) {
     return 'member_' + index;
   },
+
+  /**
+   * A handler method for memberId changes.
+   * @param {Event} event the change event of memberId input field.
+   * @private
+   */
   _memberIdChanged: function (event) {
-    console.log('!!!event.target', event.target);
     var element = event.target.closest('paper-input');
     var index = element.id.split('_')[ 1 ];
     var oldMember = this.artifact.members[ index ];
@@ -647,7 +658,7 @@ Polymer({
     }
   },
 
-   /**
+  /**
    * Set a direction attribute in the slot with slotId of the compound.
    * @param {string} slotId the slotId of the slot
    * @param {string} direction the direction
@@ -673,6 +684,47 @@ Polymer({
     if (slot.direction && !slot.direction.includes(direction) && checked) {
       // add direction to slot.direction array
       slot.direction.push(direction);
+    }
+  },
+
+  /**
+   * Generate an id attribute value for the dom element.
+   * @param {Number} index of the slot object in slots
+   * @returns {string} the generated slot id, wich is a combination of 'slot_' and the index.
+   * @private
+   */
+  _slotDomId: function (index) {
+    return 'slot_' + index;
+  },
+
+  /**
+   * A handler method for handle slotId changes.
+   * @param {Event} event the change event of slotId input field.
+   * @private
+   */
+  _slotIdChanged: function (event) {
+    var element = event.target.closest('paper-input');
+    var index = element.id.split('_')[ 1 ];
+    var oldSlot = this.artifact.slots[ index ];
+    var newSlot = this._editingArtifact.slots[ index ];
+    if (this._editingArtifact.connections) {
+      let connections = this._editingArtifact.connections.filter((connection) => connection.source.slot === oldSlot.slotId && !connection.source.memberIdRef);
+      connections.forEach((connection) => {
+        let key = new Polymer.Collection(this._editingArtifact.connections).getKey(connection);
+        this.set('_editingArtifact.connections.' + key + '.source.slot', newSlot.slotId);
+      });
+      connections = this._editingArtifact.connections.filter((connection) => connection.destination.slot === oldSlot.slotId && !connection.destination.memberIdRef);
+      connections.forEach((connection) => {
+        let key = new Polymer.Collection(this._editingArtifact.connections).getKey(connection);
+        this.set('_editingArtifact.connections.' + key + '.destination.slot', newSlot.slotId);
+      });
+    }
+    if (this._editingArtifact.inits) {
+      let inits = this._editingArtifact.inits.filter((init) => init.slot === oldSlot.slotId && !init.memberIdRef);
+      inits.forEach((init) => {
+        let key = new Polymer.Collection(this._editingArtifact.inits).getKey(init);
+        this.set('_editingArtifact.inits.' + key + '.slot', newSlot.slotId);
+      });
     }
   },
 
