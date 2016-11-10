@@ -472,10 +472,13 @@ Polymer({
   updateDisplayNamesInTemplate: function (template) {
     this.selectedCompound.members.forEach(function (member) {
       var memberElem = template.content.querySelector('[member-id-ref=' + member.memberId + ']');
-      if (memberElem && memberElem.getAttribute('display-name') !== member.displayName) {
+      if (memberElem && memberElem.getAttribute('display-name') !== 'undefined' &&
+          !memberElem.getAttribute('display-name') !== null &&
+            member.displayName !== undefined &&
+              memberElem.getAttribute('display-name') !== member.displayName) {
         memberElem.setAttribute('display-name', member.displayName);
       }
-    })
+    });
   }
 
 });
