@@ -8,21 +8,18 @@
 
 
 <!--
-A BDE custom element, which gets the 'Cubbles-Components' from the Base via AJAX.
-The response is a list of items with the description attribute on display.
-
-The list is rendered by repeating the bde-base-item.
+A BDE custom element, which gets the list Endpoints of one Cubbles-Component.
+The selected endpoint will trigger a bde-select-endpoint event, wich transported the metadata of the selected endpoint..
 
 Example:
 
-    <bde-base-browser
-        selected="{{selected}}"
+    <bde-endpoint-browser
+        artifact="{{selected}}"
         compounds-only>
-    </bde-base-browser>
+    </bde-endpoint-browser>
 
 @group BDE Custom Elements
-@element bde-base-browser
-@demo ../elements/bde-base-browser/demo/index.html
+@element bde-endpoint-browser
 -->
 
 <dom-module id="bde-endpoint-browser">
@@ -57,7 +54,7 @@ Example:
             as="item"
             selection-enabled>
             <template>
-                <paper-item on-tap="selectEndpoint" data-endpoint-id$="[[item.endpointId]]">
+                <paper-item on-tap="_selectEndpoint" data-endpoint-id$="[[item.endpointId]]">
                     <paper-item-body two-line data-artifact$="[[artifact]]" data-endpoint-id$="[[item.endpointId]]">
                         <div  data-artifact$="[[artifact]]" data-endpoint-id$="[[item.endpointId]]">[[item.endpointId]]</div>
                         <div secondary data-endpoint-id$="[[item.endpointId]]">[[item.description]]</div>

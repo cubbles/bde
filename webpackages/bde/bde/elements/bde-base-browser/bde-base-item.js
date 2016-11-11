@@ -7,13 +7,33 @@ Polymer({
   properties: {
 
     /**
-     * Object containing the couchDB data retrieved by the initial
-     * request to the Base via bde-repository-browser.
+     * The current selected Cubble component.
+     *
+     * @type {Object}
+     * @property currentComponent
+     */
+    currentComponent: {
+      type: Object
+    },
+
+    /**
+     * Object containing the couchDB data for one component retrieved by the initial
+     * request to the Base via bde-base-browser.
      *
      * @type Object
      * @property item
      */
     item: {
+      type: Object
+    },
+
+    /**
+     * Object referencing the manifest of the current selected Cubble component.
+     *
+     * @type {Object}
+     * @property manifest
+     */
+    manifest: {
       type: Object
     },
 
@@ -25,52 +45,7 @@ Polymer({
      */
     settings: {
       type: Object
-    },
-
-    /**
-     * Object referencing the manifest of the Cubble component.
-     *
-     * @type {Object}
-     * @property manifest
-     */
-    manifest: {
-      type: Object
-    },
-
-    /**
-     * The current Cubble component.
-     *
-     * @type {Object}
-     * @property currentComponent
-     */
-    currentComponent: {
-      type: Object
     }
-  },
-
-  /**
-   * Add the Cubble component, set corresponding metadata.
-   *
-   * @method addComponent
-   */
-  addComponent: function () {
-    this.fire('bde-member-data-loading');
-    if (this.$.ajax.url && this.$.ajax.url.length > 0) {
-      this.$.ajax.generateRequest();
-    } else {
-      var webpackage = this.manifest;
-      this._addComponent(webpackage, this.item.webpackageId);
-    }
-  },
-
-  /**
-   * Handles the response of the iron-ajax, called on-tap, retrieves the metadata of the respective component.
-   *
-   * @method handleResponse
-   */
-  handleResponse: function () {
-    var webpackage = this.$.ajax.lastResponse;
-    this._addComponent(webpackage);
   },
 
   /* *********************************************************************************/
@@ -78,13 +53,28 @@ Polymer({
   /* *********************************************************************************/
 
   /**
+   * Select a Cubble component, set corresponding metadata.
+   *
+   * @method _selectComponent
+   */
+  _selectComponent: function () {
+    this.fire('bde-member-data-loading');
+    if (this.$.ajax.url && this.$.ajax.url.length > 0) {
+      this.$.ajax.generateRequest();
+    } else {
+      var webpackage = this.manifest;
+      this._addSelectedComponent(webpackage, this.item.webpackageId);
+    }
+  },
+
+  /**
    * Utility function for adding the component, sets the corresponding metadata and fires loaded events.
    *
    * @param {[Object]} webpackage   [the current webpackage Object]
    * @param {[String]} webpackageId [the current webpackageId]
-   * @method _addComponent
+   * @method _addSelectedComponent
    */
-  _addComponent: function (webpackage, webpackageId) {
+  _addSelectedComponent: function (webpackage, webpackageId) {
     var artifact = webpackage
       .artifacts[ inflection.pluralize(this.item.artifactType) ]
       .find((artifact) => artifact.artifactId === this.item.artifactId);
@@ -111,8 +101,9 @@ Polymer({
   },
 
   /**
-   * not called ???
-   *
+   * Get , if the component should be disabled. (Not selectabel in the list)
+   * Used in disabled attribute
+   * If an artifact with the same artifactId but from other webpacakge already is a member, the ertifact should be disabled.
    * @param  {[type]} artifact [description]
    * @return {[type]}          [description]
    * @method _componentDisabled
@@ -130,7 +121,7 @@ Polymer({
     if (this.manifest.groupId && this.manifest.groupId.length > 0) {
       webpackageId = this.manifest.groupId + '.' + webpackageId;
     }
-    if (enabled && this.currentComponent.artifactId === artifact.artifactId && (webpackageId === artifact.webpackageId || 'this' === artifact.webpackageId)) {
+    if (enabled && this.currentComponent.artifactId === artifact.artifactId && (webpackageId === artifact.webpackageId || artifact.webpackageId === 'this')) {
       enabled = false;
     }
     return !enabled;
@@ -144,7 +135,7 @@ Polymer({
    * @method _getItemUrl
    */
   _getItemUrl: function (item) {
-    if (item.webpackageId === 'this'){
+    if (item.webpackageId === 'this') {
       return '';
     } else {
       return this.settings.baseUrl.replace(/[/]?$/, '/') +
@@ -153,18 +144,17 @@ Polymer({
   },
 
   /**
-   * not called ???
+   * Handles the response of the iron-ajax, called on-tap, retrieves the manifest of the respective component.
    *
-   * @param  {[type]}  item [description]
-   * @return {String}      [description]
-   * @method _isThisWebpackage
+   * @method handleResponse
    */
-  _isThisWebpackage: function (item) {
-    return item.webpackageId === 'this';
+  _handleAjaxResponse: function () {
+    var webpackage = this.$.ajax.lastResponse;
+    this._addSelectedComponent(webpackage);
   },
 
   /**
-   * Gets the items id and transforms it into a valid webpackageId.
+   * Generate and gets the webpackageId.
    *
    * @param  {[Object]} item [description]
    * @return {[String]}      [modified webpackageId]

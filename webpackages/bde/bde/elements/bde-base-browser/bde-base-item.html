@@ -37,6 +37,14 @@ Example:
         paper-icon-item {
             @apply(--layout-horizontal);
         }
+
+        paper-item-body .info {
+            float: right;
+            font-size: x-small;
+        }
+        paper-item-body .main {
+            float: left;
+        }
     </style>
 
     <template>
@@ -44,12 +52,12 @@ Example:
         <iron-ajax id="ajax"
             url$="[[_getItemUrl(item)]]"
             handle-as="json"
-            on-response="handleResponse"></iron-ajax>
+            on-response="_handleAjaxResponse"></iron-ajax>
 
-        <paper-icon-item on-tap="addComponent" disabled="[[_componentDisabled(item)]]">
+        <paper-icon-item on-tap="_selectComponent" disabled="[[_componentDisabled(item)]]">
             <iron-icon icon="image:remove-red-eye" item-icon></iron-icon>
             <paper-item-body three-line>
-                <div>[[item.artifactId]]</div>
+                <div><div class="main">[[item.artifactId]]</div><div class="info">modelVersion: [[item.modelVersion]]</div></div>
                 <div secondary>[[_getWebpackageId(item)]]</div>
                 <div secondary>[[item.artifactDescription]]</div>
             </paper-item-body>

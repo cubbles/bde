@@ -19,8 +19,10 @@ The list is rendered by repeating the bde-base-item.
 Example:
 
     <bde-base-browser
-        selected="{{selected}}"
-        compounds-only>
+         on-iron-selected="selectHandler"
+         settings="[[settings]]"
+         manifest="[[currentComponentMetadata.manifest]]"
+         current-component="[[_artifact]]>
     </bde-base-browser>
 
 @group BDE Custom Elements
@@ -100,12 +102,11 @@ Example:
         <iron-ajax id="ajax"
                    auto
                    handle-as="json"
-                   on-response="handleResponse"
+                   on-response="_handleResponse"
                    auto
         ></iron-ajax>
 
         <paper-dialog id="memberSelectDialog"
-            opened="{{dialogOpened}}"
             with-backdrop>
             <h2>Add member</h2>
             <paper-badge id="memberSelectDialogBadge" label="{{_filtered.length}}"></paper-badge>
@@ -119,19 +120,19 @@ Example:
 
                 <paper-dialog-scrollable>
                     <bde-endpoint-browser id="endpointBrowser"
-                            artifact="[[selected]]"
+                            artifact="[[_selected]]"
                     >
                     </bde-endpoint-browser>
                 </paper-dialog-scrollable>
             </paper-dialog>
-            <div class="spinner-wrapper" hidden="[[!loading]]">
+            <div class="spinner-wrapper" hidden="[[!_loading]]">
                 <paper-spinner id="spinner" active></paper-spinner>
             </div>
             <paper-input id="search"
                          class="dialogHeader"
                          label="Search components in the base..."
-                         value="{{searchTerm}}"
-                         on-input="handleInput">
+                         value="{{_searchString}}"
+                         on-input="_handleInput">
                 <iron-icon icon="icons:search" prefix></iron-icon>
                 <paper-icon-button id="clearBtn"
                                    icon="icons:clear"
