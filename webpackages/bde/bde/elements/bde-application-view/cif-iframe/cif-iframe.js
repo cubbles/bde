@@ -3,7 +3,7 @@
 
   var crcRoot = document.querySelector('#crcRoot');
   // (erne-mt) TODO: needs update ???
-  var rteWebpackage = 'cubx.core.rte@1.10.0-SNAPSHOT';
+  var rteWebpackage = 'cubx.core.rte@2.0.2';
 
   // const DEBUG = false;
   // window.__console__ = window.console;
