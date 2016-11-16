@@ -64,7 +64,7 @@ Polymer({
      */
     modelVersion: {
       type: String,
-      value: '8.3.1'
+      value: '9.1.1'
     },
 
     /**
@@ -214,13 +214,8 @@ Polymer({
                   description: 'Dataflow of the component'
                 }
               ],
-              endpoints: [
-                {
-                  endpointId: 'main',
-                  resources: [],
-                  dependencies: []
-                }
-              ],
+              resources: [],
+              dependencies: [],
               slots: [],
               members: [],
               connections: [],
@@ -290,9 +285,6 @@ Polymer({
           if (member.metadata) {
             delete member.metadata;
           }
-          if (member.artifactId){
-            delete member.artifactId;
-          }
         });
       }
     });
@@ -310,7 +302,7 @@ Polymer({
     this.set('name', 'new-webpackage');
     this.set('groupId', null);
     this.set('version', '1.0.0-SNAPSHOT');
-    this.set('modelVersion', '8.3.1');
+    this.set('modelVersion', '9.1.1');
     this.set('docType', 'webpackage');
     this.set('description', undefined);
     this.set('author', {
@@ -341,13 +333,8 @@ Polymer({
               description: 'Dataflow of the component'
             }
           ],
-          endpoints: [
-            {
-              endpointId: 'main',
-              resources: [],
-              dependencies: []
-            }
-          ],
+          resources: [],
+          dependencies: [],
           slots: [],
           members: [],
           connections: [],
