@@ -110,9 +110,19 @@ Polymer({
    */
   _componentDisabled: function (artifact) {
     var enabled = true;
-    this.currentComponent.members.forEach(function (member) {
-      var webpackageId = member.componentId.substring(0, member.componentId.lastIndexOf('/'));
-      var artifactId = member.componentId.substring(member.componentId.lastIndexOf('/') + 1);
+    this.currentComponent.members.forEach((member) => {
+      var dependency = this._getDependency(this.currentComponent, member.artifactId);
+      if (!dependency) {
+        console.error('No dependency found for the member ' + JSON.stringify(member) + ' in artifact ' + this.currentComponent.artifactId + '.');
+        return;
+      }
+      var webpackageId;
+      if (dependency.webpackageId) {
+        webpackageId = dependency.webpackageId;
+      } else {
+        webpackageId = 'this';
+      }
+      var artifactId = member.artifactId;
       if (artifactId === artifact.artifactId && webpackageId !== artifact.webpackageId) {
         enabled = false;
       }
@@ -125,6 +135,20 @@ Polymer({
       enabled = false;
     }
     return !enabled;
+  },
+
+  /**
+   * Get a dependency with the artifactId from artifact.
+   * @param parentArtifact
+   * @param artifactId
+   * @returns {*}
+   * @private
+   */
+  _getDependency: function (parentArtifact, artifactId) {
+    if (!parentArtifact.dependencies) {
+      return null;
+    }
+    return parentArtifact.dependencies.find((dep) => dep.artifactId === artifactId);
   },
 
   /**

@@ -227,37 +227,6 @@
     /* ********************************************************************/
     /* ************************** public methods **************************/
     /* ********************************************************************/
-
-    /**
-     * Called if a new member selected in base browser
-     * @param {Event} addMember event
-     */
-    addMember: function (event) {
-      var cubble = event.detail.item;
-      var endpointId = this.currentComponentMetadata.endpointId;
-      var endpoint = this._artifact.endpoints.find(function (endpoint) { return endpoint.endpointId === endpointId; });
-      var endpointPath = Polymer.Collection.get(this._artifact.endpoints).getKey(endpoint); // e.g. #0
-
-      // Close the search dialog
-      this.$.browser.close();
-
-      var member = {
-        memberId: cubble.memberId,
-        componentId: cubble.metadata.webpackageId + '/' + cubble.metadata.artifactId,
-        displayName: cubble.displayName
-      };
-      var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
-      promise.then((data) => {
-        this.$.bdeGraph.registerComponent(data.component);
-        this.push('_artifact.members', data.member);
-        this.push('_artifact.endpoints.' + endpointPath + '.dependencies',
-          member.componentId + '/' + cubble.metadata.endpointId
-        );
-        // End of loading animation - animation started with this.fire('bde-member-loading');
-        this.fire('bde-member-loaded');
-      });
-    },
-
     /**
      * Handle the resize event
      */
@@ -355,28 +324,8 @@
     },
 
     /* ********************************************************************/
-    /* ********************** prperty event listener**********************/
+    /* ********************** property event listener**********************/
     /* ********************************************************************/
-
-    /**
-     * Called if the property _artifact changed.
-     * @param { object}changeRecord
-     * @private
-     */
-    _artifactChanged: function (changeRecord) {
-      if (!changeRecord) { return; }
-
-      var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
-      var pathIndex = new Polymer.Collection(compoundComponents).getKey(this._artifact);
-      var path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + pathIndex);
-
-      this.set(path, changeRecord.value);
-      if (changeRecord.path.indexOf('artifactId') > -1) {
-        this.set('currentComponentMetadata.artifactId', changeRecord.value);
-        this.set('manifest.artifactId', changeRecord.value);
-      }
-    },
-
     /**
      * Load a new artifact results  areload of the graph.
      *
@@ -565,12 +514,72 @@
         this.push('selectedMembersForProperties', member);
       }.bind(this));
 
-       this.set('lastSelectedMember', this.selectedMembersForProperties[ members.length - 1 ]);
+      this.set('lastSelectedMember', this.selectedMembersForProperties[ members.length - 1 ]);
     },
 
     /* ********************************************************************/
     /* *********************** private methods ****************************/
     /* ********************************************************************/
+
+    /**
+     * Called if a new member selected in base browser.
+     * @param {Event} event iron-selected event
+     * @method _addMember
+     */
+    _addMember: function (event) {
+      var cubble = event.detail.item;
+      // var endpointId = this.currentComponentMetadata.endpointId;
+      // var endpoint = this._artifact.endpoints.find(function (endpoint) { return endpoint.endpointId === endpointId; });
+      // var endpointPath = Polymer.Collection.get(this._artifact.endpoints).getKey(endpoint); // e.g. #0
+
+      // Close the search dialog
+      this.$.browser.close();
+
+      var member = {
+        memberId: cubble.memberId,
+        artifactId: cubble.metadata.artifactId,
+        displayName: cubble.displayName
+      };
+
+      var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, cubble.metadata.webpackageId, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
+      promise.then((data) => {
+        this.$.bdeGraph.registerComponent(data.component);
+        this.push('_artifact.members', data.member);
+        var dependency = {
+          artifactId: member.artifactId
+        };
+        if (member.webpackageId !== 'this') {
+          dependency.webpackageId = member.webpackageId;
+        }
+        if (member.endpointId) {
+          dependency.endpointId = cubble.metadata.endpointId;
+        }
+        if (!this._artifact.dependencies) {
+          this.set('_artifact.dependencies', []);
+        }
+        this.push('_artifact.dependencies', dependency);
+        // End of loading animation - animation started with this.fire('bde-member-loading');
+        this.fire('bde-member-loaded');
+      });
+    },
+    /**
+     * Called if the property _artifact changed.
+     * @param { object}changeRecord
+     * @private
+     */
+    _artifactChanged: function (changeRecord) {
+      if (!changeRecord) { return; }
+
+      var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
+      var pathIndex = new Polymer.Collection(compoundComponents).getKey(this._artifact);
+      var path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + pathIndex);
+
+      this.set(path, changeRecord.value);
+      if (changeRecord.path.indexOf('artifactId') > -1) {
+        this.set('currentComponentMetadata.artifactId', changeRecord.value);
+        this.set('manifest.artifactId', changeRecord.value);
+      }
+    },
 
     /**
      * Get the store url

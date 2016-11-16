@@ -321,11 +321,15 @@ Polymer({
   _handleItemSelect: function (event) {
     var artifact = event.detail;
     this.set('_selected', artifact);
-    if (artifact.endpoints.length > 1) {
-      var dialog = this.$.endpointsDialog;
-      dialog.open();
+    if (artifact.endpoints) {
+      if (artifact.endpoints.length > 1) {
+        var dialog = this.$.endpointsDialog;
+        dialog.open();
+      } else {
+        this._selectComponentAsMember(artifact, artifact.endpoints[ 0 ].endpointId);
+      }
     } else {
-      this._selectComponentAsMember(artifact, artifact.endpoints[ 0 ].endpointId);
+      this._selectComponentAsMember(artifact);
     }
   },
 
@@ -378,10 +382,14 @@ Polymer({
       displayName: this._generateDisplayName(artifact.artifactId),
       metadata: {
         webpackageId: artifact.webpackageId,
-        artifactId: artifact.artifactId,
-        endpointId: endpointId
+        artifactId: artifact.artifactId
+
       }
     };
+
+    if (endpointId) {
+      cubble.metadata.endpointId = endpointId;
+    }
 
     this.fire('iron-selected', { item: cubble });
   },
