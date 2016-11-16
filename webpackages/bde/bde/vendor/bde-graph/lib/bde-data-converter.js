@@ -34,8 +34,8 @@
    *     ],
    *     members: [
    *        {
-   *          memberId: 'firstMembet', // see schema-definition for manifest.webpacksge
-   *          componentId: 'my-artifact' // origin componentId is modified. Actuel is a artifactId
+   *          memberId: 'firstMember', // see schema-definition for manifest.webpacksge
+   *          artifactId: 'my-artifact'   *
    *        }
    *     ],
    *     connections: [
@@ -87,7 +87,7 @@
           return data;
         }
         if (artifact.members) {
-          data.members = this._convertMembers(artifact.members);
+          data.members = this._convertMembers(artifact);
         }
         if (artifact.slots) {
           data.slots = [ ...artifact.slots ];
@@ -113,40 +113,42 @@
      * <code><pre>
      *   {
      *      component: {
-   *          name: 'base-chart', // name_of_component
-   *          icon: 'cog', // icon for node cog for elementary and cogs for compound components
-   *          inports: [
-   *            {
-   *              name: 'input', // name of the slot. this is the same as the slotId on slots array
-   *              type: 'object' // type of the slot, all possible slottypes: number, boolean, string, object, array
-   *            }
-   *          ],
-   *          outports: [
-   *            {
-   *              name: 'message', // name of the slot.
-   *              type: 'string' // type of the slot, all possible slot types: number, boolean, string, object, array
-   *            }
-   *        },
+     *        name: 'base-chart', // name_of_component
+     *        icon: 'cog', // icon for node cog for elementary and cogs for compound components
+     *        inports: [
+     *          {
+     *            name: 'input', // name of the slot. this is the same as the slotId on slots array
+     *              type: 'object' // type of the slot, all possible slottypes: number, boolean, string, object, array
+     *            }
+     *        ],
+     *        outports: [
+     *          {
+     *            name: 'message', // name of the slot.
+     *            type: 'string' // type of the slot, all possible slot types: number, boolean, string, object, array
+     *          }
+     *        ]
+     *      },
      *      member: {
-   *          memberId: 'firstMembet', // see schema-definition for manifest.webpacksge
-   *          componentId: 'my-artifact' // origin componentId is modified. Actuel is a artifactId
-   *        }
+     *        memberId: 'firstMembet', // see schema-definition for manifest.webpacksge
+     *        artifactId: 'my-artifact'
+     *      }
      *   }
      * </pre></code>
      * @param {string} member member object from manifest which should be added as a member to the graph
+     * @param {string} webpackageId the webpacakgeId of the component referenced from the member.
      * @param {object} manifest the current manifest
      * @param {string} baseUrl the base url
      * @param {array} resolutions resolutions array
      * @returns {{components: Array, members: Array, slots: Array, connections: Array, inits: Array}}
      */
-    resolveMember (member, manifest, baseUrl, resolutions) {
+    resolveMember (member, webpackageId, manifest, baseUrl, resolutions) {
       function resolveFunction (resolve, reject) {
-        var componentPromise = this._fetchComponent(member, manifest, baseUrl, resolutions);
+        var componentPromise = this._fetchComponent(member, webpackageId, manifest, baseUrl, resolutions);
 
         componentPromise.then((component) => {
           let data = {
             component: component,
-            member: this._convertMember(member)
+            member: member
           };
           resolve(data);
         }, (error) => {
@@ -173,34 +175,22 @@
     }
 
     /**
-     * Convert the members array. Change the value of the property componentId to artifactId.
-     * @param {Array} members origin members from manifest.
+     * Convert the members array.
+     * @param {Object} artifact
      * @returns {Array} converted members
      * @private
      */
-    _convertMembers (members) {
+    _convertMembers (artifact) {
       var convertedMembers = [];
+      var members = artifact.members;
       members.forEach(function (member) {
-        var convertedMember = this._convertMember(member);
-        convertedMembers.push(convertedMember);
-      }.bind(this));
+        convertedMembers.push(member);
+      });
       return convertedMembers;
     }
 
-    _convertMember (member) {
-      var convertedMember = {
-        memberId: member.memberId
-      };
-      if (member.displayName) {
-        convertedMember.displayName = member.displayName;
-      }
-      convertedMember.componentId = member.componentId;
-      convertedMember.artifactId = member.componentId.split('/')[ 1 ];
-      return convertedMember;
-    }
-
     /**
-     * Generate and get the components array for usage inthe graph for the given artifact.
+     * Generate and get the components array for usage in the graph for the given artifact.
      * For this fetch the componnts from cubbles base, if they not contained in the manifest.
      *
      * @param {object} artifact the artifact
@@ -213,69 +203,112 @@
     _fetchComponents (artifact, manifest, baseUrl, resolutions) {
       var promises = [];
 
+      // Add component for the original artifact
       promises.push(new Promise(function (resolve, reject) {
         if (resolutions) {
           resolutions[ artifact.artifactId ] = {
             artifact: artifact,
-            componentId: 'this/' + artifact.artifactId
+            artifactId: artifact.artifactId
           };
         }
         resolve(this._createComponent(artifact, this.compoundIcon));
       }.bind(this)));
+      // add components for each member
       artifact.members.forEach((member) => {
-        promises.push(this._fetchComponent(member, manifest, baseUrl, resolutions));
+        var webpackageId;
+        let dependency = this._getDependency(artifact, member.artifactId);
+        if (!dependency) {
+          let err = 'No dependency found in artifact ' + artifact.artifactId + 'for member ' + JSON.stringify(member) + '.';
+          console.error(err);
+          return;
+        }
+        if (dependency.webpackageId) {
+          webpackageId = dependency.webpackageId;
+        } else {
+          webpackageId = 'this';
+        }
+        promises.push(this._fetchComponent(member, webpackageId, manifest, baseUrl, resolutions));
       });
       return Promise.all(promises);
     }
 
     /**
      *
-     * @param {object} member memberobject
+     * @param {object} member the member object
+     * @param {string} webpacakgId the webpacakgeId of the component referenced in member
      * @param {object} manifest the current manifest object
      * @param {string} baseUrl base url to a cubbles base store
      * @param {array} resolutions resolutions array
      * @returns {Promise} promise for fetch and convert a component, resolve the converted component object
      * @private
      */
-    _fetchComponent (member, manifest, baseUrl, resolutions) {
+    _fetchComponent (member, webpackageId, manifest, baseUrl, resolutions) {
       var resolverFunction = function (resolve, reject) {
-        var artifact;
-        var webpackageId = member.componentId.split('/')[ 0 ];
-        var artifactId = member.componentId.split('/')[ 1 ];
         try {
-          artifact = manifest.artifacts.compoundComponents.find((artifact) => artifact.artifactId === artifactId);
-        } catch (err) {
-          // do nothing
-        }
-        if (artifact) { // compound component found in own manifest
-          if (resolutions) {
-            resolutions[ artifact.artifactId ] = {
-              artifact: artifact,
-              componentId: member.componentId
-            };
+          var artifactId = member.artifactId;
+          var artifact;
+          try {
+            artifact = manifest.artifacts.compoundComponents.find((compound) => compound.artifactId === artifactId);
+          } catch (err) {
+            // do nothing
           }
-          resolve(this._createComponent(artifact, this.compoundIcon));
-          return;
-        }
-        try {
-          artifact = manifest.artifacts.elementaryComponents.find((comp) => comp.artifactId === artifactId);
-        } catch (err) {
-          // do nothing
-        }
+          if (artifact) { // compound component found in own manifest
+            if (resolutions) {
+              resolutions[ artifact.artifactId ] = this._createResolution(artifact);
+            }
+            resolve(this._createComponent(artifact, this.compoundIcon));
+            return;
+          }
+          try {
+            artifact = manifest.artifacts.elementaryComponents.find((elem) => elem.artifactId === artifactId);
+          } catch (err) {
+            // do nothing
+          }
 
-        if (artifact) { // elementary component found in own manifest
-          if (resolutions) {
-            resolutions[ artifact.artifactId ] = {
-              artifact: artifact,
-              componentId: member.componentId
-            };
+          if (artifact) { // elementary component found in own manifest
+            if (resolutions) {
+              resolutions[ artifact.artifactId ] = this._createResolution(artifact);
+            }
+            resolve(this._createComponent(artifact, this.elementaryIcon));
+            return;
           }
-          resolve(this._createComponent(artifact, this.elementaryIcon));
-          return;
+          this._getArtifactFromCubblesBase(webpackageId, artifactId, baseUrl, resolve, reject, resolutions);
+        } catch (err) {
+          reject(err);
         }
-        artifact = this._getArtifactFromCubblesBase(webpackageId, artifactId, baseUrl, resolve, reject, resolutions);
       };
       return new Promise(resolverFunction.bind(this));
+    }
+
+    /**
+     * Find a deoendency definition for an artifactId in teh given artifact. If no dependency found with the given artifactId get null.
+     * @param {Object} artifact the artifact within search for dependency.
+     * @param {String} dependencyArtifactId the artifact for which search in dependencies
+     * @returns {*}
+     * @private
+     */
+    _getDependency (artifact, dependencyArtifactId) {
+      if (artifact.dependencies) {
+        var dependency = artifact.dependencies.find((dep) => dep.artifactId === dependencyArtifactId);
+        if (dependency) {
+          return dependency;
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Create an resolition object from an artifact
+     * @param {Object} artifact the artifact object
+     * @returns {{artifact: *, artifactId: string}} a reslution object
+     * @private
+     */
+    _createResolution (artifact) {
+      var resolution = {
+        artifact: artifact,
+        artifactId: artifact.artifactId
+      };
+      return resolution;
     }
 
     /**
@@ -302,7 +335,7 @@
           if (resolutions) {
             resolutions[ artifact.artifactId ] = {
               artifact: artifact,
-              componentId: webpackageId + '/' + artifactId
+              artifactId: artifact.artifactId
             };
           }
           resolve(this._createComponent(artifact, this.compoundIcon));
@@ -316,7 +349,7 @@
           if (resolutions) {
             resolutions[ artifact.artifactId ] = {
               artifact: artifact,
-              componentId: webpackageId + '/' + artifactId
+              artifactId: artifact.artifactId
             };
           }
           resolve(this._createComponent(artifact, this.elementaryIcon));

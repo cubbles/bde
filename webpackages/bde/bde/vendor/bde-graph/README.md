@@ -502,7 +502,7 @@ A class for convert cubbles manifest data for a data structure which can be used
         members: [
            {
              memberId: 'firstMembet', // see schema-definition for manifest.webpacksge
-             componentId: 'my-artifact' // origin componentId is modified. Actuel is a artifactId
+             artifactId: 'my-artifact' 
            }
         ],
         connections: [
@@ -517,7 +517,7 @@ A class for convert cubbles manifest data for a data structure which can be used
         ],
       }
 
-`resolveMember(member, manifest, baseUrl, resolutions)` It resolve a member object to a data structure for adding a new member component to the graph. The return value is the following object:
+`resolveMember(member, webpackageId, manifest, baseUrl, resolutions)` It resolve a member object to a data structure for adding a new member component to the graph. The return value is the following object:
   
       {
         component: {
@@ -537,7 +537,7 @@ A class for convert cubbles manifest data for a data structure which can be used
         },
         member: {
           memberId: 'firstMembet', // see schema-definition for manifest.webpacksge
-          componentId: 'my-artifact' // origin componentId is modified. Actuel is a artifactId
+          artifactId: 'my-artifact' 
         }
       }
 ## License

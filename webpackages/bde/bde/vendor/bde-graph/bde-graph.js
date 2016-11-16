@@ -606,8 +606,7 @@
       if (!member) {
         this.push('members', {
           memberId: node.id,
-          artifactId: node.artifactId,
-          componentId: node.metadata.componentId
+          artifactId: node.artifactId
         });
       }
     },
@@ -823,7 +822,7 @@
         var metadata = {
           displayName: member.displayName || member.memberId,
           description: member.description,
-          componentId: member.componentId,
+          artifactIdId: member.artifactId,
 
           x: member.x || coordinates.x,
           y: member.y || coordinates.y
