@@ -266,8 +266,7 @@
     reload: function () {
       let manifest = this.currentComponentMetadata.manifest;
       let artifactId = this.currentComponentMetadata.artifactId;
-      let endpointId = this.currentComponentMetadata.endpointId;
-      if (!manifest || !artifactId || !endpointId) { return; }
+      if (!manifest || !artifactId) { return; }
 
       this.set('_selectedMembers', []);
       this.set('_selectedEdges', []);
@@ -508,7 +507,7 @@
       this.splice('selectedMembersForProperties', 0);
       members.forEach(function (member) {
         // add artifact metadata to member
-        var artifactId = member.componentId.split('/')[ 1 ];
+        var artifactId = member.artifactId;
         var metadata = this.resolutions[ artifactId ].artifact || {};
         member.metadata = metadata;
         this.push('selectedMembersForProperties', member);
@@ -541,23 +540,25 @@
         displayName: cubble.displayName
       };
 
+      var dependency = {
+        artifactId: member.artifactId
+      };
+      if (cubble.metadata.webpackageId !== 'this') {
+        dependency.webpackageId = cubble.metadata.webpackageId;
+      }
+      if (cubble.metadata.endpointId) {
+        dependency.endpointId = cubble.metadata.endpointId;
+      }
+      if (!this._artifact.dependencies) {
+        this.set('_artifact.dependencies', []);
+      }
+      this.push('_artifact.dependencies', dependency);
+
       var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, cubble.metadata.webpackageId, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
       promise.then((data) => {
         this.$.bdeGraph.registerComponent(data.component);
         this.push('_artifact.members', data.member);
-        var dependency = {
-          artifactId: member.artifactId
-        };
-        if (member.webpackageId !== 'this') {
-          dependency.webpackageId = member.webpackageId;
-        }
-        if (member.endpointId) {
-          dependency.endpointId = cubble.metadata.endpointId;
-        }
-        if (!this._artifact.dependencies) {
-          this.set('_artifact.dependencies', []);
-        }
-        this.push('_artifact.dependencies', dependency);
+        this.$.browser.refreshBrowserList();
         // End of loading animation - animation started with this.fire('bde-member-loading');
         this.fire('bde-member-loaded');
       });
@@ -617,7 +618,7 @@
       var member = this._artifact.members.find((member) => member.memberId === memberId);
       if (member) {
         if (!member.metadata) {
-          var artifactId = member.componentId.split('/')[ 1 ];
+          var artifactId = member.artifactId;
           var metadata = this.resolutions[ artifactId ].artifact || {};
           member.metadata = metadata;
         }

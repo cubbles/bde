@@ -28,6 +28,14 @@ Polymer({
     },
 
     /**
+     * List of all components in repository browser.
+     * This is nessecary to register changes the filtered componentlist for "_componentDisabled" method (computed binding).
+     */
+    items: {
+      type: Array
+    },
+
+    /**
      * Object referencing the manifest of the current selected Cubble component.
      *
      * @type {Object}
@@ -47,7 +55,6 @@ Polymer({
       type: Object
     }
   },
-
   /* *********************************************************************************/
   /* ***************************** private methods ***********************************/
   /* *********************************************************************************/
@@ -108,7 +115,7 @@ Polymer({
    * @return {[type]}          [description]
    * @method _componentDisabled
    */
-  _componentDisabled: function (artifact) {
+  _componentDisabled: function (artifact, items) {
     var enabled = true;
     this.currentComponent.members.forEach((member) => {
       var dependency = this._getDependency(this.currentComponent, member.artifactId);

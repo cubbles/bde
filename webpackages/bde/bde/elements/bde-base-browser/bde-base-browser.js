@@ -155,6 +155,11 @@ Polymer({
     this.$.memberSelectDialog.close();
   },
 
+  refreshBrowserList: function() {
+    // Renew Filter after selected a member for disable other webpacakgeversionen
+    this.set('_filtered', []);
+    this._filterList(this._searchString);
+  },
   /* *********************************************************************************/
   /* ***************************** private methods ***********************************/
   /* *********************************************************************************/
@@ -372,7 +377,6 @@ Polymer({
   _selectComponentAsMember: function (artifact, endpointId) {
     // start of loading animation, must be ended with this.fire('bde-member-loaded');
     this.fire('bde-member-loading');
-    // this._filterList(this.$.search.value);
     /**
      * Setting the cubble metadata.
      * @type {Object}
@@ -383,7 +387,6 @@ Polymer({
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId
-
       }
     };
 

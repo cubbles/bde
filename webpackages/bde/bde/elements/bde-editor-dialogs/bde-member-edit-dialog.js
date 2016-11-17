@@ -56,7 +56,7 @@ Polymer({
     // Create a temporare initialiser object for the dialog
     var _member = {
       memberId: this.member.memberId,
-      componentId: this.member.componentId
+      artifactId: this.member.artifactId
     };
     if (this.member.displayName) {
       _member.displayName = this.member.displayName;
@@ -101,7 +101,7 @@ Polymer({
     if (this.member.memberId !== this._member.memberId) {
       // create annd add new memberObject
       var newMember = JSON.parse(JSON.stringify(this._member));
-      newMember.artifactId = newMember.componentId.split('/')[1];
+      newMember.artifactId = newMember.artifactId;
       this.push('artifact.members', newMember);
       // Update connections
       if (this.artifact.connections) {

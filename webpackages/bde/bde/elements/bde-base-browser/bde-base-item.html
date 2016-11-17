@@ -54,7 +54,7 @@ Example:
             handle-as="json"
             on-response="_handleAjaxResponse"></iron-ajax>
 
-        <paper-icon-item on-tap="_selectComponent" disabled="[[_componentDisabled(item)]]">
+        <paper-icon-item on-tap="_selectComponent" disabled="[[_componentDisabled(item, items)]]">
             <iron-icon icon="image:remove-red-eye" item-icon></iron-icon>
             <paper-item-body three-line>
                 <div><div class="main">[[item.artifactId]]</div><div class="info">modelVersion: [[item.modelVersion]]</div></div>
