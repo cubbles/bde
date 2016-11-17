@@ -155,7 +155,11 @@ Polymer({
     this.$.memberSelectDialog.close();
   },
 
-  refreshBrowserList: function() {
+  /**
+   * Refresh the list in base-browser incl. deactivation of the elements.
+   * Hint: THe list muss be refreshed, so that the changes activate the computed binding "bde-base-browser._componentDisabled".
+   */
+  refreshBrowserList: function () {
     // Renew Filter after selected a member for disable other webpacakgeversionen
     this.set('_filtered', []);
     this._filterList(this._searchString);
