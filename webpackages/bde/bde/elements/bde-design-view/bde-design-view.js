@@ -89,17 +89,8 @@ Polymer({
     designViewDisabled: {
       type: Boolean,
       value: false
-    },
-
-    /**
-     * EndpointId of the current component
-     *
-     * @type {String}
-     * @property lastEndpointId
-     */
-    lastEndpointId: {
-      type: String
     }
+
   },
 
   listeners: {
@@ -159,7 +150,7 @@ Polymer({
    * @method currentComponentMetadataChanged
    */
   currentComponentMetadataChanged: function () {
-    if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
+    if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId) {
       return;
     }
     this.debounce('loadNewCompound', function () {
@@ -179,7 +170,7 @@ Polymer({
       if (item.artifactId === this.currentComponentMetadata.artifactId) {
         this.lastGeneratedTemplateBlobDocTime = new Date(0);
         this.set('selectedCompound', item);
-        this.lastEndpointId = this.currentComponentMetadata.endpointId;
+
         this.loadHtmlResources();
       }
     }.bind(this));
@@ -232,51 +223,34 @@ Polymer({
   },
 
   /**
-   * Returns an array of endpoints from the current component.
-   *
-   * @param  {[String]} endpointId [Id of the endpoint of the current component]
-   * @return {[Array]}            [Array of endpoints]
-   */
-  getEndpointFromSelectedCompound: function (endpointId) {
-    for (var i = 0; i < this.selectedCompound.endpoints.length; i++) {
-      if (this.selectedCompound.endpoints[i].endpointId === endpointId) {
-        return this.selectedCompound.endpoints[i];
-      }
-    }
-    return;
-  },
-
-  /**
    * Get HTML resources out of the webpackage url.
    *
    * @method loadHtmlResources
    */
   loadHtmlResources: function () {
-    if (!this.currentComponentMetadata || !this.currentComponentMetadata.endpointId) {
+    if (!this.currentComponentMetadata) {
       return;
     }
-    var endpoint = this.getEndpointFromSelectedCompound(this.currentComponentMetadata.endpointId);
-    if (endpoint) {
-      var absoluteUrl;
-      var index;
-      for (var i = 0; i < endpoint.resources.length; i++) {
-        if (endpoint.resources[i].indexOf('.html') > -1) {
-          absoluteUrl = this.buildSelectedCompoundResourceUrl(endpoint.resources[i]);
-        } else {
-          index = endpoint.resources[i].indexOf('?type=html');
-          if (index > -1) {
-            absoluteUrl = endpoint.resources[i].substring(0, index);
-          }
-        }
-        if (absoluteUrl) {
-          this.loadFile(absoluteUrl, function (response) {
-            this.$$('bde-flexbox-layouter').loadTemplate(response);
-          }.bind(this));
+
+    var absoluteUrl;
+    var index;
+    for (var i = 0; i < this.selectedCompound.resources.length; i++) {
+      if (this.selectedCompound.resources[ i ].indexOf('.html') > -1) {
+        absoluteUrl = this.buildSelectedCompoundResourceUrl(this.selectedCompound.resources[ i ]);
+      } else {
+        index = this.selectedCompound.resources[ i ].indexOf('?type=html');
+        if (index > -1) {
+          absoluteUrl = this.selectedCompound.resources[ i ].substring(0, index);
         }
       }
-      if (!absoluteUrl) {
-        this.$$('bde-flexbox-layouter').loadSelectedCompound();
+      if (absoluteUrl) {
+        this.loadFile(absoluteUrl, function (response) {
+          this.$$('bde-flexbox-layouter').loadTemplate(response);
+        }.bind(this));
       }
+    }
+    if (!absoluteUrl) {
+      this.$$('bde-flexbox-layouter').loadSelectedCompound();
     }
   },
 
@@ -334,13 +308,13 @@ Polymer({
     stack.pop(); // remove current file name (or empty string)
                  // (omit if 'base' is the current folder without trailing slash)
     for (var i = 0; i < parts.length; i++) {
-      if (parts[i] === '.') {
+      if (parts[ i ] === '.') {
         continue;
       }
-      if (parts[i] === '..') {
+      if (parts[ i ] === '..') {
         stack.pop();
       } else {
-        stack.push(parts[i]);
+        stack.push(parts[ i ]);
       }
     }
     return stack.join('/');

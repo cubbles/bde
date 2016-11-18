@@ -12,7 +12,7 @@
 
       /**
        * Metadata of the current element, which is beeing created via the BDE.
-       * It has the properties "manifest", "artifactId" and "endpointId".
+       * It has the properties "manifest", "artifactId".
        *
        * @type {Object}
        * @property currentComponentMetadata
@@ -22,7 +22,6 @@
         value: function () {
           return {
             manifest: null,
-            endpointId: null,
             artifactId: null
           };
         },

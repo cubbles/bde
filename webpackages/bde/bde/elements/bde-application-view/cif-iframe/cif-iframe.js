@@ -63,8 +63,7 @@
 
     var webpackageId = currentComponentMetadata.manifest.name + '@' +
       currentComponentMetadata.manifest.version + '/' +
-      currentComponentMetadata.artifactId + '/' +
-      currentComponentMetadata.endpointId;
+      currentComponentMetadata.artifactId;
     if (currentComponentMetadata.manifest.groupId && currentComponentMetadata.manifest.groupId.length > 0) {
       webpackageId = currentComponentMetadata.manifest.groupId + '.' + webpackageId;
     }
@@ -81,7 +80,6 @@
         ]
       }
     };
-
 
     _injectScript(webComponentsUrl, function () {
       // console.log('Webcomponents injected...');
@@ -142,5 +140,4 @@
   window.addEventListener('cifReady', function (e) {
     _postMessage('loaded');
   }, false);
-
 }());

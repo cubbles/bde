@@ -194,7 +194,7 @@
     },
 
     observers: [
-      '_currentComponentMetadataChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId, currentComponentMetadata.endpointId)',
+      '_currentComponentMetadataChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId)',
       '_selectedMembersChanged(_selectedMembers.splices)',
       '_selectedEdgesChanged(_selectedEdges.splices)',
       '_artifactChanged(_artifact.*)'
@@ -332,7 +332,7 @@
      * @param  {String} artifactId [description]
      * @param  {String} endpointId [description]
      */
-    _currentComponentMetadataChanged: function (manifest, artifactId, endpointId) {
+    _currentComponentMetadataChanged: function (manifest, artifactId) {
       this.debounce('reload_graph', function () {
         this.reload();
       }, 100);
@@ -527,9 +527,6 @@
      */
     _addMember: function (event) {
       var cubble = event.detail.item;
-      // var endpointId = this.currentComponentMetadata.endpointId;
-      // var endpoint = this._artifact.endpoints.find(function (endpoint) { return endpoint.endpointId === endpointId; });
-      // var endpointPath = Polymer.Collection.get(this._artifact.endpoints).getKey(endpoint); // e.g. #0
 
       // Close the search dialog
       this.$.browser.close();

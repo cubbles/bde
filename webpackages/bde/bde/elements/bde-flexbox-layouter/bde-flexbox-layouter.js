@@ -291,11 +291,11 @@ Polymer({
   templateChanged: function (changeName) {
     this.set('lastChangeTime', new Date());
     // console.log('<bde-flexbox-layouter>::templateChanged::', changeName, this.getTemplate());
-    if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
+    if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId) {
       return;
     }
     this.debounce('templateChanged', function () {
-      this.generateTemplateBlobDoc(this.currentComponentMetadata.artifactId, this.currentComponentMetadata.endpointId);
+      this.generateTemplateBlobDoc(this.currentComponentMetadata.artifactId);
     }, 250);
   },
   getTemplate: function () {
@@ -425,12 +425,11 @@ Polymer({
     return 'bde-' + version.replace(/\./g, '-') + '-generated-' + suffix;
   },
 
-  generateTemplateBlobDoc: function (artifactId, endpointId) {
+  generateTemplateBlobDoc: function (artifactId) {
     if (this.designViewDisabled) {
       return;
     }
-    // var artifactId = this.currentComponentMetadata.artifactId;
-    // var endpointId = this.currentComponentMetadata.endpointId;
+
     var template = this.getTemplate();
     if (this.isEmptyTemplate(template.content)) {
       return;
@@ -444,19 +443,16 @@ Polymer({
     compound = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find(function (item) {
       return item.artifactId === artifactId;
     });
-    var endpoint = compound.endpoints.find(function (item) {
-      return item.endpointId === endpointId;
-    });
 
-    var listToDelete = endpoint.resources.filter(function (item) {
+    var listToDelete = compound.resources.filter(function (item) {
       return item.indexOf('.html') > -1 || item.indexOf('?type=html') > -1;
     });
 
     listToDelete.forEach(function (item) {
-      endpoint.resources.splice(endpoint.resources.indexOf(item), 1);
+      compound.resources.splice(compound.resources.indexOf(item), 1);
     });
 
-    endpoint.resources.push(templateBlobUrl);
+    compound.resources.push(templateBlobUrl);
     this.set('lastGeneratedTemplateBlobDocTime', new Date());
   },
 

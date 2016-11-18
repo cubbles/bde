@@ -132,7 +132,7 @@
      */
     currentComponentMetadataChanged: function () {
       if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest ||
-            !this.currentComponentMetadata.artifactId || !this.currentComponentMetadata.endpointId) {
+            !this.currentComponentMetadata.artifactId) {
         return;
       }
 

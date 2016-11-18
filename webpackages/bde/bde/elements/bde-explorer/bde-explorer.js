@@ -516,15 +516,6 @@ Polymer({
   },
 
   /**
-   * This Method set the selected Endpoint in currentComponentMetadata
-   * @param {String} endpointId endpoint id
-   * @private
-   */
-  _selectEndpoint: function (endpointId) {
-    this.set('currentComponentMetadata.endpointId', endpointId.split('_')[ 1 ]);
-  },
-
-  /**
    * Select an app in "Utilities" menu
    * @param {Event} e Event
    * @private
