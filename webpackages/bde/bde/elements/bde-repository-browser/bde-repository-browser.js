@@ -247,7 +247,7 @@ Polymer({
       this.set('cubbles', []);
     } else {
       this.set('cubbles', this.$.webblebase.lastResponse
-        .filter((i) => i.modelVersion.match(/8.3/) &&
+        .filter((i) => i.modelVersion.match(/9.1/) &&
         (i.artifactType === 'compoundComponent' ||
         i.artifactType === 'elementaryComponent')));
     }
