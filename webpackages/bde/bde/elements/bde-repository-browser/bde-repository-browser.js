@@ -12,12 +12,12 @@ Polymer({
      * The object data of the selected item from the Base.
      *
      * @type Object
-     * @property addedItem
+     * @property selectedItem
      */
-    addedItem: {
+    selectedItem: {
       type: Object,
       notify: true,
-      observer: 'handleAddedItem'
+      observer: 'handleSelectedItem'
     },
 
     /**
@@ -138,9 +138,9 @@ Polymer({
   /**
    * Closes the '#searchDialog' after selecting a component from the list.
    *
-   * @method handleAddedItem
+   * @method handleSelectedItem
    */
-  handleAddedItem: function () {
+  handleSelectedItem: function () {
     this.$.searchDialog.close();
   },
 
@@ -243,10 +243,10 @@ Polymer({
    */
   // TODO (erne-mt): use couchDB functionality for filtering certain document-attributes, like modelVersion...
   handleResponse: function (event) {
-    if (!Array.isArray(this.$.webblebase.lastResponse)) {
+    if (!Array.isArray(this.$.cubblesbase.lastResponse)) {
       this.set('cubbles', []);
     } else {
-      this.set('cubbles', this.$.webblebase.lastResponse
+      this.set('cubbles', this.$.cubblesbase.lastResponse
         .filter((i) => i.modelVersion.match(/9.1/) &&
         (i.artifactType === 'compoundComponent' ||
         i.artifactType === 'elementaryComponent')));

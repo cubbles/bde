@@ -78,7 +78,7 @@ Example:
         </style>
 
         <iron-ajax
-                id="webblebase"
+                id="cubblesbase"
                 url="{{url}}"
                 handle-as="json"
                 on-response="handleResponse"
@@ -109,9 +109,9 @@ Example:
 
             <paper-dialog-scrollable id="scroll" hidden="[[!filtered.length]]">
 
-                <iron-list id="list" class="flex" items="[[filtered]]" multi-selection>
+                <iron-list id="list" class="flex" items="[[filtered]]">
                     <template>
-                        <bde-repository-item item="{{item}}" last-item-selected="{{addedItem}}"
+                        <bde-repository-item item="{{item}}" last-item-selected="{{selectedItem}}"
                                              manifest="{{manifest}}" settings="[[settings]]"></bde-repository-item>
                     </template>
                 </iron-list>

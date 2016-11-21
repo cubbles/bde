@@ -61,7 +61,7 @@ Polymer({
   },
 
   /**
-   * Method gets the URL for the given component based on the retrieved metadata from initail search request.
+   * Method gets the URL for the given component based on the retrieved metadata from initial search request.
    *
    * @method getItemUrl
    * @param  {Object} item metadata of initail request
