@@ -13,18 +13,10 @@ Polymer({
       type: Boolean,
       value: false
     },
-    /**
-     * The manifest element
-     * @type Object
-     * @property manifest
-     */
-    manifest: {
-      type: Object
-    },
 
     /**
      * Metadata of the current element, which is beeing created via the BDE.
-     * It has the properties "manifest", "artifactId" and "endpointId".
+     * It has the properties "manifest", "artifactId".
      *
      * @type {Object}
      * @property currentComponentMetadata
@@ -35,7 +27,6 @@ Polymer({
       value: function () {
         return {
           artifactId: null,
-          endpointId: null,
           manifest: null
         };
       }
@@ -134,7 +125,6 @@ Polymer({
   },
 
   observers: [
-    '_manifestChanged(manifest.*)',
     '_selectedCompoundChanged(selectedCompound.*)',
     '_currentComponentMetadataChanged(currentComponentMetadata.*)',
     '_artifactIdChanged(currentComponentMetadata.artifactId)'
@@ -142,150 +132,38 @@ Polymer({
 
   listeners: {
     'bde_compound_select': '_handleBdeCompoundSelect',
-    'compoundSelector.iron-items-changed': '_handleCompoundItemsChanged'
+    'bde-manifest-loading': '_handleManifestLoaded'
   },
 
   /* ***************************************************************************/
   /* *************************** public methods ********************************/
   /* ***************************************************************************/
-  /**
-   * Open the dialog for add a new compound
-   */
-  addCompound: function () {
-    this.$.compoundCreator.open();
-  },
 
   /**
-   * Handler after the list of compounds is changed, and the dom-repeat template of the compound list is updated.
-   * @param {Event} e Event
+   * Reset the selection in the bde explorer
+   * @method resetSelection
    */
-  compoundListDomChange: function (e) {
-    // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
-    if (!this.$.compoundSelector.selected) {
-      this.$.compoundSelector.select(this.selectedCompound.artifactId);
-      // Fire own event, because iron-select handler not always received after initialisation.
-      // self-fired iron-select events also not received
-      this.fire('bde_compound_select', this.selectedCompound.artifactId);
-    }
-  },
-
-  /**
-   * Handler after the list of endpoints is changed, and the dom-repeat template of the compound list is updated.
-   * @param {Event} e Event
-   */
-  endpointTemplateDomChange: function (e) {
-    // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
-    if (this.selectedCompound) {
-      this.$.compoundSelector.select(this.selectedCompound.artifactId);
-      // Fire own event, because iron-select handler not always received after initialisation.
-      // self-fired iron-select events also not received
-      this.fire('bde_compound_select', this.selectedCompound.artifactId);
-    }
-  },
-
-  /**
-   * Handler method for select an artifact or an endpoint.
-   * @param Event} e Event
-   */
-  explorerItemSelected: function (e) {
-    var item = e.detail.item;
-
-    if (item.dataset.artifactId && item.dataset.artifactId !== this.currentComponentMetadata.artifactId) {
-      this._deselectCompound();
-      this._selectCompound(item.dataset.artifactId, item.dataset.endpointId);
-      // If isArtifactIdEdited is true, no reset and autolayout for datafloview .
-      if (this.isArtifactIdEdited) {
-        this.set('isArtifactIdEdited', false);
-      } else {
-        this.fire('bde-current-artifact-change');
-      }
-    } else if (item.dataset.endpointId && item.dataset.endpointId !== this._createEndpointMenuItemId(this.currentComponentMetadata.artifactId, this.currentComponentMetadata.endpointId)) {
-      this._selectEndpoint(item.dataset.endpointId);
-    }
-  },
-
-  /**
-   * Handler method after added a new compound to the manifest.
-   * @param {Event} e Event
-   */
-  handleNewCompound: function (e) {
-    this.push('manifest.artifacts.compoundComponents', e.detail.value);
-    this.notifyPath('manifest.artifacts.compoundComponents', this.manifest.artifacts.compoundComponents.slice());
-  },
-
-  /**
-   * Open the compound details editor dialog.
-   * @param {Event} e Event
-   */
-  openCompoundDetails: function (e) {
-    e.stopPropagation();
-    this.$.explorerDetails.set('artifactType', 'compoundComponent');
-    this.$.explorerDetails.set('artifactIndex', parseInt(e.currentTarget.dataset.index));
-    this.$.explorerDetails.open();
-  },
-
-  /**
-   * Open the webpackage metainfo dialog.
-   * @param {Event} e Event
-   */
-  openWebpackageMetaInfo: function (e) {
-    this.$.webpackageMetaInfo.open();
-  },
-
-  /**
-   * Toggle the "Application" menu
-   */
-  toggleApps: function () {
-    if (this.toggleMenus) {
-      this._compoundsOpen = false;
-      this._elementariesOpen = false;
-      this._utilitiesOpen = false;
-    }
-    this._appsOpen = !this._appsOpen;
-  },
-
-    /**
-    * Toggle the "Compounds" menu
-    */
-  toggleCompounds: function () {
-    if (this.toggleMenus) {
-      this._appsOpen = false;
-      this._elementariesOpen = false;
-      this._utilitiesOpen = false;
-    }
-    this._compoundsOpen = !this._compoundsOpen;
-  },
-
-    /**
-    * Toggle the "Elementaries" menu
-    */
-  toggleElementaries: function () {
-    if (this.toggleMenus) {
-      this._appsOpen = false;
-      this._compoundsOpen = false;
-      this._utilitiesOpen = false;
-    }
-    this._elementariesOpen = !this._elementariesOpen;
-  },
-
-    /**
-    * Toggle the "Utilities" menu
-    */
-  toggleUtilities: function () {
-    if (this.toggleMenus) {
-      this._appsOpen = false;
-      this._compoundsOpen = false;
-      this._elementariesOpen = false;
-    }
-    this._utilitiesOpen = !this._utilitiesOpen;
+  resetSelection: function () {
+    this._deselectCompound();
   },
 
   /* ***************************************************************************/
   /* *************************** private methods *******************************/
   /* ***************************************************************************/
+
+  /**
+   * Open the dialog for add a new compound
+   * @method _addCompound
+   * @private
+   */
+  _addCompound: function () {
+    this.$.compoundCreator.open();
+  },
+
   /**
    * Handler method: called if the artifactId in currentComponentMetadata changed.
    * @param artifactId
+   * @method _artifactIdChanged
    * @private
    */
   _artifactIdChanged: function (artifactId) {
@@ -298,6 +176,7 @@ Polymer({
    * Calculate the toggle icon, depend on state.
    * @param {Boolean} state represents, if the dialog openened or not.
    * @returns {string} calculated icon
+   * @method _calculateToggleIcon
    * @private
    */
   _calculateToggleIcon: function (state) {
@@ -305,73 +184,53 @@ Polymer({
   },
 
   /**
-   * Create a unique string, which represents the endpoint in relation to the artifact.
-   * @param {String} artifactId artifact id
-   * @param {String} endpointId endpoint id
-   * @returns {string} a combination of artifact id and endpoint id separeted by "_"
+   * Handler after the list of compounds is changed, and the dom-repeat template of the compound list is updated.
+   * @param {Event} e dom-change event on compoundList
+   * @method _compoundListDomChange
    * @private
    */
-  _createEndpointMenuItemId: function (artifactId, endpointId) {
-    return artifactId + '_' + endpointId;
+  _compoundListDomChange: function (e) {
+    // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
+    this.debounce('compoundList_changed', function () {
+      if (e.target.id === 'compoundList' && !this.$.compoundSelector.selected) {
+        this.$.compoundSelector.select(this.selectedCompound.artifactId);
+        // Fire own event, because iron-select handler not always received after initialisation.
+        // self-fired iron-select events also not received
+        this.fire('bde_compound_select', this.selectedCompound.artifactId);
+      }
+    }, 50);
   },
 
   /**
-   * Create a unique id for the endpointmenu
-   * @param {String} artifactId artifact id
-   * @returns {string} a unique id for endpoints menu for the artifact.
-   * @private
-   */
-  _createIdForEndpointsMenu: function (artifactId) {
-    return 'endpoints_' + artifactId;
-  },
-
-  /**
-   * Create a unique id for the dom-repeat template in endpointmenu
-   * @param {String} artifactId artifact id
-   * @returns {string} a unique id for endpoints dom-repeate template for the artifact.
-   * @private
-   */
-  _createIdForEndpointsMenuTemplate: function (artifactId) {
-    return 'endpoints_template_' + artifactId;
-  },
-
-  /**
-   * Handle mathod for changes of currentComponentMetadta
+   * Tha handle method for changes of currentComponentMetadata
    * @param {Object} changeRecord the polymer change record
+   * @method _currentComponentMetadataChanged
    * @private
    */
   _currentComponentMetadataChanged: function (changeRecord) {
-    var regexpr = /(.*compoundComponents\.#\d+\.)(.*)/ig;
-    var matches = regexpr.exec(changeRecord.path);
-    if (matches) {
-      // Notify selectedCompound changes to the manifest
-      this.notifyPath(changeRecord.path.substr(changeRecord.path.indexOf('.') + 1), changeRecord.value);
-      var path = matches[ 2 ];
-      if (path) {
-        // set the selected Compound
-        this.set('selectedCompound.' + path, changeRecord.value);
+    if (this.selectedCompound) {
+      var compoundInManifest = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.selectedCompound.artifactId);
+      if (compoundInManifest) {
+        this.set('selectedCompound', compoundInManifest);
       }
     }
   },
 
   /**
    * Deselect all comounds.
+   * @method _deselectCompound
    * @private
    */
   _deselectCompound: function () {
     var menu = this.$$('#compoundSelector');
-    // menu.selected = null;
-    Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
-      subMenu.close();
-      Polymer.dom(subMenu).querySelector('paper-menu').selected = null;
-    });
+    menu.selected = null;
   },
-
   /**
    * Check, if a and b equals. Helper method for usage in polymer elements.
    * @param {*} a
    * @param {*} b
    * @returns {boolean} a and b equals
+   * @method _equals
    * @private
    */
   _equals: function (a, b) {
@@ -379,10 +238,31 @@ Polymer({
   },
 
   /**
+   * Handler method for select an compound.
+   * @param Event} e iron-select event (on compound artifact)
+   * @method _explorerCompoundSelected
+   * @private
+   */
+  _explorerCompoundSelected: function (e) {
+    var item = e.detail.item;
+
+    if (item.id && item.id !== this.currentComponentMetadata.artifactId) {
+      this._selectCompound(item.id);
+      // If isArtifactIdEdited is true, no reset and autolayout for dataflowview.
+      if (this.isArtifactIdEdited) {
+        this.set('isArtifactIdEdited', false);
+      } else {
+        this.fire('bde-current-artifact-change');
+      }
+    }
+  },
+
+  /**
    * Check if the groupId is defined.
    * Helper method for usage in polymer elements.
    * @param {*} groupId
    * @returns {boolean} true if groupId exists and not null.
+   * @method _groupIdDefined
    * @private
    */
   _groupIdDefined: function (groupId) {
@@ -395,12 +275,14 @@ Polymer({
   /**
    * event listener for own bde-compound-select evevt (fired after initialisation)
    * This event fired additional to iron-select, becouse iron-select can not always received by initialisation
-   * @param {Event} e Event
+   * @param {Event} e bde_compound_select event
+   * @method _handleBdeCompoundSelect
+   * @private
    */
   _handleBdeCompoundSelect: function (e) {
     var artifactId = e.detail;
 
-    var elem = this.$.compoundSelector.querySelector('[data-artifact-id = ' + artifactId + ']');
+    var elem = this.$.compoundSelector.querySelector('#' + artifactId);
     if (elem) {
       elem.is = 'compound';
     }
@@ -416,43 +298,46 @@ Polymer({
   },
 
   /**
-   * Handler method after iron-item-changed in the compound menu.
-   * @param {Event} event Event
+   * Handler method after added a new compound to the manifest.
+   * @param {Event} e change event on last-artifact-changed property
+   * @method _handleNewCompound
    * @private
    */
-  _handleCompoundItemsChanged: function (event) {
-    // find added paper-submenu and ignore added text nodes
-    var addedItem = event.detail.addedNodes.find((item) => item.tagName && item.tagName.toLowerCase() === 'paper-submenu');
-    if (addedItem && addedItem !== this.$.compoundSelector.selectedItem) {
-      this.$.compoundSelector.select(addedItem.dataset.artifactId);
-    }
+  _handleNewCompound: function (e) {
+    this.push('currentComponentMetadata.manifest.artifacts.compoundComponents', e.detail.value);
+    this.notifyPath('currentComponentMetadata.manifest.artifacts.compoundComponents', this.currentComponentMetadata.manifest.artifacts.compoundComponents.slice());
+    this.$.compoundSelector.select(e.detail.value.artifactId);
   },
 
   /**
-   * Handler method after manifest property changed
-   * @param changeRecord
+   * Open the compound details editor dialog.
+   * @param {Event} e tap event on gear by side of a compound
+   * @method _openCompoundDetails
    * @private
    */
-  _manifestChanged: function (changeRecord) {
-    var path = changeRecord.path.replace('manifest', 'currentComponentMetadata.manifest');
-    this.set(path, changeRecord.value);
-    if (this.selectedCompound) {
-      var compoundInManifest = this.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.selectedCompound.artifactId);
-      if (compoundInManifest) {
-        this.set('selectedCompound', compoundInManifest);
-      }
-    }
-    // if (this.manifest) {
-    //   var menu = this.$$('#compoundSelector');
-    //   // Polymer.dom(menu).querySelectorAll('paper-submenu').forEach(function (subMenu) {
-    //   //   subMenu.close();
-    //   // });
-    // }
+  _openCompoundDetails: function (e) {
+    e.stopPropagation();
+    this.$.explorerDetails.set('artifactType', 'compoundComponent');
+    // TODO check it
+    this.$.explorerDetails.set('artifactIndex', parseInt(e.currentTarget.dataset.index));
+    this.$.explorerDetails.open();
+  },
+
+  /**
+   * Open the webpackage metainfo dialog.
+   * @method _openWebpackageMetaInfo
+   * @param {Event} e tap event on gear of webpacakge
+   * @method _openWebpackageMetaInfo
+   * @private
+   */
+  _openWebpackageMetaInfo: function (e) {
+    this.$.webpackageMetaInfo.open();
   },
 
   /**
    * Select an app in "Applications" menu
-   * @param {Event} e Event
+   * @param {Event} e tap event on "Applications"
+   * @method _selectApp
    * @private
    */
   _selectApp: function (e) {
@@ -466,26 +351,21 @@ Polymer({
   /**
    * Select a compound in "Compounds" menu
    * @param {String} artifactId the artifactId
+   * @method _selectCompound
    * @private
    */
   _selectCompound: function (artifactId) {
     this.set('currentComponentMetadata.artifactId', artifactId);
-    var subMenu = this.$$('[data-artifact-id=' + artifactId + ']');
-    subMenu.open();
-    if (Polymer.dom(subMenu).querySelector('[data-endpoint-id]')) {
-      Polymer.dom(subMenu).querySelector('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
-    } else {
-      Polymer.dom(subMenu).querySelector('paper-menu').addEventListener('dom-change', function (e) {
-        e.target.closest('paper-menu').select(Polymer.dom(subMenu).querySelector('[data-endpoint-id]').dataset.endpointId);
-      });
+    if (this.currentComponentMetadata.manifest) {
+      var compound = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId);
+      this.set('selectedCompound', compound);
     }
-    var compound = this.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId);
-    this.set('selectedCompound', compound);
   },
 
   /**
    * Handler method if the selected compound changed.
    * @param {Object} changeRecord Polymer change record
+   * @method _selectedCompoundChanged
    * @private
    */
   _selectedCompoundChanged: function (changeRecord) {
@@ -504,7 +384,8 @@ Polymer({
 
   /**
    * Select an app in "Elementaries" menu
-   * @param {Event} e Event
+   * @param {Event} e tap event on "Elementaries"
+   * @method _selectElementary
    * @private
    */
   _selectElementary: function (e) {
@@ -517,7 +398,8 @@ Polymer({
 
   /**
    * Select an app in "Utilities" menu
-   * @param {Event} e Event
+   * @param {Event} e tap event on "Utilities"
+   * @method _selectUtility
    * @private
    */
   _selectUtility: function (e) {
@@ -526,6 +408,62 @@ Polymer({
     this.$.elementarySelector.select(item);
 
     this.fire('iron-select', { is: 'utility', item: item });
+  },
+
+  /**
+   * Toggle the "Application" menu
+   * @method _toggleApps
+   * @private
+   */
+  _toggleApps: function () {
+    if (this.toggleMenus) {
+      this._compoundsOpen = false;
+      this._elementariesOpen = false;
+      this._utilitiesOpen = false;
+    }
+    this._appsOpen = !this._appsOpen;
+  },
+
+  /**
+   * Toggle the "Compounds" menu
+   * @method _toggleCompounds
+   * @private
+   */
+  _toggleCompounds: function () {
+    if (this.toggleMenus) {
+      this._appsOpen = false;
+      this._elementariesOpen = false;
+      this._utilitiesOpen = false;
+    }
+    this._compoundsOpen = !this._compoundsOpen;
+  },
+
+  /**
+   * Toggle the "Elementaries" menu
+   * @method _toggleElementaries
+   * @private
+   */
+  _toggleElementaries: function () {
+    if (this.toggleMenus) {
+      this._appsOpen = false;
+      this._compoundsOpen = false;
+      this._utilitiesOpen = false;
+    }
+    this._elementariesOpen = !this._elementariesOpen;
+  },
+
+  /**
+   * Toggle the "Utilities" menu
+   * @method _toggleUtilities
+   * @private
+   */
+  _toggleUtilities: function () {
+    if (this.toggleMenus) {
+      this._appsOpen = false;
+      this._compoundsOpen = false;
+      this._elementariesOpen = false;
+    }
+    this._utilitiesOpen = !this._utilitiesOpen;
   }
 
 });

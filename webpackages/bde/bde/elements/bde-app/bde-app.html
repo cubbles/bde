@@ -235,7 +235,7 @@ Example:
         <bde-repository-browser
                 id="browser"
                 settings="[[settings]]"
-                url="[[computeBaseUrl(settings.baseUrl, settings.store, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
+                url="[[_computeBaseUrl(settings.baseUrl, settings.store, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
                 manifest="{{manifest}}"
                 selected-item="{{selectedArtifact}}">
         </bde-repository-browser>
@@ -263,7 +263,7 @@ Example:
                 <paper-icon-button id="compoundBtn"
                                    title="Load from base..."
                                    aria-label="compounds"
-                                   on-tap="getCompoundFromBase"
+                                   on-tap="_getCompoundFromBase"
                                    icon="icons:cloud-download"
                 ></paper-icon-button>
 
@@ -274,7 +274,7 @@ Example:
                                    on-tap="_openDeployDialog"
                 ></paper-icon-button>
 
-                <div class="storeSettingsZone" on-tap="storeSettingsBtnHandler">
+                <div class="storeSettingsZone" on-tap="_storeSettingsBtnHandler">
                     <span class="storeUrlText">[[settings.baseUrl]]/[[settings.store]]</span>
                     <paper-icon-button id="storeBtn"
                                        title="Change store..."
@@ -338,7 +338,6 @@ Example:
                                 disable-edge-swipe>
                 <div drawer>
                     <bde-explorer id="explorer"
-                                  manifest="{{manifest}}"
                                   selected-compound="{{selectedArtifact}}"
                                   current-component-metadata="{{currentComponentMetadata}}"
                     ></bde-explorer>

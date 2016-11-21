@@ -183,7 +183,7 @@
         payload.data = {};
         if (data) {
           Object.keys(data).forEach(function (key) {
-            if (key === 'manifest') {
+            if (key === 'manifest' && data[ key ]) {
               payload.data[ key ] = data[ key ].toValidManifest();
             } else {
               payload.data[ key ] = data[ key ];

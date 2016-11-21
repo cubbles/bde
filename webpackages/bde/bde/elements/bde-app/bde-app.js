@@ -1,10 +1,8 @@
 // @importedBy bde-app.html
 
 /* global XMLHttpRequest */
-
 (function () {
-  'use strict';
-
+  'strict mode';
   Polymer({
     is: 'bde-app',
 
@@ -21,8 +19,8 @@
         type: Object,
         value: function () {
           return {
-            manifest: null,
-            artifactId: null
+            manifest: this.manifest,
+            artifactId: 'new-compound'
           };
         },
         notify: true
@@ -73,7 +71,7 @@
       selectedPage: {
         type: String,
         value: 'dataflowView',
-        observer: 'selectedPageChanged'
+        observer: '_selectedPageChanged'
       },
 
       /**
@@ -132,10 +130,11 @@
 
     listeners: {
       'graph-needs-update': '_handleGraphUpdate',
-      'bde-manifest-loaded': 'handleLoaded',
-      'bde-manifest-loading': 'handleLoading',
-      'bde-member-loaded': 'handleLoaded',
-      'bde-member-loading': 'handleLoading',
+      'bde-manifest-loaded': '_handleLoaded',
+      'bde-manifest-loading': '_handleLoading',
+      'bde-member-loaded': '_handleLoaded',
+      'bde-member-loading': '_handleLoading',
+      'bde-new-manifest': '_handleNewManifest',
       'iron-select': '_handlePageSelect',
       'iron_deselect': '_handlePageDeselect',
       'bde-current-artifact-change': '_currentArtifactReset',
@@ -143,6 +142,10 @@
       'bde-current-artifact-id-edited': '_setIsCurrentArtifactIdEdited'
     },
 
+    observers: [
+      '_currentComponentMetadataChanged(currentComponentMetadata.*)',
+      '_manifestChanged(manifest.*)'
+    ],
     /* ********************************************************************/
     /* ************************* Lifecycle methods ************************/
     /* ********************************************************************/
@@ -160,7 +163,7 @@
 
       // Attach resize listener
       // (cannot use listeners for window events)
-      window.addEventListener('resize', this.handleResize.bind(this));
+      window.addEventListener('resize', this._handleResize.bind(this));
     },
 
     /**
@@ -171,9 +174,68 @@
     ready: function () {
       this._loadBdeVersion();
     },
+
     /* ********************************************************************/
     /* ************************** public methods **************************/
     /* ********************************************************************/
+
+    /**
+     * Manifest reset function.
+     *
+     * @method resetBDE
+     */
+    resetBDE: function () {
+      this.$.dataflowView.reset();
+      this.$.manifest.reset();
+    },
+
+    /* ********************************************************************/
+    /* ************************** private methods *************************/
+    /* ********************************************************************/
+
+    /**
+     * Handler for the open property of the about dialog.
+     *
+     * @method _aboutBtnHandler
+     * @private
+     */
+    _aboutBtnHandler: function () {
+      this.$.about.opened = !this.$.about.opened;
+    },
+
+    /**
+     * Sets the attibutes after tapping the applicationView button.
+     * @private
+     * @method _activateApp
+     */
+    _activateApp: function () {
+      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
+    },
+
+    /**
+     * Sets the attibutes after tapping the desigView button.
+     * @private
+     * @method _activateDesign
+     */
+    _activateDesign: function () {
+      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
+      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+    },
+
+    /**
+     * Sets the attibutes after tapping the dataflowView button.
+     * @private
+     * @method _activateFlow
+     */
+    _activateFlow: function () {
+      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
+      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+    },
+
     /**
      * Helper function to compute the baseURL for the repository-browser by the given parameters.
      *
@@ -181,9 +243,10 @@
      * @param  {[string]} store   [storename of the given store]
      * @param  {[string]} partial [appendix for the couchdb artifact search]
      * @return {[string]}         [complete url of the couchdb in the base]
-     * @method computeBaseUrl
+     * @method _computeBaseUrl
+     * @private
      */
-    computeBaseUrl: function (baseUrl, store, partial) {
+    _computeBaseUrl: function (baseUrl, store, partial) {
       if (!partial || typeof partial !== 'string') {
         throw new TypeError('`partial` must be a string');
       }
@@ -199,153 +262,116 @@
     },
 
     /**
-     * Callback function on-tap of a paper-button to load only compound components from the base, sets the value compoundOnly and opend the repository-browser element.
-     *
-     * @method getCompoundFromBase
-     */
-    getCompoundFromBase: function () {
-      this.$.browser.compoundOnly = true;
-      // this.$.parser.showCompoundMembers = true;
-      this.$.browser.toggleDialog();
-    },
-
-    /**
-     * Helper function to set the loading property to false after loading.
-     *
-     * @method handleLoaded
-     */
-    handleLoaded: function () {
-      this.loading = false;
-    },
-
-    /**
-     * Helper function for loading of the BDE, set loading property to true.
-     *
-     * @method handleLoading
-     */
-    handleLoading: function () {
-      this.loading = true;
-    },
-
-    /**
-     * Helper function, which changes the width and height on change of the window.
-     * @param  {[Event]} event [windo change event]
-     * @method handleResize
-     */
-    handleResize: function (event) {
-      this.set('screenWidth', window.outerWidth);
-      this.set('screenHeight', window.outerHeight);
-    },
-
-    // loadManifest: function (manifest) {
-    //   this.$.manifest.loadManifest(manifest);
-    // },
-
-    /**
-     * Manifest reset function.
-     *
-     * @method resetBDE
-     */
-    resetBDE: function () {
-      this.$.dataflowView.reset();
-      this.$.manifest.reset();
-    },
-
-    /**
-     * Change handler for the current selected page, executed by iron-pages.
-     *
-     * @param  {[string]} newpage [the newly selected page]
-     * @param  {[string]} oldpage [the previous page]
-     * @method selectedPageChanged
-     */
-    selectedPageChanged: function (newpage, oldpage) {
-      if (!newpage) {
-        return;
-      }
-      if (newpage === 'dataflowView') {
-        this._activateFlow();
-      }
-    },
-    /**
-     * Handler for the open property of the settings dialog.
-     *
-     * @method storeSettingsBtnHandler
-     */
-    storeSettingsBtnHandler: function () {
-      this.$.storeSettings.opened = !this.$.storeSettings.opened;
-    },
-    /* ********************************************************************/
-    /* ************************** private methods *************************/
-
-    /* ********************************************************************/
-
-    /**
-     * Handler for the open property of the about dialog.
-     *
-     * @method _aboutBtnHandler
-     */
-    _aboutBtnHandler: function () {
-      this.$.about.opened = !this.$.about.opened;
-    },
-
-    /**
-     * Sets the attibutes after tapping the applicationView button.
-     */
-    _activateApp: function () {
-      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
-      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
-      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
-    },
-
-    /**
-     * Sets the attibutes after tapping the desigView button.
-     */
-    _activateDesign: function () {
-      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
-      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
-      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
-    },
-
-    /**
-     * Sets the attibutes after tapping the dataflowView button.
-     */
-    _activateFlow: function () {
-      this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
-      this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
-      this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
-    },
-
-    // deprecated ??
-    _computeAddComponent: function (sidebar) {
-      return (sidebar) ? 'push-right' : '';
-    },
-
-    _concatArray: function () {
-      return [].concat.apply(this, arguments);
-    },
-
-    /**
      * Handler for the open property of the confirmation dialog.
      *
      * @method _confirmationHandler
+     * @private
      */
     _confirmationHandler: function () {
       this.$.confirm.opened = !this.$.confirm.opened;
     },
 
     /**
+     * Handler Method for the event "bde-current-artifact-edited".
+     * Reset and reload the dataflowview.
+     * @private
+     * @method _currentArtifactReload
+     */
+    _currentArtifactReload: function () {
+      this._currentArtifactReset();
+      this.$.dataflowView.reload();
+    },
+
+    /**
+     * Handler Method for the event "bde-current-artifact-change".
+     * Reset the dataflowview.
+     * @private
+     * @method _currentArtifactReset
+     */
+    _currentArtifactReset: function () {
+      this.$.dataflowView.reset();
+      // this.$.dataflowView.set('autolayoutAfterRerender', true);
+    },
+
+    /**
+     * The handler method for currentMetadataChanged.
+     * Update the properties "manifest" and "selectedArtifact" with the changes.
+     * @param {Object} changeRecord the polymer change record
+     * @method _currentComponentMetadataChanged
+     * @private
+     */
+    _currentComponentMetadataChanged: function (changeRecord) {
+      if (changeRecord.path.indexOf('manifest') > -1) {
+        var regexpr = /(.*compoundComponents\.#\d+\.)(.*)/ig;
+        var matches = regexpr.exec(changeRecord.path);
+        if (matches) {
+          // Notify selectedCompound changes to the manifest
+          this.notifyPath(changeRecord.path.substr(changeRecord.path.indexOf('.') + 1), changeRecord.value);
+          var path = matches[ 2 ];
+          if (path) {
+            // set the changes in selected Compound
+            this.set('selectedArtifact.' + path, changeRecord.value);
+          }
+        }
+      }
+    },
+    /**
+     * Callback function on-tap of a paper-button to load only compound components from the base, sets the value compoundOnly and opend the repository-browser element.
+     *
+     * @method _getCompoundFromBase
+     * @private
+     */
+    _getCompoundFromBase: function () {
+      this.$.browser.compoundOnly = true;
+      // this.$.parser.showCompoundMembers = true;
+      this.$.browser.toggleDialog();
+    },
+
+    /**
      * Helper function to rerender the-graph element of the BDE included in the dataflowView.
      *
      * @method handleGraphUpdate
+     * @private
      */
     _handleGraphUpdate: function () {
       this.$.dataflowView.rerender();
     },
+
+    /**
+     * Helper function to set the loading property to false after loading.
+     *
+     * @method _handleLoaded
+     * @private
+     */
+    _handleLoaded: function () {
+      this.loading = false;
+    },
+
+    /**
+     * Helper function for loading of the BDE, set loading property to true.
+     *
+     * @method _handleLoading
+     * @private
+     */
+    _handleLoading: function () {
+      this.loading = true;
+    },
+
+    /**
+     * Handler method for change the bde-new-manifest event.
+     * @private
+     * @method _handleNewManifest
+     */
+    _handleNewManifest: function () {
+      this.$.explorer.resetSelection();
+    },
+
     /**
      * Helper function, for selecting a page to call the resizeView helper function.
      *
      * @param  {[Event]} event [onTapEvent]
      * @method _handlePageSelect
+     * @private
      */
     _handlePageSelect: function (event) {
       if (event.detail.item.id === 'dataflowView') {
@@ -354,9 +380,21 @@
     },
 
     /**
+     * Helper function, which changes the width and height on change of the window.
+     * @param  {[Event]} event [windo change event]
+     * @method _handleResize
+     * @private
+     */
+    _handleResize: function (event) {
+      this.set('screenWidth', window.outerWidth);
+      this.set('screenHeight', window.outerHeight);
+    },
+
+    /**
      * Handler for the open property of the helpPage dialog.
      *
      * @method _helpBtnHandler
+     * @private
      */
     _helpBtnHandler: function () {
       this.$.help.opened = !this.$.help.opened;
@@ -366,6 +404,7 @@
      * Init function to set the settings for the base.
      *
      * @method initializeDefaultSettings
+     * @private
      */
     _initializeDefaultSettings: function () {
       this.set('settings', {
@@ -379,6 +418,7 @@
      * NOTE: webserver configuration must allow this, as well it must serve the right directories.
      *
      * @method loadBdeVersion
+     * @private
      */
     _loadBdeVersion: function () {
       var xhr = new XMLHttpRequest();
@@ -396,27 +436,21 @@
     },
 
     /**
-     * Handler Method for the event "bde-current-artifact-edited".
-     * REset and reload the dataflowview.
+     * Handler method after manifest property changed.
+     * Update the property "currentComponentMetadata" with the changes.
+     * @param changeRecord
      * @private
      */
-    _currentArtifactReload: function () {
-      this._currentArtifactReset();
-      this.$.dataflowView.reload();
+    _manifestChanged: function (changeRecord) {
+      var path = changeRecord.path.replace('manifest', 'currentComponentMetadata.manifest');
+      this.set(path, changeRecord.value);
     },
-    /**
-     * Handler Method for the event "bde-current-artifact-change".
-     * Reset the dataflowview.
-      * @private
-     */
-    _currentArtifactReset: function () {
-      this.$.dataflowView.reset();
-      // this.$.dataflowView.set('autolayoutAfterRerender', true);
-    },
+
     /**
      * Handler function to create a new webpackage; calls resetBDE.
      *
      * @method newWebpackageBtnHandler
+     * @private
      */
     _newWebpackageBtnHandler: function () {
       this.resetBDE();
@@ -426,9 +460,27 @@
      * Handler for the open property of the base-deployment dialog.
      *
      * @method _openDeployDialog
+     * @private
      */
     _openDeployDialog: function () {
       this.$.deployDialog.opened = !this.$.deployDialog.opened;
+    },
+
+    /**
+     * Change handler for the current selected page, executed by iron-pages.
+     *
+     * @param  {[string]} newpage [the newly selected page]
+     * @param  {[string]} oldpage [the previous page]
+     * @method _selectedPageChanged
+     * @private
+     */
+    _selectedPageChanged: function (newpage, oldpage) {
+      if (!newpage) {
+        return;
+      }
+      if (newpage === 'dataflowView') {
+        this._activateFlow();
+      }
     },
 
     /**
@@ -436,13 +488,29 @@
      *
      * @param  {[String]} view [the current BDE view]
      * @method _resizeView
+     * @private
      */
     _resizeView: function (view) {
       view.handleResize();
     },
 
+    /**
+     * Handler method for the bde-current-artifact-id-edited event.
+     * @private
+     * @method _setIsCurrentArtifactIdEdited
+     */
     _setIsCurrentArtifactIdEdited: function () {
       this.$.explorer.set('isArtifactIdEdited', true);
+    },
+
+    /**
+     * Handler for the open property of the settings dialog.
+     *
+     * @method _storeSettingsBtnHandler
+     * @private
+     */
+    _storeSettingsBtnHandler: function () {
+      this.$.storeSettings.opened = !this.$.storeSettings.opened;
     }
   });
 })();

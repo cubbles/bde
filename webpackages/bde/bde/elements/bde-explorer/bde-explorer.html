@@ -15,16 +15,22 @@
 <link rel="import" href="bde-explorer-details.html"/>
 <link rel="import" href="bde-webpackage-meta-info.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-menu.html"/>
-<link rel="import" href="../../vendor/paper-menu/paper-submenu.html"/>
 <link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html"/>
 
 <!--
 `bde-explorer` is the management component for handling cubble packages
 
+ The current-component-metadata attribute contains the specified manifest data of the current compound component and the artifact id of the current compound.
+ THe selected-compound attribute contains the selected compound from the current manifest
 Example:
 
-    <bde-explorer></bde-explorer>
+    <bde-explorer
+       selected-compound="{{selectedArtifact}}"
+       current-component-metadata="{{currentComponentMetadata}}"
+    ></bde-explorer>
 
+@group BDE Custom Elements
+@element bde-explorer
 -->
 
 <dom-module id="bde-explorer">
@@ -62,10 +68,6 @@ Example:
                 background-color: var(--primary-background-color);
             }
 
-            .endpoint-item {
-                padding-left: 50px;
-            }
-
             .artifact {
                 padding-left: 30px;
             }
@@ -74,7 +76,7 @@ Example:
                 background-color: var(--explorer-background-color);
             }
 
-            .explorerItem, .endpoint-list-header {
+            .explorerItem {
                 min-height: 0 !important;
                 cursor: pointer;
                 font-family: 'Roboto', 'Noto', sans-serif;
@@ -104,11 +106,6 @@ Example:
                 margin-left: 15px;
                 --paper-item-icon-width: 30px;
                 cursor: pointer;
-            }
-
-            .explorerSubmenu {
-                padding-top: 0;
-                padding-bottom: 0;
             }
 
             .menuIconButton {
@@ -165,7 +162,7 @@ Example:
                 <paper-icon-button icon="icons:settings"
                                    class="menuIconButton"
                                    alt="Webpackage Meta Information"
-                                   on-tap="openWebpackageMetaInfo">
+                                   on-tap="_openWebpackageMetaInfo">
                 </paper-icon-button>
             </div>
             <div class="content">
@@ -180,7 +177,7 @@ Example:
         </div>
 
         <bde-compound-creator id="compoundCreator"
-                              on-last-artifact-changed="handleNewCompound"></bde-compound-creator>
+                              on-last-artifact-changed="_handleNewCompound"></bde-compound-creator>
         <bde-explorer-details id="explorerDetails"
                               artifact="{{selectedCompound}}"
                               manifest="{{manifest}}">
@@ -189,7 +186,7 @@ Example:
                                   manifest="{{manifest}}"></bde-webpackage-meta-info>
 
         <div collapse-opened$="[[_appsOpen]]">
-            <div class="container" tabindex="0" on-tap="toggleApps">
+            <div class="container" tabindex="0" on-tap="_toggleApps">
                 <span>Applications</span>
                 <span class="count">([[manifest.artifacts.apps.length]])</span>
                 <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
@@ -209,61 +206,39 @@ Example:
         </div>
 
         <div collapse-opened$="[[_compoundsOpen]]">
-            <div class="container" tabindex="0" on-tap="toggleCompounds">
+            <div class="container" tabindex="0" on-tap="_toggleCompounds">
                 <span>Compounds</span>
                 <span class="count">([[manifest.artifacts.compoundComponents.length]])</span>
                 <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_compoundsOpen)]]"></iron-icon>
             </div>
             <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
                 <paper-menu attr-for-selected="data-artifact-id"
-                            on-iron-select="explorerItemSelected"
+                            on-iron-select="_explorerCompoundSelected"
                             id="compoundSelector">
-                    <template is="dom-repeat" id="compoundList" on-dom-change="compoundListDomChange"
-                              items="{{manifest.artifacts.compoundComponents}}" as="compound">
-                        <paper-submenu data-artifact-id$="[[compound.artifactId]]">
-                            <!--<paper-icon-item class="menu-trigger">-->
-                            <paper-item class="menu-trigger artifact explorerItem" id$="[[compound.artifactId]]">
-                                <!--<iron-icon icon="icons:donut-small" item-icon></iron-icon>-->
-                                <paper-item-body>
-                                    <div>[[compound.artifactId]]</div>
-                                </paper-item-body>
-                                <paper-tooltip for$="[[compound.artifactId]]">
-                                    <div class="tooltip tooltip_title">[[compound.artifactId]]</div>
-                                    <div class="tooltip tooltip_details">[[compound.description]]</div>
-                                    <div class="tooltip tooltip_details">[[compound.members.length]] Members</div>
-                                </paper-tooltip>
-                                <paper-icon-button icon="icons:settings" alt="Settings"
-                                                   on-tap="openCompoundDetails"
-                                                   disabled$="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]"
-                                                   data-index$="[[index]]"
-                                                   class="menuIconButton">
-                                </paper-icon-button>
-                            </paper-item>
-                            <paper-menu attr-for-selected="data-endpoint-id"
-                                        class="menu-content sublist explorerSubmenu"
-                                        on-iron-select="explorerItemSelected">
-                                <template is="dom-repeat" items="[[compound.endpoints]]" as="endpoint"
-                                          id$="[[_createIdForEndpointsMenuTemplate(compound.artifactId)]]" on-dom-change="endpointTemplateDomChange">
-                                    <paper-item
-                                            data-endpoint-id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]"
-                                            class="endpoint-item explorerItem"
-                                            id$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">
-                                        <paper-item-body>
-                                            <div>[[endpoint.endpointId]]</div>
-                                        </paper-item-body>
-                                    </paper-item>
-                                    <paper-tooltip
-                                            for$="[[_createEndpointMenuItemId(compound.artifactId, endpoint.endpointId)]]">
-                                        <div class="tooltip tooltip_title">[[endpoint.endpointId]] (Endpoint)</div>
-                                        <div class="tooltip tooltip_details">[[endpoint.description]]</div>
-                                    </paper-tooltip>
-                                </template>
-                            </paper-menu>
-                        </paper-submenu>
+                    <template is="dom-repeat" id="compoundList" on-dom-change="_compoundListDomChange"
+                              items="{{currentComponentMetadata.manifest.artifacts.compoundComponents}}" as="compound">
+                        <paper-item class="menu-trigger artifact explorerItem" id$="[[compound.artifactId]]"
+                                    data-artifact-id$="[[compound.artifactId]]">
+                            <!--<iron-icon icon="icons:donut-small" item-icon></iron-icon>-->
+                            <paper-item-body>
+                                <div>[[compound.artifactId]]</div>
+                            </paper-item-body>
+                            <paper-tooltip for$="[[compound.artifactId]]">
+                                <div class="tooltip tooltip_title">[[compound.artifactId]]</div>
+                                <div class="tooltip tooltip_details">[[compound.description]]</div>
+                                <div class="tooltip tooltip_details">[[compound.members.length]] Members</div>
+                            </paper-tooltip>
+                            <paper-icon-button icon="icons:settings" alt="Settings"
+                                               on-tap="_openCompoundDetails"
+                                               disabled$="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]"
+                                               data-index$="[[index]]"
+                                               class="menuIconButton">
+                            </paper-icon-button>
+                        </paper-item>
                     </template>
                 </paper-menu>
 
-                <paper-icon-item class="addItem" on-tap="addCompound">
+                <paper-icon-item class="addItem" on-tap="_addCompound">
                     <iron-icon icon="icons:add" item-icon></iron-icon>
                     <paper-item-body>
                         <div>Add new compound</div>
@@ -274,7 +249,7 @@ Example:
 
 
         <div collapse-opened$="[[_elementariesOpen]]">
-            <div class="container" tabindex="0" on-tap="toggleElementaries">
+            <div class="container" tabindex="0" on-tap="_toggleElementaries">
                 <span>Elementaries</span>
                 <span class="count">([[manifest.artifacts.elementaryComponents.length]])</span>
                 <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_elementariesOpen)]]"></iron-icon>
@@ -294,7 +269,7 @@ Example:
 
         </div>
         <div collapse-opened$="[[_utilitiesOpen]]">
-            <div class="container" tabindex="0" on-tap="toggleUtilities">
+            <div class="container" tabindex="0" on-tap="_toggleUtilities">
                 <span>Utilities</span>
                 <span class="count">([[manifest.artifacts.utilities.length]])</span>
                 <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_utilitiesOpen)]]"></iron-icon>

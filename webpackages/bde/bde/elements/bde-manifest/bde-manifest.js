@@ -250,7 +250,7 @@ Polymer({
    */
   loadManifest: function (manifest) {
     this.fire('bde-manifest-loading');
-
+    this.fire('bde-new-manifest');
     Object.keys(manifest)
       .filter(function (key) {
         return ((key[ 0 ] !== '_') && (key !== 'arguments'));

@@ -44,6 +44,9 @@
    * @return {[type]}                          [description]
    */
   function _handleCurrentComponentMetadata (currentComponentMetadata) {
+    if (!currentComponentMetadata.manifest){
+      return;
+    }
     if (typeof currentComponentMetadata.manifest === 'string') {
       currentComponentMetadata.manifest = JSON.parse(currentComponentMetadata.manifest);
     }

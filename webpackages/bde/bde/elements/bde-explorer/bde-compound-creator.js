@@ -125,18 +125,15 @@ Polymer({
       artifactType: 'compoundComponent',
       description: null,
       runnables: [],
-      endpoints: [{
-        endpointId: 'main',
-        resources: [],
-        dependencies: []
-      }],
+      resources: [],
+      dependencies: [],
       slots: [],
       members: [],
       connections: [],
       inits: []
     };
 
-    Object.keys(obj).forEach((k) => { compound[k] = obj[k]; });
+    Object.keys(obj).forEach((k) => { compound[ k ] = obj[ k ]; });
 
     return compound;
   }
