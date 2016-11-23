@@ -81,7 +81,7 @@ Polymer({
   },
 
   addMemberToContainer: function (container, member) {
-    var element = document.createElement(this.trimComponentId(member.componentId));
+    var element = document.createElement(member.artifactId);
 
     Polymer.dom(container).appendChild(element);
     Polymer.dom(element).setAttribute('class', 'member style-scope bde-flexbox-layouter');
@@ -186,9 +186,6 @@ Polymer({
     var item = this.$$('.member-selected');
     if (item) item.style.flexShrink = value;
     this.templateChanged('flexShrinkChanged');
-  },
-  trimComponentId: function (componentId) {
-    return componentId.substring(componentId.indexOf('/') + 1);
   },
   addFlexbox: function () {
     var container = this.$$('#flexbox-container');
