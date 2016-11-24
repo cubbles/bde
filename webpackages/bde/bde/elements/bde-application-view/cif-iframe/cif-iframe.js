@@ -63,9 +63,8 @@
     var crcLoaderUrl = baseUrl + rteWebpackage + '/crc-loader/js/main.js';
     var webComponentsUrl = baseUrl + rteWebpackage + '/webcomponents/webcomponents-lite.js';
 
-    var webpackageId = currentComponentMetadata.manifest.name + '@' +
-      currentComponentMetadata.manifest.version + '/' +
-      currentComponentMetadata.artifactId;
+    var webpackageId = currentComponentMetadata.manifest.name + '@' + currentComponentMetadata.manifest.version;
+    var artifactId = currentComponentMetadata.artifactId;
     if (currentComponentMetadata.manifest.groupId && currentComponentMetadata.manifest.groupId.length > 0) {
       webpackageId = currentComponentMetadata.manifest.groupId + '.' + webpackageId;
     }
@@ -76,7 +75,8 @@
         allowAbsoluteResourceUrls: true,
         rootDependencies: [
           {
-            endpoint: webpackageId,
+            webpackageId: webpackageId,
+            artifactId: artifactId,
             manifest: currentComponentMetadata.manifest
           }
         ]
