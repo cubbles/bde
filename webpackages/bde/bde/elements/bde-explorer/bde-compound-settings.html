@@ -346,18 +346,6 @@ Example:
                         </div>
                     </iron-collapse>
                     </div>
-                    <!--</iron-collapse>-->
-                    <!--</div>-->
-                    <!--</template>-->
-                    <!--<paper-button raised class="itemActionButton"-->
-                    <!--on-tap="addNewItem"-->
-                    <!--data-path$="[[_createPath('endpoints')]]"-->
-                    <!--data-item-name="endpoint">-->
-                    <!--<iron-icon icon="icons:add" item-icon></iron-icon>-->
-                    <!--Add Endpoint</paper-item-body>-->
-                    <!--</paper-button>-->
-                    <!--</div>-->
-                    <!--</iron-collapse>-->
 
                     <!-- slots -->
                     <div tabindex="0"
@@ -392,9 +380,9 @@ Example:
                                         <div class="collapse-content collapse-item item-body">
                                             <paper-input label="Slot Id"
                                                          placeholder="Identifier for this slot item - unique within this component."
-                                                         pattern="^[a-z][a-zA-Z0-9-]*$"
+                                                         pattern="^[a-z][a-zA-Z0-9]*$"
                                                          required
-                                                         error-message="The slot id can contain letters, numbers or '-'. It should begin with a lowercase letter. (e.g. 'my-endpoint-1' or 'myEndpoint1')"
+                                                         error-message="The slot id can contain letters or numbers. It should begin with a lowercase letter. (e.g. 'text24' or 'mySlot')"
                                                          auto-validate
                                                          id$="{{_slotDomId(sloti)}}"
                                                          on-change="_slotIdChanged"

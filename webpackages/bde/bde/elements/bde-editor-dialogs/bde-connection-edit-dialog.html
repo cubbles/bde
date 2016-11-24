@@ -45,7 +45,14 @@
                 or <code>Hook Function</code>.</p>
             <paper-dialog-scrollable>
                 <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
-                    <paper-input label="Connection id" value="{{_connection.connectionId}}"></paper-input>
+                    <paper-input label="Connection id"
+                                 value="{{_connection.connectionId}}"
+                                 placeholder="Identifier for this connection item - unique within this compound component."
+                                 pattern="^[a-z][a-zA-Z0-9-:]*$"
+                                 required
+                                 error-message="The connection id can contain letters, numbers, '-' or ':'. It should begin with a lowercase letter. (e.g. 'slot-a:slot-b')"
+                                 auto-validate>
+                    </paper-input>
                     <paper-input label="Description" type="Text" value="{{_connection.description}}"></paper-input>
 
                     <paper-textarea label="Hook function"

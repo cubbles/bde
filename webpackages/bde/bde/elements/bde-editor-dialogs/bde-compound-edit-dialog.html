@@ -33,7 +33,14 @@
             <p>Set the <code>Artifact id</code> or <code>Description</code> of the compound here.</p>
             <paper-dialog-scrollable>
                 <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
-                    <paper-input label="Artifact id" value="{{_artifact.artifactId}}"></paper-input>
+                    <paper-input label="Artifact id"
+                                 value="{{_artifact.artifactId}}"
+                                 pattern="^[a-z0-9]+(-[a-z0-9]+)+$"
+                                 placeholder="A name for this artifact - unique within the webpackage."
+                                 required
+                                 auto-validate
+                                 error-message="The artifact id shoudld be lowercase and separated  by '-'. (e.g. 'my-artifact')">
+                    </paper-input>
                     <paper-input label="Description" type="Text" value="{{_artifact.description}}"></paper-input>
                 </form>
             </paper-dialog-scrollable>

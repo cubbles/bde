@@ -45,7 +45,13 @@
             <paper-dialog-scrollable>
                 <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
                     <paper-input label="Artifact id" readonly="true" value="[[_member.artifactId]]" disabled></paper-input>
-                    <paper-input label="Member id" value="{{_member.memberId}}"></paper-input>
+                    <paper-input label="Member id"
+                                 value="{{_member.memberId}}"
+                                 pattern="^[a-z][a-zA-Z0-9-]*$"
+                                 required
+                                 error-message="The member id can contain letters, numbers or '-'. (e.g. 'my-member-1' or 'myMember1)"
+                                 auto-validate>
+                    </paper-input>
                     <paper-input label="Display name" type="Text" value="{{_member.displayName}}"></paper-input>
                     <paper-input label="Description" type="Text" value="{{_member.description}}"></paper-input>
                 </form>

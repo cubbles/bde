@@ -53,7 +53,13 @@
                 <form is="iron-form" id="editMemberSlotInitForm" on-iron-form-presubmit="onPreSubmit">
                     <div hidden$="[[!ownSlot]]">
                         <p>Edit the slot properties <code>Slot id</code>, <code>Type</code> and <code>Description</code>.</p>
-                        <paper-input label="Slot id" value="{{_slot.slotId}}"></paper-input>
+                        <paper-input label="Slot id"
+                                     pattern="^[a-z][a-zA-Z0-9]*$"
+                                     required
+                                     auto-validate
+                                     error-message="The slot id can contain letters or numbers. It should begin with a lowercase letter. (e.g. 'text24' or 'mySlot')"
+                                     value="{{_slot.slotId}}">
+                        </paper-input>
                         <paper-dropdown-menu label="Type">
                             <!--selected="{{slot.type}}"   attr-for-selected="data-type"-->
                             <paper-listbox class="dropdown-content" selected="{{_slot.type}}"   attr-for-selected="data-type">
@@ -72,9 +78,12 @@
                         <p>Set the initial slot value here. Edit the properties <code>Initial value</code> and <code>Description</code></p>
                         <custom-validator id="validJson" validator-name="jsonValidator"></custom-validator>
                         <bde-textarea auto-validate
-                                      validator="jsonValidator" id="objectInitValue"
-                                      label="Initial Value" value="{{_initialiser.value}}"
-                        error-message="The Initial value must be a valid json."></bde-textarea>
+                                      validator="jsonValidator"
+                                      id="objectInitValue"
+                                      label="Initial Value"
+                                      value="{{_initialiser.value}}"
+                                      error-message="The Initial value must be a valid json.">
+                        </bde-textarea>
                         <paper-input label="Description of the initialisation" type="Text"
                                      value="{{_initialiser.description}}"></paper-input>
                     </div>
