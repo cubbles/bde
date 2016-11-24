@@ -15,7 +15,7 @@
       //   value: false
       // },
       /**
-       * The metadata of the current component with properies artifactId, endpointId and manifest object.
+       * The metadata of the current component with properies artifactId and manifest object.
        * @type Object
        */
       currentComponentMetadata: {
@@ -259,9 +259,6 @@
      * 2. resolve members
      * 3. init the graph
      * Resolved the member components
-     * @param {object} manifest the webpackage manifest
-     * @param {string} artifactId the current artifactId
-     * @param {string} endpointId the current endpointId
      */
     reload: function () {
       let manifest = this.currentComponentMetadata.manifest;
