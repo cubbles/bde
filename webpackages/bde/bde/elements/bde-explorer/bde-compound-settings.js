@@ -1,7 +1,7 @@
-// @importedBy bde-explorer-details.html
+// @importedBy bde-compound-settings.html
 /* global _*/
 Polymer({
-  is: 'bde-explorer-details',
+  is: 'bde-compound-settings',
   properties: {
 
     /**
@@ -424,11 +424,10 @@ Polymer({
           resources: [ { prod: '', dev: '' } ],
           dependencies: []
         };
-      case 'endpointResource':
+      case 'resource':
         return { prod: '', dev: '' };
-      case 'endpointDependency':
-        newIndex = this.get(path).length;
-        return '[groupId]/name@version/artifactId/endpoint' + newIndex;
+      case 'dependency':
+        return { artifactId: '' };
       case 'slot':
         return {
           slotId: 'slot' + this._editingArtifact.slots.length,

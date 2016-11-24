@@ -12,7 +12,7 @@
 <link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-styles/default-theme.html">
 <link rel="import" href="bde-compound-creator.html">
-<link rel="import" href="bde-explorer-details.html"/>
+<link rel="import" href="bde-compound-settings.html"/>
 <link rel="import" href="bde-webpackage-meta-info.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-menu.html"/>
 <link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html"/>
@@ -178,10 +178,10 @@ Example:
 
         <bde-compound-creator id="compoundCreator"
                               on-last-artifact-changed="_handleNewCompound"></bde-compound-creator>
-        <bde-explorer-details id="explorerDetails"
+        <bde-compound-settings id="compoundDetails"
                               artifact="{{selectedCompound}}"
                               manifest="{{manifest}}">
-        </bde-explorer-details>
+        </bde-compound-settings>
         <bde-webpackage-meta-info id="webpackageMetaInfo"
                                   manifest="{{manifest}}"></bde-webpackage-meta-info>
 

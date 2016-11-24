@@ -317,10 +317,10 @@ Polymer({
    */
   _openCompoundDetails: function (e) {
     e.stopPropagation();
-    this.$.explorerDetails.set('artifactType', 'compoundComponent');
+    this.$.compoundDetails.set('artifactType', 'compoundComponent');
     // TODO check it
-    this.$.explorerDetails.set('artifactIndex', parseInt(e.currentTarget.dataset.index));
-    this.$.explorerDetails.open();
+    this.$.compoundDetails.set('artifactIndex', parseInt(e.currentTarget.dataset.index));
+    this.$.compoundDetails.open();
   },
 
   /**

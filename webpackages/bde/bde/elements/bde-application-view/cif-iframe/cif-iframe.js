@@ -2,8 +2,7 @@
   'use strict';
 
   var crcRoot = document.querySelector('#crcRoot');
-  // (erne-mt) TODO: needs update ???
-  var rteWebpackage = 'cubx.core.rte@2.0.2';
+  var rteWebpackage = 'cubx.core.rte@2.1.0';
 
   // const DEBUG = false;
   // window.__console__ = window.console;
