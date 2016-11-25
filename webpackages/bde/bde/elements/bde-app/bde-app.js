@@ -186,6 +186,7 @@
      */
     resetBDE: function () {
       this.$.dataflowView.reset();
+      this.$.dataflowView.reload();
       this.$.manifest.reset();
     },
 

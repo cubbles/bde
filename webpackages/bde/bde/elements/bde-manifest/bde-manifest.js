@@ -299,7 +299,7 @@ Polymer({
    */
   reset: function () {
     var artifactId = this._createArtifactId();
-    this.set('name', 'new-webpackage');
+    this.set('name', this._createWebpacakgeName());
     this.set('groupId', null);
     this.set('version', '1.0.0-SNAPSHOT');
     this.set('modelVersion', '9.1.1');
@@ -321,18 +321,7 @@ Polymer({
         {
           artifactId: artifactId,
           description: 'component description...',
-          runnables: [
-            {
-              name: 'demo',
-              path: '/demo/index.html',
-              description: 'component demo...'
-            },
-            {
-              name: 'docs',
-              path: '/docs/index.html',
-              description: 'Dataflow of the component'
-            }
-          ],
+          runnables: [],
           resources: [],
           dependencies: [],
           slots: [],
@@ -354,6 +343,19 @@ Polymer({
   _createArtifactId: function () {
     var counter = this.get('createCounter');
     var id = 'new-compound-' + counter++;
+    this.set('createCounter', counter);
+    return id;
+  },
+
+  /**
+   * Create a defined artifactId String
+   *
+   * @return {[String]} [new artifactid]
+   * @method _createArtifactId
+   */
+  _createWebpacakgeName: function () {
+    var counter = this.get('createCounter');
+    var id = 'new-webpackage-' + counter++;
     this.set('createCounter', counter);
     return id;
   },

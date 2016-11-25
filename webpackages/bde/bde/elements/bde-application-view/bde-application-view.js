@@ -130,13 +130,16 @@
      *
      * @method currentComponentMetadata
      */
-    currentComponentMetadataChanged: function () {
+    currentComponentMetadataChanged: function (changeRecord) {
+      console.log('changeRecord',changeRecord);
       if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest ||
             !this.currentComponentMetadata.artifactId) {
         return;
       }
-
-      this.refreshApplication();
+      if (this.currentComponentMetadata.manifest.artifacts.compoundComponents &&
+          this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.currentComponentMetadata.artifactId)) {
+        this.refreshApplication();
+      }
     },
 
     /**
