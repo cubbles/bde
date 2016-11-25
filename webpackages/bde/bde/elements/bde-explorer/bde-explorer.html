@@ -157,7 +157,8 @@ Example:
         <div id="webpackageExplorerHeader">
             <div class="title">
                 <div>
-                    <span hidden="[[!_groupIdDefined(manifest.groupId)]]">[[manifest.groupId]].</span><span>[[manifest.name]]@[[manifest.version]]</span>
+                    <span hidden="[[!_groupIdDefined(currentComponentMetadata.manifest.groupId)]]">[[currentComponentMetadata.manifest.groupId]].</span>
+                    <span>[[currentComponentMetadata.manifest.name]]@[[currentComponentMetadata.manifest.version]]</span>
                 </div>
                 <paper-icon-button icon="icons:settings"
                                    class="menuIconButton"

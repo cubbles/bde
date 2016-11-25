@@ -33,7 +33,7 @@
             <h2>Compound properties</h2>
             <p>Set the <code>Artifact id</code> or <code>Description</code> of the compound here.</p>
             <paper-dialog-scrollable>
-                <form is="iron-form" on-iron-form-presubmit="_onPreSubmit">
+                <form is="iron-form" id="compoundEditForm" on-iron-form-presubmit="_onPreSubmit">
                     <custom-validator id="validArtifactId" validator-name="artifactIdValidator"></custom-validator>
                     <paper-input label="Artifact id"
                                  value="{{_artifact.artifactId}}"
@@ -47,7 +47,7 @@
                 </form>
             </paper-dialog-scrollable>
             <div class="buttons">
-                <paper-button dialog-confirm>Save</paper-button>
+                <paper-button on-tap="_validateAndSave">Save</paper-button>
                 <paper-button dialog-dismiss>Cancel</paper-button>
             </div>
         </paper-dialog>

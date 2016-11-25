@@ -54,9 +54,9 @@
                 <form is="iron-form" id="editMemberSlotInitForm" on-iron-form-presubmit="onPreSubmit">
                     <div hidden$="[[!ownSlot]]">
                         <p>Edit the slot properties <code>Slot id</code>, <code>Type</code> and <code>Description</code>.</p>
+                        <custom-validator id="validSlotId" validator-name="slotIdValidator"/>
                         <paper-input label="Slot id"
-                                     pattern="^[a-z][a-zA-Z0-9]*$"
-                                     required
+                                     validator="slotIdValidator"
                                      auto-validate
                                      error-message="The slot id can contain letters or numbers. It should begin with a lowercase letter. (e.g. 'text24' or 'mySlot')"
                                      value="{{_slot.slotId}}">

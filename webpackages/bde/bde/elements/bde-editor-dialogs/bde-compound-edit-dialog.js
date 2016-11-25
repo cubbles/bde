@@ -43,8 +43,22 @@ Polymer({
       value: function () {
         return {};
       }
+    },
+
+    /**
+     * Indicate, that the form is valid.
+     * @type Boolean
+     * @property _validForm
+     */
+    _validForm: {
+      type: Boolean,
+      value: true
     }
   },
+
+  observers: [
+    '_validFormChanged(_validForm)'
+  ],
 
   ready: function () {
     // Bind the validator functions
@@ -71,6 +85,7 @@ Polymer({
   _handleDialogOpened: function (event) {
     this.set('_artifact.artifactId', this.artifact.artifactId);
     this.set('_artifact.description', this.artifact.description);
+    this.set('_validForm', this.$.compoundEditForm.validate());
   },
   /**
    * Handle method fter dialog closed.
@@ -78,9 +93,7 @@ Polymer({
    * @private
    */
   _handleDialogClosed: function (event) {
-    if (event.detail.confirmed) {
-      this._save();
-    } else {
+    if (!event.detail.confirmed) {
       this._resetErrors();
     }
   },
@@ -92,19 +105,26 @@ Polymer({
   _resetErrors: function () {
     var inputElement = this.$$('[validator=artifactIdValidator]');
     inputElement.invalid = false;
+    this.set('_validForm',true);
   },
   /**
    * Save the changed properties of _artifact to artifact
    * @private
    */
-  _save: function () {
-    if (this._artifact.artifactId !== this.artifact.artifactId) {
-      // special handling for artifactId changes nessecary. If the artifactId changed, will the artifact selected without reset the graph and autolayout
-      this.fire('bde-current-artifact-id-edited');
-      this.set('artifact.artifactId', this._artifact.artifactId);
+  _validateAndSave: function () {
+    if (this.$.compoundEditForm.validate()) {
+      this.set('_validForm', true);
+      if (this._artifact.artifactId !== this.artifact.artifactId) {
+        // special handling for artifactId changes nessecary. If the artifactId changed, will the artifact selected without reset the graph and autolayout
+        this.fire('bde-current-artifact-id-edited');
+        this.set('artifact.artifactId', this._artifact.artifactId);
+      }
+      if (this._artifact.description !== this.artifact.description) {
+        this.set('artifact.description', this._artifact.description);
+      }
     }
-    if (this._artifact.description !== this.artifact.description) {
-      this.set('artifact.description', this._artifact.description);
+    else {
+      this.set('_validForm', false);
     }
   },
 
@@ -140,5 +160,12 @@ Polymer({
       }
     }
     return matches && unique;
+  },
+  /**
+   * Fit the dialog, if show or dissapear the Error message.
+   * @private
+   */
+  _validFormChanged: function () {
+    this.$.compoundDialog.fit();
   }
 });

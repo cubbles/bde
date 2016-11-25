@@ -121,6 +121,7 @@ Polymer({
    */
   _bindValidators: function () {
     this.$.validJson.validate = this._validateJson.bind(this);
+    this.$.validSlotId.validate = this._validateSlotId.bind(this);
   },
 
   /**
@@ -283,6 +284,16 @@ Polymer({
       }
     }
     return true;
+  },
+
+  _validateSlotId: function (value) {
+    if (this.ownSlot) {
+      var slotId = value;
+      var matches = slotId.match(/^[a-z][a-zA-Z0-9]*$/);
+      return value != null && value.trim().length > 0 && matches;
+    } else {
+      return true;
+    }
   },
   /**
    * Fit the dialog, if show or dissapear the Error message.
