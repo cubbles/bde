@@ -177,10 +177,11 @@ Example:
         </div>
 
         <bde-compound-creator id="compoundCreator"
-                              on-last-artifact-changed="_handleNewCompound"></bde-compound-creator>
+                              on-last-artifact-changed="_handleNewCompound"
+                              manifest="{{currentComponentMetadata.manifest}}"></bde-compound-creator>
         <bde-compound-settings id="compoundDetails"
                               artifact="{{selectedCompound}}"
-                              manifest="{{manifest}}">
+                              manifest="{{currentComponentMetadata.manifest}}">
         </bde-compound-settings>
         <bde-webpackage-meta-info id="webpackageMetaInfo"
                                   manifest="{{manifest}}"></bde-webpackage-meta-info>

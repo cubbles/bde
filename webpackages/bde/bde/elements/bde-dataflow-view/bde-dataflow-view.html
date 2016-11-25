@@ -93,10 +93,10 @@
 
         <div id="mainPanel" main>
             <bde-slot-edit-dialog id="bdeSlotEditDialog" always-on-top="true"
-                                  artifact="{{_artifact}}"></bde-slot-edit-dialog>
+                                  artifact="{{_artifact}}" ></bde-slot-edit-dialog>
             <bde-member-edit-dialog id="bdeMemberDialog" artifact="{{_artifact}}" member="{{member}}"
                                     dialog-opened="{{memberDialogOpened}}"></bde-member-edit-dialog>
-            <bde-compound-edit-dialog id="bdeCompoundDialog" artifact="{{_artifact}}"></bde-compound-edit-dialog>
+            <bde-compound-edit-dialog id="bdeCompoundDialog" artifact="{{_artifact}}" current-component-metadata="[[currentComponentMetadata]]"></bde-compound-edit-dialog>
             <bde-connection-edit-dialog id="bdeConnectionDialog"></bde-connection-edit-dialog>
             <!-- graph="{{graph}}"-->
             <bde-graph id="bdeGraph"

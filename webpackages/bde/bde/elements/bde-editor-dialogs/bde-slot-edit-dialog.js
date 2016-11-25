@@ -130,7 +130,6 @@ Polymer({
    * @private
    */
   _findInitializer: function (slot) {
-    // TODO für ownSlots anpassen
     var init;
     if (this.artifact.inits) {
       init = this.artifact.inits.find(function (init) {
@@ -195,7 +194,7 @@ Polymer({
     // this._initDataFormat();
     var init = this._findInitializer(this.slot);
     // Outputslot has no initialisation
-    if (this._slot.direction && this._slot.direction.length === 1 && this._slot.direction[0] === 'output') {
+    if (this._slot.direction && this._slot.direction.length === 1 && this._slot.direction[ 0 ] === 'output') {
       return;
     }
     if (!init) {
@@ -266,6 +265,7 @@ Polymer({
       this.set('_validForm', false);
     }
   },
+
   /**
    * Validate the input as a valid json.
    * @param {*} value

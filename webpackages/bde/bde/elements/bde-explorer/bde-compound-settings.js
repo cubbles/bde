@@ -360,6 +360,8 @@ Polymer({
   _bindValidators: function (event) {
     var validatorElement = this.querySelector('.validJson');
     validatorElement.validate = this._validateJson.bind(this);
+
+    this.$.componentValidArtifactId.validate = this._validateArtifactId.bind(this);
   },
 
   /**
@@ -741,8 +743,8 @@ Polymer({
   /**
    * Custom JSON validator, checks if the pattern of a JSON file matches.
    *
-   * @param  {[type]} value [description]
-   * @return {[Boolean]}       [result of the validation]
+   * @param  {*} value [description]
+   * @return {Boolean} result of the validation
    * @method _validateJson
    */
   _validateJson: function (value) {
@@ -759,6 +761,40 @@ Polymer({
     return true;
   },
 
+  /**
+   * Custom validator for validate artifactId.
+   *
+   * @param {string} value edited value
+   * @returns {Boolean} result of the validation
+   * @private
+   */
+  _validateArtifactId: function (value) {
+    var artifactId = value;
+    var matches = artifactId.match(/^[a-z0-9]+(-[a-z0-9]+)+$/);
+    var unique = true;
+
+    if (this.manifest && this.manifest.artifacts) {
+      var artifactsIds = [];
+      var artifacts = this.manifest.artifacts;
+
+      Object.keys(artifacts).forEach(function (artifactType) {
+        artifacts[ artifactType ].forEach(function (artifact) {
+          artifactsIds.push(artifact.artifactId);
+        });
+      });
+
+      var foundArtifactIds = artifactsIds.filter((id) => id === artifactId);
+
+      var index = foundArtifactIds.indexOf(this.artifact.artifactId);
+      if (index > -1) {
+        foundArtifactIds.splice(index, 1);
+      }
+      if (foundArtifactIds.length > 0) {
+        unique = false;
+      }
+    }
+    return matches && unique;
+  },
   /**
    * Helper function, fits the dialog to window.
    *

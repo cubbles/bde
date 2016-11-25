@@ -4,6 +4,7 @@
 <link rel="import" href="../../vendor/paper-dialog/paper-dialog.html"/>
 <link rel="import" href="../../vendor/paper-dialog-scrollable/paper-dialog-scrollable.html" />
 <link rel="import" href="../../vendor/iron-form/iron-form.html" />
+<link rel="import" href="../custom-validator/custom-validator.html" />
 
 <dom-module id="bde-compound-edit-dialog">
 
@@ -32,14 +33,15 @@
             <h2>Compound properties</h2>
             <p>Set the <code>Artifact id</code> or <code>Description</code> of the compound here.</p>
             <paper-dialog-scrollable>
-                <form is="iron-form" on-iron-form-presubmit="onPreSubmit">
+                <form is="iron-form" on-iron-form-presubmit="_onPreSubmit">
+                    <custom-validator id="validArtifactId" validator-name="artifactIdValidator"></custom-validator>
                     <paper-input label="Artifact id"
                                  value="{{_artifact.artifactId}}"
-                                 pattern="^[a-z0-9]+(-[a-z0-9]+)+$"
+                                 validator="artifactIdValidator"
                                  placeholder="A name for this artifact - unique within the webpackage."
                                  required
                                  auto-validate
-                                 error-message="The artifact id shoudld be lowercase and separated  by '-'. (e.g. 'my-artifact')">
+                                 error-message="The artifact id must be unique, and it must be lowercase and separated  by '-'. (e.g. 'my-artifact')">
                     </paper-input>
                     <paper-input label="Description" type="Text" value="{{_artifact.description}}"></paper-input>
                 </form>

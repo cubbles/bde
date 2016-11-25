@@ -1,0 +1,41 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-validator-behavior/iron-validator-behavior.html">
+<!--
+ A custom validator element. Used for bde-text-area and paper-input elements.
+ Example
+    <custom-validator id="validJson" validator-name="jsonValidator"></custom-validator>
+    <bde-textarea auto-validate
+                  validator="jsonValidator"
+                  id="objectInitValue"
+                  label="Initial Value"
+                  value="{{_initialiser.value}}"
+                  error-message="The Initial value must be a valid json.">
+    </bde-textarea>
+
+  Bind the validator function to the internal validate function in the element that use internal the custom tag:
+  Polymer({
+      is: 'my-elment,
+      ready: function() {
+        this.$.validJson.validate = this._validateJson.bind(this);
+      },
+      _validateJson: function(value){
+            // code for validate return with true or false
+      }
+
+  })
+-->
+
+<dom-module id="custom-validator">
+<script>
+    Polymer({
+
+        is: 'custom-validator',
+
+        behaviors: [
+            Polymer.IronValidatorBehavior
+        ]
+
+    });
+
+</script>
+</dom-module>

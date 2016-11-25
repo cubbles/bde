@@ -14,6 +14,15 @@ Polymer({
     },
 
     /**
+     * The metadata of the current component with properies artifactId and manifest object.
+     * @type Object
+     */
+    currentComponentMetadata: {
+      type: Object,
+      notify: true
+    },
+
+    /**
      * property for dialog open.
      * @type Boolean
      * @default false
@@ -37,13 +46,21 @@ Polymer({
     }
   },
 
+  ready: function () {
+    // Bind the validator functions
+    this._bindValidators();
+  },
   /**
    * Stop send the form
    * @param event
    */
-  onPreSubmit: function (event) {
+  _onPreSubmit: function (event) {
     // Don't try to send the form
     event.preventDefault();
+  },
+
+  _bindValidators: function () {
+    this.$.validArtifactId.validate = this._validateArtifactId.bind(this);
   },
 
   /**
@@ -63,14 +80,24 @@ Polymer({
   _handleDialogClosed: function (event) {
     if (event.detail.confirmed) {
       this._save();
+    } else {
+      this._resetErrors();
     }
+  },
+
+  /**
+   * Reset the invalid property on validated elements
+   * @private
+   */
+  _resetErrors: function () {
+    var inputElement = this.$$('[validator=artifactIdValidator]');
+    inputElement.invalid = false;
   },
   /**
    * Save the changed properties of _artifact to artifact
    * @private
    */
   _save: function () {
-
     if (this._artifact.artifactId !== this.artifact.artifactId) {
       // special handling for artifactId changes nessecary. If the artifactId changed, will the artifact selected without reset the graph and autolayout
       this.fire('bde-current-artifact-id-edited');
@@ -79,5 +106,39 @@ Polymer({
     if (this._artifact.description !== this.artifact.description) {
       this.set('artifact.description', this._artifact.description);
     }
+  },
+
+  /**
+   * Custom validator for validate artifactId.
+   *
+   * @param {string} value edited value
+   * @returns {Boolean} result of the validation
+   * @private
+   */
+  _validateArtifactId: function (value) {
+    var artifactId = value;
+    var matches = artifactId.match(/^[a-z0-9]+(-[a-z0-9]+)+$/);
+    var unique = true;
+
+    if (this.currentComponentMetadata && this.currentComponentMetadata.manifest && this.currentComponentMetadata.manifest.artifacts) {
+      var artifactsIds = [];
+      var artifacts = this.currentComponentMetadata.manifest.artifacts;
+
+      Object.keys(artifacts).forEach(function (artifactType) {
+        artifacts[ artifactType ].forEach(function (artifact) {
+          artifactsIds.push(artifact.artifactId);
+        });
+      });
+
+      var arrayByUniqueArtifactIds = artifactsIds.filter((id) => id === artifactId);
+      var index = arrayByUniqueArtifactIds.indexOf(this.artifact.artifactId);
+      if (index > -1) {
+        arrayByUniqueArtifactIds.splice(index, 1);
+      }
+      if (arrayByUniqueArtifactIds.length > 0) {
+        unique = false;
+      }
+    }
+    return matches && unique;
   }
 });

@@ -4,6 +4,7 @@
 <link rel="import" href="../../vendor/paper-input/paper-input.html">
 <link rel="import" href="../../vendor/paper-input/paper-textarea.html">
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
+<link rel="import" href="../custom-validator/custom-validator.html" />
 
 <!--
 A BDE custom element, using a paper-dialog as an input-dialog to add a new compound-component to active project.
@@ -34,11 +35,12 @@ Example:
                     It can be used to reuse and recompose existing components in a new context.
                 </span>
                 <form is="iron-form" id="form">
+                    <custom-validator id="componentValidArtifactId" validator-name="artifactIdValidator"></custom-validator>
                     <paper-input id="artifactId"
                         name="artifactId"
                         label="artifact-id"
-                        pattern="^[a-z0-9]+(-[a-z0-9]+)+$"
-                        error-message="must contain a dash and no spaces"
+                        validator="artifactIdValidator"
+                        error-message="The artifact id must be unique, and it must be lowercase and separated  by '-'. (e.g. 'my-artifact')"
                         tabindex="0"
                         value=""
                         required></paper-input>
