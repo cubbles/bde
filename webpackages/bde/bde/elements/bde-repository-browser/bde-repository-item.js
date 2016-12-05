@@ -93,10 +93,8 @@ Polymer({
       url: this.getItemUrl(this.item),
       webpackageId: getWebpackageId(this.item)
     };
-
     this.set('lastItemSelected', artifact);
-    document.querySelector('#manifest').loadManifest(manifest);
-    // this.fire('bde-new-component-loaded');
+    this.fire('bde-load-manifest', manifest);
     return;
 
     function getWebpackageId (item) {

@@ -196,7 +196,7 @@ Example:
         </paper-dialog>
 
         <!-- New webpackage dialog -->
-        <paper-dialog id="confirm"
+        <paper-dialog id="confirmNewWebpackage"
                       exit-animation="fade-out-animation"
                       with-backdrop>
             <h2>Are You Sure?</h2>
@@ -236,8 +236,8 @@ Example:
                 id="browser"
                 settings="[[settings]]"
                 url="[[_computeBaseUrl(settings.baseUrl, settings.store, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
-                manifest="{{manifest}}"
-                selected-item="{{selectedArtifact}}">
+                current-component-metadata="{{currentComponentMetadata}}"
+        >
         </bde-repository-browser>
 
         <!-- bde spinner -->
@@ -253,7 +253,7 @@ Example:
                     <iron-icon icon="bde:cubbles"></iron-icon>
                     BDE
                 </a>
-                <paper-icon-button id="newWebpacakgeBtn"
+                <paper-icon-button id="newWebpackageBtn"
                                    title="Create new webpackage..."
                                    aria-label="newWebpackage"
                                    icon="editor:insert-drive-file"
@@ -338,7 +338,6 @@ Example:
                                 disable-edge-swipe>
                 <div drawer>
                     <bde-explorer id="explorer"
-                                  selected-compound="{{selectedArtifact}}"
                                   current-component-metadata="{{currentComponentMetadata}}"
                     ></bde-explorer>
                 </div>

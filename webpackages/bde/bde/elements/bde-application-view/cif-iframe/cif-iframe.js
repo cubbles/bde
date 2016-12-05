@@ -25,7 +25,6 @@
 
     switch (data.message) {
       case 'debug':
-        // console.log('got', data);
         break;
 
       case 'currentComponentMetadata':

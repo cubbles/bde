@@ -47,8 +47,7 @@ Polymer({
      * @property selectedCompound
      */
     selectedCompound: {
-      type: Object,
-      notify: true
+      type: Object
     },
 
     /**
@@ -126,7 +125,6 @@ Polymer({
 
   observers: [
     '_selectedCompoundChanged(selectedCompound.*)',
-    '_currentComponentMetadataChanged(currentComponentMetadata.*)',
     '_artifactIdChanged(currentComponentMetadata.artifactId)'
   ],
 
@@ -193,27 +191,12 @@ Polymer({
     // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
     this.debounce('compoundList_changed', function () {
       if (e.target.id === 'compoundList' && !this.$.compoundSelector.selected) {
-        this.$.compoundSelector.select(this.selectedCompound.artifactId);
+        this.$.compoundSelector.select(this.currentComponentMetadata.artifactId);
         // Fire own event, because iron-select handler not always received after initialisation.
         // self-fired iron-select events also not received
-        this.fire('bde_compound_select', this.selectedCompound.artifactId);
+        this.fire('bde_compound_select', this.currentComponentMetadata.artifactId);
       }
     }, 50);
-  },
-
-  /**
-   * Tha handle method for changes of currentComponentMetadata
-   * @param {Object} changeRecord the polymer change record
-   * @method _currentComponentMetadataChanged
-   * @private
-   */
-  _currentComponentMetadataChanged: function (changeRecord) {
-    if (this.selectedCompound) {
-      var compoundInManifest = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.selectedCompound.artifactId);
-      if (compoundInManifest) {
-        this.set('selectedCompound', compoundInManifest);
-      }
-    }
   },
 
   /**
@@ -234,6 +217,7 @@ Polymer({
    * @private
    */
   _equals: function (a, b) {
+    console.log('####################### a', a, 'b', b);
     return a === b;
   },
 
@@ -248,6 +232,10 @@ Polymer({
 
     if (item.id && item.id !== this.currentComponentMetadata.artifactId) {
       this._selectCompound(item.id);
+      var artifact = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.currentComponentMetadata.artifactId);
+      if (artifact) {
+        this.$.compoundDetails.set('artifact', artifact);
+      }
       // If isArtifactIdEdited is true, no reset and autolayout for dataflowview.
       if (this.isArtifactIdEdited) {
         this.set('isArtifactIdEdited', false);
@@ -356,30 +344,6 @@ Polymer({
    */
   _selectCompound: function (artifactId) {
     this.set('currentComponentMetadata.artifactId', artifactId);
-    if (this.currentComponentMetadata.manifest) {
-      var compound = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId);
-      this.set('selectedCompound', compound);
-    }
-  },
-
-  /**
-   * Handler method if the selected compound changed.
-   * @param {Object} changeRecord Polymer change record
-   * @method _selectedCompoundChanged
-   * @private
-   */
-  _selectedCompoundChanged: function (changeRecord) {
-    if (!changeRecord || !this.currentComponentMetadata.manifest) {
-      return;
-    }
-
-    var path = changeRecord.path;
-    var artifactPath = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(this.selectedCompound);
-    if (artifactPath) {
-      // Set in  currentComponentMetadata and notify changes
-      path = path.replace('selectedCompound', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + artifactPath);
-      this.set(path, changeRecord.value);
-    }
   },
 
   /**

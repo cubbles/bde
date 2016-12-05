@@ -93,7 +93,6 @@ Polymer({
 
       case 'loaded':
         this.loaded = true;
-        // console.log('`loaded` event from iframe');
         break;
 
       // NOTE: if you reload the frame, before the content is loaded, the url is 'about:blank' (sometimes || in Firefox)
@@ -131,12 +130,25 @@ Polymer({
    * @method currentComponentMetadata
    */
   currentComponentMetadataChanged: function (changeRecord) {
-    console.log('changeRecord', changeRecord);
     if (!this.currentComponentMetadata || !this.currentComponentMetadata.manifest || !this.currentComponentMetadata.artifactId) {
       return;
     }
-    if (this.currentComponentMetadata.manifest.artifacts.compoundComponents &&
-      this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.currentComponentMetadata.artifactId)) {
+    var needRefresh = false;
+    if (changeRecord.path === 'currentComponentMetadata.artifactId' || changeRecord.path === 'currentComponentMetadata.manifest' || changeRecord.path === 'currentComponentMetadata') {
+      needRefresh = true;
+    }
+    if (changeRecord.path.indexOf('currentComponentMetadata.manifest.artifacts.compoundComponents') > -1) {
+      // find the current selected artifact
+      var artifact = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === this.currentComponentMetadata.artifactId);
+      if (artifact) {
+        // Get the Polymer collectionid for the artofct
+        var key = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(artifact);
+        if (key && changeRecord.path.indexOf('currentComponentMetadata.manifest.artifacts.compoundComponents.' + key) > -1) {
+          needRefresh = true;
+        }
+      }
+    }
+    if (this.currentComponentMetadata.manifest.artifacts.compoundComponents && needRefresh) {
       this.refreshApplication();
     }
   },
@@ -147,16 +159,17 @@ Polymer({
    * @method refreshApplication
    */
   refreshApplication: function () {
-    this.currentComponentMetadata.settings = this.settings;
-
-    // NOTE: if you reload the frame, before the content is loaded, the url is 'about:blank' (sometimes || in Firefox)
-    // The solution:  on the very first time you must wait for the DOMContentReady-Event before reload the iframe
-    // The iframe sends a message, if catch the DOMContentReady event. See event handler "handleMessage"
-    if (this.firstDomLoaded) {
-      this.reloadIframe(() => {
-        this._postMessage('currentComponentMetadata', this.currentComponentMetadata);
-      });
-    }
+    this.debounce('refreshAppication', function () {
+      this.currentComponentMetadata.settings = this.settings;
+      // NOTE: if you reload the frame, before the content is loaded, the url is 'about:blank' (sometimes || in Firefox)
+      // The solution:  on the very first time you must wait for the DOMContentReady-Event before reload the iframe
+      // The iframe sends a message, if catch the DOMContentReady event. See event handler "handleMessage"
+      if (this.firstDomLoaded) {
+        this.reloadIframe(() => {
+          this._postMessage('currentComponentMetadata', this.currentComponentMetadata);
+        });
+      }
+    }, 100);
   },
 
   /**
@@ -199,5 +212,4 @@ Polymer({
       );
     }, 500);
   }
-
 });

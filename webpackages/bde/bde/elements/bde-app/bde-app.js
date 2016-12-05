@@ -96,16 +96,6 @@
       },
 
       /**
-       * Manifest metadata object for the selected compound component in the BDE.
-       *
-       * @type {Object}
-       * @property selectedArtifact
-       */
-      selectedArtifact: {
-        type: Object
-      },
-
-      /**
        * Boolean value indicating the loading of the application, overlays a paper-spinner if true otherwise hidden.
        *
        * @type {Object}
@@ -139,11 +129,12 @@
       'iron_deselect': '_handlePageDeselect',
       'bde-current-artifact-change': '_currentArtifactReset',
       'bde-current-artifact-edited': '_currentArtifactReload',
-      'bde-current-artifact-id-edited': '_setIsCurrentArtifactIdEdited'
+      'bde-current-artifact-id-edited': '_setIsCurrentArtifactIdEdited',
+      'bde-reset-webpackage-change': '_handleResetWebpackage',
+      'bde-load-manifest': '_loadManifest'
     },
 
     observers: [
-      '_currentComponentMetadataChanged(currentComponentMetadata.*)',
       '_manifestChanged(manifest.*)'
     ],
     /* ********************************************************************/
@@ -269,7 +260,7 @@
      * @private
      */
     _confirmationHandler: function () {
-      this.$.confirm.opened = !this.$.confirm.opened;
+      this.$.confirmNewWebpackage.opened = !this.$.confirmNewWebpackage.opened;
     },
 
     /**
@@ -295,36 +286,12 @@
     },
 
     /**
-     * The handler method for currentMetadataChanged.
-     * Update the properties "manifest" and "selectedArtifact" with the changes.
-     * @param {Object} changeRecord the polymer change record
-     * @method _currentComponentMetadataChanged
-     * @private
-     */
-    _currentComponentMetadataChanged: function (changeRecord) {
-      if (changeRecord.path.indexOf('manifest') > -1) {
-        var regexpr = /(.*compoundComponents\.#\d+\.)(.*)/ig;
-        var matches = regexpr.exec(changeRecord.path);
-        if (matches) {
-          // Notify selectedCompound changes to the manifest
-          this.notifyPath(changeRecord.path.substr(changeRecord.path.indexOf('.') + 1), changeRecord.value);
-          var path = matches[ 2 ];
-          if (path) {
-            // set the changes in selected Compound
-            this.set('selectedArtifact.' + path, changeRecord.value);
-          }
-        }
-      }
-    },
-    /**
      * Callback function on-tap of a paper-button to load only compound components from the base, sets the value compoundOnly and opend the repository-browser element.
      *
      * @method _getCompoundFromBase
      * @private
      */
     _getCompoundFromBase: function () {
-      this.$.browser.compoundOnly = true;
-      // this.$.parser.showCompoundMembers = true;
       this.$.browser.toggleDialog();
     },
 
@@ -379,7 +346,10 @@
         this._resizeView(event.detail.item);
       }
     },
-
+    _handleResetWebpackage: function (evt) {
+      var artifact = evt.detail;
+      this.set('currentComponentMetadata.artifactId', artifact.artifactId);
+    },
     /**
      * Helper function, which changes the width and height on change of the window.
      * @param  {[Event]} event [windo change event]
@@ -434,6 +404,16 @@
       }.bind(this);
       xhr.open('GET', '../manifest.webpackage', true);
       xhr.send();
+    },
+
+    /**
+     * Handler method for bde-load-manifest event. Trigger the bde-manifest to load the evnt detail transported new manifest.
+     * @param {Event} evt bde-load-manifest event
+     * @private
+     */
+    _loadManifest: function (evt) {
+      var manifest = evt.detail;
+      this.$.manifest.loadManifest(manifest);
     },
 
     /**

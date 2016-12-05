@@ -181,7 +181,6 @@ Example:
                               on-last-artifact-changed="_handleNewCompound"
                               manifest="{{currentComponentMetadata.manifest}}"></bde-compound-creator>
         <bde-compound-settings id="compoundDetails"
-                              artifact="{{selectedCompound}}"
                               manifest="{{currentComponentMetadata.manifest}}">
         </bde-compound-settings>
         <bde-webpackage-meta-info id="webpackageMetaInfo"
@@ -190,12 +189,12 @@ Example:
         <div collapse-opened$="[[_appsOpen]]">
             <div class="container" tabindex="0" on-tap="_toggleApps">
                 <span>Applications</span>
-                <span class="count">([[manifest.artifacts.apps.length]])</span>
+                <span class="count">([[currentComponentMetadata.manifest.artifacts.apps.length]])</span>
                 <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
             </div>
             <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
                 <template is="dom-repeat" id="appList"
-                          items="{{manifest.artifacts.apps}}" as="app">
+                          items="{{currentComponentMetadata.manifest.artifacts.apps}}" as="app">
                     <div class="explorerItem artifact" id$="[[app.artifactId]]">
                         <div>[[app.artifactId]]</div>
                         <paper-tooltip for$="[[app.artifactId]]">
@@ -210,7 +209,7 @@ Example:
         <div collapse-opened$="[[_compoundsOpen]]">
             <div class="container" tabindex="0" on-tap="_toggleCompounds">
                 <span>Compounds</span>
-                <span class="count">([[manifest.artifacts.compoundComponents.length]])</span>
+                <span class="count">([[currentComponentMetadata.manifest.artifacts.compoundComponents.length]])</span>
                 <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_compoundsOpen)]]"></iron-icon>
             </div>
             <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
@@ -230,9 +229,10 @@ Example:
                                 <div class="tooltip tooltip_details">[[compound.description]]</div>
                                 <div class="tooltip tooltip_details">[[compound.members.length]] Members</div>
                             </paper-tooltip>
+                            <br>
                             <paper-icon-button icon="icons:settings" alt="Settings"
                                                on-tap="_openCompoundDetails"
-                                               disabled$="[[!_equals(selectedCompound.artifactId, compound.artifactId)]]"
+                                               disabled$="[[!_equals(currentComponentMetadata.artifactId, compound.artifactId)]]"
                                                data-index$="[[index]]"
                                                class="menuIconButton">
                             </paper-icon-button>
@@ -253,12 +253,12 @@ Example:
         <div collapse-opened$="[[_elementariesOpen]]">
             <div class="container" tabindex="0" on-tap="_toggleElementaries">
                 <span>Elementaries</span>
-                <span class="count">([[manifest.artifacts.elementaryComponents.length]])</span>
+                <span class="count">([[currentComponentMetadata.manifest.artifacts.elementaryComponents.length]])</span>
                 <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_elementariesOpen)]]"></iron-icon>
             </div>
             <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
                 <template is="dom-repeat" id="elementaryList"
-                          items="{{manifest.artifacts.elementaryComponents}}" as="elementary">
+                          items="{{currentComponentMetadata.manifest.artifacts.elementaryComponents}}" as="elementary">
                     <div class="explorerItem artifact" id$="[[elementary.artifactId]]">
                         <div>[[elementary.artifactId]]</div>
                         <paper-tooltip for$="[[elementary.artifactId]]">
@@ -270,15 +270,16 @@ Example:
             </iron-collapse>
 
         </div>
+
         <div collapse-opened$="[[_utilitiesOpen]]">
             <div class="container" tabindex="0" on-tap="_toggleUtilities">
                 <span>Utilities</span>
-                <span class="count">([[manifest.artifacts.utilities.length]])</span>
+                <span class="count">([[currentComponentMetadata.manifest.artifacts.utilities.length]])</span>
                 <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_utilitiesOpen)]]"></iron-icon>
             </div>
             <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
                 <template is="dom-repeat" id="utilityList"
-                          items="{{manifest.artifacts.utilities}}" as="utility">
+                          items="{{currentComponentMetadata.manifest.artifacts.utilities}}" as="utility">
                     <div class="explorerItem artifact" id$="[[utility.artifactId]]">
                         <div>[[utility.artifactId]]</div>
                         <paper-tooltip for$="[[utility.artifactId]]">
@@ -289,10 +290,6 @@ Example:
                     </div>
                 </template>
 
-                <array-selector id="utilitySelector"
-                                items="{{manifest.artifacts.utilities}}"
-                                selected="{{selectedUtility}}">
-                </array-selector>
             </iron-collapse>
         </div>
     </template>

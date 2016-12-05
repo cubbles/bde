@@ -299,7 +299,7 @@ Polymer({
    */
   reset: function () {
     var artifactId = this._createArtifactId();
-    this.set('name', this._createWebpacakgeName());
+    this.set('name', this._createWebpackageName());
     this.set('groupId', null);
     this.set('version', '1.0.0-SNAPSHOT');
     this.set('modelVersion', '9.1.1');
@@ -331,7 +331,7 @@ Polymer({
         }
       ]
     });
-    document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[ 0 ]);
+    this.fire('bde-reset-webpackage-change', this.artifacts.compoundComponents[ 0 ]);
   },
 
   /**
@@ -353,7 +353,7 @@ Polymer({
    * @return {[String]} [new artifactid]
    * @method _createArtifactId
    */
-  _createWebpacakgeName: function () {
+  _createWebpackageName: function () {
     var counter = this.get('createCounter');
     var id = 'new-webpackage-' + counter++;
     this.set('createCounter', counter);

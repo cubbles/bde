@@ -17,7 +17,7 @@ Polymer({
     selectedItem: {
       type: Object,
       notify: true,
-      observer: 'handleSelectedItem'
+      observer: '_handleSelectedItem'
     },
 
     /**
@@ -63,25 +63,13 @@ Polymer({
     },
 
     /**
-     * Value to only search for compound components.
+     * Metadata of the current element, which is beeing created via the BDE.
+     * It has the properties "manifest", "artifactId".
      *
      * @type {Object}
-     * @property compoundOnly
+     * @property currentComponentMetadata
      */
-    compoundOnly: {
-      type: Boolean,
-      value: false,
-      notify: true,
-      observer: 'compoundOnlyChanged'
-    },
-
-    /**
-     * Webpackage metadata for the selected component.
-     *
-     * @type {Object}
-     * @property manifest
-     */
-    manifest: {
+    currentComponentMetadata: {
       type: Object,
       notify: true
     },
@@ -99,32 +87,9 @@ Polymer({
   },
 
   observers: [
-    'baseUrlChanged(settings.baseUrl)',
-    'storeChanged(settings.store)'
+    '_baseUrlChanged(settings.baseUrl)',
+    '_storeChanged(settings.store)'
   ],
-
-  /**
-   * Observer for the compoundOnly property. Sets searchTerm and filtered property.
-   *
-   * @method compoundOnlyChanged
-   */
-  compoundOnlyChanged: function () {
-    this.searchTerm = '';
-    this.filtered = [];
-  },
-
-  /**
-   * Computes the headers string, based on search method.
-   *
-   * @param  {[Boolean]} compoundOnly [Parameter for the selection of the return value.]
-   * @return {[String]}
-   * @method computeLabel
-   */
-  computeLabel: function (compoundOnly) {
-    return compoundOnly
-      ? 'Open Compound Component From Base'
-      : 'Find Cubble Component';
-  },
 
   /**
    * Toggles the display-attribute of the dialog-overlay of the '#searchDialog'.
@@ -138,9 +103,10 @@ Polymer({
   /**
    * Closes the '#searchDialog' after selecting a component from the list.
    *
-   * @method handleSelectedItem
+   * @method _handleSelectedItem
    */
-  handleSelectedItem: function () {
+  _handleSelectedItem: function () {
+    this.set('currentComponentMetadata.artifactId', this.selectedItem.artifactId);
     this.$.searchDialog.close();
   },
 
@@ -148,9 +114,9 @@ Polymer({
    * Handles the input of a search term in the input field and returns the filtered array matching the expression in the input. As well as resizing the dialog, based on search result.
    *
    * @param evt keyup-event
-   * @method handleInput
+   * @method _handleInput
    */
-  handleInput: function (evt) {
+  _handleInput: function (evt) {
     this.debounce('handleInput', function () {
       // for edge
       var searchString = evt.target.value || '';
@@ -164,10 +130,6 @@ Polymer({
       if (searchTerm.length === 0) {
         this.set('filtered', []);
         return;
-      }
-
-      if (this.compoundOnly) {
-        filtered = filtered.filter((i) => i.artifactType === 'compoundComponent');
       }
 
       filtered = filtered.filter((i) => i.artifactId.indexOf(searchTerm) !== -1);
@@ -239,17 +201,16 @@ Polymer({
    * Handles the initial AJAX response and applies a prefiltering of the result list.
    *
    * @param  {[Event]} event [Response of AJAX call.]
-   * @method handleResponse
+   * @method _handleResponse
    */
   // TODO (erne-mt): use couchDB functionality for filtering certain document-attributes, like modelVersion...
-  handleResponse: function (event) {
+  _handleResponse: function (event) {
     if (!Array.isArray(this.$.cubblesbase.lastResponse)) {
       this.set('cubbles', []);
     } else {
       this.set('cubbles', this.$.cubblesbase.lastResponse
         .filter((i) => i.modelVersion.match(/9.1/) &&
-        (i.artifactType === 'compoundComponent' ||
-        i.artifactType === 'elementaryComponent')));
+        (i.artifactType === 'compoundComponent')));
     }
   },
 
@@ -258,7 +219,7 @@ Polymer({
    *
    * @method clearInput
    */
-  clearInput: function () {
+  _clearInput: function () {
     this.$.baseSearch.value = '';
     this.filtered = [];
     this.$.baseSearch.focus();
@@ -268,20 +229,20 @@ Polymer({
    * Observer for changes in the baseUrl.
    *
    * @param  {[String]} baseUrl [the given baseUrl]
-   * @method baseUrlChanged
+   * @method _baseUrlChanged
    */
-  baseUrlChanged: function (baseUrl) {
-    this.resetSearch();
+  _baseUrlChanged: function (baseUrl) {
+    this._resetSearch();
   },
 
   /**
    * Observer for changes in teh storeName.
    *
    * @param  {[String]} store [the given storeName]
-   * @method storeChanged
+   * @method _storeChanged
    */
-  storeChanged: function (store) {
-    this.resetSearch();
+  _storeChanged: function (store) {
+    this._resetSearch();
   },
 
   /**
@@ -289,7 +250,7 @@ Polymer({
    *
    * @method resetSearch
    */
-  resetSearch: function () {
+  _resetSearch: function () {
     this.set('searchTerm', '');
     this.set('filtered', []);
   }

@@ -81,13 +81,13 @@ Example:
                 id="cubblesbase"
                 url="{{url}}"
                 handle-as="json"
-                on-response="handleResponse"
+                on-response="_handleResponse"
                 auto>
         </iron-ajax>
 
         <paper-dialog id="searchDialog" with-backdrop exit-animation="fade-out-animation">
 
-            <h2>{{computeLabel(compoundOnly)}}</h2>
+            <h2>Open Compound Component From Base</h2>
             <paper-badge label="{{filtered.length}}"></paper-badge>
 
             <paper-input
@@ -95,13 +95,13 @@ Example:
                     class="dialogHeader"
                     label="Search components in Base by name..."
                     value="{{searchTerm}}"
-                    on-input="handleInput"
+                    on-input="_handleInput"
                     autofocus>
                 <iron-icon icon="search" prefix></iron-icon>
                 <paper-icon-button
                         suffix
                         id="clearBtn"
-                        on-click="clearInput"
+                        on-click="_clearInput"
                         icon="clear"
                         title="clear Search">
                 </paper-icon-button>
