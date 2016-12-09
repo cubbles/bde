@@ -630,7 +630,7 @@
     },
 
     onGraphChanged: function (transaction, metadata) {
-      console.log('onGraphChanged', ...arguments);
+      // console.log('onGraphChanged', ...arguments);
     },
 
     onRemoveEdge: function (edge) {
@@ -715,7 +715,7 @@
     },
 
     onInportSelection: function (itemKey, metadata, toggle) {
-      console.log(' onInportSelection itemKey', itemKey, 'metadata', metadata, 'toggle', toggle);
+      // console.log(' onInportSelection itemKey', itemKey, 'metadata', metadata, 'toggle', toggle);
 
       var slot;
       var index;
@@ -770,7 +770,7 @@
     },
 
     onOutportSelection: function (itemKey, metadata, toggle) {
-      console.log('onOutportSelection temKey', itemKey, 'metadata', metadata, 'toggle', toggle);
+      // console.log('onOutportSelection temKey', itemKey, 'metadata', metadata, 'toggle', toggle);
       var slot;
       var index;
       var isSelected;
@@ -854,14 +854,16 @@
       if (isInputSlot && this._graph.inports[ slot.slotId ]) {
         return;
       }
-      var metadata = {
-        description: slot.description
-      };
+
       if (isInputSlot) {
-        this._graph.addInport(slot.slotId, slot.type, metadata);
+        this._graph.addInport(slot.slotId, slot.type, {
+          description: slot.description
+        });
       }
       if (isOutputSlot) {
-        this._graph.addOutport(slot.slotId, slot.type, metadata);
+        this._graph.addOutport(slot.slotId, slot.type, {
+          description: slot.description
+        });
       }
     },
 
@@ -1181,8 +1183,8 @@
     },
 
     _getConnectionForEdge: function (edge) {
-      console.log('_getConnectionForEdge this.connections', this.connections);
-      console.log('_getConnectionForEdge edge', edge);
+      // console.log('_getConnectionForEdge this.connections', this.connections);
+      // console.log('_getConnectionForEdge edge', edge);
       return this.connections.find(function (conn) {
         return conn.source.memberIdRef === edge.from.node &&
           conn.source.slot === edge.from.port &&
@@ -1349,7 +1351,7 @@
     },
 
     _editActionsChanged: function (changeRecord) {
-      console.log(changeRecord);
+      // console.log(changeRecord);
       if (changeRecord.path === 'editActions') { // the whole object changed
         var actionsObject = changeRecord.value;
         for (let action in actionsObject) {
@@ -1537,7 +1539,7 @@
     },
 
     _slotsChanged: function (changeRecord) {
-      console.log('##########_slotsChanged changeRecord', changeRecord);
+      // console.log('##########_slotsChanged changeRecord', changeRecord);
       var i, index, slot, path, key, value;
 
       if (!changeRecord) { return; }

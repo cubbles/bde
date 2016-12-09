@@ -126,7 +126,7 @@
         x: x,
         y: y,
         graph: this.props.graph,
-        itemKey: (this.props.export ? this.props.exportKey : null),
+        itemKey: (this.props.export ? this.props.exportKey.split('.')[1] : null),
         item: (this.props.export ? this.props.export : this.props.edge)
       });
     },

@@ -496,11 +496,15 @@
         if (!source && !target) { return; }
 
         // Handle connections to exported slots
+        let inport = false;
+        let outport = false;
         if (!source) {
           source = graph.inports[ edge.from.port ];
+          inport = true;
         }
 
         if (!target) {
+          outport = true;
           target = graph.outports[ edge.to.port ];
         }
 
@@ -510,25 +514,24 @@
         }
 
         // Initial ports from edgs, and give port top/last edge color
-        var sourcePort = self.getNodeOutport(graph, edge.from.node, edge.from.port, route, source.component);
-        var targetPort = self.getNodeInport(graph, edge.to.node, edge.to.port, route, target.component);
+        var sourcePort = self.getNodeOutport(graph, edge.from.node || source.id, edge.from.port, route, source.artifactId);
+        var targetPort = self.getNodeInport(graph, edge.to.node, edge.to.port || target.id, route, target.artifactId);
 
         var label, key;
 
-        if (!source.id) {
+        if (inport) {
           label = 'export in ' +
             edge.from.port.toUpperCase() +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
             edge.to.port.toUpperCase() +
-            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') +
-            edge.to.node;
+            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') + ' ' + target.id;
           key = 'inport.edge.' + edge.from.port;
-        } else if (!target.id) {
-          label = edge.from.node + ' ' +
+        } else if (outport) {
+          label = source.id + ' ' +
             edge.from.port.toUpperCase() +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
             edge.to.port.toUpperCase() +
-            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') +
+            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') + ' ' +
             'export out';
           key = 'outport.edge.' + edge.to.port;
         } else {
@@ -598,9 +601,7 @@
         // Export info
         var label = key;
         var icon = 'sign-in';
-        if (graph.outports[key]){
-          icon = 'exchange';
-        }
+
         var metadata = inport.metadata = TheGraph.merge({
           x: 0,
           y: 0,
@@ -617,7 +618,7 @@
         var expNode = {
           key: 'inport.node.' + key,
           export: inport,
-          exportKey: key,
+          exportKey: 'inport.' + key,
           x: metadata.x,
           y: metadata.y,
           width: metadata.width,
@@ -628,7 +629,7 @@
           graph: graph,
           node: {},
           selected: selected, // jtrs: added selected to inport node
-          onInportSelection: self.props.onInportSelection, // jhtrs: added onInportSelection
+          onInportSelection: self.props.onInportSelection, // jtrs: added onInportSelection
           ports: self.getGraphInport(key),
           isIn: true,
           icon: metadata.icon,
@@ -644,11 +645,10 @@
         // Export info
         var label = key;
         var icon = 'sign-out';
-        if (graph.inports[key]) {
-          icon = 'exchange';
-        }
+
         var metadata = outport.metadata = TheGraph.merge({
-          x: 0, y: 0,
+          x: 10,
+          y: 10,
           width: TheGraph.config.nodeWidth,
           height: TheGraph.config.nodeHeight,
           icon: icon
@@ -661,7 +661,7 @@
         var expNode = {
           key: 'outport.node.' + key,
           export: outport,
-          exportKey: key,
+          exportKey: 'outport.' + key,
           x: metadata.x,
           y: metadata.y,
           width: metadata.width,
