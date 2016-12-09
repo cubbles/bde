@@ -217,7 +217,6 @@ Polymer({
    * @private
    */
   _equals: function (a, b) {
-    console.log('####################### a', a, 'b', b);
     return a === b;
   },
 

@@ -1144,6 +1144,9 @@
             iconLabel: 'delete',
             action: function (graph, itemKey, item) {
               graph.removeInport(itemKey);
+              if (graph.outports[itemKey]) {
+                graph.removeOutport(itemKey);
+              }
             }
           }
         },
@@ -1161,6 +1164,9 @@
             iconLabel: 'delete',
             action: function (graph, itemKey, item) {
               graph.removeOutport(itemKey);
+              if (graph.inports[itemKey]) {
+                graph.removeInport(itemKey);
+              }
             }
           }
         },
@@ -1635,7 +1641,7 @@
       if (!slot.direction || slot.direction.includes('input')) {
         let oldPort = this._graph.inports[ oldSlot.slotId ];
         // TODO getEdges with old inport
-        let slotEdges = this._graph.edges.filter((edge) => (edge.from.port === oldSlot.slotId));
+        let slotEdges = this._graph.edges.filter((edge) => (edge.from.port === oldSlot.slotId && edge.from.node === undefined));
         this._addSlotToGraph(slot);
         let newPort = this._graph.inports[ slot.slotId ];
         newPort.metadata.x = oldPort.metadata.x;
@@ -1644,11 +1650,10 @@
           this._graph.addEdge(undefined, slot.slotId, edge.to.node, edge.to.port, edge.metadata);
           this._graph.removeEdge(undefined, oldSlot.slotId, edge.to.node, edge.to.port);
         });
-        this._graph.removeInport(oldSlot.slotId);
       }
       if (!slot.direction || slot.direction.includes('output')) {
         let oldPort = this._graph.outports[ oldSlot.slotId ];
-        let slotEdges = this._graph.edges.filter((edge) => (edge.to.port === oldSlot.slotId));
+        let slotEdges = this._graph.edges.filter((edge) => (edge.to.port === oldSlot.slotId && edge.to.node === undefined));
         this._addSlotToGraph(slot);
         let newPort = this._graph.outports[ slot.slotId ];
         newPort.metadata.x = oldPort.metadata.x;
@@ -1657,6 +1662,11 @@
           this._graph.addEdge(edge.from.node, edge.from.port, undefined, slot.slotId, edge.metadata);
           this._graph.removeEdge(edge.from.node, edge.from.port, undefined, oldSlot.slotId);
         });
+      }
+      if (!slot.direction || slot.direction.includes('input')) {
+        this._graph.removeInport(oldSlot.slotId);
+      }
+      if (!slot.direction || slot.direction.includes('output')) {
         this._graph.removeOutport(oldSlot.slotId);
       }
     }
