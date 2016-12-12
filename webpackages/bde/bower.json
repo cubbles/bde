@@ -35,7 +35,7 @@
     "paper-input": "polymerelements/paper-input#^1.1.17",
     "lodash": "^4.14.1",
     "react": "15.2.1",
-    "bde-graph": "https://github.com/cubbles/bde-graph.git#^2.0.0"
+    "bde-graph": "^2.0.8"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^4.3.0",
