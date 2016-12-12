@@ -304,6 +304,8 @@ Polymer({
    */
   _openCompoundDetails: function (e) {
     e.stopPropagation();
+    let artifact = this.currentComponentMetadata.manifest.artifacts.compoundComponents.find((artifact) => artifact.artifactId === this.currentComponentMetadata.artifactId);
+    this.$.compoundDetails.set('artifact', artifact);
     this.$.compoundDetails.set('artifactType', 'compoundComponent');
     // TODO check it
     this.$.compoundDetails.set('artifactIndex', parseInt(e.currentTarget.dataset.index));

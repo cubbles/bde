@@ -454,7 +454,7 @@
     this.checkTransactionStart();
     this.inports[ publicPort ] = {
       metadata: metadata,
-      id: 'inport.' + publicPort // jtrs: added id property
+      id: publicPort // jtrs: added id property
     };
     this.emit('addInport', publicPort, this.inports[ publicPort ]);
     return this.checkTransactionEnd();
@@ -540,7 +540,7 @@
     this.checkTransactionStart();
     this.outports[ publicPort ] = {
       metadata: metadata,
-      id: 'outport.' + publicPort // jtrs: added id property
+      id: publicPort // jtrs: added id property
     };
     this.emit('addOutport', publicPort, this.outports[ publicPort ]);
     return this.checkTransactionEnd();

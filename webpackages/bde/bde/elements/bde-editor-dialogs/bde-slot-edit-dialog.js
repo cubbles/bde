@@ -239,7 +239,13 @@ Polymer({
           let inits = this.artifact.inits.filter((init) => !init.memberIdRef && init.slot === this.slot.slotId);
           inits.forEach((init) => { init.slot = this._slot.slotId; });
         }
+        // check if an other slot exists with the same name, if exist, markd this slot for delete
+        var otherSlot = this.artifact.slots.find((s) => s.slotId === this._slot.slotId);
+        if (otherSlot) {
+          this.slot.markedForDelete = true;
+        }
         this.slot.slotId = this._slot.slotId;
+
         this.notifyPath('artifact.slots.' + slotPath + '.slotId', this._slot.slotId);
       }
 

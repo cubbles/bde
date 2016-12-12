@@ -134,7 +134,7 @@
       event.stopPropagation();
 
       var toggle = (event.detail.sourceEvent.metaKey || event.detail.sourceEvent.ctrlKey || event.type.startsWith('touch'));
-      this.props.onInportSelection(this.props.export.id.split('.')[1], this.props.export.metadata, toggle);
+      this.props.onInportSelection(this.props.export.id, this.props.export.metadata, toggle);
     },
     /**
      * Handler method for selct outport node
@@ -145,7 +145,7 @@
       event.stopPropagation();
 
       var toggle = (event.detail.sourceEvent.metaKey || event.detail.sourceEvent.ctrlKey || event.type.startsWith('touch'));
-      this.props.onOutportSelection(this.props.export.id.split('.')[1], this.props.export.metadata, toggle);
+      this.props.onOutportSelection(this.props.export.id, this.props.export.metadata, toggle);
     },
 
     onTrack: function (event) {
@@ -181,11 +181,10 @@
             x: this.props.export.metadata.x + deltaX,
             y: this.props.export.metadata.y + deltaY
           };
-          let key = this.props.exportKey.split('.')[1];
           if (this.props.isIn) {
-            this.props.graph.setInportMetadata(key, newPos);
+            this.props.graph.setInportMetadata(this.props.exportKey, newPos);
           } else {
-            this.props.graph.setOutportMetadata(key, newPos);
+            this.props.graph.setOutportMetadata(this.props.exportKey, newPos);
           }
         } else {
           this.props.graph.setNodeMetadata(this.props.nodeID, {
@@ -204,9 +203,9 @@
               y: Math.round(this.props.export.metadata.y / snap) * snap
             };
             if (this.props.isIn) {
-              this.props.graph.setInportMetadata(this.props.exportKey.split('.')[1], newPos);
+              this.props.graph.setInportMetadata(this.props.exportKey, newPos);
             } else {
-              this.props.graph.setOutportMetadata(this.props.exportKey.split('.')[1], newPos);
+              this.props.graph.setOutportMetadata(this.props.exportKey, newPos);
             }
           } else {
             this.props.graph.setNodeMetadata(this.props.nodeID, {
@@ -244,7 +243,7 @@
         x: x,
         y: y,
         graph: this.props.graph,
-        itemKey: (this.props.export ? this.props.exportKey.split('.')[1] : this.props.nodeID),
+        itemKey: (this.props.export ? this.props.exportKey: this.props.nodeID),
         item: (this.props.export ? this.props.export : this.props.node)
       });
     },
@@ -258,7 +257,7 @@
           menu: menu,
           options: options,
           triggerHideContext: hide,
-          label: this.props.exportKey.split('.')[0]
+          label: this.props.exportKey
         });
       }
 
@@ -379,7 +378,7 @@
       // Ports
       var keys;
       // var count;
-      var processKey = this.props.nodeID || this.props.exportKey;
+      var processKey = this.props.nodeID;
       var app = this.props.app;
       var graph = this.props.graph;
       var node = this.props.node;
@@ -557,8 +556,8 @@
         className: 'node drag' +
           (this.props.selected ? ' selected' : '') +
           (this.props.error ? ' error' : ''),
-        name: this.props.nodeID || this.props.exportKey,
-        key: this.props.nodeID || this.props.exportKey,
+        name: this.props.nodeID,
+        key: this.props.nodeID,
         title: label,
         transform: 'translate(' + x + ',' + y + ')'
       };

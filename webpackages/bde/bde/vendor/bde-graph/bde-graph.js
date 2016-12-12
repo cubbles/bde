@@ -591,13 +591,28 @@
 
     onAddInport: function (publicPort, port) {
       var slot = this._getSlotForPort(publicPort);
-      if (!slot) {
+      if (slot) {
+        if (slot.direction.indexOf('input') === -1) {
+          // this.splice('slots', this.slots.indexOf(slot), 1);
+          slot.direction.push('input');
+          // this.push('slots', slot);
+        }
+      } else {
         this.push('slots', {
           slotId: publicPort,
           type: port.metadata.type,
           description: port.metadata.description,
           direction: [ 'input' ]
         });
+      }
+      // some other slot with the same name but with attribute markedForDelete delete
+      // (you bring together an inüut and outputslot, and the edges are already reversed. No observer action desired)
+      let slotForDelete = this.slots.find(function (slot) {
+        return slot.slotId === publicPort && slot.markedForDelete;
+      });
+      if (slotForDelete) {
+        // Delete without notify because it is after correct handling
+        this.slots.splice(this.slots.indexOf(slotForDelete), 1);
       }
     },
 
@@ -615,9 +630,9 @@
       var slot = this._getSlotForPort(publicPort);
       if (slot) {
         if (slot.direction.indexOf('output') === -1) {
-          this.splice('slots', this.slots.indexOf(slot), 1);
+          // this.splice('slots', this.slots.indexOf(slot), 1);
           slot.direction.push('output');
-          this.push('slots', slot);
+          // this.push('slots', slot);
         }
       } else {
         this.push('slots', {
@@ -626,6 +641,13 @@
           description: port.metadata.description,
           direction: [ 'output' ]
         });
+      }
+      // some other slot with the same name but with attribute markedForDelete delete
+      let slotForDelete = this.slots.find(function (slot) {
+        return slot.slotId === publicPort && slot.markedForDelete;
+      });
+      if (slotForDelete) {
+        this.splice('slots', this.slots.indexOf(slotForDelete), 1);
       }
     },
 
@@ -1144,7 +1166,7 @@
             iconLabel: 'delete',
             action: function (graph, itemKey, item) {
               graph.removeInport(itemKey);
-              if (graph.outports[itemKey]) {
+              if (graph.outports[ itemKey ]) {
                 graph.removeOutport(itemKey);
               }
             }
@@ -1164,7 +1186,7 @@
             iconLabel: 'delete',
             action: function (graph, itemKey, item) {
               graph.removeOutport(itemKey);
-              if (graph.inports[itemKey]) {
+              if (graph.inports[ itemKey ]) {
                 graph.removeInport(itemKey);
               }
             }
@@ -1240,7 +1262,7 @@
 
     _getSlotForPort: function (publicPort) {
       return this.slots.find(function (slot) {
-        return slot.slotId === publicPort;
+        return slot.slotId === publicPort && !slot.markedForDelete;
       });
     },
 

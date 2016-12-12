@@ -514,8 +514,8 @@
         }
 
         // Initial ports from edgs, and give port top/last edge color
-        var sourcePort = self.getNodeOutport(graph, edge.from.node || source.id, edge.from.port, route, source.artifactId);
-        var targetPort = self.getNodeInport(graph, edge.to.node, edge.to.port || target.id, route, target.artifactId);
+        var sourcePort = self.getNodeOutport(graph, edge.from.node, edge.from.port, route, source.artifactId);
+        var targetPort = self.getNodeInport(graph, edge.to.node, edge.to.port, route, target.artifactId);
 
         var label, key;
 
@@ -618,7 +618,7 @@
         var expNode = {
           key: 'inport.node.' + key,
           export: inport,
-          exportKey: 'inport.' + key,
+          exportKey: key,
           x: metadata.x,
           y: metadata.y,
           width: metadata.width,
@@ -661,7 +661,7 @@
         var expNode = {
           key: 'outport.node.' + key,
           export: outport,
-          exportKey: 'outport.' + key,
+          exportKey: key,
           x: metadata.x,
           y: metadata.y,
           width: metadata.width,
