@@ -55,15 +55,35 @@ Polymer({
       notify: true
     },
 
-    /**
-     * This internal init object. The form save the data in this internal object. The values will tranfer to manifest just by save action.
-     * @type Object
-     * @property _initialiser
-     */
-    _initialiser: {
-      type: Object
-    },
+    // /**
+    //  * This internal init object. The form save the data in this internal object. The values will tranfer to manifest just by save action.
+    //  * @type Object
+    //  * @property _initialiser
+    //  */
+    // _initialiser: {
+    //   type: Object
+    // },
 
+    /**
+     * This a internal init description
+     */
+    _initDescription: {
+      type: String,
+      value: ''
+    },
+    /**
+     * This a internal init membrIdRef
+     */
+    _initMemberIdRef: {
+      type: String
+    },
+    /**
+     * This a internal init value
+     */
+    _initValue: {
+      type: String,
+      value: null
+    },
     /**
      * An internal _slot object
      * @type Object
@@ -150,33 +170,46 @@ Polymer({
     if (event.target !== event.currentTarget) {
       return;
     }
-    // Create a temporare initialiser object for the dialog
-    var newInitialiser = {
-
-      slot: this.slot.slotId,
-      description: '',
-      value: null
-    };
+    // // Create a temporare initialiser object for the dialog
+    // var newInitialiser = {
+    //
+    //   slot: this.slot.slotId,
+    //   description: '',
+    //   value: null
+    // };
 
     var init = this._findInitializer(this.slot);
     if (!this.ownSlot) {
-      newInitialiser.memberIdRef = this.memberId;
+      this.set('_initMemberIdRef', this.memberId);
+    } else {
+      this.set('_initMemberIdRef', null);
     }
 
     if (init && init.description) {
-      newInitialiser.description = init.description;
+      this.set('_initDescription', init.description);
+    } else {
+      this.set('_initDescription', '');
     }
     if (init && init.value) {
-      newInitialiser.value = init.value;
+      this.set('_initValue', init.value);
+    } else {
+      this.set('_initValue', null);
     }
-    this.set('_initialiser', newInitialiser);
     if (this.ownSlot) {
       this.set('_slot', JSON.parse(JSON.stringify(this.slot)));
     }
 
     this.set('_validForm', this.$.editMemberSlotInitForm.validate());
   },
-
+  _handleConfirmStoreNullValueDialogClosed: function (evt) {
+    if (evt.detail.confirmed) {
+      this._saveEditedInit();
+    }
+    if (this.ownSlot) {
+      this._saveEditedSlot();
+    }
+    this.$.confirmStoreNullValue.close();
+  },
   /**
    * Check, if the slot is an input slot.
    * @param {object} slot the slot object
@@ -191,27 +224,45 @@ Polymer({
    * Save the formular data. Add this.Initialiser property values to the corresponding artifact.inits object, or add anew init object.
    * @private
    */
-  _saveEditedInit: function () {
+  _checkForSaveInit: function () {
     // this._initDataFormat();
-    var init = this._findInitializer(this.slot);
+
     // Outputslot has no initialisation
     if (this._slot.direction && this._slot.direction.length === 1 && this._slot.direction[ 0 ] === 'output') {
       return;
     }
+
+    if (this._initValue === null) {
+      this.$.editDialog.close();
+      this.$.confirmStoreNullValue.open();
+    } else {
+      this._saveEditedInit();
+    }
+  },
+  _saveEditedInit: function () {
+    var init = this._findInitializer(this.slot);
     if (!init) {
-      if (this._initialiser.description.length === 0) {
-        delete this._initialiser.description;
+      // Create a temporare initialiser object for the dialog
+      var newInitialiser = {
+        slot: this.slot.slotId
+      };
+      if (this._initDescription.length !== 0) {
+        newInitialiser.description = this._initDescription;
       }
+      if (this._initMemberIdRef) {
+        newInitialiser.memberIdRef = this._initMemberIdRef;
+      }
+      newInitialiser.value = this._initValue;
       if (!this.artifact.inits) {
         this.set('artifact.inits', []);
       }
-      this.push('artifact.inits', this._initialiser);
+      this.push('artifact.inits', newInitialiser);
     } else {
       var path = Polymer.Collection.get(this.artifact.inits).getKey(init);
       if (this._initialiser.description && this._initialiser.description.length > 0) {
-        this.set('artifact.inits.' + path + '.description', this._initialiser.description);
+        this.set('artifact.inits.' + path + '.description', this._initDescription);
       }
-      this.set('artifact.inits.' + path + '.value', this._initialiser.value);
+      this.set('artifact.inits.' + path + '.value', this._initValue);
     }
   },
   /**
@@ -263,7 +314,7 @@ Polymer({
   _validateAndSave: function () {
     if (this.$.editMemberSlotInitForm.validate()) {
       this.set('_validForm', true);
-      this._saveEditedInit();
+      this._checkForSaveInit();
       if (this.ownSlot) {
         this._saveEditedSlot();
       }

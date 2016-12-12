@@ -630,9 +630,7 @@
       var slot = this._getSlotForPort(publicPort);
       if (slot) {
         if (slot.direction.indexOf('output') === -1) {
-          // this.splice('slots', this.slots.indexOf(slot), 1);
           slot.direction.push('output');
-          //this.push('slots', slot);
         }
       } else {
         this.push('slots', {
@@ -647,7 +645,7 @@
         return slot.slotId === publicPort && slot.markedForDelete;
       });
       if (slotForDelete) {
-        this.splice('slots', this.slots.indexOf(slotForDelete), 1);
+        this.slots.splice(this.slots.indexOf(slotForDelete), 1);
       }
     },
 
@@ -680,6 +678,12 @@
       if (slot.direction.length > 1) {
         slot.direction = [ 'output' ];
         this.push('slots', slot);
+      }
+
+      // remove inits
+      var init = this.inits.find((init) => init.slot === slot.slotId && slot.memberIdRef === undefined);
+      if (init) {
+        this.splice('inits', this.inits.indexOf(init), 1);
       }
     },
 
@@ -1424,7 +1428,7 @@
           // Inits were removed
           s.removed.forEach(function (init) {
             this._graph.removeInitial(init.memberIdRef, init.slot);
-          });
+          }.bind(this));
 
           // Inits were added
           for (let i = 0; i < s.addedCount; i++) {

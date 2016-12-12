@@ -47,6 +47,21 @@
                 background-color: #f2f2f2;
             }
         </style>
+        <paper-dialog id="confirmStoreNullValue"
+                      exit-animation="fade-out-animation"
+                      with-backdrop
+                      no-cancel-on-esc-key="true"
+                      opened="{{_confirmOpened}}"
+                      on-iron-overlay-closed="_handleConfirmStoreNullValueDialogClosed">
+            <h2>Do You Want To Save It?</h2>
+            <div>
+                <p>Do you want to save an initialization with value "null" for this slot?</p>
+            </div>
+            <div class="buttons">
+                <paper-button dialog-confirm raised>Yes</paper-button>
+                <paper-button dialog-dismiss raised autofocus>No</paper-button>
+            </div>
+        </paper-dialog>
         <paper-dialog id="editDialog" opened="{{dialogOpened}}" no-cancel-on-esc-key="true">
             <h2>Slot properties of <code>[[slot.slotId]]</code></h2>
             <p class="errorMessage" hidden="[[_validForm]]">Please correct the errors in the form</p>
@@ -82,11 +97,11 @@
                                       validator="jsonValidator"
                                       id="objectInitValue"
                                       label="Initial Value"
-                                      value="{{_initialiser.value}}"
+                                      value="{{_initValue}}"
                                       error-message="The Initial value must be a valid json.">
                         </bde-textarea>
                         <paper-input label="Description of the initialisation" type="Text"
-                                     value="{{_initialiser.description}}"></paper-input>
+                                     value="{{_initDescription}}"></paper-input>
                     </div>
                     <br>
                 </form>

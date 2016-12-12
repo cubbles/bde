@@ -27,12 +27,12 @@
     "url": "https://github.com/cubbles/bde-graph.git"
   },
   "homepage": "https://github.com/cubbles/bde-graph",
-  "version": "2.0.6",
-  "_release": "2.0.6",
+  "version": "2.0.7",
+  "_release": "2.0.7",
   "_resolution": {
     "type": "version",
-    "tag": "2.0.6",
-    "commit": "e4940df11a411d9ae6a6be8519a2d4a10999c4a6"
+    "tag": "2.0.7",
+    "commit": "326dee560e14bcada4756e2ad27d4a2276baabc4"
   },
   "_source": "https://github.com/cubbles/bde-graph.git",
   "_target": "^2.0.0",
