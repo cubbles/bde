@@ -1666,8 +1666,8 @@
     _updateSlotInGraph: function (slot, oldSlot) {
       if (!slot.direction || slot.direction.includes('input')) {
         let oldPort = this._graph.inports[ oldSlot.slotId ];
-        // TODO getEdges with old inport
-        let slotEdges = this._graph.edges.filter((edge) => (edge.from.port === oldSlot.slotId && edge.from.node === undefined));
+        // redirect edges
+        let slotEdges = this._graph.edges.filter((edge) => (edge.from.port === oldSlot.slotId));
         this._addSlotToGraph(slot);
         let newPort = this._graph.inports[ slot.slotId ];
         newPort.metadata.x = oldPort.metadata.x;
@@ -1679,7 +1679,7 @@
       }
       if (!slot.direction || slot.direction.includes('output')) {
         let oldPort = this._graph.outports[ oldSlot.slotId ];
-        let slotEdges = this._graph.edges.filter((edge) => (edge.to.port === oldSlot.slotId && edge.to.node === undefined));
+        let slotEdges = this._graph.edges.filter((edge) => (edge.to.port === oldSlot.slotId));
         this._addSlotToGraph(slot);
         let newPort = this._graph.outports[ slot.slotId ];
         newPort.metadata.x = oldPort.metadata.x;
