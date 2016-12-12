@@ -243,7 +243,7 @@
         x: x,
         y: y,
         graph: this.props.graph,
-        itemKey: (this.props.export ? this.props.exportKey: this.props.nodeID),
+        itemKey: (this.props.export ? this.props.exportKey : this.props.nodeID),
         item: (this.props.export ? this.props.export : this.props.node)
       });
     },
@@ -519,7 +519,8 @@
       );
       labelRectOptions = TheGraph.merge(TheGraph.config.node.labelRect, labelRectOptions);
       var labelRect = TheGraph.factories.node.createNodeLabelRect.call(this, labelRectOptions);
-      var labelGroup = TheGraph.factories.node.createNodeLabelGroup.call(this, TheGraph.config.node.labelBackground, [labelRect, labelText]);
+      var labelGroup = TheGraph.factories.node.createNodeLabelGroup.call(this, TheGraph.config.node.labelBackground, [ labelRect,
+        labelText ]);
 
       var sublabelTextOptions = TheGraph.merge(TheGraph.config.node.sublabelText, {
         x: this.props.width / 2,
@@ -539,7 +540,8 @@
       );
       sublabelRectOptions = TheGraph.merge(TheGraph.config.node.sublabelRect, sublabelRectOptions);
       var sublabelRect = TheGraph.factories.node.createNodeSublabelRect.call(this, sublabelRectOptions);
-      var sublabelGroup = TheGraph.factories.node.createNodeSublabelGroup.call(this, TheGraph.config.node.sublabelBackground, [sublabelRect, sublabelText]);
+      var sublabelGroup = TheGraph.factories.node.createNodeSublabelGroup.call(this, TheGraph.config.node.sublabelBackground, [ sublabelRect,
+        sublabelText ]);
 
       var nodeContents = [
         backgroundRect,

@@ -632,7 +632,7 @@
         if (slot.direction.indexOf('output') === -1) {
           // this.splice('slots', this.slots.indexOf(slot), 1);
           slot.direction.push('output');
-          // this.push('slots', slot);
+          //this.push('slots', slot);
         }
       } else {
         this.push('slots', {
@@ -1166,7 +1166,7 @@
             iconLabel: 'delete',
             action: function (graph, itemKey, item) {
               graph.removeInport(itemKey);
-              if (graph.outports[ itemKey ]) {
+              if (graph.outports[itemKey]) {
                 graph.removeOutport(itemKey);
               }
             }
@@ -1186,7 +1186,7 @@
             iconLabel: 'delete',
             action: function (graph, itemKey, item) {
               graph.removeOutport(itemKey);
-              if (graph.inports[ itemKey ]) {
+              if (graph.inports[itemKey]) {
                 graph.removeInport(itemKey);
               }
             }
