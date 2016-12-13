@@ -56,20 +56,19 @@ Polymer({
     },
 
     /**
-     * This a internal init description
+     * This is a internal init description
      */
     _initDescription: {
-      type: String,
-      value: ''
+      type: String
     },
     /**
-     * This a internal init membrIdRef
+     * This is a internal init membrIdRef
      */
     _initMemberIdRef: {
       type: String
     },
     /**
-     * This a internal init value
+     * This is a internal init value
      */
     _initValue: {
       type: String,
@@ -222,7 +221,6 @@ Polymer({
   _isInputSlot: function (slot) {
     return !slot.direction || slot.direction.includes('input');
   },
-
 
   _saveEditedInit: function () {
     var init = this._findInitializer(this.slot);

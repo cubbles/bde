@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slot Edit Dialog Demo</title>
+    <link rel="import" href="../../../../vendor/polymer/polymer.html"/>
+    <link rel="import" href="../../bde-slot-edit-dialog.html"/>
+    <link rel="import" href="../../../../vendor/paper-button/paper-button.html"/>
+    <link rel="import" href="../../../../vendor/paper-input/paper-input.html"/>
+    <link rel="import" href="../../../../vendor/paper-listbox/paper-listbox.html"/>
+    <link rel="import" href="../../../../vendor/paper-dropdown-menu/paper-dropdown-menu.html"/>
+    <link rel="import" href="../../../../vendor/paper-item/paper-item.html"/>
+    <link rel="import" href="../../../../vendor/paper-item/paper-item-body.html"/>
+    <style is="custom-style">
+        ul {
+            list-style: none;
+        }
+
+        li.title {
+            width: 30%;
+        }
+
+        li.action {
+            width: 50%;
+        }
+
+        li {
+            display: block;
+            margin: 10px;
+            float: left;
+
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .paramForm {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+<template is="dom-bind" id="app">
+    <bde-slot-edit-dialog id="bdeSlotEditDialog" always-on-top="true"></bde-slot-edit-dialog>
+
+    <h2>Define the parameter for slot-edit-dialog</h2>
+    <p>Select and edit values for get on slot-edit-dialog</p>
+    <div class="paramForm">
+        <paper-item>
+            <paper-item-body>
+                <paper-dropdown-menu id="type" label="Type">
+                    <paper-listbox class="dropdown-content" selected="string" attr-for-selected="data-type">
+                        <paper-item data-type="string">string</paper-item>
+                        <paper-item data-type="number">number</paper-item>
+                        <paper-item data-type="boolean">boolean</paper-item>
+                        <paper-item data-type="object">object</paper-item>
+                        <paper-item data-type="array">array</paper-item>
+                        <paper-item data-type="any">any</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+            </paper-item-body>
+        </paper-item>
+        <paper-item>
+            <paper-item-body>
+
+                <paper-input
+                        id="initValue"
+                        label="init value"
+                ></paper-input>
+            </paper-item-body>
+        </paper-item>
+        <paper-item>
+            <paper-item-body>
+                <paper-input
+                        id="initDescription"
+                        label="init description"
+                ></paper-input>
+            </paper-item-body>
+        </paper-item>
+
+        <paper-item>
+            <paper-item-body>
+                <span>Want you edit a member slot?</span>
+                <paper-checkbox id="member" on-change="asMemberChanged">as a member</paper-checkbox>
+            </paper-item-body>
+        </paper-item>
+        <paper-item>
+            <div>
+                <paper-item-body>
+                    <span>Direction:</span>
+                    <paper-checkbox id="input">input</paper-checkbox>
+                    <paper-checkbox id="output">output</paper-checkbox>
+                </paper-item-body>
+            </div>
+        </paper-item>
+    </div>
+
+
+    <h2>Open the dialog</h2>
+    <p>Open the slot-edit-dialog. Use the parameter from above.
+
+        <paper-button
+                raised
+                on-tap="openDialog">open
+        </paper-button>
+    </p>
+    <div class="clear"/>
+
+
+</template>
+<script src="../../../../vendor/lodash/lodash.js"></script>
+<script>
+    var app = document.querySelector('#app');
+    var artifact = {
+        artifactId: "test-comp",
+        slots: [
+            {
+                slotId: "test",
+                type: "string",
+                description: "Simbalasim"
+            }
+        ]
+    }
+
+    app.openDialog = function (evt) {
+        var comp = _.clone(artifact);
+        var type = app.$.type.selectedItem;
+        var init = app.$.initValue.value;
+        var memberId;
+        var compSlot = false;
+        if (app.$.member.checked) {
+            memberId = "member1";
+        } else {
+            compSlot = true;
+        }
+        if (app.$.input.checked){
+           if (!comp.slots[ 0 ].direction){
+               comp.slots[ 0 ].direction = [];
+           }
+           comp.slots[ 0 ].direction.push('input');
+        }
+        if (app.$.output.checked){
+            if (!comp.slots[ 0 ].direction){
+                comp.slots[ 0 ].direction = [];
+            }
+            comp.slots[ 0 ].direction.push('output');
+        }
+        var initDescription = app.$.initDescription.value;
+
+        if (type) {
+            comp.slots[ 0 ].type = type;
+        }
+
+        if (init) {
+            comp.inits = [
+                {
+                    slot: comp.slots[ 0 ].slotId,
+                    value: init
+                }
+            ]
+            if (memberId) {
+                comp.inits[ 0 ].memberIdRef = memberId;
+            }
+            if (initDescription) {
+                comp.inits[ 0 ].description = initDescription
+            }
+        }
+        app.$.bdeSlotEditDialog.set('artifact', comp);
+        app.$.bdeSlotEditDialog.set('slot', comp.slots[ 0 ]);
+        app.$.bdeSlotEditDialog.set('memberId', memberId);
+        app.$.bdeSlotEditDialog.set('ownSlot', compSlot);
+        app.$.bdeSlotEditDialog.set('dialogOpened', true);
+    };
+    app.asMemberChanged = function (evt) {
+        if (evt.target.checked){
+          app.$.output.setAttribute('disabled', true);
+        } else {
+            app.$.output.removeAttribute('disabled');
+        }
+    };
+
+
+</script>
+</body>
+</html>
