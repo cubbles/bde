@@ -92,32 +92,32 @@
                              value="{{_editingManifest.name}}">
                 </paper-input>
 
-                    <paper-input label="Group Id"
-                                 pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*"
-                                 placeholder="Use this to define/select a namespace for the webpackage (e.g. com.mycompany). Non-empty 'groupId' must start with the (reversed) author email-domain."
-                                 auto-validate
-                                 value="{{_editingManifest.groupId}}">
-                    </paper-input>
+                <paper-input label="Group Id"
+                             pattern="^([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*)(\.([a-z0-9]+||([a-z0-9]+[a-z0-9-][a-z0-9]+)*))*"
+                             placeholder="Use this to define/select a namespace for the webpackage (e.g. com.mycompany). Non-empty 'groupId' must start with the (reversed) author email-domain."
+                             auto-validate
+                             value="{{_editingManifest.groupId}}">
+                </paper-input>
 
-                    <paper-input label="Version"
-                                 pattern="^(\d+)(\.[\d]+){2}(-SNAPSHOT)?"
-                                 placeholder="Version number of the webpackage. (x.x.x or x.x.x-SNAPSHOT)"
-                                 auto-validate
-                                 error-message="The version of the webpackage is required. The version number should be composed from major, minor and patch number, and it optional can be marked as SNAPSHOT. (x.x.x or x.x.x-SNAPSHOT)"
-                                 required
-                                 value="{{_editingManifest.version}}">
-                    </paper-input>
+                <paper-input label="Version"
+                             pattern="^(\d+)(\.[\d]+)*(-SNAPSHOT)?$"
+                             placeholder="Version number of the webpackage. (x.x.x or x.x.x-SNAPSHOT)"
+                             auto-validate
+                             error-message="The version of the webpackage is required. The version number should be composed from major, minor and patch number, and it optional can be marked as SNAPSHOT. (x.x.x or x.x.x-SNAPSHOT)"
+                             required
+                             value="{{_editingManifest.version}}">
+                </paper-input>
 
-                    <paper-textarea label="Description"
-                                    placeholder="A short description of the webpackage"
-                                    value="{{_editingManifest.description}}">
-                    </paper-textarea>
+                <paper-textarea label="Description"
+                                placeholder="A short description of the webpackage"
+                                value="{{_editingManifest.description}}">
+                </paper-textarea>
 
-                    <paper-input label="Model Version"
-                                 title="Version of the webpackage specification"
-                                 readonly
-                                 value="{{_editingManifest.modelVersion}}">
-                    </paper-input>
+                <paper-input label="Model Version"
+                             title="Version of the webpackage specification"
+                             readonly
+                             value="{{_editingManifest.modelVersion}}">
+                </paper-input>
 
 
                 <div class="layout horizontal">
