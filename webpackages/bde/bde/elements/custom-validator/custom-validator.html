@@ -6,7 +6,7 @@
     <custom-validator id="validJson" validator-name="jsonValidator"></custom-validator>
     <bde-textarea auto-validate
                   validator="jsonValidator"
-                  id="objectInitValue"
+                  id="initValue"
                   label="Initial Value"
                   value="{{_initialiser.value}}"
                   error-message="The Initial value must be a valid json.">
@@ -16,9 +16,9 @@
   Polymer({
       is: 'my-elment,
       ready: function() {
-        this.$.validJson.validate = this._validateJson.bind(this);
+        this.$.validJson.validate = this._validateInitValue.bind(this);
       },
-      _validateJson: function(value){
+      _validateInitValue: function(value){
             // code for validate return with true or false
       }
 

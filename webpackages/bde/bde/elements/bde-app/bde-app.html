@@ -335,10 +335,19 @@ Example:
                                 hidden="[[loading]]"
                                 force-narrow="[[!showExplorer]]"
                                 disable-swipe
-                                disable-edge-swipe>
+                                disable-edge-swipe
+                                drawer-focus-selector="">
+                                <!-- set drawerFocusSelector to empty string :
+                                    Doku The CSS selector for the element that should receive focus when the drawer is open.
+                                    By default, when the drawer opens, it focuses the first tabbable element. That is, the first element that can receive focus.
+
+                                    To disable this behavior, you can set drawerFocusSelector to null or an empty string.
+                                -->
+
                 <div drawer>
                     <bde-explorer id="explorer"
                                   current-component-metadata="{{currentComponentMetadata}}"
+                                  resolutions="{{resolutions}}"
                     ></bde-explorer>
                 </div>
                 <div main>
@@ -349,6 +358,7 @@ Example:
                         <bde-dataflow-view id="dataflowView"
                                            current-component-metadata="{{currentComponentMetadata}}"
                                            settings="{{settings}}"
+                                           resolutions="{{resolutions}}"
                                            >
                         </bde-dataflow-view>
 

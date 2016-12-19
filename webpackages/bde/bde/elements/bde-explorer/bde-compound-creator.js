@@ -83,7 +83,7 @@ Polymer({
     this.opened = true;
   },
   /**
-   * Binds a custom validator to the _validateJson function.+
+   * Binds a custom validator to the _validateArtifactId function.
    *
    * @param  {[type]} event [description]
    * @method _bindValidators

@@ -96,13 +96,18 @@ Polymer({
   },
 
   listeners: {
-    'editDialog.iron-overlay-opened': '_handleDialogOpened'
+    'editDialog.iron-overlay-opened': '_handleDialogOpened',
+    'typeSelect.iron-select': '_handleTypeSelect',
+    'focus': 'onFocus'
   },
 
   observers: [
     '_validFormChanged(_validForm)'
   ],
 
+  onFocus: function (evt) {
+    console.log('onFocus:', evt.target);
+  },
   ready: function () {
     // Bind the validator functions
     this._bindValidators();
@@ -130,7 +135,7 @@ Polymer({
    * @private
    */
   _bindValidators: function () {
-    this.$.validJson.validate = this._validateJson.bind(this);
+    this.$.validValue.validate = this._validateInitValue.bind(this);
     this.$.validSlotId.validate = this._validateSlotId.bind(this);
   },
 
@@ -193,24 +198,37 @@ Polymer({
       this.set('_initDescription', '');
     }
     if (init && init.value) {
-      this.set('_initValue', init.value);
+      this.set('_initValue', JSON.stringify(init.value));
     } else {
       this.set('_initValue', null);
     }
     if (this.ownSlot) {
-      this.set('_slot', JSON.parse(JSON.stringify(this.slot)));
+      // If the slot not have the property type show type as any
+      let _slot = JSON.parse(JSON.stringify(this.slot));
+      if (!_slot.type) {
+        _slot.type = 'any';
+      }
+      this.set('_slot', _slot);
     }
 
     this.set('_validForm', this.$.editMemberSlotInitForm.validate());
   },
+  /**
+   * The handler method for close event of the confirm dialog. Handle save depends on answer.
+   * @param evt
+   * @private
+   */
   _handleConfirmStoreNullValueDialogClosed: function (evt) {
     if (evt.detail.confirmed) {
       this._saveEditedInit();
     }
-    if (this.ownSlot) {
-      this._saveEditedSlot();
-    }
+
     this.$.confirmStoreNullValue.close();
+  },
+
+  _handleTypeSelect: function (evt) {
+    var valid = this._validateInitValue(this._initValue);
+    this.$.initValue.invalid = !valid;
   },
   /**
    * Check, if the slot is an input slot.
@@ -235,7 +253,11 @@ Polymer({
       if (this._initMemberIdRef) {
         newInitialiser.memberIdRef = this._initMemberIdRef;
       }
-      newInitialiser.value = this._initValue;
+      try {
+        newInitialiser.value = JSON.parse(this._initValue);
+      } catch (err) {
+        console.err(err);
+      }
       if (!this.artifact.inits) {
         this.set('artifact.inits', []);
       }
@@ -245,7 +267,7 @@ Polymer({
       if (this._initDescription && this._initDescription.length > 0) {
         this.set('artifact.inits.' + path + '.description', this._initDescription);
       }
-      this.set('artifact.inits.' + path + '.value', this._initValue);
+      this.set('artifact.inits.' + path + '.value', JSON.parse(this._initValue));
     }
   },
   /**
@@ -256,14 +278,19 @@ Polymer({
     if (!_.isEqual(this.slot, this._slot)) {
       var slotIdChanged = false;
       var slotDescriptionChanged = false;
+      var slotTypeChanged = false;
       var slotPath;
       if (this.slot.slotId !== this._slot.slotId) {
         slotIdChanged = true;
       }
+      if (this.slot.type !== this._slot.type) {
+        slotTypeChanged = true;
+      }
+
       if (this._slot.description !== this.slot.description) {
         slotDescriptionChanged = true;
       }
-      if (slotIdChanged || slotDescriptionChanged) {
+      if (slotIdChanged || slotDescriptionChanged || slotTypeChanged) {
         let slot = this.artifact.slots.find((sl) => sl.slotId === this.slot.slotId);
         slotPath = new Polymer.Collection(this.artifact.slots).getKey(slot);
       }
@@ -279,10 +306,17 @@ Polymer({
           this.slot.markedForDelete = true;
         }
         this.slot.slotId = this._slot.slotId;
-
         this.notifyPath('artifact.slots.' + slotPath + '.slotId', this._slot.slotId);
       }
-
+      if (slotTypeChanged) {
+        if (this.slot.type && this._slot.type === 'any') { // if it will be  the type any choosed and the type property exists in the old slot object, it will be the property "type" deleted
+          delete this.slot.type;
+          this.notifyPath('artifact.slots.' + slotPath + '.type', this.slot.type);
+        } else if (this._slot.type) { // otherwise it will be setted if this._slot.type exists
+          this.slot.type = this._slot.type;
+          this.notifyPath('artifact.slots.' + slotPath + '.type', this.slot.type);
+        }
+      }
       if (slotDescriptionChanged) {
         this.slot.description = this._slot.description;
         this.notifyPath('artifact.slots.' + slotPath + '.description', this._slot.description);
@@ -313,17 +347,17 @@ Polymer({
    * @returns {boolean}
    * @private
    */
-  _validateJson: function (value) {
+  _validateInitValue: function (value) {
     // validation code
-    if (value && typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
-      try {
-        JSON.parse(value);
-        return true;
-      } catch (err) {
-        return false;
-      }
+    let parsedValue;
+    let validJSON = true;
+    try {
+      parsedValue = JSON.parse(value);
+    } catch (err) {
+      this.$.initValue.errorMessage = 'The init value must be valid json. (e.g. "Hallo World!" or { "label": "value"})';
+      validJSON = false;
     }
-    return true;
+    return validJSON && this._validateType(parsedValue);
   },
 
   _validateSlotId: function (value) {
@@ -334,6 +368,29 @@ Polymer({
     } else {
       return true;
     }
+  },
+
+  _validateType: function (value) {
+    if (!this.slot) {
+      return true;
+    }
+    // no type check if value is null or undefined
+    if (value === null || value === undefined) {
+      return true;
+    }
+
+    let parsedType = typeof value;
+    let type = this.ownSlot ? this._slot.type : this.slot.type;
+    // no type check for  type = any
+    if (type === 'any') {
+      return true;
+    }
+    if (type !== parsedType) {
+      this.$.initValue.errorMessage = 'The content has the type "' + parsedType + '", but the required slot type is "' + type + '".';
+      return false;
+    }
+
+    return true;
   },
   /**
    * Fit the dialog, if show or dissapear the Error message.

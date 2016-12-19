@@ -52,6 +52,15 @@
                 background-color: #f2f2f2;
             }
 
+            paper-input[readonly=true]{
+                --paper-input-container-underline: {
+                    display: none;
+                };
+                --paper-input-container-disabled: {
+                    opacity: 1;
+                };
+            }
+
         </style>
         <paper-dialog id="confirmStoreNullValue"
                       exit-animation="fade-out-animation"
@@ -84,33 +93,41 @@
                         </paper-input>
                         <paper-dropdown-menu label="Type">
                             <!--selected="{{slot.type}}"   attr-for-selected="data-type"-->
-                            <paper-listbox class="dropdown-content" selected="{{_slot.type}}"   attr-for-selected="data-type">
+                            <paper-listbox id="typeSelect" class="dropdown-content" selected="{{_slot.type}}"   attr-for-selected="data-type" >
                                 <paper-item data-type="string">string</paper-item>
                                 <paper-item data-type="number">number</paper-item>
                                 <paper-item data-type="boolean">boolean</paper-item>
                                 <paper-item data-type="object">object</paper-item>
                                 <paper-item data-type="array">array</paper-item>
+
+                                <paper-item data-type="any">any</paper-item>
                             </paper-listbox>
                         </paper-dropdown-menu>
 
-                        <paper-input label="Description of the slot" value="{{_slot.description}}"></paper-input>
+                        <paper-input
+                                label="Description"
+                                value="{{_slot.description}}"
+                                placholder="Short descripton of the slot."></paper-input>
                     </div>
                     <div hidden$="[[!_isInputSlot(slot)]]">
                         <h3>Initialise</h3>
                         <p>Set the initial slot value here. Edit the properties <code>Initial value</code> and <code>Description</code></p>
-                        <custom-validator id="validJson" validator-name="jsonValidator"></custom-validator>
+                        <div hidden$="[[ownSlot]]">
+                            <paper-input label="Type" readonly="true" disabled value="[[slot.type]]"></paper-input>
+                        </div>
+                        <custom-validator id="validValue" validator-name="initSlotValidator"></custom-validator>
                         <bde-textarea auto-validate
-                                      validator="jsonValidator"
-                                      id="objectInitValue"
+                                      validator="initSlotValidator"
+                                      id="initValue"
                                       label="Initial Value"
                                       placeholder="The value to init the slot with."
                                       value="{{_initValue}}"
                                       error-message="The Initial value must be a valid json.">
                         </bde-textarea>
-                        <paper-input label="Description of the initialisation"
+                        <paper-input label="Description"
                                      type="Text"
                                      value="{{_initDescription}}"
-                                     placeholder="Short description of the runnable: short content description, target group etc."></paper-input>
+                                     placeholder="Short description of the init of the slot."></paper-input>
                     </div>
                     <br>
                 </form>

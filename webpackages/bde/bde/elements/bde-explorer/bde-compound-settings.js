@@ -84,7 +84,8 @@ Polymer({
   },
 
   listeners: {
-    'change': '_handleChangedInitValue'
+    'change': '_handleChangedInitValue',
+    'inits.dom-change': '_bindInputValidators'
   },
   observers: [
     'artifactChanged(artifact.*)',
@@ -215,7 +216,21 @@ Polymer({
     if (event.target !== event.currentTarget) {
       return;
     }
-    this.set('_editingArtifact', JSON.parse(JSON.stringify(this.artifact)));
+    let editingArtifact = JSON.parse(JSON.stringify(this.artifact));
+    if (editingArtifact.inits) {
+      editingArtifact.inits.forEach((init) => {
+        init.value = JSON.stringify(init.value);
+      });
+    }
+    if (editingArtifact.slots) {
+      editingArtifact.slots.forEach((slot) => {
+        if (!slot.type) {
+          slot.type === 'any';
+        }
+      });
+    }
+    this.set('_editingArtifact', editingArtifact);
+
     this.$.members.render();
     this.set('_validForm', true);
   },
@@ -294,6 +309,22 @@ Polymer({
   validateAndSave: function () {
     if (this.$.artifactForm.validate()) {
       if (!_.isEqual(this.artifact, this._editingArtifact)) {
+        if (this._editingArtifact.inits) {
+          this._editingArtifact.inits.forEach((init) => {
+            try {
+              init.value = JSON.parse(init.value);
+            } catch (err) {
+              console.error(err);
+            }
+          });
+        }
+        if (this._editingArtifact.slots) {
+          this._editingArtifact.slots.forEach((slot) => {
+            if (slot.type === 'any') {
+              delete slot.type;
+            }
+          });
+        }
         this.set('artifact', this._editingArtifact);
         this.set('manifest.artifacts.' + this.artifactType + 's.' + this.artifactIndex, this._editingArtifact);
         this.fire('bde-current-artifact-edited');
@@ -352,16 +383,30 @@ Polymer({
   },
 
   /**
-   * Binds a custom validator to the _validateJson function.+
+   * Binds a custom validator to the internal validator functions.  (this._validateInitValue and this._validateArtifactId)
    *
    * @param  {[type]} event [description]
    * @method _bindValidators
    */
   _bindValidators: function (event) {
-    var validatorElement = this.querySelector('.validJson');
-    validatorElement.validate = this._validateJson.bind(this);
-
+    this._bindInputValidators();
     this.$.componentValidArtifactId.validate = this._validateArtifactId.bind(this);
+  },
+
+  _bindInputValidators: function () {
+    var validatorList = Polymer.dom(this.root).querySelectorAll('.validValue');
+    for (let i = 0; i < validatorList.length; i++) {
+      let validatorEl = validatorList[ i ];
+      // Register the validator again, becase the validator-name is not registered, becouse cumputed property
+      // eslint-disable-next-line no-new
+      new Polymer.IronMeta({ type: validatorEl.validatorType, key: validatorEl.validatorName, value: validatorEl });
+      var validatebleEl = this.$$('[validator=' + validatorEl.validatorName + ']');
+      validatebleEl.set('validator', '');
+      validatebleEl.set('validator', validatorEl.validatorName);
+      validatorEl.validate = function (value) {
+        return this._validateInitValue(value, validatebleEl);
+      }.bind(this);
+    }
   },
 
   /**
@@ -521,17 +566,6 @@ Polymer({
    */
   _initTextareaId: function (index) {
     return 'initValue' + index;
-  },
-
-  /**
-   * Returns id for the element.
-   *
-   * @param  {[type]} index [description]
-   * @return {[String]}       [id]
-   * @method _initTextareaValidatorId
-   */
-  _initTextareaValidatorId: function (index) {
-    return 'validJson' + index;
   },
 
   /**
@@ -741,27 +775,6 @@ Polymer({
   },
 
   /**
-   * Custom JSON validator, checks if the pattern of a JSON file matches.
-   *
-   * @param  {*} value [description]
-   * @return {Boolean} result of the validation
-   * @method _validateJson
-   */
-  _validateJson: function (value) {
-    // validation code
-
-    if (value && typeof value === 'string' && (value.trim().startsWith('{') || value.trim().startsWith('['))) {
-      try {
-        JSON.parse(value);
-        return true;
-      } catch (err) {
-        return false;
-      }
-    }
-    return true;
-  },
-
-  /**
    * Custom validator for validate artifactId.
    *
    * @param {string} value edited value
@@ -794,6 +807,93 @@ Polymer({
       }
     }
     return matches && unique;
+  },
+
+  /**
+   * Custom JSON validator, checks if the pattern of a JSON file matches.
+   *
+   * @param  {*} value [description]
+   * @return {Boolean} result of the validation
+   * @method _validateInitValue
+   */
+  _validateInitValue: function (value, targetElement) {
+    // validation code
+    let parsedValue;
+    let validJSON = true;
+    try {
+      parsedValue = JSON.parse(value);
+    } catch (err) {
+      targetElement.errorMessage = 'The init value must be valid json. (e.g. "Hallo World!" or { "label": "value"})';
+      validJSON = false;
+    }
+    return validJSON && this._validateInitValueType(parsedValue, targetElement);
+  },
+
+  _validateInitValueType: function (value, targetElement) {
+    var getMemberSlot = function (artifact, memberIdRef, slotId) {
+      var slot;
+      if (artifact && memberIdRef && slotId) {
+        var memberDef = artifact.members.find((mem) => mem.memberId === memberIdRef);
+
+        if (this.resolutions && memberDef) {
+          var member = this.resolutions[ memberDef.artifactId ];
+          if (member) {
+            slot = member.artifact.slots.find((s) => s.slotId === slotId);
+          }
+        }
+      }
+      return slot;
+    }.bind(this);
+
+    var slotId = targetElement.dataset.slot;
+    var memberIdRef = targetElement.dataset.memberIdRef;
+    var slot;
+    if (memberIdRef) {
+      slot = getMemberSlot(this._editingArtifact, memberIdRef, slotId);
+    } else {
+      if (this._editingArtifact.slots) {
+        slot = this._editingArtifact.slots.find((s) => s.slotId === slotId);
+      }
+    }
+    if (!slot) {
+      return true;
+    }
+    // no type check if value is null or undefined
+    if (value === null || value === undefined) {
+      return true;
+    }
+
+    let parsedType = typeof value;
+    let type = slot.type;
+    // no type check for  type = any
+    if (type === 'any') {
+      return true;
+    }
+    if (type !== parsedType) {
+      targetElement.errorMessage = 'The content has the type "' + parsedType + '", but the required slot type is "' + type + '".';
+      return false;
+    }
+
+    return true;
+  },
+  /**
+   * Handler method of iron-select of slot types. Trigger the validation of the slot init value
+   * @param {Event} evt iron-select event
+   * @private
+   */
+  _validateInitForType: function (evt) {
+    let slotId = evt.target.dataset.slotId;
+    let slotInit = this._editingArtifact.inits.find((init) => init.slot === slotId && !init.memberIdRef);
+    if (!slotInit) { // no initialisierung exists for this slot
+      return;
+    }
+    let initValueElement = this.$$('[data-slot=' + slotId + ']:not([data-member-id-ref])');
+    if (initValueElement) {
+      initValueElement.validate();
+    }
+  },
+  _validatorName: function (index) {
+    return 'validInitValue' + index;
   },
   /**
    * Helper function, fits the dialog to window.

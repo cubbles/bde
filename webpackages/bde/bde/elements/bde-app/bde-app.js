@@ -37,6 +37,17 @@
       },
 
       /**
+       * A map to cache the already resolved components. The key is the artifactId, the value has the property artifact with the artifact object, and the property componentId.
+       * @type Object
+       */
+      resolutions: {
+        type: Object,
+        notify: true,
+        value: function () {
+          return {};
+        }
+      },
+      /**
        * Computed value, which returns the outerHeight value of the current window object.
        *
        * @type {Number}

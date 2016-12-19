@@ -37,6 +37,7 @@
 
         .paramForm {
             margin: 10px;
+            width: 400px;
         }
     </style>
 </head>
@@ -117,15 +118,18 @@
         slots: [
             {
                 slotId: "test",
-                type: "string",
                 description: "Simbalasim"
             }
         ]
     }
 
     app.openDialog = function (evt) {
+//        if (app.$.bdeSlotEditDialog.artifact){
+//          app.$.bdeSlotEditDialog.set('dialogOpened', true);
+//          return;
+//        }
         var comp = _.clone(artifact);
-        var type = app.$.type.selectedItem;
+        var type = app.$.type.selectedItem.dataset.type;
         var init = app.$.initValue.value;
         var memberId;
         var compSlot = false;
@@ -148,8 +152,12 @@
         }
         var initDescription = app.$.initDescription.value;
 
-        if (type) {
-            comp.slots[ 0 ].type = type;
+        if (type ) {
+            if (type === 'any' && comp.slots[ 0 ].type){
+                delete comp.slots[ 0 ].type;
+            } else {
+                comp.slots[ 0 ].type = type;
+            }
         }
 
         if (init) {

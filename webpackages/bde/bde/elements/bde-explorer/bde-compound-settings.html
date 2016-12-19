@@ -134,7 +134,6 @@ Example:
 
             <paper-dialog-scrollable>
                 <form is="iron-form" id="artifactForm" on-dom-change="_validateForm">
-                    <custom-validator class="validJson" validator-name="validator"></custom-validator>
                     <!-- artifactId -->
                     <custom-validator id="componentValidArtifactId" validator-name="artifactIdValidator"></custom-validator>
                     <paper-input tabindex="-1"
@@ -388,27 +387,16 @@ Example:
                                             </paper-input>
                                             <paper-dropdown-menu label="Type"> <!-- not work yet -->
                                                 <paper-listbox class="dropdown-content" attr-for-selected="data-type"
-                                                               selected="string">
+                                                               selected="{{slot.type}}"  data-slot-id$="{{slot.slotId}}" on-iron-select="_validateInitForType" >
                                                     <paper-item data-type="string">string</paper-item>
                                                     <paper-item data-type="number">number</paper-item>
                                                     <paper-item data-type="boolean">boolean</paper-item>
                                                     <paper-item data-type="object">object</paper-item>
                                                     <paper-item data-type="array">array</paper-item>
+                                                    <paper-item data-type="any">any</paper-item>
                                                 </paper-listbox>
                                             </paper-dropdown-menu>
-                                            <!--<paper-input label="Type" list="slotTypes"--> <!-- just autocomplete -->
-                                            <!--placeholder="Data type of the slot."-->
-                                            <!--auto-validate-->
-                                            <!--error-message="The slot type is required"-->
-                                            <!--value="{{slot.type}}">-->
-                                            <!--</paper-input>-->
-                                            <!--<datalist id="slotTypes">-->
-                                            <!--<option value="string"></option>-->
-                                            <!--<option value="number"></option>-->
-                                            <!--<option value="boolean"></option>-->
-                                            <!--<option value="object"></option>-->
-                                            <!--<option value="array"></option>-->
-                                            <!--</datalist>-->
+
                                             <paper-textarea label="Description"
                                                             placeholder="Description of this slot: responsibility, expected data-structure etc."
                                                             value="{{slot.description}}">
@@ -674,16 +662,18 @@ Example:
                                                          error-message="The slot name is required"
                                                          value="{{init.slot}}">
                                             </paper-input>
-
+                                            <custom-validator class="validValue" validator-name$="{{_validatorName(initi)}}"></custom-validator>
                                             <bde-textarea auto-validate
-                                                          validator="validator"
+                                                          validator$="{{_validatorName(initi)}}"
                                                           label="Value"
                                                           id$="{{_initTextareaId(initi)}}"
                                                           class="initValue"
                                                           placeholder="The value to init the slot with."
                                                           value="{{init.value}}"
                                                           data-path$="[[_initValueDataPath(initi)]]"
-                                                          error-message="The value must be a valid json.">
+                                                          error-message="The value must be a valid json."
+                                                          data-slot$="{{init.slot}}"
+                                                          data-member-id-ref$="{{init.memberIdRef}}">
                                             </bde-textarea>
 
                                             <paper-input label="Description"
