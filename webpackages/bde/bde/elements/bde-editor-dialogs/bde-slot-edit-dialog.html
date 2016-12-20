@@ -82,7 +82,7 @@
             <p class="errorMessage" hidden="[[_validForm]]">Please correct the errors in the form</p>
             <paper-dialog-scrollable>
                 <form is="iron-form" id="editMemberSlotInitForm" on-iron-form-presubmit="onPreSubmit">
-                    <div hidden$="[[!ownSlot]]">
+                    <div id="slotPart" hidden$="[[!ownSlot]]">
                         <p>Edit the slot properties <code>Slot id</code>, <code>Type</code> and <code>Description</code>.</p>
                         <custom-validator id="validSlotId" validator-name="slotIdValidator"/>
                         <paper-input label="Slot id"
@@ -109,10 +109,10 @@
                                 value="{{_slot.description}}"
                                 placholder="Short descripton of the slot."></paper-input>
                     </div>
-                    <div hidden$="[[!_isInputSlot(slot)]]">
+                    <div id="initPart" hidden$="[[!_isInputSlot(slot)]]">
                         <h3>Initialise</h3>
                         <p>Set the initial slot value here. Edit the properties <code>Initial value</code> and <code>Description</code></p>
-                        <div hidden$="[[ownSlot]]">
+                        <div id="memberType" hidden$="[[ownSlot]]">
                             <paper-input label="Type" readonly="true" disabled value="[[slot.type]]"></paper-input>
                         </div>
                         <custom-validator id="validValue" validator-name="initSlotValidator"></custom-validator>
