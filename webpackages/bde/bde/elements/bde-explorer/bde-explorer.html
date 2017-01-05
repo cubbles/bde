@@ -171,9 +171,9 @@ Example:
             </div>
             <paper-tooltip for$="webpackageExplorerHeader">
                 <div class="tooltip tooltip_title">
-                    <span hidden="[[!_groupIdDefined(manifest.groupId)]]">[[manifest.groupId]].</span><span>[[manifest.name]]@[[manifest.version]]</span>
+                    <span hidden="[[!_groupIdDefined(currentComponentMetadata.manifest.groupId)]]">[[currentComponentMetadata.manifest.groupId]].</span><span>[[currentComponentMetadata.manifest.name]]@[[currentComponentMetadata.manifest.version]]</span>
                 </div>
-                <div class="tooltip tooltip_details">[[manifest.description]]</div>
+                <div class="tooltip tooltip_details">[[currentComponentMetadata.manifest.description]]</div>
             </paper-tooltip>
         </div>
 

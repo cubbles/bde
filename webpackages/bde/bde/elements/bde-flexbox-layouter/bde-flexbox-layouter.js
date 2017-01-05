@@ -347,7 +347,6 @@ Polymer({
     }
     // Load visible members
     var flexDivs = template.content.querySelectorAll('[' + this.buildAttributeName('flex-div') + ']');
-    var members;
     var flexbox;
     for (var j = 0; j < flexDivs.length; j++) {
       if (j >= 1) {
@@ -359,9 +358,10 @@ Polymer({
       }
       // Apply style to divs
       flexbox.setAttribute('style', flexDivs[ j ].getAttribute('style'));
-      members = flexDivs[ j ].children;
-      while (members.length > 0) {
-        Polymer.dom(flexbox).appendChild(this.prepareMemberToBeAdded(members[ 0 ]));
+      // move members from template to disign view
+      while (flexDivs[ j ].children.length > 0) {
+        var member = flexDivs[ j ].children.item(0);
+        Polymer.dom(flexbox).appendChild(this.prepareMemberToBeAdded(member));
       }
     }
     Polymer.dom.flush();
