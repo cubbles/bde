@@ -276,7 +276,7 @@
 
       var bdeGraph = this.$.bdeGraph;
       if (bdeGraph.graphInitialized) {
-        bdeGraph.rerender();
+        requestAnimationFrame(() => bdeGraph.rerender());
       } else {
         bdeGraph.rebuildGraph();
       }
