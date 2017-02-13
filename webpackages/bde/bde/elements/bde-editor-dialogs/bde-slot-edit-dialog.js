@@ -381,6 +381,9 @@ Polymer({
     }
 
     let parsedType = typeof value;
+    if (parsedType === 'object' && Array.isArray(value)) {
+      parsedType = 'array';
+    }
     let type = this.ownSlot ? this._slot.type : this.slot.type;
     // no type check for  type = any
     if (type === 'any') {

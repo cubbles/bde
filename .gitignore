@@ -26,9 +26,6 @@ webpackages/bde/bde/test/vendor/test.html
 **/manifest_webapp_backup
 **/manifest_json_backup
 
-webpackages/*_build/
-webpackages/*_pack/
-webpackages/*_dist/
 **/.tmp/
 
 webpackages/**/test-results
