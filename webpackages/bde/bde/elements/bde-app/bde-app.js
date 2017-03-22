@@ -1,6 +1,6 @@
 // @importedBy bde-app.html
 
-/* global XMLHttpRequest */
+/* global XMLHttpRequest, splitUrl */
 (function () {
   'strict mode';
   Polymer({
@@ -92,6 +92,13 @@
        * @property settings
        */
       settings: {
+        type: Object,
+        value: function () {
+          return {};
+        }
+      },
+
+      defaultSettings: {
         type: Object
       },
 
@@ -126,6 +133,17 @@
       bdeVersion: {
         type: String,
         value: 'unknown'
+      },
+
+      location: {
+        type: Object,
+        value: function () {
+          return {
+            path: null,
+            params: {},
+            hash: null
+          };
+        }
       }
     },
 
@@ -146,7 +164,9 @@
     },
 
     observers: [
-      '_manifestChanged(manifest.*)'
+      '_manifestChanged(manifest.*)',
+      '_queryParamsChanged(location.params.*)',
+      '_defaultSettingsChanged(defaultSettings.*)'
     ],
     /* ********************************************************************/
     /* ************************* Lifecycle methods ************************/
@@ -389,7 +409,7 @@
      * @private
      */
     _initializeDefaultSettings: function () {
-      this.set('settings', {
+      this.set('defaultSettings', {
         baseUrl: 'https://cubbles.world',
         store: 'sandbox'
       });
@@ -438,7 +458,40 @@
       this.set(path, changeRecord.value);
     },
 
-    /**
+    _queryParamsChanged: function (changeRecord) {
+      console.log('_locationChanged', changeRecord);
+      if (changeRecord.value && changeRecord.value.url) {
+        console.log('changeRecord.value.url', changeRecord.value.url);
+        var splittedUrl = splitUrl(changeRecord.value.url);
+        this._updateSettings(splittedUrl);
+      }
+    },
+
+    _updateSettings: function (settingsObject) {
+      if (settingsObject.baseUrl) {
+        this.set('settings.baseUrl', settingsObject.baseUrl);
+      }
+      if (settingsObject.store) {
+        this.set('settings.store', settingsObject.store);
+      }
+      if (settingsObject.webpackageId) {
+        this.set('settings.webpackageId', settingsObject.webpackageId);
+      }
+      if (settingsObject.artifactId) {
+        this.set('settings.artifactId', settingsObject.artifactId);
+      }
+    },
+
+    _defaultSettingsChanged: function (changeRecord) {
+      console.log('_defaultSettingsChanged', changeRecord);
+      this.debounce('setDefaults', function () {
+        if (this.defaultSettings.baseUrl && !this.location.params.url) {
+          this.set('location.params.url', this.defaultSettings.baseUrl + '/' + this.defaultSettings.store);
+        }
+      }, 10);
+    },
+
+  /**
      * Handler function to create a new webpackage; calls resetBDE.
      *
      * @method newWebpackageBtnHandler

@@ -1,7 +1,6 @@
 {
   "floats": true,
   "font-sizes": true,
-  "important": true,
   "text-indent": true,
   "star-property-hack": true,
   "underscore-property-hack": true,
@@ -15,5 +14,8 @@
   "rules-count": true,
   "ids": false,
   "box-model": false,
-  "important": false
+  "important": false,
+  "adjoining-classes": false,
+  "order-alphabetical": false,
+  "font-sizes": false
 }

@@ -19,6 +19,8 @@
 <link rel="import" href="../bde-design-view/bde-design-view.html">
 <link rel="import" href="../bde-application-view/bde-application-view.html">
 <link rel="import" href="../bde-repository-browser/bde-repository-browser.html">
+<link rel="import" href="../../vendor/iron-location/iron-location.html" />
+<link rel="import" href="../../vendor/iron-location/iron-query-params.html" />
 
 <!--
 A BDE custom element, the main BDE module.
@@ -171,12 +173,18 @@ Example:
                       artifacts="{{manifest.artifacts}}"
         ></bde-manifest>
 
+        <iron-location query="{{query}}"></iron-location>
+        <iron-query-params
+                params-string="{{query}}"
+                params-object="{{location.params}}">
+        </iron-query-params>
         <!-- App-wide components belong here -->
         <iron-localstorage id="appSettings"
                            name="app-settings"
-                           value="{{settings}}"
+                           value="{{defaultSettings}}"
                            on-iron-localstorage-load-empty="_initializeDefaultSettings"
         ></iron-localstorage>
+
 
         <!-- About dialog, containing copyright and actual version  -->
         <paper-dialog id="about"
@@ -226,7 +234,8 @@ Example:
 
         <!-- Dialog for setting up the Cubble base connection -->
         <bde-store-settings id="storeSettings"
-                            settings="{{settings}}"
+                            location="{{location}}"
+                            default-settings="{{defaultSettings}}"
                             opened="{{settingsOpened}}">
         </bde-store-settings>
 
@@ -375,10 +384,12 @@ Example:
                         ></bde-application-view>
                     </iron-pages>
                 </div>
+
             </paper-drawer-panel>
         </paper-header-panel>
     </template>
 
+    <script src="../lib/urlUtil.js"></script>
     <!-- build:js src/app.min.js -->
     <script src="bde-app.js"></script>
     <!-- endbuild -->

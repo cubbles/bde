@@ -181,7 +181,6 @@ Polymer({
    * @private
    */
   _handleDialogOpened: function (event) {
-    console.log('_handleDialogOpened')
     if (event.target !== event.currentTarget) {
       return;
     }

@@ -105,7 +105,7 @@ Polymer({
   _resetErrors: function () {
     var inputElement = this.$$('[validator=artifactIdValidator]');
     inputElement.invalid = false;
-    this.set('_validForm',true);
+    this.set('_validForm', true);
   },
   /**
    * Save the changed properties of _artifact to artifact
@@ -122,8 +122,7 @@ Polymer({
       if (this._artifact.description !== this.artifact.description) {
         this.set('artifact.description', this._artifact.description);
       }
-    }
-    else {
+    } else {
       this.set('_validForm', false);
     }
   },

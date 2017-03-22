@@ -22,9 +22,9 @@ Polymer({
      * Represents the global app settings. Used to set the store URL.
      *
      * @type {Object}
-     * @property settings
+     * @property defaultSettings
      */
-    settings: {
+    defaultSettings: {
       type: Object,
       notify: true
     },
@@ -48,6 +48,11 @@ Polymer({
     validSettings: {
       type: Boolean,
       value: true
+    },
+
+    location: {
+      type: Object,
+      notify: true
     }
 
   },
@@ -63,7 +68,7 @@ Polymer({
    * @method confirmBaseURL
    */
   confirmBaseURL: function (e) {
-    if(e.keyCode === 13) {
+    if (e.keyCode === 13) {
       this.$.storeName.focus();
     }
   },
@@ -75,7 +80,7 @@ Polymer({
    * @method saveChanges
    */
   saveChanges: function (e) {
-    if(e.keyCode === 13) {
+    if (e.keyCode === 13) {
       this.validateStoreSettings();
     }
   },
@@ -86,7 +91,7 @@ Polymer({
    * @method handleOpened
    */
   handleOpened: function () {
-    this.set('_intermediate', JSON.parse(JSON.stringify(this.settings)));
+    this.set('_intermediate', JSON.parse(JSON.stringify(this.defaultSettings)));
     this.set('validSettings', true);
   },
 
@@ -99,10 +104,10 @@ Polymer({
     if (this.$.storeForm.validate()) {
       var changeBaseUrl;
       var changeStoreName;
-      if (this.settings.store !== this.$.storeName.value) {
+      if (this.defaultSettings.store !== this.$.storeName.value) {
         changeStoreName = true;
       }
-      if (this.settings.baseUrl !== this.$.baseUrl.value) {
+      if (this.defaultSettings.baseUrl !== this.$.baseUrl.value) {
         changeBaseUrl = true;
       }
       // if changes occur, test them, change if true otherwise show an error
@@ -131,10 +136,13 @@ Polymer({
    */
   changeStore: function (changeBaseUrl, changeStoreName) {
     if (changeStoreName) {
-      this.set('settings.' + this.$.storeName.name, this.$.storeName.value);
+      this.set('defaultSettings.' + this.$.storeName.name, this.$.storeName.value);
     }
     if (changeBaseUrl) {
-      this.set('settings.' + this.$.baseUrl.name, this.$.baseUrl.value);
+      this.set('defaultSettings.' + this.$.baseUrl.name, this.$.baseUrl.value);
+    }
+    if (changeStoreName || changeBaseUrl) {
+      this.set('location.params.url', this.$.baseUrl.value + '/' + this.$.storeName.value);
     }
     document.querySelector('bde-app').resetBDE();
   },

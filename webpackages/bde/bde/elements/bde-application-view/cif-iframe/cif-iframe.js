@@ -2,7 +2,7 @@
   'use strict';
 
   var crcRoot = document.querySelector('#crcRoot');
-  var rteWebpackage = 'cubx.core.rte@2.1.0';
+  var rteWebpackage = 'cubx.core.rte@2.2.2';
 
   // const DEBUG = false;
   // window.__console__ = window.console;
@@ -42,7 +42,7 @@
    * @return {[type]}                          [description]
    */
   function _handleCurrentComponentMetadata (currentComponentMetadata) {
-    if (!currentComponentMetadata.manifest){
+    if (!currentComponentMetadata.manifest) {
       return;
     }
     if (typeof currentComponentMetadata.manifest === 'string') {
@@ -60,7 +60,7 @@
 
     var baseUrl = currentComponentMetadata.settings.baseUrl + '/' + currentComponentMetadata.settings.store + '/';
     var crcLoaderUrl = baseUrl + rteWebpackage + '/crc-loader/js/main.js';
-    var webComponentsUrl = baseUrl + rteWebpackage + '/webcomponents/webcomponents-lite.js';
+    var webComponentsUrl = baseUrl + rteWebpackage + '/webcomponents-lite/webcomponents-lite.js';
 
     var webpackageId = currentComponentMetadata.manifest.name + '@' + currentComponentMetadata.manifest.version;
     var artifactId = currentComponentMetadata.artifactId;

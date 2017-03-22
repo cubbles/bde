@@ -24,7 +24,7 @@
     "url": "https://pmt.incowia.de/webble/r/client/bde.git"
   },
   "dependencies": {
-    "polymer": "^1.6.0",
+    "polymer": "^1.7.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.10",
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
     "inflection": "^1.10.0",
@@ -35,7 +35,8 @@
     "paper-input": "polymerelements/paper-input#^1.1.17",
     "lodash": "^4.14.1",
     "react": "15.2.1",
-    "bde-graph": "^2.0.8"
+    "bde-graph": "^2.0.8",
+    "iron-location": "^0.8.11"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^4.3.0",
