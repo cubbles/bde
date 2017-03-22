@@ -9,24 +9,24 @@
 <link rel="import" href="../../vendor/paper-button/paper-button.html">
 <link rel="import" href="../../vendor/neon-animation/animations/fade-out-animation.html">
 
-  <!--
-  A BDE custom element, a dialog form, in which the data of the current Cubbles webbase can be modified.
-  
-  It contains fields for the base-URL and the name of the store.
+<!--
+A BDE custom element, a dialog form, in which the data of the current Cubbles webbase can be modified.
 
-  On submission of the form the whole BDE app is reloaded.
+It contains fields for the base-URL and the name of the store.
 
-  Example:
+On submission of the form the whole BDE app is reloaded.
 
-        <bde-store-settings id="storeSettings"
-                            settings="{{settings}}"
-                            opened="{{settingsOpened}}">
-        </bde-store-settings>
+Example:
 
-  @group BDE Custom Elements
-  @element bde-store-settings
-  @author Edwin Gamboa
-  -->
+      <bde-store-settings id="storeSettings"
+                          settings="{{settings}}"
+                          opened="{{settingsOpened}}">
+      </bde-store-settings>
+
+@group BDE Custom Elements
+@element bde-store-settings
+@author Edwin Gamboa
+-->
 
 <dom-module id="bde-store-settings">
     <template>
@@ -54,10 +54,34 @@
                 --paper-tabs-selection-bar-color: var(--accent-color);
             }
 
-            .errorMessage{
+            .errorMessage {
                 background: #EEEEEE;
                 color: #DD2C00;
                 padding: 20px;
+            }
+
+            .edit-content {
+                display: -webkit-box;
+                display: -moz-box;
+                display: -ms-flexbox;
+                display: flex;
+            }
+
+            .inputSeparator {
+                flex-grow:1;
+                text-align: center;
+                vertical-align: bottom;
+                align-self: flex-end
+
+            }
+
+            .inputUrl {
+                flex-grow: 14;
+            }
+
+            .inputStore {
+                height: 100%;
+                flex-grow:4
             }
         </style>
 
@@ -65,40 +89,45 @@
 
         <paper-dialog id="formDialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
 
-                <h2>Change Store</h2>
+            <h2>Change Store</h2>
 
-                <div class="errorMessage" id="errorMessageDiv" hidden="[[validSettings]]"></div>
+            <div class="errorMessage" id="errorMessageDiv" hidden="[[validSettings]]"></div>
 
-                <p class="description">
-                    Provide the data of the store you want to use to retrieve and upload the components.
-                </p>
+            <p class="description">
+                Provide the data of the store you want to use to retrieve and upload the components.
+            </p>
 
             <form is="iron-form" id="storeForm">
-                <paper-input id="baseUrl"
-                             type="text"
-                             name="baseUrl"
-                             label="Base URL"
-                             pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
-                             value="[[_intermediate.baseUrl]]"
-                             error-message="Please provide a valid Store sase url, e.g. 'https://cubbles.world'"
-                             autofocus
-                             required
-                             auto-validate
-                             on-keyDown="confirmBaseURL">
-                </paper-input>
-
-                <paper-input id="storeName"
-                             type="text"
-                             name="store"
-                             label="Store Name"
-                             pattern="[a-zA-Z0-9-._~]+"
-                             value="[[_intermediate.store]]"
-                             error-message="Please provide a valid Store name, e.g. 'bde'"
-                             required
-                             auto-validate
-                             on-keyDown="saveChanges">
-                </paper-input>
-
+                <div class="edit-content">
+                    <div class="inputUrl">
+                        <paper-input id="baseUrl"
+                                     type="text"
+                                     name="baseUrl"
+                                     label="Base URL"
+                                     pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
+                                     value="[[_intermediate.baseUrl]]"
+                                     error-message="Please provide a valid Store sase url, e.g. 'https://cubbles.world'"
+                                     autofocus
+                                     required
+                                     auto-validate
+                                     on-keyDown="confirmBaseURL">
+                        </paper-input>
+                    </div>
+                    <div class="inputSeparator"><span>/</span></div>
+                    <div class="inputStore">
+                        <paper-input id="storeName"
+                                     type="text"
+                                     name="store"
+                                     label="Store Name"
+                                     pattern="[a-zA-Z0-9-._~]+"
+                                     value="[[_intermediate.store]]"
+                                     error-message="Please provide a valid Store name, e.g. 'bde'"
+                                     required
+                                     auto-validate
+                                     on-keyDown="saveChanges">
+                        </paper-input>
+                    </div>
+                </div>
                 <p>
                     <strong>Note: </strong> Changing the store will re-initialize the application. Any changes on the
                     current active webpackage will be lost.

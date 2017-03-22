@@ -130,7 +130,9 @@ Example:
             .storeSettingsZone {
                 padding-left: 10px;
                 background-color: var(--paper-cyan-500);
+                padding: 4px 10px 4px 10px;
             }
+
 
             .spinner-wrapper {
                 @apply(--layout-fit);
@@ -282,13 +284,8 @@ Example:
                                    on-tap="_openDeployDialog"
                 ></paper-icon-button>
 
-                <div class="storeSettingsZone" on-tap="_storeSettingsBtnHandler">
+                <div class="storeSettingsZone">
                     <span class="storeUrlText">[[settings.baseUrl]]/[[settings.store]]</span>
-                    <paper-icon-button id="storeBtn"
-                                       title="Change store..."
-                                       aria-label="store"
-                                       icon="icons:create"
-                    ></paper-icon-button>
                 </div>
 
                 <span class="flex"></span>
@@ -321,6 +318,13 @@ Example:
 
                     ></paper-icon-button>
                 </page-select-menu>
+
+                <paper-icon-button id="storeBtn"
+                                   title="Change default store..."
+                                   aria-label="settings"
+                                   icon="icons:settings"
+                                   on-tap="_storeSettingsBtnHandler"
+                ></paper-icon-button>
 
                 <paper-icon-button id="aboutBtn"
                                    title="About..."
