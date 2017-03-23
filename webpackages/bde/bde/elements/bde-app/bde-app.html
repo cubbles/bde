@@ -9,6 +9,8 @@
 <link rel="import" href="../../vendor/paper-input/paper-input.html">
 <link rel="import" href="../../vendor/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../vendor/paper-styles/paper-styles.html">
+<link rel="import" href="../../vendor/iron-location/iron-location.html" />
+<link rel="import" href="../../vendor/iron-location/iron-query-params.html" />
 <link rel="import" href="../bde-manifest/bde-manifest.html">
 <link rel="import" href="../bde-store-settings/bde-store-settings.html">
 <link rel="import" href="../page-select-menu/page-select-menu.html">
@@ -19,9 +21,7 @@
 <link rel="import" href="../bde-design-view/bde-design-view.html">
 <link rel="import" href="../bde-application-view/bde-application-view.html">
 <link rel="import" href="../bde-repository-browser/bde-repository-browser.html">
-<link rel="import" href="../../vendor/iron-location/iron-location.html" />
-<link rel="import" href="../../vendor/iron-location/iron-query-params.html" />
-
+<link rel="import" href="../bde-error-dialog/bde-error-dialog.html" />
 <!--
 A BDE custom element, the main BDE module.
 
@@ -241,6 +241,10 @@ Example:
                             opened="{{settingsOpened}}">
         </bde-store-settings>
 
+        <bde-error-dialog id="bdeRrrorDialog"
+                          opened="{{errorDialogOpened}}"
+                          message="{{errorMessage}}">
+        </bde-error-dialog>
         <!-- Repository browser dialog to search for existing Cubble components -->
         <bde-repository-browser
                 id="browser"

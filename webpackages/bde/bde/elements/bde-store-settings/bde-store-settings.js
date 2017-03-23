@@ -1,5 +1,5 @@
 // @importedBy bde-store-settings.html
-
+/* globals testStoreConnection */
 'use strict';
 
 Polymer({
@@ -112,8 +112,9 @@ Polymer({
       }
       // if changes occur, test them, change if true otherwise show an error
       if (changeBaseUrl || changeStoreName) {
-        this.testStoreConnection(function () {
-          if (this.requestSuccess) {
+        var url = this.$.baseUrl.value + '/' + this.$.storeName.value;
+        testStoreConnection(url, function (success) {
+          if (success) {
             this.changeStore(changeBaseUrl, changeStoreName);
             this.$.formDialog.close();
             this.showNotification('Store changed');
@@ -142,11 +143,31 @@ Polymer({
       this.set('defaultSettings.' + this.$.baseUrl.name, this.$.baseUrl.value);
     }
     if (changeStoreName || changeBaseUrl) {
-      this.set('location.params.url', this.$.baseUrl.value + '/' + this.$.storeName.value);
+      this.setUrlInLocation();
     }
     document.querySelector('bde-app').resetBDE();
   },
 
+  /**
+   * Set the store url in location.
+   * @method  setUrlInLocation
+   */
+  setUrlInLocation: function () {
+    this.set('location.params.url', this.$.baseUrl.value + '/' + this.$.storeName.value);
+  },
+
+  useUrlInLocation: function () {
+    var url = this.$.baseUrl.value + '/' + this.$.storeName.value;
+    testStoreConnection(url, function (success) {
+      if (success) {
+        this.setUrlInLocation();
+        this.$.formDialog.close();
+        this.showNotification('Store changed');
+      } else {
+        this.showErrorMessage('Store url is not valid. The connection test was unsuccessful');
+      }
+    }.bind(this));
+  },
   /**
    * Sets the errormessage on a div in the dialog.
    *
@@ -169,13 +190,13 @@ Polymer({
     this.$.toast.open();
   },
 
-  /**
-   * Opens a XMLHttpRequest for testing the values of the input field for the store URL.
-   * If the connection can be established, requestSuccess is set to ture otherwise false.
-   *
-   * @param  {Function} callback [callback function of the request]
-   * @method testStoreConnection
-   */
+  // /**
+  //  * Opens a XMLHttpRequest for testing the values of the input field for the store URL.
+  //  * If the connection can be established, requestSuccess is set to ture otherwise false.
+  //  *
+  //  * @param  {Function} callback [callback function of the request]
+  //  * @method testStoreConnection
+  //  */
   testStoreConnection: function (callback) {
     var xhr = new XMLHttpRequest();
     var self = this;

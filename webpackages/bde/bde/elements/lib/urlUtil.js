@@ -28,3 +28,28 @@ function splitUrl (url) { // eslint-disable-line no-unused-vars
   }
   return splittedValues;
 }
+
+/**
+ * Opens a XMLHttpRequest for testing the values of the input field for the store URL.
+ * If the connection can be established, requestSuccess is set to ture otherwise false.
+ *
+ * @param  {Function} callback [callback function of the request]
+ * @method testStoreConnection
+ */
+function testStoreConnection (url, callback) {  // eslint-disable-line no-unused-vars
+  var xhr = new XMLHttpRequest();
+  // var self = this;
+  xhr.onreadystatechange = function () {
+    var requestSuccess = false;
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        requestSuccess = true;
+      } else {
+        requestSuccess = false;
+      }
+      callback.apply(xhr, [requestSuccess]);
+    }
+  };
+  xhr.open('GET', url, true);
+  xhr.send();
+}

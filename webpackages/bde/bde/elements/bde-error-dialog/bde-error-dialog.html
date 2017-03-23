@@ -1,0 +1,44 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html" />
+
+<!--
+A BDE custom element, an error dialog.
+
+It contains fields for message.
+
+
+Example:
+
+      <bde-error-dialog id="storeSettings"
+                          message="{{settings}}"
+                          opened="{{errorDialogOpened}}">
+      </bde-error-dialog>
+
+@group BDE Custom Elements
+@element bde-serror-dialog
+@author Judit Ross
+-->
+<dom-module id="bde-error-dialog">
+    <style>
+        :host {
+            display: block;
+            background-color: var(--paper-light-green-50);
+        }
+        .error {
+            color: var(--paper-red-500);
+        }
+        #error-dialog {
+
+        }
+    </style>
+    <template>
+        <paper-dialog id="error-dialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
+            <h2 class="error">Error</h2>
+            <div>{{message}}</div>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Ok</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+    <script src="bde-error-dialog.js"></script>
+</dom-module>

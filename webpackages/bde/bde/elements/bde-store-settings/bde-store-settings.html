@@ -19,7 +19,7 @@ On submission of the form the whole BDE app is reloaded.
 Example:
 
       <bde-store-settings id="storeSettings"
-                          settings="{{settings}}"
+                          default-settings="{{defaultSettings}}"
                           opened="{{settingsOpened}}">
       </bde-store-settings>
 
@@ -135,7 +135,8 @@ Example:
             </form>
             <div class="buttons">
                 <paper-button dialog-dismiss>Cancel</paper-button>
-                <paper-button on-tap="validateStoreSettings">Change</paper-button>
+                <paper-button on-tap="validateStoreSettings">Save & Change</paper-button>
+                <paper-button on-tap="useUrlInLocation">Change</paper-button>
             </div>
         </paper-dialog>
     </template>

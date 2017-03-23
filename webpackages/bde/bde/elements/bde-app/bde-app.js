@@ -1,12 +1,23 @@
 // @importedBy bde-app.html
 
-/* global XMLHttpRequest, splitUrl */
+/* global XMLHttpRequest, splitUrl, testStoreConnection */
 (function () {
   'strict mode';
   Polymer({
     is: 'bde-app',
 
     properties: {
+
+      /**
+       * Helper value, determines the version of the BDE, as described in its manifest, used for display and in the design-view.
+       *
+       * @type {Object}
+       * @property bdeVersion
+       */
+      bdeVersion: {
+        type: String,
+        value: 'unknown'
+      },
 
       /**
        * Metadata of the current element, which is beeing created via the BDE.
@@ -24,6 +35,63 @@
           };
         },
         notify: true
+      },
+
+      /**
+       * default setting for store. This onject has the attributes baseUrl and store
+       * @type Object
+       * @property defaultSettings
+       */
+      defaultSettings: {
+        type: Object
+      },
+
+      /**
+       * error message
+       * @type String
+       * @property errorMessage
+       */
+      errorMessage: {
+        type: String
+      },
+
+      /**
+       * Indicate if error dialog opened or not.
+       *
+       * @type Boolean
+       * @property errorDialogOpened
+       * @default false
+       */
+      errorDialogOpened: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Boolean value indicating the loading of the application, overlays a paper-spinner if true otherwise hidden.
+       *
+       * @type {Object}
+       * @property loading
+       */
+      loading: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * This object hold information of the location. This object has one property "params" for the query parameter.
+       * @type Object
+       * @property location
+       *
+       */
+      location: {
+        type: Object,
+        value: function () {
+          return {
+            // path: null,
+            params: {}
+            // hash: null
+          };
+        }
       },
 
       /**
@@ -98,10 +166,6 @@
         }
       },
 
-      defaultSettings: {
-        type: Object
-      },
-
       /**
        * Helper property to paper-drawer-panel explorer window, controls its force-narrow attribute.
        *
@@ -111,40 +175,8 @@
       showExplorer: {
         type: Boolean,
         value: true
-      },
-
-      /**
-       * Boolean value indicating the loading of the application, overlays a paper-spinner if true otherwise hidden.
-       *
-       * @type {Object}
-       * @property loading
-       */
-      loading: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * Helper value, determines the version of the BDE, as described in its manifest, used for display and in the design-view.
-       *
-       * @type {Object}
-       * @property bdeVersion
-       */
-      bdeVersion: {
-        type: String,
-        value: 'unknown'
-      },
-
-      location: {
-        type: Object,
-        value: function () {
-          return {
-            path: null,
-            params: {},
-            hash: null
-          };
-        }
       }
+
     },
 
     listeners: {
@@ -468,6 +500,15 @@
     },
 
     _updateSettings: function (settingsObject) {
+      var self = this;
+      if (settingsObject.baseUrl && settingsObject.store) {
+        testStoreConnection(settingsObject.baseUrl + '/' + settingsObject.store, function (success) {
+          if (!success) {
+            self.set('errorMessage', 'The store url "' + settingsObject.baseUrl + '/' + settingsObject.store + '" is not valid. The application does not work without an existing store. Please correct the store url.');
+            self.set('errorDialogOpened', true);
+          }
+        });
+      }
       if (settingsObject.baseUrl) {
         this.set('settings.baseUrl', settingsObject.baseUrl);
       }
@@ -491,7 +532,7 @@
       }, 10);
     },
 
-  /**
+    /**
      * Handler function to create a new webpackage; calls resetBDE.
      *
      * @method newWebpackageBtnHandler
