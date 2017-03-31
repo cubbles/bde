@@ -70,9 +70,9 @@ Example:
             .inputSeparator {
                 flex-grow:1;
                 text-align: center;
-                vertical-align: bottom;
-                align-self: flex-end
-
+                vertical-align: baseline;
+                align-self: flex-end;
+                padding-bottom: 8px;
             }
 
             .inputUrl {
@@ -110,7 +110,7 @@ Example:
                                      autofocus
                                      required
                                      auto-validate
-                                     on-keyDown="confirmBaseURL">
+                                     on-keyDown="_confirmBaseURL">
                         </paper-input>
                     </div>
                     <div class="inputSeparator"><span>/</span></div>
@@ -124,7 +124,7 @@ Example:
                                      error-message="Please provide a valid Store name, e.g. 'bde'"
                                      required
                                      auto-validate
-                                     on-keyDown="saveChanges">
+                                     on-keyDown="_saveChanges">
                         </paper-input>
                     </div>
                 </div>
@@ -135,8 +135,9 @@ Example:
             </form>
             <div class="buttons">
                 <paper-button dialog-dismiss>Cancel</paper-button>
-                <paper-button on-tap="validateStoreSettings">Save & Change</paper-button>
-                <paper-button on-tap="useUrlInLocation">Change</paper-button>
+                <paper-button on-tap="validateStoreSettings">Save</paper-button>
+                <paper-button on-tap="validateStoreSettingsAndUse">Save & Use</paper-button>
+                <paper-button on-tap="changeUrlInLocation">Use</paper-button>
             </div>
         </paper-dialog>
     </template>

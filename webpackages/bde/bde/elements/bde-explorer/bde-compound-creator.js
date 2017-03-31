@@ -1,5 +1,7 @@
 // @importedBy bde-compound-creator.html
 
+/* globals createNewArtifact */
+
 Polymer({
   is: 'bde-compound-creator',
 
@@ -37,6 +39,7 @@ Polymer({
       type: Object,
       notify: true
     },
+
     /**
      * Helper flag to determine if the form is valid, if not it should be validated.
      *
@@ -91,30 +94,30 @@ Polymer({
   _bindValidators: function (event) {
     this.$.componentValidArtifactId.validate = this._validateArtifactId.bind(this);
   },
-  /**
-   * Sets the metadata of the newly added compound component.
-   *
-   * @param  {[Object]} obj [description]
-   * @return {[Object]}     [Cubbles compound component]
-   */
-  _compoundFrom: function (obj) {
-    var compound = {
-      artifactId: null,
-      artifactType: 'compoundComponent',
-      description: null,
-      runnables: [],
-      resources: [],
-      dependencies: [],
-      slots: [],
-      members: [],
-      connections: [],
-      inits: []
-    };
-
-    Object.keys(obj).forEach((k) => { compound[ k ] = obj[ k ]; });
-
-    return compound;
-  },
+  // /**
+  //  * Sets the metadata of the newly added compound component.
+  //  *
+  //  * @param  {[Object]} obj [description]
+  //  * @return {[Object]}     [Cubbles compound component]
+  //  */
+  // _compoundFrom: function (obj) {
+  //   var compound = {
+  //     artifactId: null,
+  //     artifactType: 'compoundComponent',
+  //     description: null,
+  //     runnables: [],
+  //     resources: [],
+  //     dependencies: [],
+  //     slots: [],
+  //     members: [],
+  //     connections: [],
+  //     inits: []
+  //   };
+  //
+  //   Object.keys(obj).forEach((k) => { compound[ k ] = obj[ k ]; });
+  //
+  //   return compound;
+  // },
 
   /**
    * Submits the forms data.
@@ -150,7 +153,8 @@ Polymer({
    */
   _handleFormPresubmit: function (event) {
     event.preventDefault();
-    this.set('lastArtifact', this._compoundFrom(this.$.form.serialize()));
+    var artifact = createNewArtifact(this.$.form.serialize());
+    this.set('lastArtifact', artifact);
     this.fire('bde-current-artifact-change');
     this.close();
   },

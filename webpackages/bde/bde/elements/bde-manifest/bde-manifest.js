@@ -7,88 +7,23 @@ Polymer({
   properties: {
 
     /**
-     * Name of the Cubble component.
+     * Artifacts of the Cubble component. The 'main' metadata of the components for representation in the BDE with slots and connections beeing the main visual input in the app.
      *
-     * @type {String}
-     * @property name
+     * @type {Object}
+     * @property artifacts
      */
-    name: {
-      type: String,
+    artifacts: {
+      type: Object,
       notify: true,
-      value: 'new-webpackage'
+      value: function () {
+        return {
+          apps: [],
+          compoundComponents: [],
+          elementaryComponents: [],
+          utilities: []
+        };
+      }
     },
-
-    /**
-     * Counter of the added component.
-     *
-     * @type {Number}
-     * @property createCounter
-     */
-    createCounter: {
-      type: Number,
-      value: 1
-    },
-
-    /**
-     * Group id of the component.
-     * Can be modfied via the app settings.
-     *
-     * @type {String}
-     * @property groupId
-     */
-    groupId: {
-      type: String,
-      notify: true,
-      value: ''
-    },
-
-    /**
-     * Version of the component.
-     * Can be modfied via the app settings.
-     *
-     * @type {String}
-     * @property version
-     */
-    version: {
-      type: String,
-      value: '1.0.0-SNAPSHOT',
-      notify: true
-    },
-
-    /**
-     * Model version of the component.
-     * This cannot be modified in the app, it is set to the default value.
-     *
-     * @type {String}
-     * @property modelVersion
-     */
-    modelVersion: {
-      type: String,
-      value: '9.1.1'
-    },
-
-    /**
-     * Document type of the component, which is usually the default 'webpackage'.
-     *
-     * @type {String}
-     * @property docType
-     */
-    docType: {
-      type: String,
-      value: 'webpackage'
-    },
-
-    /**
-     * Description of the Cubble component.
-     *
-     * @type {String}
-     * @property description
-     */
-    description: {
-      type: String,
-      notify: true
-    },
-
     /**
      * Author of the Cubble component, object containing name and email address.
      *
@@ -121,16 +56,49 @@ Polymer({
     },
 
     /**
-     * Licence under which the Cubble component is published.
-     * MIT license is the default value, see [https://opensource.org/licenses/MIT]
+     * Counter of the added component.
+     *
+     * @type {Number}
+     * @property createCounter
+     */
+    createCounter: {
+      type: Number,
+      value: 1
+    },
+
+    /**
+     * Document type of the component, which is usually the default 'webpackage'.
      *
      * @type {String}
-     * @property license
+     * @property docType
      */
-    license: {
+    docType: {
       type: String,
-      value: 'MIT',
+      value: 'webpackage'
+    },
+
+    /**
+     * Description of the Cubble component.
+     *
+     * @type {String}
+     * @property description
+     */
+    description: {
+      type: String,
       notify: true
+    },
+
+    /**
+     * Group id of the component.
+     * Can be modfied via the app settings.
+     *
+     * @type {String}
+     * @property groupId
+     */
+    groupId: {
+      type: String,
+      notify: true,
+      value: ''
     },
 
     /**
@@ -159,6 +127,23 @@ Polymer({
     },
 
     /**
+     * Licence under which the Cubble component is published.
+     * MIT license is the default value, see [https://opensource.org/licenses/MIT]
+     *
+     * @type {String}
+     * @property license
+     */
+    license: {
+      type: String,
+      value: 'MIT',
+      notify: true
+    },
+
+    location: {
+      type: Object,
+      notification: true
+    },
+    /**
      * Manual(s) for the component, represented by an URL to a document.
      *
      * @type {Array}
@@ -170,6 +155,30 @@ Polymer({
         return [];
       },
       notify: true
+    },
+
+    /**
+     * Model version of the component.
+     * This cannot be modified in the app, it is set to the default value.
+     *
+     * @type {String}
+     * @property modelVersion
+     */
+    modelVersion: {
+      type: String,
+      value: '9.1.1'
+    },
+
+    /**
+     * Name of the Cubble component.
+     *
+     * @type {String}
+     * @property name
+     */
+    name: {
+      type: String,
+      notify: true,
+      value: 'new-webpackage'
     },
 
     /**
@@ -187,45 +196,16 @@ Polymer({
     },
 
     /**
-     * Artifacts of the Cubble component. The 'main' metadata of the components for representation in the BDE with slots and connections beeing the main visual input in the app.
+     * Version of the component.
+     * Can be modfied via the app settings.
      *
-     * @type {Object}
-     * @property artifacts
+     * @type {String}
+     * @property version
      */
-    artifacts: {
-      type: Object,
-      notify: true,
-      value: function () {
-        return {
-          apps: [],
-          compoundComponents: [
-            {
-              artifactId: 'new-compound',
-              description: 'component description...',
-              runnables: [
-                {
-                  name: 'demo',
-                  path: '/demo/index.html',
-                  description: 'component demo...'
-                },
-                {
-                  name: 'docs',
-                  path: '/docs/index.html',
-                  description: 'Dataflow of the component'
-                }
-              ],
-              resources: [],
-              dependencies: [],
-              slots: [],
-              members: [],
-              connections: [],
-              inits: []
-            }
-          ],
-          elementaryComponents: [],
-          utilities: []
-        };
-      }
+    version: {
+      type: String,
+      value: '1.0.0-SNAPSHOT',
+      notify: true
     }
 
   },
@@ -238,9 +218,14 @@ Polymer({
    * Polymer attached function, sets data from the app.
    */
   attached: function () {
-    document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[ 0 ]);
-    document.querySelector('bde-app').set('manifest', this);
+    // document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[ 0 ]);
+    // document.querySelector('bde-app').set('manifest', this);
+    // this.fire('bde-reset-webpackage-change', this.artifacts.compoundComponents[ 0 ]);
   },
+
+  /* *******************************************************************************************/
+  /* ********************************* public methods ******************************************/
+  /* *******************************************************************************************/
 
   /**
    * Load a new manifest, fires event on finish.
@@ -263,42 +248,14 @@ Polymer({
   },
 
   /**
-   * Output current manifest in a base-compatible format.
-   *
-   * @return {Object}
-   * @method toValidManifest
-   */
-  toValidManifest: function () {
-    var manifest = {};
-
-    Object.keys(this.properties)
-      .filter(function (key) {
-        return this._filterRules(key);
-      }, this)
-      .forEach(function (key) {
-        manifest[ key ] = this[ key ];
-      }, this);
-
-    manifest.artifacts.compoundComponents.forEach(function (component) {
-      if (component.members) {
-        component.members.forEach(function (member) {
-          if (member.metadata) {
-            delete member.metadata;
-          }
-        });
-      }
-    });
-
-    return manifest;
-  },
-
-  /**
    * Resets the elements data to predefined deafult values.
    *
    * @method reset
    */
-  reset: function () {
-    var artifactId = this._createArtifactId();
+  reset: function (artifactId) {
+    if (!artifactId) {
+      artifactId = this._createArtifactId();
+    }
     this.set('name', this._createWebpackageName());
     this.set('groupId', null);
     this.set('version', '1.0.0-SNAPSHOT');
@@ -335,6 +292,38 @@ Polymer({
   },
 
   /**
+   * Output current manifest in a base-compatible format.
+   *
+   * @return {Object}
+   * @method toValidManifest
+   */
+  toValidManifest: function () {
+    var manifest = {};
+
+    Object.keys(this.properties)
+      .filter(function (key) {
+        return this._filterRules(key);
+      }, this)
+      .forEach(function (key) {
+        manifest[ key ] = this[ key ];
+      }, this);
+
+    manifest.artifacts.compoundComponents.forEach(function (component) {
+      if (component.members) {
+        component.members.forEach(function (member) {
+          if (member.metadata) {
+            delete member.metadata;
+          }
+        });
+      }
+    });
+
+    return manifest;
+  },
+  /* *******************************************************************************************/
+  /* ********************************* private methods *****************************************/
+  /* *******************************************************************************************/
+  /**
    * Create a defined artifactId String
    *
    * @return {[String]} [new artifactid]
@@ -370,6 +359,7 @@ Polymer({
     var keyAllowed = key !== 'metadata';
     keyAllowed = keyAllowed && key !== 'createCounter';
     keyAllowed = keyAllowed && (key !== 'description' || key === 'description' && typeof this.description !== 'undefined' && this.description.trim().length > 0);
+    keyAllowed = keyAllowed && key !== 'location';
     return keyAllowed;
   }
 });

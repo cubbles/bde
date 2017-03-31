@@ -1,6 +1,6 @@
 // @importedBy bde-app.html
 
-/* global XMLHttpRequest, splitUrl, testStoreConnection */
+/* global XMLHttpRequest, splitUrl, testStoreConnection, buildWebpackageId, buildParamUrl,fetch, createNewArtifact */
 (function () {
   'strict mode';
   Polymer({
@@ -30,8 +30,7 @@
         type: Object,
         value: function () {
           return {
-            manifest: this.manifest,
-            artifactId: 'new-compound'
+            manifest: this.manifest
           };
         },
         notify: true
@@ -66,6 +65,7 @@
         type: Boolean,
         value: false
       },
+
       /**
        * Boolean value indicating the loading of the application, overlays a paper-spinner if true otherwise hidden.
        *
@@ -75,23 +75,6 @@
       loading: {
         type: Boolean,
         value: false
-      },
-
-      /**
-       * This object hold information of the location. This object has one property "params" for the query parameter.
-       * @type Object
-       * @property location
-       *
-       */
-      location: {
-        type: Object,
-        value: function () {
-          return {
-            // path: null,
-            params: {}
-            // hash: null
-          };
-        }
       },
 
       /**
@@ -198,7 +181,9 @@
     observers: [
       '_manifestChanged(manifest.*)',
       '_queryParamsChanged(location.params.*)',
-      '_defaultSettingsChanged(defaultSettings.*)'
+      '_defaultSettingsChanged(defaultSettings.*)',
+      '_currentComponentMetadataChanged(currentComponentMetadata.*)',
+      '_settingsChanged(settings.*)'
     ],
     /* ********************************************************************/
     /* ************************* Lifecycle methods ************************/
@@ -208,9 +193,20 @@
      *
      * @method attached
      */
+    // this._setWebpackageAndArtifactInUrl();
     attached: function () {
       // Bind webpackage node to local scope
       this.set('manifest', this.$.manifest);
+      this._readURLParamsInitial();
+
+      if (!this.searchParams.get('url')) {
+        var evt = new Event('bde-reset-webpackage-change');
+        var newCompoundName = 'new-compound';
+        var artifact = this._createNewArtifact({ artifactId: newCompoundName });
+        this.set('settings.artifactId', artifact.artifactId);
+        evt.detail = artifact;
+        this._handleResetWebpackage(evt);
+      }
 
       // Show the Explorer
       this.$.drawerPanel.openDrawer();
@@ -348,6 +344,26 @@
       // this.$.dataflowView.set('autolayoutAfterRerender', true);
     },
 
+    _changeArtifact: function (artifactId) {
+      this.set('currentComponentMetadata.artifactId', artifactId);
+      this.set('settings.artifactId', artifactId);
+    },
+
+    _currentComponentMetadataChanged: function (changeRecord) {
+      console.log(changeRecord);
+      if (changeRecord.path.startsWith('currentComponentMetadata.settings')) {
+        console.log('updateUrl (bde-app,_currentComponentMetadataChanged )');
+        var path = changeRecord.path.replace('currentComponentMetadata.settings', 'settings');
+        this.notifyPath(path, changeRecord.value);
+      }
+    },
+
+    _defaultSettingsChanged: function (changeRecord) {
+      console.log('_defaultSettingsChanged', changeRecord);
+      this.set('settings.baseUrl', this.defaultSettings.baseUrl);
+      this.set('settings.store', this.defaultSettings.store);
+    },
+
     /**
      * Callback function on-tap of a paper-button to load only compound components from the base, sets the value compoundOnly and opend the repository-browser element.
      *
@@ -409,10 +425,17 @@
         this._resizeView(event.detail.item);
       }
     },
+
     _handleResetWebpackage: function (evt) {
       var artifact = evt.detail;
-      this.set('currentComponentMetadata.artifactId', artifact.artifactId);
+      this._changeArtifact(artifact.artifactId);
+      if (this.manifest) {
+        // this.set('settings.newWebpackage', true);
+        this.set('settings.webpackageId', buildWebpackageId(this.manifest.groupId, this.manifest.name, this.manifest.version));
+      }
+      this.set('settings.artifactId', artifact.artifactId);
     },
+
     /**
      * Helper function, which changes the width and height on change of the window.
      * @param  {[Event]} event [windo change event]
@@ -465,6 +488,7 @@
           }
         }
       }.bind(this);
+
       xhr.open('GET', '../manifest.webpackage', true);
       xhr.send();
     },
@@ -490,46 +514,112 @@
       this.set(path, changeRecord.value);
     },
 
-    _queryParamsChanged: function (changeRecord) {
-      console.log('_locationChanged', changeRecord);
-      if (changeRecord.value && changeRecord.value.url) {
-        console.log('changeRecord.value.url', changeRecord.value.url);
-        var splittedUrl = splitUrl(changeRecord.value.url);
-        this._updateSettings(splittedUrl);
+    _webpackageIsLoaded: function (webpackageId) {
+      var split = webpackageId.split('@');
+      if (split.length !== 2) {
+        throw new Error('Not a valid webpackageId "' + webpackageId + '". The webpackageId should have the format [groupId.]name@version.');
+      }
+      var version = split[ 1 ];
+      var groupId;
+      var name;
+      var pointIndex = split[ 0 ].lastIndexOf('.');
+      if (pointIndex > -1) {
+        name = split[ 0 ].substr(pointIndex + 1);
+        groupId = split[ 0 ].substring(0, pointIndex);
+      } else {
+        name = split[ 0 ];
+      }
+
+      var isLoaded = this.currentComponentMetadata.manifest.name === name;
+      isLoaded = isLoaded && this.currentComponentMetadata.manifest.version === version;
+      isLoaded = isLoaded && groupIdsEquals(this.currentComponentMetadata.manifest.groupId, groupId);
+      return isLoaded;
+
+      // GroupIds are equal if both has one of the values null, undefined, or empty string
+      function groupIdsEquals (groupId1, groupId2) {
+        if (groupId1 === groupId2) {
+          return true;
+        }
+        if (!groupId1 && !groupId2) {
+          return true;
+        }
+        if (!groupId1 && groupId2.length === 0) {
+          return true;
+        }
+        if (groupId1.length === 0 && !groupId2) {
+          return true;
+        }
+        return false;
       }
     },
 
-    _updateSettings: function (settingsObject) {
-      var self = this;
-      if (settingsObject.baseUrl && settingsObject.store) {
-        testStoreConnection(settingsObject.baseUrl + '/' + settingsObject.store, function (success) {
-          if (!success) {
-            self.set('errorMessage', 'The store url "' + settingsObject.baseUrl + '/' + settingsObject.store + '" is not valid. The application does not work without an existing store. Please correct the store url.');
-            self.set('errorDialogOpened', true);
+    _loadWebpackage: function () {
+      if (!this.settings.webpackageId) {
+        this._createNewWebpackage(this.settings.artifactId);
+        this._setUrlParam(buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId));
+      // } else if (this.settings.newWebpackage) {
+      //   var url = buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId);
+      //   this._setUrlParam(url);
+      } else {
+        var manifestUrl = buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId) + '/manifest.webpackage';
+        fetch(manifestUrl).then(response => {
+          if (response.ok) {
+            return response.json();
           }
+          throw new Error(response.status + ' ' + response.statusText);
+        }).then(manifestObj => {
+          console.log(manifestObj);
+          this.$.manifest.loadManifest(manifestObj);
+          if (manifestObj.artifacts.compoundComponents.find(comp => comp.artifactId === this.settings.artifactId)) {
+            this.set('currentComponentMetadata.artifactId', this.settings.artifactId);
+          } else {
+            var artifact = this._createNewArtifact({
+              artifactId: this.settings.artifactId
+            });
+            this.set('settings.artifactId', artifact.artifactId);
+            this.set('currentComponentMetadata.artifactId', this.settings.artifactId);
+          }
+          this._setUrlParam(buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId));
+          this.fire('bde-load-manifest', manifestObj);
+        }).catch(error => {
+          console.warn('Could not load the webpackage: "' + this.settings.webpackageId + '". Error:' + error.message);
+          if (this.settings.webpackageId !== buildWebpackageId(this.manifest)) { // It given a new webpackageId
+            if (this.settings.artifactId) {
+              this._createNewWebpackage(this.settings.artifactId); // create webpacakge with the given artifactId
+            } else {
+              this._createNewWebpackage(); // create webpacakge deafults
+            }
+          } else {
+            if (this.manifest.artifacts.compoundComponents.find(comp => comp.artifactId === this.settings.artifactId)) {
+              // artifact is in manifest
+              this.set('currentComponentMetadata.artifactId', this.settings.artifactId);
+            } else {
+              // new artifact
+              var artifact = this._createNewArtifact({
+                artifactId: this.settings.artifactId
+              });
+              this.set('currentComponentMetadata.artifactId', artifact.artifactId);
+            }
+          }
+          this._setUrlParam(buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId));
         });
       }
-      if (settingsObject.baseUrl) {
-        this.set('settings.baseUrl', settingsObject.baseUrl);
-      }
-      if (settingsObject.store) {
-        this.set('settings.store', settingsObject.store);
-      }
-      if (settingsObject.webpackageId) {
-        this.set('settings.webpackageId', settingsObject.webpackageId);
-      }
-      if (settingsObject.artifactId) {
-        this.set('settings.artifactId', settingsObject.artifactId);
-      }
     },
 
-    _defaultSettingsChanged: function (changeRecord) {
-      console.log('_defaultSettingsChanged', changeRecord);
-      this.debounce('setDefaults', function () {
-        if (this.defaultSettings.baseUrl && !this.location.params.url) {
-          this.set('location.params.url', this.defaultSettings.baseUrl + '/' + this.defaultSettings.store);
-        }
-      }, 10);
+    _createNewArtifact: function (artifactProperties) {
+      var artifact = createNewArtifact(artifactProperties);
+      this.push('manifest.artifacts.compoundComponents', artifact);
+      return artifact;
+    },
+    _createNewWebpackage: function (artifactId) {
+      var webpackageId;
+
+      this.$.manifest.reset(artifactId); // create manifest with a given artifactId
+
+      webpackageId = buildWebpackageId(this.$.manifest);
+      // this.set('settings.newWebpackage', true);
+      this.set('settings.webpackageId', webpackageId);
+      return webpackageId;
     },
 
     /**
@@ -550,6 +640,16 @@
      */
     _openDeployDialog: function () {
       this.$.deployDialog.opened = !this.$.deployDialog.opened;
+    },
+
+    _readURLParamsInitial: function () {
+      this.searchParams = new URLSearchParams(window.location.search);
+      var url = this.searchParams.get('url');
+      console.log('_readURLParams', url);
+      if (url) {
+        var settingsObject = splitUrl(url);
+        this._updateSettings(settingsObject);
+      }
     },
 
     /**
@@ -589,6 +689,43 @@
       this.$.explorer.set('isArtifactIdEdited', true);
     },
 
+    _settingsChanged: function (changedRecord) {
+      if (!this.searchParams || !this.manifest) {
+        return;
+      }
+
+      // url param from location
+      var url = buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId);
+      if (changedRecord.path.startsWith('settings.webpackageId') || changedRecord.path.startsWith('settings.baseUrl') || changedRecord.path.startsWith('settings.store')) {
+        // if baseUrl or store or webpacakgeId changed reload all things
+        this.debounce('loadWebpackage', function () {
+          this._loadWebpackage();
+        }, 5);
+      } else if (changedRecord.path.startsWith('settings.artifactId')) { // artifactId changed - load a just new artifact
+        this.set('currentComponentMetadata.artifactId', this.settings.artifactId);
+        this._setUrlParam(url);
+      }
+    },
+
+    _setUrlParam: function (param) {
+      if (!this.searchParams.get('url')) {
+        this.searchParams.append('url', param);
+      } else {
+        this.searchParams.set('url', param);
+      }
+      var newUrl = window.decodeURIComponent(window.location.pathname) + '?' + this.searchParams.toString();
+
+      // Need to use a full URL in case the containing page has a base URI.
+      var fullNewUrl = new URL(
+        newUrl, window.location.protocol + '//' + window.location.host).href;
+      window.history.replaceState({}, '', fullNewUrl);
+    },
+
+    _setWebpackageAndArtifactInUrl: function () {
+      this.settings.webpackageId = buildWebpackageId(this.manifest);
+      this.settings.artifactId = this.currentComponentMetadata.artifactId;
+      // this._updateLocation();
+    },
     /**
      * Handler for the open property of the settings dialog.
      *
@@ -597,6 +734,33 @@
      */
     _storeSettingsBtnHandler: function () {
       this.$.storeSettings.opened = !this.$.storeSettings.opened;
+    },
+
+    _updateSettings: function (settingsObject) {
+      if (!settingsObject) {
+        return;
+      }
+      var self = this;
+      if (settingsObject.baseUrl && settingsObject.store && settingsObject.baseUrl !== this.settings.baseUrl && settingsObject.store !== this.settings.store) {
+        testStoreConnection(settingsObject.baseUrl + '/' + settingsObject.store, function (success) {
+          if (!success) {
+            self.set('errorMessage', 'The store url "' + settingsObject.baseUrl + '/' + settingsObject.store + '" is not valid. The application does not work without an existing store. Please correct the store url.');
+            self.set('errorDialogOpened', true);
+          }
+        });
+      }
+      if (settingsObject.baseUrl) {
+        this.set('settings.baseUrl', settingsObject.baseUrl);
+      }
+      if (settingsObject.store) {
+        this.set('settings.store', settingsObject.store);
+      }
+      if (settingsObject.webpackageId) {
+        this.set('settings.webpackageId', settingsObject.webpackageId);
+      }
+      if (settingsObject.artifactId) {
+        this.set('settings.artifactId', settingsObject.artifactId);
+      }
     }
   });
 })();

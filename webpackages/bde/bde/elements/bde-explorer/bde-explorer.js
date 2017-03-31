@@ -190,7 +190,7 @@ Polymer({
   _compoundListDomChange: function (e) {
     // First time recive just one dom-ready event with the target compound List, later comming 2 events, use just the second event
     this.debounce('compoundList_changed', function () {
-      if (e.target.id === 'compoundList' && !this.$.compoundSelector.selected) {
+      if (e.target.id === 'compoundList' && !this.$.compoundSelector.selected && this.currentComponentMetadata.artifactId) {
         this.$.compoundSelector.select(this.currentComponentMetadata.artifactId);
         // Fire own event, because iron-select handler not always received after initialisation.
         // self-fired iron-select events also not received
@@ -270,6 +270,9 @@ Polymer({
     var artifactId = e.detail;
 
     var elem = this.$.compoundSelector.querySelector('#' + artifactId);
+    if (!elem) {
+      return;
+    }
     if (elem) {
       elem.is = 'compound';
     }
@@ -291,8 +294,10 @@ Polymer({
    * @private
    */
   _handleNewCompound: function (e) {
-    this.push('currentComponentMetadata.manifest.artifacts.compoundComponents', e.detail.value);
+    var artifact = e.detail.value;
+    this.push('currentComponentMetadata.manifest.artifacts.compoundComponents', artifact);
     this.notifyPath('currentComponentMetadata.manifest.artifacts.compoundComponents', this.currentComponentMetadata.manifest.artifacts.compoundComponents.slice());
+    this.set('settings.newArtifact', true);
     this.$.compoundSelector.select(e.detail.value.artifactId);
   },
 
@@ -345,6 +350,7 @@ Polymer({
    */
   _selectCompound: function (artifactId) {
     this.set('currentComponentMetadata.artifactId', artifactId);
+    this.set('settings.artifactId', artifactId);
   },
 
   /**

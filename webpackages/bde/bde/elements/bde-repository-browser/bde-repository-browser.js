@@ -8,17 +8,17 @@ Polymer({
 
   properties: {
 
-    /**
-     * The object data of the selected item from the Base.
-     *
-     * @type Object
-     * @property selectedItem
-     */
-    selectedItem: {
-      type: Object,
-      notify: true,
-      observer: '_handleSelectedItem'
-    },
+    // /**
+    //  * The object data of the selected item from the Base.
+    //  *
+    //  * @type Object
+    //  * @property selectedItem
+    //  */
+    // selectedItem: {
+    //   type: Object,
+    //   notify: true,
+    //   observer: '_handleSelectedItem'
+    // },
 
     /**
      * The specified URL to the Base.
@@ -81,9 +81,16 @@ Polymer({
      * @property settings
      */
     settings: {
-      type: Object
-    }
+      type: Object,
+      notify: true
+    },
 
+    selection: {
+      type: Boolean,
+      value: false,
+      notify: true,
+      observer: '_handleSelect'
+    }
   },
 
   observers: [
@@ -105,9 +112,12 @@ Polymer({
    *
    * @method _handleSelectedItem
    */
-  _handleSelectedItem: function () {
-    this.set('currentComponentMetadata.artifactId', this.selectedItem.artifactId);
-    this.$.searchDialog.close();
+  _handleSelect: function (selection) {
+    // this.set('currentComponentMetadata.artifactId', this.selectedItem.artifactId);
+    if (selection) {
+      this.$.searchDialog.close();
+      this.set('selection', false);
+    }
   },
 
   /**

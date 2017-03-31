@@ -1,5 +1,5 @@
 // @importedBy bde-store-settings.html
-/* globals testStoreConnection */
+/* globals testStoreConnection,buildParamUrl */
 'use strict';
 
 Polymer({
@@ -58,49 +58,39 @@ Polymer({
   },
 
   listeners: {
-    'iron-overlay-opened': 'handleOpened'
+    'iron-overlay-opened': '_handleOpened'
   },
 
-  /**
-   * Confirmation of the base URL field via enter button focuses the storeName field.
-   *
-   * @param  {[Event]} e [keydown event]
-   * @method confirmBaseURL
-   */
-  confirmBaseURL: function (e) {
-    if (e.keyCode === 13) {
-      this.$.storeName.focus();
-    }
-  },
+  /* *****************************************************************************************/
+  /* ********************************* public methods ****************************************/
+  /* *****************************************************************************************/
 
   /**
-   * Pressing enter on the storeName field calls the validateStoreSettings method.
-   *
-   * @param  {[Event]} e [keydown event]
-   * @method saveChanges
+   * Change the location.params.url .
    */
-  saveChanges: function (e) {
-    if (e.keyCode === 13) {
-      this.validateStoreSettings();
-    }
-  },
-
-  /**
-   * Listener function for opening the dialog.
-   *
-   * @method handleOpened
-   */
-  handleOpened: function () {
-    this.set('_intermediate', JSON.parse(JSON.stringify(this.defaultSettings)));
-    this.set('validSettings', true);
+  changeUrlInLocation: function () {
+    var url = this.$.baseUrl.value + '/' + this.$.storeName.value;
+    testStoreConnection(url, function (success) {
+      if (success) {
+        this._setUrlInLocation();
+        this.$.formDialog.close();
+        this._showNotification('Store changed');
+      } else {
+        this._showErrorMessage('Store url is not valid. The connection test was unsuccessful');
+      }
+    }.bind(this));
   },
 
   /**
    * Validates the settings from the dialog field by calling an XMLHttpRequest for the given URL.
    *
-   * @method validateStoreSettings
+   * @method _validateStoreSettings
    */
   validateStoreSettings: function () {
+    var use = false;
+    if (arguments.length > 2) {
+      use = arguments[2];
+    }
     if (this.$.storeForm.validate()) {
       var changeBaseUrl;
       var changeStoreName;
@@ -115,66 +105,96 @@ Polymer({
         var url = this.$.baseUrl.value + '/' + this.$.storeName.value;
         testStoreConnection(url, function (success) {
           if (success) {
-            this.changeStore(changeBaseUrl, changeStoreName);
+            this._saveStore(changeBaseUrl, changeStoreName);
+            if (use) {
+              this._useStore();
+            }
             this.$.formDialog.close();
-            this.showNotification('Store changed');
+            this._showNotification('Store changed');
           } else {
-            this.showErrorMessage('Store url is not valid. The connection test was unsuccessful');
+            this._showErrorMessage('Store url is not valid. The connection test was unsuccessful');
           }
         }.bind(this));
-      } else {
-        this.showErrorMessage('The provided Store url is the same as the current one');
+      } else if (use) {
+        this._useStore();
+        this.$.formDialog.close();
       }
     }
   },
 
+  validateStoreSettingsAndUse: function (...params) {
+    this.validateStoreSettings(...params, true);
+  },
+  /* *****************************************************************************************/
+  /* ********************************* private methods ***************************************/
+  /* *****************************************************************************************/
   /**
    * Change the store URL by setting the data from the dialog input fields to the settings.
    *
    * @param  {[Boolean]} changeBaseUrl   [changed flag for the BaseUrl]
    * @param  {[Boolean]} changeStoreName [changed flag for the storeName]
-   * @method changeStore
+   * @method _saveStore
    */
-  changeStore: function (changeBaseUrl, changeStoreName) {
+  _saveStore: function (changeBaseUrl, changeStoreName) {
     if (changeStoreName) {
       this.set('defaultSettings.' + this.$.storeName.name, this.$.storeName.value);
     }
     if (changeBaseUrl) {
       this.set('defaultSettings.' + this.$.baseUrl.name, this.$.baseUrl.value);
     }
-    if (changeStoreName || changeBaseUrl) {
-      this.setUrlInLocation();
-    }
     document.querySelector('bde-app').resetBDE();
   },
 
   /**
-   * Set the store url in location.
-   * @method  setUrlInLocation
+   * Confirmation of the base URL field via enter button focuses the storeName field.
+   *
+   * @param  {[Event]} e [keydown event]
+   * @method _confirmBaseURL
    */
-  setUrlInLocation: function () {
-    this.set('location.params.url', this.$.baseUrl.value + '/' + this.$.storeName.value);
+  _confirmBaseURL: function (e) {
+    if (e.keyCode === 13) {
+      this.$.storeName.focus();
+    }
   },
 
-  useUrlInLocation: function () {
-    var url = this.$.baseUrl.value + '/' + this.$.storeName.value;
-    testStoreConnection(url, function (success) {
-      if (success) {
-        this.setUrlInLocation();
-        this.$.formDialog.close();
-        this.showNotification('Store changed');
-      } else {
-        this.showErrorMessage('Store url is not valid. The connection test was unsuccessful');
-      }
-    }.bind(this));
+  /**
+   * Listener function for opening the dialog.
+   *
+   * @method _handleOpened
+   */
+  _handleOpened: function () {
+    this.set('_intermediate', JSON.parse(JSON.stringify(this.defaultSettings)));
+    this.set('validSettings', true);
   },
+
+  /**
+   * Pressing enter on the storeName field calls the _validateStoreSettings method.
+   *
+   * @param  {[Event]} e [keydown event]
+   * @method _saveChanges
+   */
+  _saveChanges: function (e) {
+    if (e.keyCode === 13) {
+      this._validateStoreSettings();
+    }
+  },
+
+  /**
+   * Set the store url in location.
+   * @method  _setUrlInLocation
+   */
+  _setUrlInLocation: function () {
+    var url = buildParamUrl(this.$.baseUrl.value, this.$.storeName.value);
+    this.set('location.params.url', url);
+  },
+
   /**
    * Sets the errormessage on a div in the dialog.
    *
    * @param  {[String]} message [message set on error]
-   * @method showErrorMessage
+   * @method _showErrorMessage
    */
-  showErrorMessage: function (message) {
+  _showErrorMessage: function (message) {
     this.$.errorMessageDiv.innerHTML = message;
     this.set('validSettings', false);
   },
@@ -183,34 +203,15 @@ Polymer({
    * Sets a paper-toast with a message and opens the toast.
    *
    * @param  {[String]} message [message set on success]
-   * @method showNotification
+   * @method _showNotification
    */
-  showNotification: function (message) {
+  _showNotification: function (message) {
     this.$.toast.text = message;
     this.$.toast.open();
   },
 
-  // /**
-  //  * Opens a XMLHttpRequest for testing the values of the input field for the store URL.
-  //  * If the connection can be established, requestSuccess is set to ture otherwise false.
-  //  *
-  //  * @param  {Function} callback [callback function of the request]
-  //  * @method testStoreConnection
-  //  */
-  testStoreConnection: function (callback) {
-    var xhr = new XMLHttpRequest();
-    var self = this;
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          self.requestSuccess = true;
-        } else {
-          self.requestSuccess = false;
-        }
-        callback.apply(xhr);
-      }
-    };
-    xhr.open('GET', this.$.baseUrl.value + '/' + this.$.storeName.value, true);
-    xhr.send();
+  _useStore: function () {
+    this._setUrlInLocation();
   }
+
 });

@@ -22,6 +22,7 @@
 <link rel="import" href="../bde-application-view/bde-application-view.html">
 <link rel="import" href="../bde-repository-browser/bde-repository-browser.html">
 <link rel="import" href="../bde-error-dialog/bde-error-dialog.html" />
+
 <!--
 A BDE custom element, the main BDE module.
 
@@ -159,27 +160,23 @@ Example:
 
         <!-- Global application state -->
         <bde-manifest id="manifest"
-                      name="{{manifest.name}}"
-                      group-id="{{manifest.groupId}}"
-                      version="{{manifest.version}}"
-                      model-version="{{manifest.modelVersion}}"
-                      doc-type="{{manifest.docType}}"
-                      description="{{manifest.description}}"
-                      author="{{manifest.author}}"
-                      contributers="{{manifest.contributers}}"
-                      license="{{manifest.license}}"
-                      homepage="{{manifest.homepage}}"
-                      keywords="{{manifest.keywords}}"
-                      man="{{manifest.man}}"
-                      runnables="{{manifest.runnables}}"
-                      artifacts="{{manifest.artifacts}}"
+        name="{{manifest.name}}"
+        group-id="{{manifest.groupId}}"
+        version="{{manifest.version}}"
+        model-version="{{manifest.modelVersion}}"
+        doc-type="{{manifest.docType}}"
+        description="{{manifest.description}}"
+        author="{{manifest.author}}"
+        contributers="{{manifest.contributers}}"
+        license="{{manifest.license}}"
+        homepage="{{manifest.homepage}}"
+        keywords="{{manifest.keywords}}"
+        man="{{manifest.man}}"
+        runnables="{{manifest.runnables}}"
+        artifacts="{{manifest.artifacts}}"
+        location="{{location}}"
         ></bde-manifest>
 
-        <iron-location query="{{query}}"></iron-location>
-        <iron-query-params
-                params-string="{{query}}"
-                params-object="{{location.params}}">
-        </iron-query-params>
         <!-- App-wide components belong here -->
         <iron-localstorage id="appSettings"
                            name="app-settings"
@@ -241,14 +238,14 @@ Example:
                             opened="{{settingsOpened}}">
         </bde-store-settings>
 
-        <bde-error-dialog id="bdeRrrorDialog"
+        <bde-error-dialog id="bdeErrorDialog"
                           opened="{{errorDialogOpened}}"
                           message="{{errorMessage}}">
         </bde-error-dialog>
         <!-- Repository browser dialog to search for existing Cubble components -->
         <bde-repository-browser
                 id="browser"
-                settings="[[settings]]"
+                settings="{{settings}}"
                 url="[[_computeBaseUrl(settings.baseUrl, settings.store, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
                 current-component-metadata="{{currentComponentMetadata}}"
         >
@@ -289,7 +286,8 @@ Example:
                 ></paper-icon-button>
 
                 <div class="storeSettingsZone">
-                    <span class="storeUrlText">[[settings.baseUrl]]/[[settings.store]]</span>
+                    <span id="storeUrlText" class="storeUrlText">[[settings.baseUrl]]/[[settings.store]]</span>
+                    <paper-tooltip for="storeUrlText">Store url</paper-tooltip>
                 </div>
 
                 <span class="flex"></span>
@@ -397,8 +395,9 @@ Example:
         </paper-header-panel>
     </template>
 
-    <script src="../lib/urlUtil.js"></script>
     <!-- build:js src/app.min.js -->
+    <script src="../lib/webpackageUtils.js"></script>
+    <script src="../lib/urlUtil.js"></script>
     <script src="bde-app.js"></script>
     <!-- endbuild -->
 

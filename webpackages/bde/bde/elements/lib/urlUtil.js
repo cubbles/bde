@@ -4,25 +4,25 @@
 'use strict';
 function splitUrl (url) { // eslint-disable-line no-unused-vars
   var splittedValues = {};
-  var regex = /(.*)(\/)(.*)((\/)((.*@.*)(\/)(.*))?)?/;
+  var regex = /^(https?:\/\/[^/]*)(\/)([^/]*)(\/)?(([^/]*@[^/]*)(\/)([^/]*))?$/;
   var result = regex.exec(url);
   console.log('result', result);
   if (!result) {
     return;
   }
-  var baseUrl = result[1];
+  var baseUrl = result[ 1 ];
   if (baseUrl) {
     splittedValues.baseUrl = baseUrl;
   }
-  var store = result[3];
+  var store = result[ 3 ];
   if (store) {
     splittedValues.store = store;
   }
-  var webpackageId = result[5];
+  var webpackageId = result[ 6 ];
   if (webpackageId) {
     splittedValues.webpackageId = webpackageId;
   }
-  var artifactId = result[7];
+  var artifactId = result[ 8 ];
   if (artifactId) {
     splittedValues.artifactId = artifactId;
   }
@@ -47,9 +47,20 @@ function testStoreConnection (url, callback) {  // eslint-disable-line no-unused
       } else {
         requestSuccess = false;
       }
-      callback.apply(xhr, [requestSuccess]);
+      callback.apply(xhr, [ requestSuccess ]);
     }
   };
   xhr.open('GET', url, true);
   xhr.send();
+}
+
+function buildParamUrl (baseUrl, store, webpackageId, artifactId) { // eslint-disable-line no-unused-vars
+  var url = baseUrl + '/' + store;
+  if (webpackageId) {
+    url += '/' + webpackageId;
+  }
+  if (artifactId) {
+    url += '/' + artifactId;
+  }
+  return url;
 }

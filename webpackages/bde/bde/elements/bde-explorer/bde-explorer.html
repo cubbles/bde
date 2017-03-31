@@ -179,7 +179,9 @@ Example:
 
         <bde-compound-creator id="compoundCreator"
                               on-last-artifact-changed="_handleNewCompound"
-                              manifest="{{currentComponentMetadata.manifest}}"></bde-compound-creator>
+                              manifest="{{currentComponentMetadata.manifest}}"
+                              settings="{{currentComponentMetadata.settings}}">
+        </bde-compound-creator>
         <bde-compound-settings id="compoundDetails"
                               manifest="{{currentComponentMetadata.manifest}}"
                               resolutions="{{resolutions}}">
