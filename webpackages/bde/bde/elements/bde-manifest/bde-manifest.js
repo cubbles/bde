@@ -252,13 +252,22 @@ Polymer({
    *
    * @method reset
    */
-  reset: function (artifactId) {
+  reset: function (artifactId, groupId, name, version) {
     if (!artifactId) {
       artifactId = this._createArtifactId();
     }
-    this.set('name', this._createWebpackageName());
-    this.set('groupId', null);
-    this.set('version', '1.0.0-SNAPSHOT');
+    if (!groupId) {
+      groupId = null;
+    }
+    if (!name) {
+      name = this._createWebpackageName();
+    }
+    if (!version) {
+      version = '1.0.0-SNAPSHOT';
+    }
+    this.set('name', name);
+    this.set('groupId', groupId);
+    this.set('version', version);
     this.set('modelVersion', '9.1.1');
     this.set('docType', 'webpackage');
     this.set('description', undefined);

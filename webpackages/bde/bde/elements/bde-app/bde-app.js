@@ -1,6 +1,6 @@
 // @importedBy bde-app.html
 
-/* global XMLHttpRequest, splitUrl, testStoreConnection, buildWebpackageId, buildParamUrl,fetch, createNewArtifact */
+/* global XMLHttpRequest, splitUrl, testStoreConnection, buildWebpackageId, buildParamUrl,fetch, createNewArtifact,splitWebpackageId */
 (function () {
   'strict mode';
   Polymer({
@@ -193,12 +193,13 @@
      *
      * @method attached
      */
-    // this._setWebpackageAndArtifactInUrl();
     attached: function () {
       // Bind webpackage node to local scope
       this.set('manifest', this.$.manifest);
+      // read from query the url paramater
       this._readURLParamsInitial();
 
+      // If no url param define deafults
       if (!this.searchParams.get('url')) {
         var evt = new Event('bde-reset-webpackage-change');
         var newCompoundName = 'new-compound';
@@ -344,11 +345,21 @@
       // this.$.dataflowView.set('autolayoutAfterRerender', true);
     },
 
+    /**
+     * provide changes of artifactId
+     * @param {string} artifactId new artifactId
+     * @private
+     */
     _changeArtifact: function (artifactId) {
       this.set('currentComponentMetadata.artifactId', artifactId);
       this.set('settings.artifactId', artifactId);
     },
 
+    /**
+     * Handle changes in currentComponentMetadata
+     * @param {object} changeRecord
+     * @private
+     */
     _currentComponentMetadataChanged: function (changeRecord) {
       console.log(changeRecord);
       if (changeRecord.path.startsWith('currentComponentMetadata.settings')) {
@@ -358,6 +369,11 @@
       }
     },
 
+    /**
+     * Handle change on defaultSettings
+     * @param {object} changeRecord
+     * @private
+     */
     _defaultSettingsChanged: function (changeRecord) {
       console.log('_defaultSettingsChanged', changeRecord);
       this.set('settings.baseUrl', this.defaultSettings.baseUrl);
@@ -426,6 +442,11 @@
       }
     },
 
+    /**
+     * Handle webpackage reset
+     * @param {Event} evt
+     * @private
+     */
     _handleResetWebpackage: function (evt) {
       var artifact = evt.detail;
       this._changeArtifact(artifact.artifactId);
@@ -514,52 +535,17 @@
       this.set(path, changeRecord.value);
     },
 
-    _webpackageIsLoaded: function (webpackageId) {
-      var split = webpackageId.split('@');
-      if (split.length !== 2) {
-        throw new Error('Not a valid webpackageId "' + webpackageId + '". The webpackageId should have the format [groupId.]name@version.');
-      }
-      var version = split[ 1 ];
-      var groupId;
-      var name;
-      var pointIndex = split[ 0 ].lastIndexOf('.');
-      if (pointIndex > -1) {
-        name = split[ 0 ].substr(pointIndex + 1);
-        groupId = split[ 0 ].substring(0, pointIndex);
-      } else {
-        name = split[ 0 ];
-      }
-
-      var isLoaded = this.currentComponentMetadata.manifest.name === name;
-      isLoaded = isLoaded && this.currentComponentMetadata.manifest.version === version;
-      isLoaded = isLoaded && groupIdsEquals(this.currentComponentMetadata.manifest.groupId, groupId);
-      return isLoaded;
-
-      // GroupIds are equal if both has one of the values null, undefined, or empty string
-      function groupIdsEquals (groupId1, groupId2) {
-        if (groupId1 === groupId2) {
-          return true;
-        }
-        if (!groupId1 && !groupId2) {
-          return true;
-        }
-        if (!groupId1 && groupId2.length === 0) {
-          return true;
-        }
-        if (groupId1.length === 0 && !groupId2) {
-          return true;
-        }
-        return false;
-      }
-    },
-
+    /**
+     * Load a webpackage defined in settings. If no existing webpackage found create a new webpackage. If no artifact found create a new artifact.
+     * @private
+     */
     _loadWebpackage: function () {
       if (!this.settings.webpackageId) {
-        this._createNewWebpackage(this.settings.artifactId);
+        this._createNewWebpackage(null, this.settings.artifactId);
         this._setUrlParam(buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId));
-      // } else if (this.settings.newWebpackage) {
-      //   var url = buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId);
-      //   this._setUrlParam(url);
+        // } else if (this.settings.newWebpackage) {
+        //   var url = buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId);
+        //   this._setUrlParam(url);
       } else {
         var manifestUrl = buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId) + '/manifest.webpackage';
         fetch(manifestUrl).then(response => {
@@ -585,9 +571,9 @@
           console.warn('Could not load the webpackage: "' + this.settings.webpackageId + '". Error:' + error.message);
           if (this.settings.webpackageId !== buildWebpackageId(this.manifest)) { // It given a new webpackageId
             if (this.settings.artifactId) {
-              this._createNewWebpackage(this.settings.artifactId); // create webpacakge with the given artifactId
+              this._createNewWebpackage(this.settings.webpackageId, this.settings.artifactId); // create webpacakge with the given artifactId
             } else {
-              this._createNewWebpackage(); // create webpacakge deafults
+              this._createNewWebpackage(this.settings.webpackageId); // create webpacakge deafults
             }
           } else {
             if (this.manifest.artifacts.compoundComponents.find(comp => comp.artifactId === this.settings.artifactId)) {
@@ -606,15 +592,39 @@
       }
     },
 
+    /**
+     * Creates and returns a new artifact by using the artifactProperties
+     * @param {object} artifactProperties
+     * @returns {*}
+     * @private
+     */
     _createNewArtifact: function (artifactProperties) {
       var artifact = createNewArtifact(artifactProperties);
       this.push('manifest.artifacts.compoundComponents', artifact);
       return artifact;
     },
-    _createNewWebpackage: function (artifactId) {
-      var webpackageId;
+    /**
+     * Crates a new webpackage by usage the webpacakgeId and artifactId. If no webpackageId or/and artifactId defined, use defaulst.
+     *
+     * @param {string} webpackageId
+     * @param {string} artifactId
+     * @returns {string} the webpackageId of the created webpackage
+     * @private
+     */
+    _createNewWebpackage: function (webpackageId, artifactId) {
+      var groupId;
+      var name;
+      var version;
+      if (webpackageId) {
+        var prop = splitWebpackageId(webpackageId);
+        if (prop) {
+          groupId = prop.groupId;
+          name = prop.name;
+          version = prop.version;
+        }
+      }
 
-      this.$.manifest.reset(artifactId); // create manifest with a given artifactId
+      this.$.manifest.reset(artifactId, groupId, name, version); // create manifest with a given artifactId
 
       webpackageId = buildWebpackageId(this.$.manifest);
       // this.set('settings.newWebpackage', true);
@@ -642,6 +652,10 @@
       this.$.deployDialog.opened = !this.$.deployDialog.opened;
     },
 
+    /**
+     * Read the query of the location, and initialize the settings object
+     * @private
+     */
     _readURLParamsInitial: function () {
       this.searchParams = new URLSearchParams(window.location.search);
       var url = this.searchParams.get('url');
@@ -689,6 +703,11 @@
       this.$.explorer.set('isArtifactIdEdited', true);
     },
 
+    /**
+     * Handle changes of the settings object. Load Webpacakge or artifact and update the query,
+     * @param {object} changedRecord
+     * @private
+     */
     _settingsChanged: function (changedRecord) {
       if (!this.searchParams || !this.manifest) {
         return;
@@ -707,6 +726,11 @@
       }
     },
 
+    /**
+     * Set the url param in the browser location field without reload the page.
+     * @param {string} param the value of the url parameter
+     * @private
+     */
     _setUrlParam: function (param) {
       if (!this.searchParams.get('url')) {
         this.searchParams.append('url', param);
@@ -721,11 +745,6 @@
       window.history.replaceState({}, '', fullNewUrl);
     },
 
-    _setWebpackageAndArtifactInUrl: function () {
-      this.settings.webpackageId = buildWebpackageId(this.manifest);
-      this.settings.artifactId = this.currentComponentMetadata.artifactId;
-      // this._updateLocation();
-    },
     /**
      * Handler for the open property of the settings dialog.
      *
@@ -736,6 +755,11 @@
       this.$.storeSettings.opened = !this.$.storeSettings.opened;
     },
 
+    /**
+     * Updated property setting with values from settingsObject (Object from splitting of the url paramater
+     * @param {object} settingsObject
+     * @private
+     */
     _updateSettings: function (settingsObject) {
       if (!settingsObject) {
         return;

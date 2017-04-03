@@ -69,6 +69,13 @@ Polymer({
     },
 
     /**
+     * The settings
+     */
+    settings: {
+      type: Object,
+      notify: true
+    },
+    /**
      * Indicate if the menus "Appplications", "Compounds", "Elementaries" and "Utilities" toggles.
      * @type Boolean
      * @property toggleMenus
