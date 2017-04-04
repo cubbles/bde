@@ -203,6 +203,8 @@
       if (!this.searchParams.get('url')) {
         var evt = new Event('bde-reset-webpackage-change');
         var newCompoundName = 'new-compound';
+        this.$.manifest.set('webpackageIdCounter', 1);
+        this.$.manifest.set('artifactIdCounter', 1);
         var artifact = this._createNewArtifact({ artifactId: newCompoundName });
         this.set('settings.artifactId', artifact.artifactId);
         evt.detail = artifact;
@@ -289,6 +291,35 @@
     },
 
     /**
+     * Check if the webpackage name is "new-webpackage" or starts with "new-webpackage-<number>", and set the manifests createWe
+     * @private
+     */
+    _checkWebpackageIdAndArtifactId: function () {
+      var webpackageId = this.get('settings.webpackageId');
+      var splittedWebpacakgeId = splitWebpackageId(webpackageId);
+      var currentCount;
+      if (splittedWebpacakgeId.name === 'new-webpackage') {
+        this.$.manifest.set('webpackageIdCounter', 1);
+      } else if (splittedWebpacakgeId.name.startsWith('new-webpackage-')) {
+        var nameSplits = splittedWebpacakgeId.name.split('-');
+        currentCount = nameSplits[nameSplits.length - 1];
+        if (!isNaN(currentCount)) {
+          this.$.manifest.set('webpackageIdCounter', ++currentCount);
+        }
+      }
+      var artifactId = this.get('settings.artifactId');
+      if (artifactId === 'new-compound') {
+        this.$.manifest.set('artifactIdCounter', 1);
+      } else if (artifactId.startsWith('new-compound-')) {
+        var artifactIdSplits = artifactId.split('-');
+        currentCount = artifactIdSplits[artifactIdSplits.length - 1];
+        if (!isNaN(currentCount)) {
+          this.$.manifest.set('artifactIdCounter', ++currentCount);
+        }
+      }
+    },
+
+    /**
      * Helper function to compute the baseURL for the repository-browser by the given parameters.
      *
      * @param  {[string]} baseUrl [URL of the base]
@@ -361,9 +392,7 @@
      * @private
      */
     _currentComponentMetadataChanged: function (changeRecord) {
-      console.log(changeRecord);
       if (changeRecord.path.startsWith('currentComponentMetadata.settings')) {
-        console.log('updateUrl (bde-app,_currentComponentMetadataChanged )');
         var path = changeRecord.path.replace('currentComponentMetadata.settings', 'settings');
         this.notifyPath(path, changeRecord.value);
       }
@@ -375,7 +404,6 @@
      * @private
      */
     _defaultSettingsChanged: function (changeRecord) {
-      console.log('_defaultSettingsChanged', changeRecord);
       this.set('settings.baseUrl', this.defaultSettings.baseUrl);
       this.set('settings.store', this.defaultSettings.store);
     },
@@ -554,7 +582,6 @@
           }
           throw new Error(response.status + ' ' + response.statusText);
         }).then(manifestObj => {
-          console.log(manifestObj);
           this.$.manifest.loadManifest(manifestObj);
           if (manifestObj.artifacts.compoundComponents.find(comp => comp.artifactId === this.settings.artifactId)) {
             this.set('currentComponentMetadata.artifactId', this.settings.artifactId);
@@ -659,10 +686,10 @@
     _readURLParamsInitial: function () {
       this.searchParams = new URLSearchParams(window.location.search);
       var url = this.searchParams.get('url');
-      console.log('_readURLParams', url);
       if (url) {
         var settingsObject = splitUrl(url);
         this._updateSettings(settingsObject);
+        this._checkWebpackageIdAndArtifactId();
       }
     },
 

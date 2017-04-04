@@ -5,6 +5,16 @@ Polymer({
   is: 'bde-manifest',
 
   properties: {
+    /**
+     * Counter of the added component.
+     *
+     * @type {Number}
+     * @property arrtifactIdCounter
+     */
+    artifactIdCounter: {
+      type: Number,
+      value: 0
+    },
 
     /**
      * Artifacts of the Cubble component. The 'main' metadata of the components for representation in the BDE with slots and connections beeing the main visual input in the app.
@@ -53,17 +63,6 @@ Polymer({
       value: function () {
         return [];
       }
-    },
-
-    /**
-     * Counter of the added component.
-     *
-     * @type {Number}
-     * @property createCounter
-     */
-    createCounter: {
-      type: Number,
-      value: 1
     },
 
     /**
@@ -206,21 +205,19 @@ Polymer({
       type: String,
       value: '1.0.0-SNAPSHOT',
       notify: true
+    },
+
+    /**
+     * Counter of the added component.
+     *
+     * @type {Number}
+     * @property webpackageIdCounter
+     */
+    webpackageIdCounter: {
+      type: Number,
+      value: 0
     }
 
-  },
-
-  // listeners: {
-  //   'library-update-required': 'onLibraryUpdate'
-  // },
-
-  /**
-   * Polymer attached function, sets data from the app.
-   */
-  attached: function () {
-    // document.querySelector('bde-app').set('selectedArtifact', this.artifacts.compoundComponents[ 0 ]);
-    // document.querySelector('bde-app').set('manifest', this);
-    // this.fire('bde-reset-webpackage-change', this.artifacts.compoundComponents[ 0 ]);
   },
 
   /* *******************************************************************************************/
@@ -275,7 +272,6 @@ Polymer({
       name: undefined,
       email: undefined
     });
-    this.set('createCounter', 1);
     this.set('contributors', []);
     this.set('license', 'MIT');
     this.set('homepage', null);
@@ -339,9 +335,16 @@ Polymer({
    * @method _createArtifactId
    */
   _createArtifactId: function () {
-    var counter = this.get('createCounter');
-    var id = 'new-compound-' + counter++;
-    this.set('createCounter', counter);
+    var counter = this.get('artifactIdCounter');
+    var id;
+    if (counter === 0) {
+      id = 'new-compound';
+      counter++;
+    } else {
+      id = 'new-compound-' + counter++;
+    }
+
+    this.set('artifactIdCounter', counter);
     return id;
   },
 
@@ -352,9 +355,16 @@ Polymer({
    * @method _createArtifactId
    */
   _createWebpackageName: function () {
-    var counter = this.get('createCounter');
-    var id = 'new-webpackage-' + counter++;
-    this.set('createCounter', counter);
+    var counter = this.get('webpackageIdCounter');
+    var id;
+    if (counter === 0) {
+      id = 'new-webpackage';
+      counter++;
+    } else {
+      id = 'new-webpackage-' + counter++;
+    }
+
+    this.set('webpackageIdCounter', counter);
     return id;
   },
 
@@ -366,7 +376,8 @@ Polymer({
    */
   _filterRules: function (key) {
     var keyAllowed = key !== 'metadata';
-    keyAllowed = keyAllowed && key !== 'createCounter';
+    keyAllowed = keyAllowed && key !== 'artifactIdCounter';
+    keyAllowed = keyAllowed && key !== 'webpackageIdCounter';
     keyAllowed = keyAllowed && (key !== 'description' || key === 'description' && typeof this.description !== 'undefined' && this.description.trim().length > 0);
     keyAllowed = keyAllowed && key !== 'location';
     return keyAllowed;
