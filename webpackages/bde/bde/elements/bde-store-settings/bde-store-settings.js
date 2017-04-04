@@ -1,5 +1,5 @@
 // @importedBy bde-store-settings.html
-/* globals testStoreConnection,buildParamUrl */
+/* globals testStoreConnection */
 'use strict';
 
 Polymer({
@@ -39,6 +39,10 @@ Polymer({
       type: Boolean
     },
 
+    settings: {
+      type: Object,
+      notify: true
+    },
     /**
      * Boolean set for valid settings after validating URL and name of the store.
      *
@@ -48,13 +52,7 @@ Polymer({
     validSettings: {
       type: Boolean,
       value: true
-    },
-
-    location: {
-      type: Object,
-      notify: true
     }
-
   },
 
   listeners: {
@@ -72,7 +70,7 @@ Polymer({
     var url = this.$.baseUrl.value + '/' + this.$.storeName.value;
     testStoreConnection(url, function (success) {
       if (success) {
-        this._setUrlInLocation();
+        this._use();
         this.$.formDialog.close();
         this._showNotification('Store changed');
       } else {
@@ -107,7 +105,7 @@ Polymer({
           if (success) {
             this._saveStore(changeBaseUrl, changeStoreName);
             if (use) {
-              this._useStore();
+              this._use();
             }
             this.$.formDialog.close();
             this._showNotification('Store changed');
@@ -115,8 +113,7 @@ Polymer({
             this._showErrorMessage('Store url is not valid. The connection test was unsuccessful');
           }
         }.bind(this));
-      } else if (use) {
-        this._useStore();
+      } else {
         this.$.formDialog.close();
       }
     }
@@ -142,7 +139,6 @@ Polymer({
     if (changeBaseUrl) {
       this.set('defaultSettings.' + this.$.baseUrl.name, this.$.baseUrl.value);
     }
-    document.querySelector('bde-app').resetBDE();
   },
 
   /**
@@ -180,15 +176,6 @@ Polymer({
   },
 
   /**
-   * Set the store url in location.
-   * @method  _setUrlInLocation
-   */
-  _setUrlInLocation: function () {
-    var url = buildParamUrl(this.$.baseUrl.value, this.$.storeName.value);
-    this.set('location.params.url', url);
-  },
-
-  /**
    * Sets the errormessage on a div in the dialog.
    *
    * @param  {[String]} message [message set on error]
@@ -210,8 +197,8 @@ Polymer({
     this.$.toast.open();
   },
 
-  _useStore: function () {
-    this._setUrlInLocation();
+  _use: function () {
+    this.set('settings.baseUrl', this.$.baseUrl.value);
+    this.set('settings.store', this.$.storeName.value);
   }
-
 });

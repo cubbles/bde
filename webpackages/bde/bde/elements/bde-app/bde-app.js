@@ -302,7 +302,7 @@
         this.$.manifest.set('webpackageIdCounter', 1);
       } else if (splittedWebpacakgeId.name.startsWith('new-webpackage-')) {
         var nameSplits = splittedWebpacakgeId.name.split('-');
-        currentCount = nameSplits[nameSplits.length - 1];
+        currentCount = nameSplits[ nameSplits.length - 1 ];
         if (!isNaN(currentCount)) {
           this.$.manifest.set('webpackageIdCounter', ++currentCount);
         }
@@ -312,7 +312,7 @@
         this.$.manifest.set('artifactIdCounter', 1);
       } else if (artifactId.startsWith('new-compound-')) {
         var artifactIdSplits = artifactId.split('-');
-        currentCount = artifactIdSplits[artifactIdSplits.length - 1];
+        currentCount = artifactIdSplits[ artifactIdSplits.length - 1 ];
         if (!isNaN(currentCount)) {
           this.$.manifest.set('artifactIdCounter', ++currentCount);
         }
@@ -596,23 +596,10 @@
           this.fire('bde-load-manifest', manifestObj);
         }).catch(error => {
           console.warn('Could not load the webpackage: "' + this.settings.webpackageId + '". Error:' + error.message);
-          if (this.settings.webpackageId !== buildWebpackageId(this.manifest)) { // It given a new webpackageId
-            if (this.settings.artifactId) {
-              this._createNewWebpackage(this.settings.webpackageId, this.settings.artifactId); // create webpacakge with the given artifactId
-            } else {
-              this._createNewWebpackage(this.settings.webpackageId); // create webpacakge deafults
-            }
+          if (this.settings.artifactId) {
+            this._createNewWebpackage(this.settings.webpackageId, this.settings.artifactId); // create webpacakge with the given artifactId
           } else {
-            if (this.manifest.artifacts.compoundComponents.find(comp => comp.artifactId === this.settings.artifactId)) {
-              // artifact is in manifest
-              this.set('currentComponentMetadata.artifactId', this.settings.artifactId);
-            } else {
-              // new artifact
-              var artifact = this._createNewArtifact({
-                artifactId: this.settings.artifactId
-              });
-              this.set('currentComponentMetadata.artifactId', artifact.artifactId);
-            }
+            this._createNewWebpackage(this.settings.webpackageId); // create webpackage defaults
           }
           this._setUrlParam(buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId));
         });
@@ -743,7 +730,7 @@
       // url param from location
       var url = buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId);
       if (changedRecord.path.startsWith('settings.webpackageId') || changedRecord.path.startsWith('settings.baseUrl') || changedRecord.path.startsWith('settings.store')) {
-        // if baseUrl or store or webpacakgeId changed reload all things
+        // if baseUrl or store or webpackageId changed reload all things
         this.debounce('loadWebpackage', function () {
           this._loadWebpackage();
         }, 5);
