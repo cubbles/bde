@@ -141,4 +141,7 @@
   window.addEventListener('cifReady', function (e) {
     _postMessage('loaded');
   }, false);
+  window.addEventListener('crcReady', function (e) {
+    _postMessage('cifIframeCrcReady');
+  }, false);
 }());

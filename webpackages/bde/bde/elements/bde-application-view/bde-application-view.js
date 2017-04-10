@@ -106,6 +106,9 @@ Polymer({
           });
         }
         this.firstDomLoaded = true;
+
+      case 'cifIframeCrcReady':
+        var event = new Event('cifIframeCrcReady'); document.dispatchEvent(event);
     }
   },
 
