@@ -54,29 +54,19 @@
             height: 100vh;
         }
 
-        #app {
+        bde-app {
             display: none;
         }
     </style>
 </head>
 <body unresolved>
+<!-- bde app -->
 <bde-app id="app"></bde-app>
 <!-- bde spinner -->
 <div class="spinner-wrapper">
     <paper-spinner id="index_spinner" active></paper-spinner>
     <span class="hint">Loading...</span>
 </div>
-<script>
-    (function() {
-        'use strict';
-        document.addEventListener('cifIframeCrcReady', showBde);
-
-        function showBde () {
-            document.querySelector('#index_spinner').parentNode.style.display = 'none';
-            document.querySelector('#app').style.display = 'block';
-            document.removeEventListener('cifIframeCrcReady', showBde);
-        }
-    })();
-</script>
+<script src="index.js"></script>
 </body>
 </html>
