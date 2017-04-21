@@ -385,6 +385,46 @@
       this.set('currentComponentMetadata.artifactId', artifactId);
       this.set('settings.artifactId', artifactId);
     },
+    /**
+     * Creates and returns a new artifact by using the artifactProperties
+     * @param {object} artifactProperties
+     * @returns {*}
+     * @private
+     */
+    _createNewArtifact: function (artifactProperties) {
+      var artifact = createNewArtifact(artifactProperties);
+      this.push('manifest.artifacts.compoundComponents', artifact);
+      return artifact;
+    },
+
+    /**
+     * Crates a new webpackage by usage the webpacakgeId and artifactId. If no webpackageId or/and artifactId defined, use defaulst.
+     *
+     * @param {string} webpackageId
+     * @param {string} artifactId
+     * @returns {string} the webpackageId of the created webpackage
+     * @private
+     */
+    _createNewWebpackage: function (webpackageId, artifactId) {
+      var groupId;
+      var name;
+      var version;
+      if (webpackageId) {
+        var prop = splitWebpackageId(webpackageId);
+        if (prop) {
+          groupId = prop.groupId;
+          name = prop.name;
+          version = prop.version;
+        }
+      }
+
+      this.$.manifest.reset(artifactId, groupId, name, version); // create manifest with a given artifactId
+
+      webpackageId = buildWebpackageId(this.$.manifest);
+      // this.set('settings.newWebpackage', true);
+      this.set('settings.webpackageId', webpackageId);
+      return webpackageId;
+    },
 
     /**
      * Handle changes in currentComponentMetadata
@@ -553,17 +593,6 @@
     },
 
     /**
-     * Handler method after manifest property changed.
-     * Update the property "currentComponentMetadata" with the changes.
-     * @param changeRecord
-     * @private
-     */
-    _manifestChanged: function (changeRecord) {
-      var path = changeRecord.path.replace('manifest', 'currentComponentMetadata.manifest');
-      this.set(path, changeRecord.value);
-    },
-
-    /**
      * Load a webpackage defined in settings. If no existing webpackage found create a new webpackage. If no artifact found create a new artifact.
      * @private
      */
@@ -607,43 +636,14 @@
     },
 
     /**
-     * Creates and returns a new artifact by using the artifactProperties
-     * @param {object} artifactProperties
-     * @returns {*}
+     * Handler method after manifest property changed.
+     * Update the property "currentComponentMetadata" with the changes.
+     * @param changeRecord
      * @private
      */
-    _createNewArtifact: function (artifactProperties) {
-      var artifact = createNewArtifact(artifactProperties);
-      this.push('manifest.artifacts.compoundComponents', artifact);
-      return artifact;
-    },
-    /**
-     * Crates a new webpackage by usage the webpacakgeId and artifactId. If no webpackageId or/and artifactId defined, use defaulst.
-     *
-     * @param {string} webpackageId
-     * @param {string} artifactId
-     * @returns {string} the webpackageId of the created webpackage
-     * @private
-     */
-    _createNewWebpackage: function (webpackageId, artifactId) {
-      var groupId;
-      var name;
-      var version;
-      if (webpackageId) {
-        var prop = splitWebpackageId(webpackageId);
-        if (prop) {
-          groupId = prop.groupId;
-          name = prop.name;
-          version = prop.version;
-        }
-      }
-
-      this.$.manifest.reset(artifactId, groupId, name, version); // create manifest with a given artifactId
-
-      webpackageId = buildWebpackageId(this.$.manifest);
-      // this.set('settings.newWebpackage', true);
-      this.set('settings.webpackageId', webpackageId);
-      return webpackageId;
+    _manifestChanged: function (changeRecord) {
+      var path = changeRecord.path.replace('manifest', 'currentComponentMetadata.manifest');
+      this.set(path, changeRecord.value);
     },
 
     /**

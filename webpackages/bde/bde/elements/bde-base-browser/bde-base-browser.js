@@ -366,9 +366,11 @@ Polymer({
    * @param  {[Event]} event [Response of AJAX call.]
    */
   _handleResponse: function () {
-    var cubbles = this.$.ajax.lastResponse.filter((item) => item.modelVersion.match(/8.3/) || item.modelVersion.match(/9.1/))
-      .filter((item) => item.artifactType === 'compoundComponent' || item.artifactType === 'elementaryComponent');
-    this.set('_cubbles', cubbles);
+    if (this.$.ajax.lastResponse) {
+      var cubbles = this.$.ajax.lastResponse.filter((item) => item.modelVersion.match(/8.3/) || item.modelVersion.match(/9.1/))
+        .filter((item) => item.artifactType === 'compoundComponent' || item.artifactType === 'elementaryComponent');
+      this.set('_cubbles', cubbles);
+    }
   },
 
   /**

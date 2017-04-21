@@ -194,7 +194,7 @@
     },
 
     observers: [
-      '_currentComponentMetadataChanged(currentComponentMetadata.manifest, currentComponentMetadata.artifactId)',
+      '_currentComponentMetadataChanged(currentComponentMetadata.*)',
       '_selectedMembersChanged(_selectedMembers.splices)',
       '_selectedEdgesChanged(_selectedEdges.splices)',
       '_artifactChanged(_artifact.*)'
@@ -329,7 +329,16 @@
      * @param  {String} artifactId [description]
      * @param  {String} endpointId [description]
      */
-    _currentComponentMetadataChanged: function (manifest, artifactId) {
+    _currentComponentMetadataChanged: function (changeRecord) {
+      var manifest = this.currentComponentMetadata.manifest;
+      var artifactId = this.currentComponentMetadata.artifactId;
+      if (!manifest || !manifest.artifacts || !manifest.artifacts.compoundComponents) {
+        return;
+      }
+      if (!manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId)) {
+        return;
+      }
+      console.log('need reload graph');
       this.debounce('reload_graph', function () {
         this.reload();
       }, 100);
