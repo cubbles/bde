@@ -4,6 +4,11 @@
       "url": "https://www.cubbles.world/bde",
       "proxy": "",
       "debug": false
+    },
+    "dev": {
+      "url": "http://cubbles-base-local/bde",
+      "proxy": "",
+      "debug": false
     }
   }
 }
