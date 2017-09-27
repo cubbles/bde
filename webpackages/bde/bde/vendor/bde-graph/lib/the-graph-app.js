@@ -345,7 +345,7 @@
       // var x = event.x || event.clientX || 0;
       // var y = event.y || event.clientY || 0;
       var x = event.x - this.props.offsetX || event.clientX - this.props.offsetX || 0; // jtrs: correcture with offset
-      var y = event.y - this.props.offsetY|| event.clientY - this.props.offsetY || 0; // jtrs: correcture with offset
+      var y = event.y - this.props.offsetY || event.clientY - this.props.offsetY || 0; // jtrs: correcture with offset
 
       // App.showContext
       this.showContext({
@@ -381,7 +381,19 @@
           for (nodeKey in selectedNodes) {
             if (selectedNodes.hasOwnProperty(nodeKey)) {
               node = graph.getNode(nodeKey);
-              menus.node.actions.delete(graph, nodeKey, node);
+              if (!node) {
+                // remove ports if there is no node
+                node = graph.inports[nodeKey];
+                if (node) {
+                  graph.removeInport(nodeKey);
+                }
+                node = graph.outports[nodeKey];
+                if (node) {
+                  graph.removeOutport(nodeKey);
+                }
+              } else {
+                menus.node.actions.delete(graph, nodeKey, node);
+              }
             }
           }
           selectedEdges.map(function (edge) {
@@ -391,9 +403,9 @@
         // f for fit
         70: function () {
           this.triggerFit();
-        }.bind(this),
+        }.bind(this)
         // s for selected
-        83: function () {
+        /* 83: function () {
           var graph = this.refs.graph.state.graph;
           var selectedNodes = this.refs.graph.state.selectedNodes;
           var nodeKey = null;
@@ -406,7 +418,7 @@
               break;
             }
           }
-        }.bind(this)
+        }.bind(this) */
       };
 
       if (hotKeys[ key ]) {

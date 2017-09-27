@@ -498,6 +498,12 @@
         // Handle connections to exported slots
         let inport = false;
         let outport = false;
+        /*if (!edge.from.node) {
+          edge.from.port = 'SLOT_' + edge.from.port;
+        }
+        if (!edge.to.node) {
+          edge.to.port = 'SLOT_' + edge.to.port;
+        }*/
         if (!source) {
           source = graph.inports[ edge.from.port ];
           inport = true;

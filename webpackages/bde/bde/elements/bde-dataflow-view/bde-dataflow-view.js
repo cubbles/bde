@@ -280,6 +280,7 @@
       } else {
         bdeGraph.rebuildGraph();
       }
+
       var promise = window.cubx.bde.bdeDataConverter.resolveArtifact(artifactId, manifest, this._baseUrl(), this.resolutions);
       promise.then((data) => {
         data.components.map((component) => {
@@ -292,13 +293,21 @@
         _artifact.inits = data.inits;
         this.set('_artifact', _artifact);
 
-        // if (this.autolayoutAfterRerender) {
-        //   this.async(() => {
-        //     requestAnimationFrame(() => bdeGraph.triggerAutolayout());
-        //     this.set('autolayoutAfterRerender', false);
-        //   }, 200);
-        // }
-        requestAnimationFrame(() => bdeGraph.triggerAutolayout());
+        this.autolayoutAfterRerender = true;
+        if (this.autolayoutAfterRerender) {
+          this.async(() => {
+            requestAnimationFrame(() => bdeGraph.triggerAutolayout());
+            this.set('autolayoutAfterRerender', false);
+          }, 200);
+        }
+        // set listener for changed coordinates
+        bdeGraph.onCoordinatesChanged = this.onCoordinatesChanged.bind(this);
+        // trigger utgard init
+        if (!this.utgard) {
+          this.utgard = true;
+          setTimeout(this._initUtgard.bind(this), 200);
+        }
+        //requestAnimationFrame(() => bdeGraph.triggerAutolayout());
       });
     },
 
@@ -673,6 +682,57 @@
       url += webpackageId + '/manifest.webpackage';
 
       return url;
+    },
+
+    ///////////////////////////////////////////////
+    /////////////Utgard implementation/////////////
+    ///////////////////////////////////////////////
+    _initUtgard: function () {
+      try {
+        this.utgard = window.utgard;
+        this.utgard.config.websockifyURL = 'ws://asgard';                  //Websocket Adresse Asgard
+        this.utgard.config.websockifyPort = 4444;                          //Websocket Port    Asgard
+        this.utgard.config.websockifyURL_KB = utgard.config.websockifyURL; //Websocket Adresse Hel
+        this.utgard.config.websockifyPort_KB = 3333;                       //Websocket Port    Hel
+        this.utgard.connectToServer(this._onUtgardReady.bind(this), function () {
+          console.log("could not load utgard");
+        });
+        this.utgard.setCallback(this._onUtgardResponse.bind(this));
+      } catch (e) {
+        console.log('could not find utgard source');
+      }
+    },
+
+    _onUtgardReady: function () {
+      console.log('utgard ready');
+    },
+
+    _onUtgardResponse: function (response) {
+
+    },
+
+    onCoordinatesChanged: function (coordinates, change) {
+      console.log(coordinates, change);
+      // TODO add functionality to send real meta data
+      // TODO create local mapping list holding(webpackage+artifact name <-> utgard_id)
+      // case new node:
+      if (!this.utgard_id) {
+        this.utgard_id = 1;
+      }
+      else {
+        this.utgard_id++;
+      }
+      utgard.addObject({id: this.utgard_id,
+        posX: 70,
+        posY: 40,
+        dimX: 10,
+        dimY: 10,
+        content: 'com.incowia.cubx-webpackage-viewer-package@1.1.0/cubx-component-info-viewer'
+      });
+      // case node moved:
+      utgard.moveBoundingA(30 /*posX */, 50 /* posY */, 1 /* utgard_id */);
+      // case node removed
+      utgard.removeObjects([1] /* list of utagrd_ids s */);
     }
   });
 })(this);

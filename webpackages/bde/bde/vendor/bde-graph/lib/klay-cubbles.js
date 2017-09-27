@@ -188,7 +188,7 @@
 
         var kChild = {
           id: tempId,
-          labels: [ { text: key } ],
+          labels: [ { text: inports[key].metadata.slotId } ],
           width: nodeProperties.width,
           height: nodeProperties.height,
           ports: [ uniquePort ],
@@ -215,7 +215,7 @@
 
         var kChild = {
           id: tempId,
-          labels: [ { text: key } ],
+          labels: [ { text: outports[key].metadata.slotId } ],
           width: nodeProperties.width,
           height: nodeProperties.height,
           ports: [ uniquePort ],

@@ -342,6 +342,92 @@
 
   Graph.prototype.groups = [];
 
+  Graph.prototype.getCoordinates = function () {
+    if (!this.coordinates) {
+      this.coordinates = {
+        artifacts: {},
+        inports: {},
+        outports: {}
+      };
+    }
+    var changes = {};
+    for (var i = 0; i < this.nodes.length; i++) {
+      var nodeTmp = {};
+      // for squares
+      if (!this.coordinates.artifacts[this.nodes[i].id]) {
+        nodeTmp.x = this.nodes[i].metadata.x + (this.nodes[i].metadata.width / 2);
+        nodeTmp.y = this.nodes[i].metadata.y + (this.nodes[i].metadata.height / 2);
+        nodeTmp.width = this.nodes[i].metadata.width;
+        nodeTmp.height = this.nodes[i].metadata.height;
+        this.coordinates.artifacts[this.nodes[i].id] = nodeTmp;
+        if (!changes.artifacts) {
+          changes.artifacts = {};
+        }
+        changes.artifacts[this.nodes[i].id] = JSON.parse(JSON.stringify(nodeTmp));
+      } else {
+        nodeTmp = this.coordinates.artifacts[this.nodes[i].id];
+        var tmp;
+        var changeTmp = {};
+        if (nodeTmp.x !== (tmp = this.nodes[i].metadata.x + (this.nodes[i].metadata.width / 2))) {
+          nodeTmp.x = changeTmp.x = tmp;
+        }
+        if (nodeTmp.y !== (tmp = this.nodes[i].metadata.y + (this.nodes[i].metadata.height / 2))) {
+          nodeTmp.y = changeTmp.y = tmp;
+        }
+        if (nodeTmp.width !== (tmp = this.nodes[i].metadata.width)) {
+          nodeTmp.width = changeTmp.width = tmp;
+        }
+        if (nodeTmp.height !== (tmp = this.nodes[i].metadata.height)) {
+          nodeTmp.height = changeTmp.height = tmp;
+        }
+        if (Object.keys(changeTmp).length) {
+          if (!changes.artifacts) {
+            changes.artifacts = {};
+          }
+          changes.artifacts[this.nodes[i].id] = changeTmp;
+        }
+      }
+    }
+    for (i in this.inports) {
+      if (this.inports.hasOwnProperty(i)) {
+        nodeTmp = {};
+        // for squares
+        nodeTmp.x = this.inports[i].metadata.x + (this.inports[i].metadata.width / 2);
+        nodeTmp.y = this.inports[i].metadata.y + (this.inports[i].metadata.height / 2);
+        nodeTmp.width = this.inports[i].metadata.width;
+        nodeTmp.height = this.inports[i].metadata.height;
+        this.coordinates.inports[this.inports[i].metadata.slotId] = nodeTmp;
+      }
+    }
+    for (i in this.outports) {
+      if (this.outports.hasOwnProperty(i)) {
+        nodeTmp = {};
+        // for squares
+        nodeTmp.x = this.outports[i].metadata.x + (this.outports[i].metadata.width / 2);
+        nodeTmp.y = this.outports[i].metadata.y + (this.outports[i].metadata.height / 2);
+        nodeTmp.width = this.outports[i].metadata.width;
+        nodeTmp.height = this.outports[i].metadata.height;
+        this.coordinates.outports[this.outports[i].metadata.slotId] = nodeTmp;
+      }
+    }
+    return {snapshot: this.coordinates, change: changes};
+  };
+
+  Graph.prototype.setCoordinates = function (nodesMeta) {
+    var nodeTmp;
+    this.checkTransactionStart();
+    for (var i = 0; i < nodesMeta.length; i++) {
+      nodeTmp = this.getNode(nodesMeta[i].id);
+      if (nodeTmp !== null) {
+        nodeTmp.metadata.x = nodesMeta[i].x - (nodeTmp.metadata.width / 2);
+        nodeTmp.metadata.y = nodesMeta[i].y - (nodeTmp.metadata.height / 2);
+        nodeTmp.metadata.width = nodesMeta[i].width;
+        nodeTmp.metadata.height = nodesMeta[i].height;
+      }
+    }
+    this.checkTransactionEnd();
+  };
+
   Graph.prototype.getPortName = function (port) {
     if (this.caseSensitive) {
       return port;

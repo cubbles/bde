@@ -420,6 +420,13 @@
       this._graph.groups.splice(0, this._graph.groups.length);
     },
 
+    coordinatesChanged: function () {
+      var coordinates = this._graph.getCoordinates();
+      if (this.onCoordinatesChanged && typeof this.onCoordinatesChanged === 'function') {
+        this.onCoordinatesChanged(coordinates.snapshot, coordinates.change);
+      }
+    },
+
     /**
      * Build or rebuild the graph.
      */
@@ -443,6 +450,7 @@
       this._graph.on('removeOutport', this.onRemoveOutport.bind(this));
       this._graph.on('addInitial', this.onAddInitial.bind(this));
       this._graph.on('removeInitial', this.onRemoveInitial.bind(this));
+      this._graph.on('endTransaction', this.coordinatesChanged.bind(this));
 
       if (this._appView) {
         // Remove previous instance
@@ -599,6 +607,7 @@
         }
       } else {
         this.push('slots', {
+          id: 'SLOT_' + publicPort,
           slotId: publicPort,
           type: port.metadata.type,
           description: port.metadata.description,
@@ -634,6 +643,7 @@
         }
       } else {
         this.push('slots', {
+          id: 'SLOT_' + publicPort,
           slotId: publicPort,
           type: port.metadata.type,
           description: port.metadata.description,
@@ -831,6 +841,12 @@
         hookFunction: conn.hookFunction,
         description: conn.description
       };
+      if (!conn.source.memberIdRef) {
+        conn.source.slot = 'SLOT_' + conn.source.slot;
+      }
+      if (!conn.destination.memberIdRef) {
+        conn.destination.slot = 'SLOT_' + conn.destination.slot;
+      }
       this._graph.addEdge(
         conn.source.memberIdRef, conn.source.slot,
         conn.destination.memberIdRef, conn.destination.slot,
@@ -874,21 +890,23 @@
         isOutputSlot = true;
         isInputSlot = true;
       }
-      if (isOutputSlot && this._graph.outports[ slot.slotId ]) {
+      if (isOutputSlot && this._graph.outports[ slot.id ]) {
         return;
       }
-      if (isInputSlot && this._graph.inports[ slot.slotId ]) {
+      if (isInputSlot && this._graph.inports[ slot.id ]) {
         return;
       }
 
       if (isInputSlot) {
-        this._graph.addInport(slot.slotId, slot.type, {
-          description: slot.description
+        this._graph.addInport(slot.id, slot.type, {
+          description: slot.description,
+          slotId: slot.slotId
         });
       }
       if (isOutputSlot) {
-        this._graph.addOutport(slot.slotId, slot.type, {
-          description: slot.description
+        this._graph.addOutport(slot.id, slot.type, {
+          description: slot.description,
+          slotId: slot.slotId
         });
       }
     },
@@ -1266,7 +1284,7 @@
 
     _getSlotForPort: function (publicPort) {
       return this.slots.find(function (slot) {
-        return slot.slotId === publicPort && !slot.markedForDelete;
+        return slot.id === publicPort && !slot.markedForDelete;
       });
     },
 
@@ -1554,7 +1572,7 @@
       if (!changeRecord || !this._graphView) { return; }
       var selectedNodesHash = {};
       this.selectedInputSlots.forEach(function (port) {
-        selectedNodesHash[ port.slotId ] = true;
+        selectedNodesHash[ port.id ] = true;
       });
 
       this._graphView.setSelectedNodes(selectedNodesHash);
@@ -1564,7 +1582,7 @@
       if (!changeRecord || !this._graphView) { return; }
       var selectedNodesHash = {};
       this.selectedOutputSlots.forEach(function (port) {
-        selectedNodesHash[ port.slotId ] = true;
+        selectedNodesHash[ port.id ] = true;
       });
 
       this._graphView.setSelectedNodes(selectedNodesHash);
@@ -1582,10 +1600,10 @@
           // Slots were removed
           s.removed.forEach(function (slot) {
             if (slot.direction.indexOf('input') !== -1) {
-              this._graph.removeInport(slot.slotId);
+              this._graph.removeInport(slot.id);
             }
             if (slot.direction.indexOf('output') !== -1) {
-              this._graph.removeOutport(slot.slotId);
+              this._graph.removeOutport(slot.id);
             }
           }, this);
 
@@ -1593,6 +1611,7 @@
           for (i = 0; i < s.addedCount; i++) {
             index = s.index + i;
             slot = s.object[ index ];
+            slot.id = 'SLOT_' + slot.slotId;
             this._addSlotToGraph(slot);
           }
         }, this);
@@ -1600,7 +1619,11 @@
         // Slots were set
         if (changeRecord.value instanceof Array && changeRecord.value.length > 0) {
           for (let i = 0; i < changeRecord.value.length; i++) {
-            this._addSlotToGraph(changeRecord.value[ i ]);
+            let slot = changeRecord.value[ i ];
+            if (!slot.id) {
+              slot.id = 'SLOT_' + slot.slotId;
+            }
+            this._addSlotToGraph(slot);
           }
         }
       } else {
@@ -1644,56 +1667,56 @@
     },
     _updateSlotMetadata: function (slot, changes) {
       if (!slot.direction || slot.direction.includes('input')) {
-        let metadata = this._graph.getInportMetadata(slot.slotId);
+        let metadata = this._graph.getInportMetadata(slot.id);
         for (let prop in changes) {
           if (changes.hasOwnProperty(prop)) {
             metadata[ prop ] = changes[ prop ];
           }
         }
-        this._graph.setInportMetadata(slot.slotId, metadata);
+        this._graph.setInportMetadata(slot.id, metadata);
       }
       if (!slot.direction || slot.direction.includes('output')) {
-        let metadata = this._graph.getOutportMetadata(slot.slotId);
+        let metadata = this._graph.getOutportMetadata(slot.id);
         for (let prop in changes) {
           if (changes.hasOwnProperty(prop)) {
             metadata[ prop ] = changes[ prop ];
           }
         }
-        this._graph.setOutportMetadata(slot.slotId, metadata);
+        this._graph.setOutportMetadata(slot.id, metadata);
       }
     },
 
     _updateSlotInGraph: function (slot, oldSlot) {
       if (!slot.direction || slot.direction.includes('input')) {
-        let oldPort = this._graph.inports[ oldSlot.slotId ];
+        let oldPort = this._graph.inports[ oldSlot.id ];
         // redirect edges
-        let slotEdges = this._graph.edges.filter((edge) => (edge.from.port === oldSlot.slotId));
+        let slotEdges = this._graph.edges.filter((edge) => (edge.from.port === oldSlot.id));
         this._addSlotToGraph(slot);
-        let newPort = this._graph.inports[ slot.slotId ];
+        let newPort = this._graph.inports[ slot.id ];
         newPort.metadata.x = oldPort.metadata.x;
         newPort.metadata.y = oldPort.metadata.y;
         slotEdges.forEach((edge) => {
-          this._graph.addEdge(undefined, slot.slotId, edge.to.node, edge.to.port, edge.metadata);
-          this._graph.removeEdge(undefined, oldSlot.slotId, edge.to.node, edge.to.port);
+          this._graph.addEdge(undefined, slot.id, edge.to.node, edge.to.port, edge.metadata);
+          this._graph.removeEdge(undefined, oldSlot.id, edge.to.node, edge.to.port);
         });
       }
       if (!slot.direction || slot.direction.includes('output')) {
-        let oldPort = this._graph.outports[ oldSlot.slotId ];
-        let slotEdges = this._graph.edges.filter((edge) => (edge.to.port === oldSlot.slotId));
+        let oldPort = this._graph.outports[ oldSlot.id ];
+        let slotEdges = this._graph.edges.filter((edge) => (edge.to.port === oldSlot.id));
         this._addSlotToGraph(slot);
-        let newPort = this._graph.outports[ slot.slotId ];
+        let newPort = this._graph.outports[ slot.id ];
         newPort.metadata.x = oldPort.metadata.x;
         newPort.metadata.y = oldPort.metadata.y;
         slotEdges.forEach((edge) => {
-          this._graph.addEdge(edge.from.node, edge.from.port, undefined, slot.slotId, edge.metadata);
-          this._graph.removeEdge(edge.from.node, edge.from.port, undefined, oldSlot.slotId);
+          this._graph.addEdge(edge.from.node, edge.from.port, undefined, slot.id, edge.metadata);
+          this._graph.removeEdge(edge.from.node, edge.from.port, undefined, oldSlot.id);
         });
       }
       if (!slot.direction || slot.direction.includes('input')) {
-        this._graph.removeInport(oldSlot.slotId);
+        this._graph.removeInport(oldSlot.id);
       }
       if (!slot.direction || slot.direction.includes('output')) {
-        this._graph.removeOutport(oldSlot.slotId);
+        this._graph.removeOutport(oldSlot.id);
       }
     }
   });
