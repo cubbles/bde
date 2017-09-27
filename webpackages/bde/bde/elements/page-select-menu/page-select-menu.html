@@ -79,7 +79,7 @@ Example:
         var distributedNodes = Polymer.dom(this.$.selectors).getDistributedNodes();
         var selectedNode = [].find.call(distributedNodes, node => node.hasAttribute('selected'));
 
-        this.selected = (selectedNode) ? selectedNode.getAttribute('page') : distributedNodes[0].getAttribute('page');
+        this.selected = (selectedNode && selectedNode !== -1) ? selectedNode.getAttribute('page') : distributedNodes[0].getAttribute('page');
       }
     });
   })();

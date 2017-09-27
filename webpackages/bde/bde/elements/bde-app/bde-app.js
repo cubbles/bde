@@ -760,6 +760,17 @@
     },
 
     /**
+     * Handler for stopping a eventpropagation
+     *
+     * @method _stopEventPropagation
+     * @param {event} e the event to stop propagation for
+     * @private
+     */
+    _stopEventPropagation: function(e) {
+      e.stopPropagation();
+    },
+
+    /**
      * Handler for the open property of the settings dialog.
      *
      * @method _storeSettingsBtnHandler

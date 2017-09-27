@@ -189,7 +189,8 @@ Example:
         <!-- About dialog, containing copyright and actual version  -->
         <paper-dialog id="about"
                       exit-animation="fade-out-animation"
-                      with-backdrop>
+                      with-backdrop
+                      on-keydown="_stopEventPropagation">
             <h2>About</h2>
             <div>
                 <p>This is the Cubbles Browser Development Environment (BDE)</p>
@@ -205,7 +206,8 @@ Example:
         <!-- New webpackage dialog -->
         <paper-dialog id="confirmNewWebpackage"
                       exit-animation="fade-out-animation"
-                      with-backdrop>
+                      with-backdrop
+                      on-keydown="_stopEventPropagation">
             <h2>Are You Sure?</h2>
             <div>
                 <p>By creating a new Webpackage you'll be losing all of your work </p>
@@ -219,7 +221,8 @@ Example:
         <!-- Webpackage base upload/deployment dialog -->
         <paper-dialog id="deployDialog"
                       exit-animation="fade-out-animation"
-                      with-backdrop>
+                      with-backdrop
+                      on-keydown="_stopEventPropagation">
             <h2>Under Construction</h2>
             <div>
                 <p>This functionality is not yet implemented... </p>
@@ -230,18 +233,21 @@ Example:
         </paper-dialog>
 
         <!-- BDE quick help page; is shown initially on start-up of the app -->
-        <bde-help-page id="help"></bde-help-page>
+        <bde-help-page id="help"
+                       on-keydown="_stopEventPropagation"></bde-help-page>
 
         <!-- Dialog for setting up the Cubble base connection -->
         <bde-store-settings id="storeSettings"
                             default-settings="{{defaultSettings}}"
                             settings="{{settings}}"
-                            opened="{{settingsOpened}}">
+                            opened="{{settingsOpened}}"
+                            on-keydown="_stopEventPropagation">
         </bde-store-settings>
 
         <bde-error-dialog id="bdeErrorDialog"
                           opened="{{errorDialogOpened}}"
-                          message="{{errorMessage}}">
+                          message="{{errorMessage}}"
+                          on-keydown="_stopEventPropagation">
         </bde-error-dialog>
         <!-- Repository browser dialog to search for existing Cubble components -->
         <bde-repository-browser
@@ -249,7 +255,7 @@ Example:
                 settings="{{settings}}"
                 url="[[_computeBaseUrl(settings.baseUrl, settings.store, '/_design/couchapp-artifactsearch/_list/listArtifacts/viewArtifacts')]]"
                 current-component-metadata="{{currentComponentMetadata}}"
-        >
+                on-keydown="_stopEventPropagation">
         </bde-repository-browser>
 
         <!-- bde spinner -->
