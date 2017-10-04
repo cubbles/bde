@@ -708,7 +708,7 @@
     },
 
     _onUtgardResponse: function (response) {
-
+      console.log(response);
     },
 
     onCoordinatesChanged: function (coordinates, change) {
@@ -722,17 +722,19 @@
       else {
         this.utgard_id++;
       }
-      utgard.addObject({id: this.utgard_id,
-        posX: 70,
-        posY: 40,
-        dimX: 10,
-        dimY: 10,
-        content: 'com.incowia.cubx-webpackage-viewer-package@1.1.0/cubx-component-info-viewer'
-      });
-      // case node moved:
-      utgard.moveBoundingA(30 /*posX */, 50 /* posY */, 1 /* utgard_id */);
-      // case node removed
-      utgard.removeObjects([1] /* list of utagrd_ids s */);
+      if (this.utgard) {
+        utgard.addObject({id: this.utgard_id,
+          posX: 70,
+          posY: 40,
+          dimX: 10,
+          dimY: 10,
+          content: 'com.incowia.cubx-webpackage-viewer-package@1.1.0/cubx-component-info-viewer'
+        });
+        // case node moved:
+        //utgard.moveBoundingA(30 /*posX */, 50 /* posY */, 1 /* utgard_id */);
+        // case node removed
+        //utgard.removeObjects([1] /* list of utagrd_ids s */);
+      }
     }
   });
 })(this);
