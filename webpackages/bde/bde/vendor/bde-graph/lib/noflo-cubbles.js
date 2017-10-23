@@ -361,9 +361,13 @@
         nodeTmp.height = this.nodes[i].metadata.height;
         this.coordinates.artifacts[this.nodes[i].id] = nodeTmp;
         if (!changes.artifacts) {
-          changes.artifacts = {};
+          changes.artifacts = {
+            changed: {},
+            removed: {},
+            created: {}
+          };
         }
-        changes.artifacts[this.nodes[i].id] = JSON.parse(JSON.stringify(nodeTmp));
+        changes.artifacts.created[this.nodes[i].id] = JSON.parse(JSON.stringify(nodeTmp));
       } else {
         nodeTmp = this.coordinates.artifacts[this.nodes[i].id];
         var tmp;
@@ -382,9 +386,30 @@
         }
         if (Object.keys(changeTmp).length) {
           if (!changes.artifacts) {
-            changes.artifacts = {};
+            changes.artifacts = {
+              changed: {},
+              removed: {},
+              created: {}
+            };
           }
-          changes.artifacts[this.nodes[i].id] = changeTmp;
+          changes.artifacts.changed[this.nodes[i].id] = changeTmp;
+        }
+      }
+      for (var id in this.coordinates.artifacts) {
+        if (this.coordinates.artifacts.hasOwnProperty(id)) {
+          if (!this.nodes.find(function (d) {
+            return d.id === id;
+          })) {
+            if (!changes.artifacts) {
+              changes.artifacts = {
+                changed: {},
+                removed: {},
+                created: {}
+              };
+            }
+            changes.artifacts.removed[id] = this.coordinates.artifacts[id];
+            delete this.coordinates.artifacts[id];
+          }
         }
       }
     }
