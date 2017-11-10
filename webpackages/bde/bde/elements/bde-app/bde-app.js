@@ -766,7 +766,7 @@
      * @param {event} e the event to stop propagation for
      * @private
      */
-    _stopEventPropagation: function(e) {
+    _stopEventPropagation: function (e) {
       e.stopPropagation();
     },
 

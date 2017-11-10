@@ -606,9 +606,11 @@
           // this.push('slots', slot);
         }
       } else {
+        var id = publicPort.indexOf('__SLOT__') === 0 ? publicPort : '__SLOT__' + publicPort;
+        var slotId = port.metadata && port.metadata.slotId ? port.metadata.slotId : publicPort;
         this.push('slots', {
-          id: 'SLOT_' + publicPort,
-          slotId: publicPort,
+          id: id,
+          slotId: slotId,
           type: port.metadata.type,
           description: port.metadata.description,
           direction: [ 'input' ]
@@ -642,9 +644,11 @@
           slot.direction.push('output');
         }
       } else {
+        var id = publicPort.indexOf('__SLOT__') === 0 ? publicPort : '__SLOT__' + publicPort;
+        var slotId = port.metadata && port.metadata.slotId ? port.metadata.slotId : publicPort;
         this.push('slots', {
-          id: 'SLOT_' + publicPort,
-          slotId: publicPort,
+          id: id,
+          slotId: slotId,
           type: port.metadata.type,
           description: port.metadata.description,
           direction: [ 'output' ]
@@ -842,10 +846,10 @@
         description: conn.description
       };
       if (!conn.source.memberIdRef) {
-        conn.source.slot = 'SLOT_' + conn.source.slot;
+        conn.source.slot = conn.source.slot.indexOf('__SLOT__') === 0 ? conn.source.slot : '__SLOT__' + conn.source.slot;
       }
       if (!conn.destination.memberIdRef) {
-        conn.destination.slot = 'SLOT_' + conn.destination.slot;
+        conn.destination.slot = conn.destination.slot.indexOf('__SLOT__') === 0 ? conn.destination.slot : '__SLOT__' + conn.destination.slot;
       }
       this._graph.addEdge(
         conn.source.memberIdRef, conn.source.slot,
@@ -1052,7 +1056,8 @@
       };
 
       var exportOutportAction = function (graph, itemKey, item) {
-        var pub = item.port;
+        var pub = '__SLOT__' + item.port;
+
         var count = 0;
         // Make sure public is unique
         while (graph.outports[ pub ]) {
@@ -1071,7 +1076,7 @@
       }.bind(this);
 
       var exportInportAction = function (graph, itemKey, item) {
-        var pub = item.port;
+        var pub = '__SLOT__' + item.port;
 
         if (pub === 'start') {
           pub = 'start1';
@@ -1088,6 +1093,7 @@
         }
         var priNode = graph.getNode(item.process);
         var metadata = {
+          slotId: item.port,
           x: priNode.metadata.x - 144,
           y: priNode.metadata.y + this._getRandomInt(0, this.grid)
         };
@@ -1237,9 +1243,9 @@
       // console.log('_getConnectionForEdge edge', edge);
       return this.connections.find(function (conn) {
         return conn.source.memberIdRef === edge.from.node &&
-          conn.source.slot === edge.from.port &&
+          (conn.source.slot === edge.from.port || conn.source.slot === edge.from.port.replace('__SLOT__', '')) &&
           conn.destination.memberIdRef === edge.to.node &&
-          conn.destination.slot === edge.to.port;
+          (conn.destination.slot === edge.to.port || conn.destination.slot === edge.from.port.replace('__SLOT__', ''));
       });
     },
 
@@ -1611,7 +1617,7 @@
           for (i = 0; i < s.addedCount; i++) {
             index = s.index + i;
             slot = s.object[ index ];
-            slot.id = 'SLOT_' + slot.slotId;
+            slot.id = '__SLOT__' + slot.slotId;
             this._addSlotToGraph(slot);
           }
         }, this);
@@ -1621,7 +1627,7 @@
           for (let i = 0; i < changeRecord.value.length; i++) {
             let slot = changeRecord.value[ i ];
             if (!slot.id) {
-              slot.id = 'SLOT_' + slot.slotId;
+              slot.id = '__SLOT__' + slot.slotId;
             }
             this._addSlotToGraph(slot);
           }

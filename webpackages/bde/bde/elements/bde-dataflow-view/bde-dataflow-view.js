@@ -197,18 +197,11 @@
       '_currentComponentMetadataChanged(currentComponentMetadata.*)',
       '_selectedMembersChanged(_selectedMembers.splices)',
       '_selectedEdgesChanged(_selectedEdges.splices)',
-      '_artifactChanged(_artifact.*)'
+      '_artifactIdChanged(_artifact.artifactId)',
+      '_artifactConnectionsChanged(_artifact.connections.splices)'
     ],
 
     listeners: {
-      'the-graph-add-node': 'handleAddNode',
-      'the-graph-remove-node': '_handleRemoveNode',
-      'the-graph-add-inport': '_handleAddInport',
-      'the-graph-remove-inport': '_handleRemoveInport',
-      'the-graph-add-outport': '_handleAddOutport',
-      'the-graph-remove-outport': '_handleRemoveOutport',
-      'the-graph-add-edge': '_handleAddEdge',
-      'the-graph-remove-edge': '_handleRemoveEdge',
       'bde-edit-slot-init-dialog-open': '_openSlotInitEditDialog',
       'bde-member-edit-dialog-open': '_openMemberEditDialog',
       'bde-want-autolayout': '_triggerAutolayout'
@@ -217,6 +210,10 @@
     /* ********************************************************************/
     /* *********************** Lifecycle method ***************************/
     /* ********************************************************************/
+    // _handleAddNode: function () {
+    //   console.log(arguments);
+    // },
+
     attached: function () {
       // Set initial graph size
       this.async(this.handleResize);
@@ -307,7 +304,7 @@
           this.utgard = true;
           setTimeout(this._initUtgard.bind(this), 200);
         }
-        //requestAnimationFrame(() => bdeGraph.triggerAutolayout());
+        // requestAnimationFrame(() => bdeGraph.triggerAutolayout());
       });
     },
 
@@ -347,7 +344,6 @@
       if (!manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId)) {
         return;
       }
-      console.log('need reload graph');
       this.debounce('reload_graph', function () {
         this.reload();
       }, 100);
@@ -356,137 +352,20 @@
     /* ********************************************************************/
     /* *********************** Graph event listener ***********************/
     /* ********************************************************************/
-    /**
-     * Handle the remove node event of the graph
-     * @param {Event}event
-     */
-    _handleRemoveNode: function (event) {
-      var node = event.detail;
-      var memberIdx = this._artifact.members.findIndex((m) => m.memberId === node.id);
-      this.splice('_artifact.members', memberIdx, 1);
-    },
 
-    /**
-     * Handle the add inport event of the graph.
-     * @param {Event} event
-     * @param {object} port the port object
-     * @private
-     */
-    _handleAddInport: function (event, port) {
-      var inport = this.$.bdeGraph.nofloGraph.inports[ port ];
-      this.push('_artifact.slots', {
-        slotId: port,
-        type: 'all', // @TODO (fdu): Fix this to be type of source slot
-        direction: [ 'input' ]
-      });
-      this.push('_artifact.connections', {
-        connectionId: Math.random().toString(36).substring(7),
-        source: {
-          slot: port
-        },
-        destination: {
-          memberIdRef: inport.process,
-          slot: inport.port
+    _artifactConnectionsChanged: function (changeRecord) {
+      this._artifact.connections.forEach(con => {
+        if (con && con.source.slot.indexOf('__SLOT__') === 0) {
+          con.source.slot = con.source.slot.substr(8);
+        }
+        if (con && con.destination.slot.indexOf('__SLOT__') === 0) {
+          con.destination.slot = con.destination.slot.substr(8);
         }
       });
     },
-    /**
-     * Handle the remove inport event of the graph.
-     * @param {Event} event
-     * @param {object} port the port object
-     * @private
-     */
-    _handleRemoveInport: function (event, port) {
-      var slotIdx = this._artifact.slots.findIndex((s) => s.slotId === port);
-      this._artifact.connections.forEach(function (connection, connectionIdx) {
-        if (!connection.source.memberIdRef &&
-          connection.source.slot === port) {
-          this.splice('_artifact.connections', connectionIdx, 1);
-        }
-      }, this);
-      this.splice('_artifact.slots', slotIdx, 1);
-    },
-    /**
-     * Handle the add outport event of the graph.
-     * @param {Event} event
-     * @param {object} port the port object
-     * @private
-     */
-    _handleAddOutport: function (event, port) {
-      var outport = this.$.bdeGraph.nofloGraph.outports[ port ];
-      this.push('_artifact.slots', {
-        slotId: port,
-        type: 'all', // @TODO (fdu): Fix this to be type of source slot
-        direction: [ 'output' ]
-      });
-      this.push('_artifact.connections', {
-        connectionId: Math.random().toString(36).substring(7),
-        source: {
-          memberIdRef: outport.process,
-          slot: outport.port
-        },
-        destination: {
-          slot: port
-        }
-      });
-    },
-    /**
-     * Handle the remove outport event of the graph.
-     * @param {Event} event
-     * @param {object} port the port object
-     * @private
-     */
-    _handleRemoveOutport: function (event, port) {
-      var slotIdx = this._artifact.slots.findIndex((s) => s.slotId === port);
-      this._artifact.connections.forEach(function (connection, connectionIdx) {
-        if (!connection.destination.memberIdRef &&
-          connection.destination.slot === port) {
-          this.splice('_artifact.connections', connectionIdx, 1);
-        }
-      }, this);
-      this.splice('_artifact.slots', slotIdx, 1);
-    },
-
-    /**
-     * Handle the add edge event of the graph.
-     * @param {Event} event
-     *
-     * @private
-     */
-    _handleAddEdge: function (event) {
-      var edge = event.detail;
-
-      this.push('_artifact.connections', {
-        connectionId: 'connection-' + Math.random().toString(36).substring(7),
-        source: {
-          memberIdRef: edge.from.node,
-          slot: edge.from.port
-        },
-        destination: {
-          memberIdRef: edge.to.node,
-          slot: edge.to.port
-        },
-        copyValue: true,
-        repeatedValues: false
-      });
-    },
-    /**
-     * Handle the remove edge event of the graph.
-     * @param {Event} event
-     *
-     * @private
-     */
-    _handleRemoveEdge: function (event) {
-      var edge = event.detail;
-      var cIdx = this._artifact.connections.findIndex(function (connection) {
-        return connection.source.memberIdRef === edge.from.node &&
-          connection.source.slot === edge.from.port &&
-          connection.destination.memberIdRef === edge.to.node &&
-          connection.destination.slot === edge.to.port;
-      });
-
-      this.splice('_artifact.connections', cIdx, 1);
-    },
+    // _artifactMembersChanged: function (members) {
+    //   console.log(members);
+    // },
 
     /**
      * This handler method is called, if the selected edges changed.
@@ -576,22 +455,13 @@
       });
     },
     /**
-     * Called if the property _artifact changed.
+     * Called if the property _artifactId changed.
      * @param { object}changeRecord
      * @private
      */
-    _artifactChanged: function (changeRecord) {
-      if (!changeRecord) { return; }
-
-      var compoundComponents = this.currentComponentMetadata.manifest.artifacts.compoundComponents;
-      var pathIndex = new Polymer.Collection(compoundComponents).getKey(this._artifact);
-      var path = changeRecord.path.replace('_artifact', 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + pathIndex);
-
-      this.set(path, changeRecord.value);
-      if (changeRecord.path.indexOf('artifactId') > -1) {
-        this.set('currentComponentMetadata.artifactId', changeRecord.value);
-        this.set('manifest.artifactId', changeRecord.value);
-      }
+    _artifactIdChanged: function (artifactId) {
+      this.set('currentComponentMetadata.artifactId', artifactId);
+      this.set('manifest.artifactId', artifactId);
     },
 
     /**
@@ -684,22 +554,22 @@
       return url;
     },
 
-    ///////////////////////////////////////////////
-    /////////////Utgard implementation/////////////
-    ///////////////////////////////////////////////
+    // /////////////////////////////////////////////
+    // /////////// Utgard implementation /////////////
+    // /////////////////////////////////////////////
     _initUtgard: function () {
       try {
         this.utgard = window.utgard;
-        this.utgard.config.websockifyURL = 'ws://asgard';                  //Websocket Adresse Asgard
-        this.utgard.config.websockifyPort = 4444;                          //Websocket Port    Asgard
-        this.utgard.config.websockifyURL_KB = utgard.config.websockifyURL; //Websocket Adresse Hel
-        this.utgard.config.websockifyPort_KB = 3333;                       //Websocket Port    Hel
+        this.utgard.config.websockifyURL = 'ws://asgard';                  // Websocket Adresse Asgard
+        this.utgard.config.websockifyPort = 4444;                          // Websocket Port    Asgard
+        this.utgard.config.websockifyURL_KB = window.utgard.config.websockifyURL; // Websocket Adresse Hel
+        this.utgard.config.websockifyPort_KB = 3333;                       // Websocket Port    Hel
         this.utgard.connectToServer(this._onUtgardReady.bind(this), function () {
-          console.log("could not load utgard");
+          console.error('could not load utgard');
         });
         this.utgard.setCallback(this._onUtgardResponse.bind(this));
       } catch (e) {
-        console.log('could not find utgard source');
+        console.error('could not find utgard source');
       }
     },
 
@@ -712,18 +582,18 @@
     },
 
     onCoordinatesChanged: function (coordinates, change) {
-      console.log(coordinates, change);
+      console.log('coordinates, change', coordinates, change);
       // TODO add functionality to send real meta data
       // TODO create local mapping list holding(webpackage+artifact name <-> utgard_id)
       // case new node:
       if (!this.utgard_id) {
         this.utgard_id = 1;
-      }
-      else {
+      } else {
         this.utgard_id++;
       }
       if (this.utgard) {
-        utgard.addObject({id: this.utgard_id,
+        window.utgard.addObject({
+          id: this.utgard_id,
           posX: 70,
           posY: 40,
           dimX: 10,
@@ -731,9 +601,9 @@
           content: 'com.incowia.cubx-webpackage-viewer-package@1.1.0/cubx-component-info-viewer'
         });
         // case node moved:
-        //utgard.moveBoundingA(30 /*posX */, 50 /* posY */, 1 /* utgard_id */);
+        // utgard.moveBoundingA(30 /*posX */, 50 /* posY */, 1 /* utgard_id */);
         // case node removed
-        //utgard.removeObjects([1] /* list of utagrd_ids s */);
+        // utgard.removeObjects([1] /* list of utagrd_ids s */);
       }
     }
   });

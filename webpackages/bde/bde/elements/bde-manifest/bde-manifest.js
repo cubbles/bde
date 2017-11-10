@@ -321,6 +321,13 @@ Polymer({
           }
         });
       }
+      if (component.slots) {
+        component.slots.forEach(function (slot) {
+          if (slot && slot.id) {
+            delete slot.id;
+          }
+        });
+      }
     });
 
     return manifest;
@@ -378,7 +385,7 @@ Polymer({
     var keyAllowed = key !== 'metadata';
     keyAllowed = keyAllowed && key !== 'artifactIdCounter';
     keyAllowed = keyAllowed && key !== 'webpackageIdCounter';
-    keyAllowed = keyAllowed && (key !== 'description' || key === 'description' && typeof this.description !== 'undefined' && this.description.trim().length > 0);
+    keyAllowed = keyAllowed && (key !== 'description' || (key === 'description' && typeof this.description !== 'undefined' && this.description.trim().length > 0));
     keyAllowed = keyAllowed && key !== 'location';
     return keyAllowed;
   }

@@ -20,21 +20,21 @@
   "authors": [
     "Felix Dürrwald <mplabs@mplabs.de>",
     "Judit Ross <judit.ross@incowia.com>",
-    "Philipp Waqgner <philipp.wagner.ross@incowia.com>"
+    "Philipp Waqgner <philipp.wagner@incowia.com>",
+    "Maximilian Hamm <Maximilian.Hamm@incowia.com>"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/cubbles/bde-graph.git"
   },
   "homepage": "https://github.com/cubbles/bde-graph",
-  "version": "2.0.11",
-  "_release": "2.0.11",
+  "_release": "7d1e6f2fbd",
   "_resolution": {
-    "type": "version",
-    "tag": "2.0.11",
-    "commit": "95660012251f7d54f499359a5f4930fd7a12d6a1"
+    "type": "commit",
+    "commit": "7d1e6f2fbda4312a5cc841f304645e1f3d1ae178"
   },
   "_source": "https://github.com/cubbles/bde-graph.git",
-  "_target": "^2.0.8",
-  "_originalSource": "bde-graph"
+  "_target": "7d1e6f2fbda4312a5cc841f304645e1f3d1ae178",
+  "_originalSource": "https://github.com/cubbles/bde-graph.git",
+  "_direct": true
 }

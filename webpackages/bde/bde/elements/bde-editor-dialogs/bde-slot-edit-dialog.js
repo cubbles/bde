@@ -106,7 +106,7 @@ Polymer({
   ],
 
   onFocus: function (evt) {
-    console.log('onFocus:', evt.target);
+    // console.log('onFocus:', evt.target);
   },
   ready: function () {
     // Bind the validator functions

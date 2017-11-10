@@ -498,12 +498,7 @@
         // Handle connections to exported slots
         let inport = false;
         let outport = false;
-        /*if (!edge.from.node) {
-          edge.from.port = 'SLOT_' + edge.from.port;
-        }
-        if (!edge.to.node) {
-          edge.to.port = 'SLOT_' + edge.to.port;
-        }*/
+
         if (!source) {
           source = graph.inports[ edge.from.port ];
           inport = true;
@@ -605,7 +600,7 @@
       var inports = Object.keys(graph.inports).map(function (key) {
         var inport = graph.inports[ key ];
         // Export info
-        var label = key;
+        var label = inport && inport.metadata && inport.metadata.slotId ? inport.metadata.slotId : key;
         var icon = 'sign-in';
 
         var metadata = inport.metadata = TheGraph.merge({
@@ -649,7 +644,7 @@
       var outports = Object.keys(graph.outports).map(function (key) {
         var outport = graph.outports[ key ];
         // Export info
-        var label = key;
+        var label = outport && outport.metadata && outport.metadata.slotId ? outport.metadata.slotId : key;
         var icon = 'sign-out';
 
         var metadata = outport.metadata = TheGraph.merge({
