@@ -303,17 +303,17 @@ Polymer({
    * @method toValidManifest
    */
   toValidManifest: function () {
-    var manifest = {};
-
-    Object.keys(this.properties)
+    var validManifest = {};
+    var thisCopy = this._clonePolymerElement(this);
+    Object.keys(thisCopy.properties)
       .filter(function (key) {
         return this._filterRules(key);
       }, this)
       .forEach(function (key) {
-        manifest[ key ] = this[ key ];
+        validManifest[ key ] = thisCopy[ key ];
       }, this);
 
-    manifest.artifacts.compoundComponents.forEach(function (component) {
+    validManifest.artifacts.compoundComponents.forEach(function (component) {
       if (component.members) {
         component.members.forEach(function (member) {
           if (member.metadata) {
@@ -330,7 +330,7 @@ Polymer({
       }
     });
 
-    return manifest;
+    return validManifest;
   },
   /* *******************************************************************************************/
   /* ********************************* private methods *****************************************/
@@ -388,5 +388,13 @@ Polymer({
     keyAllowed = keyAllowed && (key !== 'description' || (key === 'description' && typeof this.description !== 'undefined' && this.description.trim().length > 0));
     keyAllowed = keyAllowed && key !== 'location';
     return keyAllowed;
+  },
+
+  _clonePolymerElement: function (element) {
+    let copy = element.cloneNode(true);
+    for (var i in element.properties) {
+      copy[ i ] = typeof element[ i ] !== 'undefined' ? JSON.parse(JSON.stringify(element[ i ])) : element[ i ];
+    }
+    return copy;
   }
 });

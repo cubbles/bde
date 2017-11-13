@@ -689,10 +689,10 @@
 
       this.splice('slots', idx, 1);
 
-      if (slot.direction.length > 1) {
-        slot.direction = [ 'output' ];
-        this.push('slots', slot);
-      }
+      // if (slot.direction.length > 1) {
+      //   slot.direction = [ 'output' ];
+      //   this.push('slots', slot);
+      // }
 
       // remove inits
       var init = this.inits.find((init) => init.slot === slot.slotId && slot.memberIdRef === undefined);
@@ -716,10 +716,10 @@
 
       this.splice('slots', idx, 1);
 
-      if (slot.direction.length > 1) {
-        slot.direction = [ 'input' ];
-        this.push('slots', slot);
-      }
+      // if (slot.direction.length > 1) {
+      //   slot.direction = [ 'input' ];
+      //   this.push('slots', slot);
+      // }
     },
 
     onRenameNode: function (oldId, newId) {
@@ -1616,7 +1616,8 @@
           // Slot was added
           for (i = 0; i < s.addedCount; i++) {
             index = s.index + i;
-            slot = s.object[ index ];
+            let changedSlot = s.object[ index ];
+            slot = this.slots.find(slot => changedSlot.slotId === slot.slotId);
             slot.id = '__SLOT__' + slot.slotId;
             this._addSlotToGraph(slot);
           }
@@ -1625,7 +1626,8 @@
         // Slots were set
         if (changeRecord.value instanceof Array && changeRecord.value.length > 0) {
           for (let i = 0; i < changeRecord.value.length; i++) {
-            let slot = changeRecord.value[ i ];
+            let changedSlot = changeRecord.value[ i ];
+            slot = this.slots.find(slot => changedSlot.slotId === slot.slotId);
             if (!slot.id) {
               slot.id = '__SLOT__' + slot.slotId;
             }
@@ -1668,6 +1670,7 @@
           let _slot = JSON.parse(JSON.stringify(slot));
           _slots.push(_slot);
         });
+        this.set('_slots', []);
         this.set('_slots', _slots);
       }
     },
