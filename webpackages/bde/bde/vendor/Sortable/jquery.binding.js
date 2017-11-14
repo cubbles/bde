@@ -41,7 +41,7 @@
 
 			if (sortable) {
 				if (options === 'widget') {
-					retVal = sortable;
+					return sortable;
 				}
 				else if (options === 'destroy') {
 					sortable.destroy();
