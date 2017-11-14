@@ -69,6 +69,10 @@ var components = {
 			"require": "javascript",
 			"owner": "Golmote"
 		},
+		"ada": {
+			"title": "Ada",
+			"owner": "Lucretia"
+		},
 		"apacheconf": {
 			"title": "Apache Configuration",
 			"owner": "GuiTeK"
@@ -80,6 +84,11 @@ var components = {
 		"applescript": {
 			"title": "AppleScript",
 			"owner": "Golmote"
+		},
+		"arduino": {
+			"title": "Arduino",
+			"require": "cpp",
+			"owner": "eisbehr-"
 		},
 		"asciidoc": {
 			"title": "AsciiDoc",
@@ -163,6 +172,11 @@ var components = {
 			"require": "clike",
 			"owner": "Golmote"
 		},
+		"django": {
+			"title": "Django/Jinja2",
+			"require": "markup",
+			"owner": "romanvm"
+		},
 		"diff": {
 			"title": "Diff",
 			"owner": "uranusjr"
@@ -210,6 +224,10 @@ var components = {
 			"require": "clike",
 			"owner": "arnehormann"
 		},
+		"graphql": {
+			"title": "GraphQL",
+			"owner": "Golmote"
+		},
 		"groovy": {
 			"title": "Groovy",
 			"require": "clike",
@@ -254,15 +272,15 @@ var components = {
 			"title": "J",
 			"owner": "Golmote"
 		},
-		"jade": {
-			"title": "Jade",
-			"require": "javascript",
-			"owner": "Golmote"
-		},
 		"java": {
 			"title": "Java",
 			"require": "clike",
 			"owner": "sherblot"
+		},
+		"jolie": {
+			"title": "Jolie",
+			"require": "clike",
+			"owner": "thesave"
 		},
 		"json": {
 			"title": "JSON",
@@ -288,6 +306,10 @@ var components = {
 		"less": {
 			"title": "Less",
 			"require": "css",
+			"owner": "Golmote"
+		},
+		"livescript": {
+			"title": "LiveScript",
 			"owner": "Golmote"
 		},
 		"lolcode": {
@@ -323,6 +345,11 @@ var components = {
 			"title": "Monkey",
 			"owner": "Golmote"
 		},
+		"n4js":{
+			"title": "N4JS",
+			"require": "javascript",
+			"owner": "bsmith-n4"
+		},
 		"nasm": {
 			"title": "NASM",
 			"owner": "rbmj"
@@ -352,6 +379,11 @@ var components = {
 		"ocaml": {
 			"title": "OCaml",
 			"owner": "Golmote"
+		},
+		"opencl": {
+			"title": "OpenCL",
+			"require": "cpp",
+			"owner": "Milania1"
 		},
 		"oz": {
 			"title": "Oz",
@@ -397,10 +429,19 @@ var components = {
 			"title": "Prolog",
 			"owner": "Golmote"
 		},
+		"properties": {
+			"title": ".properties",
+			"owner": "Golmote"
+		},
 		"protobuf": {
 			"title": "Protocol Buffers",
 			"require": "clike",
 			"owner": "just-boris"
+		},
+		"pug": {
+			"title": "Pug",
+			"require": "javascript",
+			"owner": "Golmote"
 		},
 		"puppet": {
 			"title": "Puppet",
@@ -431,6 +472,15 @@ var components = {
 			"title": "React JSX",
 			"require": ["markup", "javascript"],
 			"owner": "vkbansal"
+		},
+		"renpy": {
+			"title": "Ren'py",
+			"owner": "HyuchiaDiego"
+        },
+		"reason": {
+			"title": "Reason",
+			"require": "clike",
+			"owner": "Golmote"
 		},
 		"rest": {
 			"title": "reST (reStructuredText)",
@@ -517,6 +567,11 @@ var components = {
 			"require": "javascript",
 			"owner": "vkbansal"
 		},
+		"vbnet": {
+			"title": "VB.Net",
+			"require": "basic",
+			"owner": "Bigsby"
+		},
 		"verilog": {
 			"title": "Verilog",
 			"owner": "a-rey"
@@ -532,6 +587,10 @@ var components = {
 		"wiki": {
 			"title": "Wiki markup",
 			"require": "markup",
+			"owner": "Golmote"
+		},
+		"xojo": {
+			"title": "Xojo (REALbasic)",
 			"owner": "Golmote"
 		},
 		"yaml": {
@@ -552,13 +611,20 @@ var components = {
 		"show-invisibles": "Show Invisibles",
 		"autolinker": "Autolinker",
 		"wpd": "WebPlatform Docs",
+		"custom-class": {
+			"title": "Custom Class",
+			"owner": "dvkndn",
+			"noCSS": true
+		},
 		"file-highlight": {
 			"title": "File Highlight",
 			"noCSS": true
 		},
 		"show-language": {
 			"title": "Show Language",
-			"owner": "nauzilus"
+			"owner": "nauzilus",
+			"noCSS": true,
+			"require": "toolbar"
 		},
 		"jsonp-highlight": {
 			"title": "JSONP Highlight",
@@ -624,6 +690,21 @@ var components = {
 			"title": "Normalize Whitespace",
 			"owner": "zeitgeist87",
 			"after": "unescaped-markup",
+			"noCSS": true
+		},
+		"data-uri-highlight": {
+			"title": "Data-URI Highlight",
+			"owner": "Golmote",
+			"noCSS": true
+		},
+		"toolbar": {
+			"title": "Toolbar",
+			"owner": "mAAdhaTTah"
+		},
+		"copy-to-clipboard": {
+			"title": "Copy to Clipboard Button",
+			"owner": "mAAdhaTTah",
+			"require": "toolbar",
 			"noCSS": true
 		}
 	}

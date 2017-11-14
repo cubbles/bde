@@ -36,7 +36,6 @@
     "commit": "e998b4051826fa0464cf18f1ab23410bd32d3b79"
   },
   "_source": "https://github.com/cubbles/bde-graph.git",
-  "_target": "2.0.15",
-  "_originalSource": "bde-graph",
-  "_direct": true
+  "_target": "^2.0.8",
+  "_originalSource": "bde-graph"
 }

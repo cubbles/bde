@@ -6,7 +6,7 @@
  */
 module.exports.tasks = {
 
-  bdeBowerInstall: {
+  bdeCleanUpBower: {
     vendorPath: 'vendor'
   }
 

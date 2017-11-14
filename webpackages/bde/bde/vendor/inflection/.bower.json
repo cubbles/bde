@@ -1,6 +1,6 @@
 {
   "name": "inflection",
-  "version": "1.10.0",
+  "version": "1.12.0",
   "homepage": "https://github.com/dreamerslab/node.inflection",
   "description": "JavaScript Inflection Support",
   "authors": [
@@ -66,6 +66,10 @@
     {
       "name": "Ray Myers",
       "email": "ray.myers@gmail.com"
+    },
+    {
+      "name": "Dillon Shook",
+      "email": "dshook@alumni.nmt.edu"
     }
   ],
   "main": "lib/inflection.js",
@@ -96,11 +100,11 @@
     "test",
     "tests"
   ],
-  "_release": "1.10.0",
+  "_release": "1.12.0",
   "_resolution": {
     "type": "version",
-    "tag": "v1.10.0",
-    "commit": "45bb94c3d42c75ab8842493ab5533ba35c30275d"
+    "tag": "v1.12.0",
+    "commit": "6cfc616ab8fbb04fc52ed428926cc021d87d6c14"
   },
   "_source": "https://github.com/dreamerslab/node.inflection.git",
   "_target": "^1.10.0",

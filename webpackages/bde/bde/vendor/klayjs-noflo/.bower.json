@@ -1,6 +1,6 @@
 {
   "name": "klayjs-noflo",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "homepage": "https://github.com/noflo/klayjs-noflo",
   "authors": [
     "Vilson Vieira <vilson@void.cc>"
@@ -23,11 +23,11 @@
   "dependencies": {
     "klayjs": "~0.2.1"
   },
-  "_release": "0.3.0",
+  "_release": "0.3.1",
   "_resolution": {
     "type": "version",
-    "tag": "0.3.0",
-    "commit": "6257c2b3814ece5fe82ade56a6af33d4863563f9"
+    "tag": "0.3.1",
+    "commit": "9e879812e3d1293bb43d2be7bbdbab6212e49b4a"
   },
   "_source": "https://github.com/noflo/klayjs-noflo.git",
   "_target": "^0.3.0",
