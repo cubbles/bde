@@ -487,7 +487,7 @@
      * @return {object} the slot object
      */
     _findSlotInCurrentArtifact: function (slotId) {
-      return this._artifact.slots.find((slot) => slot.slotId === slotId);
+      return this._artifact.slots.find((slot) => slot.slotId === slotId || slot.slotId === slotId.replace('__SLOT__', ''));
     },
     /**
      * Find the slot definition in the member artifact.
