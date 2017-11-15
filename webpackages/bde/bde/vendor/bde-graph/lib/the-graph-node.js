@@ -257,7 +257,7 @@
           menu: menu,
           options: options,
           triggerHideContext: hide,
-          label: this.props.exportKey
+          label: this.props.label
         });
       }
 

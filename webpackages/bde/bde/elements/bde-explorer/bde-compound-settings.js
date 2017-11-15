@@ -1,5 +1,5 @@
 // @importedBy bde-compound-settings.html
-/* global _*/
+/* global _ */
 Polymer({
   is: 'bde-compound-settings',
   properties: {
@@ -225,7 +225,7 @@ Polymer({
     if (editingArtifact.slots) {
       editingArtifact.slots.forEach((slot) => {
         if (!slot.type) {
-          slot.type === 'any';
+          slot.type = 'any';
         }
       });
     }
@@ -269,9 +269,37 @@ Polymer({
   removeItem: function (e) {
     var itemIndex = e.currentTarget.dataset.itemIndex;
     var path = e.currentTarget.dataset.path;
-    this.splice(path, itemIndex, 1);
+    var removedObject = this.splice(path, itemIndex, 1)[0];
+    if (path.indexOf('slots') > -1) { // of removed slot, it should be removed the connections and inits
+      // remove connections
+      let connectionIndex = this._findConnectionIndexBySlot(this._editingArtifact.connections, removedObject);
+      while (connectionIndex > -1) {
+        this.splice('_editingArtifact.connections', connectionIndex, 1);
+        connectionIndex = this._findConnectionIndexBySlot(this._editingArtifact.connections, removedObject);
+      }
+
+      // remove inits
+      let initIndex = this._findInitIndexBySlot(this._editingArtifact.inits, removedObject);
+      while (initIndex > -1) {
+        this.splice('_editingArtifact.inits', initIndex, 1);
+        initIndex = this._findInitIndexBySlot(this._editingArtifact.inits, removedObject);
+      }
+    }
   },
 
+  _findConnectionIndexBySlot: function (connections, slot) {
+    return connections.findIndex(connection => {
+      return (connection.source.slot === slot.slotId &&
+          (connection.source.memberIdRef === '' || typeof connection.source.memberIdRef === 'undefined')) ||
+        (connection.destination.slot === slot.slotId &&
+          (connection.destination.memberIdRef === '' || typeof connection.destination.memberIdRef === 'undefined'));
+    });
+  },
+  _findInitIndexBySlot: function (inits, slot) {
+    return inits.findIndex(init => {
+      return init.slot === slot.slotId && (init.memberIdRef === '' || typeof init.memberIdRef === 'undefined');
+    });
+  },
   /**
    * Slots change handler.
    *
@@ -492,7 +520,7 @@ Polymer({
       case 'connection':
         return {
           connectionId: 'connection' + this._editingArtifact.connections.length,
-          source: { memberIdRef: '', slot: '' },
+          source: { memberIdRef: undefined, slot: '' },
           destination: { memberIdRef: '', slot: '' },
           copyValue: false,
           repeatedValues: false,
@@ -500,7 +528,7 @@ Polymer({
           description: ''
         };
       case 'init':
-        return { memberIdRef: '', slot: '', value: '', description: '' };
+        return { memberIdRef: undefined, slot: '', value: '', description: '' };
       default:
         return {};
     }
@@ -819,6 +847,7 @@ Polymer({
   _validateInitValue: function (value, targetElement) {
     // validation code
     let parsedValue;
+    value = targetElement.value;
     let validJSON = true;
     try {
       parsedValue = JSON.parse(value);

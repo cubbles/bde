@@ -256,8 +256,9 @@
     getNodeOutport: function (graph, processName, portName, route, componentName) {
       var ports = this.getPorts(graph, processName, componentName);
       if (!ports.outports[ portName ]) {
+        let label = portName.indexOf('__SLOT__') === 0 ? portName.replace('__SLOT__', '') : portName;
         ports.outports[ portName ] = {
-          label: portName,
+          label: label,
           x: TheGraph.config.nodeWidth,
           y: TheGraph.config.nodeHeight / 2
         };
@@ -273,8 +274,9 @@
     getNodeInport: function (graph, processName, portName, route, componentName) {
       var ports = this.getPorts(graph, processName, componentName);
       if (!ports.inports[ portName ]) {
+        let label = portName.indexOf('__SLOT__') === 0 ? portName.replace('__SLOT__', '') : portName;
         ports.inports[ portName ] = {
-          label: portName,
+          label: label,
           x: 0,
           y: TheGraph.config.nodeHeight / 2
         };
@@ -313,13 +315,15 @@
     graphOutports: {},
     getGraphOutport: function (key) {
       var exp = this.graphOutports[ key ];
+
       if (!exp) {
         exp = {
           inports: {},
           outports: {}
         };
+        let label = key.indexOf('__SLOT__') === 0 ? key.replace('__SLOT__', '') : key;
         exp.inports[ key ] = {
-          label: key,
+          label: label,
           type: 'all',
           route: 5,
           x: 0,
@@ -334,8 +338,9 @@
       var exp = this.graphInports[ key ];
       if (!exp) {
         exp = { inports: {}, outports: {} };
+        let label = key.indexOf('__SLOT__') === 0 ? key.replace('__SLOT__', '') : key;
         exp.outports[ key ] = {
-          label: key,
+          label: label,
           type: 'all',
           route: 2,
           x: TheGraph.config.nodeWidth,

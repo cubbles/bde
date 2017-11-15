@@ -32,7 +32,7 @@
     "highlightjs": "^9.6.0",
     "klayjs": "^0.4.1",
     "fetch": "^1.0.0",
-    "lodash": "^4.14.1",
+    "lodash": "4.16.4",
     "react": "15.2.1",
     "bde-graph": "^2.0.8",
     "iron-location": "^0.8.11"
