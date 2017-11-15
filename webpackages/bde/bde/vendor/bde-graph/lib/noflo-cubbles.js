@@ -1019,6 +1019,12 @@
   Graph.prototype.addEdge = function (outNode, outPort, inNode, inPort, metadata) {
     var edge;
 
+    if (!outNode && outPort.indexOf('__SLOT__') === -1) {
+      outPort = '__SLOT__' + outPort;
+    }
+    if (!inNode && inPort.indexOf('__SLOT__') === -1) {
+      inPort = '__SLOT__' + inPort;
+    }
     metadata = metadata || {};
     if (!metadata.connectionId) {
       metadata.connectionId = 'con-' + Math.random().toString(36).substring(2, 7).toLowerCase();

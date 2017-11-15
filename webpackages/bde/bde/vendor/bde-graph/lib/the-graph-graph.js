@@ -766,7 +766,7 @@
             };
           } else {
             // Source is a graph port
-            source = graph.inports[ edgePreview.from.port ];
+            source = graph.inports[ '__SLOT__' + edgePreview.from.port ];
             edgePreviewOptions = {
               sX: source.metadata.x + source.metadata.width,
               sY: source.metadata.y + TheGraph.config.nodeHeight / 2,

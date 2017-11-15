@@ -198,7 +198,8 @@
       '_selectedMembersChanged(_selectedMembers.splices)',
       '_selectedEdgesChanged(_selectedEdges.splices)',
       '_artifactIdChanged(_artifact.artifactId)',
-      '_artifactConnectionsChanged(_artifact.connections.splices)'
+      '_artifactConnectionsChanged(_artifact.connections.splices)',
+      '_artifactSlotsChanged(_artifact.slots.splices)'
     ],
 
     listeners: {
@@ -354,12 +355,49 @@
     /* ********************************************************************/
 
     _artifactConnectionsChanged: function (changeRecord) {
+      if (!changeRecord) { return; }
+      console.log(changeRecord);
       this._artifact.connections.forEach(con => {
         if (con && con.source.slot.indexOf('__SLOT__') === 0) {
           con.source.slot = con.source.slot.substr(8);
         }
         if (con && con.destination.slot.indexOf('__SLOT__') === 0) {
           con.destination.slot = con.destination.slot.substr(8);
+        }
+      });
+      // BugFix changes are in changeRecord but not in _artifat property
+      changeRecord.indexSplices.forEach(splice => {
+        if (splice.addedCount > 0) {
+          let con = splice.object[splice.index];
+          if (!this._findConnectionInCurrentArtifact(con.connectionId)) {
+            this.push('_artifact.connections', con);
+          }
+        }
+        if (splice.removed && splice.removed.length > 0) {
+          let connectionIndex = this._findConnectionIndexInCurrentArtifact(splice.removed[0].connectionId);
+          if (connectionIndex > -1) {
+            this.splice('_artifact.connections', connectionIndex, 1);
+          }
+        }
+      });
+    },
+    _artifactSlotsChanged: function (changeRecord) {
+      if (!changeRecord) { return; }
+      console.log(changeRecord);
+
+      // BugFix changes are in changeRecord but not in _artifat property
+      changeRecord.indexSplices.forEach(splice => {
+        if (splice.addedCount > 0) {
+          let slot = splice.object[splice.index];
+          if (!this._findSlotInCurrentArtifact(slot.slotId)) {
+            this.push('_artifact.slots', slot);
+          }
+        }
+        if (splice.removed && splice.removed.length > 0) {
+          let slotIndex = this._findSlotIndexInCurrentArtifact(splice.removed[0].slotId);
+          if (slotIndex > -1) {
+            this.splice('_artifact.slots', slotIndex, 1);
+          }
         }
       });
     },
@@ -482,12 +520,28 @@
       return this._artifact.connections.find((con) => con.connectionId === connectionId);
     },
     /**
+     * Find the connection with connection id in the current artifact.
+     * @param {String} connectionId connection Id
+     * @private
+     */
+    _findConnectionIndexInCurrentArtifact: function (connectionId) {
+      return this._artifact.connections.findIndex((con) => con.connectionId === connectionId);
+    },
+    /**
      * Find a slot in current artifact.
      * @param {string} slotId the slotId
      * @return {object} the slot object
      */
     _findSlotInCurrentArtifact: function (slotId) {
       return this._artifact.slots.find((slot) => slot.slotId === slotId || slot.slotId === slotId.replace('__SLOT__', ''));
+    },
+    /**
+     * Find a slot in current artifact.
+     * @param {string} slotId the slotId
+     * @return {object} the slot object
+     */
+    _findSlotIndexInCurrentArtifact: function (slotId) {
+      return this._artifact.slots.findIndex((slot) => slot.slotId === slotId || slot.slotId === slotId.replace('__SLOT__', ''));
     },
     /**
      * Find the slot definition in the member artifact.

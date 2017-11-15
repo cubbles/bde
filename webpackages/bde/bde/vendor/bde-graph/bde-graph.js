@@ -570,16 +570,18 @@
     onAddEdge: function (edge) {
       var connection = this._getConnectionForEdge(edge);
       if (!connection) {
+        let fromSlot = edge.from.port.indexOf('__SLOT__') === 0 ? edge.from.port.replace('__SLOT__','') : edge.from.port;
+        let toSlot = edge.to.port.indexOf('__SLOT__') === 0 ? edge.to.port.replace('__SLOT__','') : edge.to.port;
         var newConnection = {
           connectionId: edge.metadata.connectionId,
 
           source: {
             //  memberIdRef: edge.from.node,
-            slot: edge.from.port
+            slot: fromSlot
           },
           destination: {
             // memberIdRef: edge.to.node,
-            slot: edge.to.port
+            slot: toSlot
           }
         };
         if (edge.from.node) {
@@ -1247,7 +1249,7 @@
         return conn.source.memberIdRef === edge.from.node &&
           (conn.source.slot === edge.from.port || conn.source.slot === edge.from.port.replace('__SLOT__', '')) &&
           conn.destination.memberIdRef === edge.to.node &&
-          (conn.destination.slot === edge.to.port || conn.destination.slot === edge.from.port.replace('__SLOT__', ''));
+          (conn.destination.slot === edge.to.port || conn.destination.slot === edge.to.port.replace('__SLOT__', ''));
       });
     },
 
@@ -1355,9 +1357,12 @@
         changeRecord.value.indexSplices.forEach(function (s) {
           // Connections were removed
           s.removed.forEach(function (conn) {
+            let sourceSlot = conn.source.memberIdRef ? conn.source.slot : '__SLOT__' + conn.source.slot;
+            let destinationSlot = conn.destination.memberIdRef ? conn.destination.slot : '__SLOT__' + conn.destination.slot;
+
             this._graph.removeEdge(
-              conn.source.memberIdRef, conn.source.slot,
-              conn.destination.memberIdRef, conn.destination.slot
+              conn.source.memberIdRef, sourceSlot,
+              conn.destination.memberIdRef, destinationSlot
             );
           }, this);
 

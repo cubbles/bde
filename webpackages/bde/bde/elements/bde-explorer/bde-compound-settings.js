@@ -287,19 +287,6 @@ Polymer({
     }
   },
 
-  _findConnectionIndexBySlot: function (connections, slot) {
-    return connections.findIndex(connection => {
-      return (connection.source.slot === slot.slotId &&
-          (connection.source.memberIdRef === '' || typeof connection.source.memberIdRef === 'undefined')) ||
-        (connection.destination.slot === slot.slotId &&
-          (connection.destination.memberIdRef === '' || typeof connection.destination.memberIdRef === 'undefined'));
-    });
-  },
-  _findInitIndexBySlot: function (inits, slot) {
-    return inits.findIndex(init => {
-      return init.slot === slot.slotId && (init.memberIdRef === '' || typeof init.memberIdRef === 'undefined');
-    });
-  },
   /**
    * Slots change handler.
    *
@@ -350,6 +337,16 @@ Polymer({
           this._editingArtifact.slots.forEach((slot) => {
             if (slot.type === 'any') {
               delete slot.type;
+            }
+          });
+        }
+        if (this._editingArtifact.connections) {
+          this._editingArtifact.connections.forEach((con) => {
+            if (typeof con.source.memberIdRef === 'string' && con.source.memberIdRef.trim() === '') {
+              con.source.memberIdRef = undefined;
+            }
+            if (typeof con.destination.memberIdRef === 'string' && con.destination.memberIdRef.trim() === '') {
+              con.destination.memberIdRef = undefined;
             }
           });
         }
@@ -521,7 +518,7 @@ Polymer({
         return {
           connectionId: 'connection' + this._editingArtifact.connections.length,
           source: { memberIdRef: undefined, slot: '' },
-          destination: { memberIdRef: '', slot: '' },
+          destination: { memberIdRef: undefined, slot: '' },
           copyValue: false,
           repeatedValues: false,
           hookFunction: '',
@@ -543,6 +540,21 @@ Polymer({
   _createPath: function () {
     var path = Array.prototype.slice.call(arguments).join('.');
     return '_editingArtifact.' + path;
+  },
+
+  _findConnectionIndexBySlot: function (connections, slot) {
+    return connections.findIndex(connection => {
+      return (connection.source.slot === slot.slotId &&
+        (connection.source.memberIdRef === '' || typeof connection.source.memberIdRef === 'undefined')) ||
+        (connection.destination.slot === slot.slotId &&
+          (connection.destination.memberIdRef === '' || typeof connection.destination.memberIdRef === 'undefined'));
+    });
+  },
+
+  _findInitIndexBySlot: function (inits, slot) {
+    return inits.findIndex(init => {
+      return init.slot === slot.slotId && (init.memberIdRef === '' || typeof init.memberIdRef === 'undefined');
+    });
   },
 
   _getSlotDirectionId: function (i, direction) {
