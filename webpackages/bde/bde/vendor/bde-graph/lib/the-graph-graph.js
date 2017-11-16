@@ -526,33 +526,33 @@
         var label, key;
 
         if (inport) {
-          label = 'export in ' +
-            edge.from.port.toUpperCase() +
+          label =
+            edge.from.port.replace('__SLOT__', '') +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
-            edge.to.port.toUpperCase() +
-            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') + ' ' + target.id;
+            target.id + '.' +
+            edge.to.port.replace('__SLOT__', '') +
+            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '');
           key = 'inport.edge.' + edge.from.port;
         } else if (outport) {
-          label = source.id + ' ' +
-            edge.from.port.toUpperCase() +
+          label = source.id + '.' +
+            edge.from.port.replace('__SLOT__', '') +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
-            edge.to.port.toUpperCase() +
-            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') + ' ' +
-            'export out';
+            edge.to.port.replace('__SLOT__', '') +
+            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '');
           key = 'outport.edge.' + edge.to.port;
         } else {
-          label = source.metadata.label + '() ' +
-            edge.from.port.toUpperCase() +
+          label = (source.metadata.label ? source.metadata.label + '.' : '') +
+            edge.from.port +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
-            edge.to.port.toUpperCase() +
-            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') + ' ' +
-            target.metadata.label + '()';
-          key = edge.from.node + '() ' +
-            edge.from.port.toUpperCase() +
+            (target.metadata.label ? target.metadata.label + '.' : '') +
+            edge.to.port +
+            (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '');
+          key = edge.from.node +
+            edge.from.port +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
-            edge.to.port.toUpperCase() +
+            edge.to.port +
             (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '') + ' ' +
-            edge.to.node + '()';
+            edge.to.node;
         }
 
         var edgeOptions = {
