@@ -278,7 +278,6 @@
       let manifest = this.currentComponentMetadata.manifest;
       let artifactId = this.currentComponentMetadata.artifactId;
       if (!manifest || !artifactId) { return; }
-
       this.set('_selectedMembers', []);
       this.set('_selectedEdges', []);
       this.set('_lastSelectedNode', void (0));
@@ -327,6 +326,7 @@
 
     reset: function () {
       this.$.bdeGraph.reset();
+      this._removeAllUtgardObjects();
     },
     /**
      * Trigger the aotulayout.
@@ -516,8 +516,6 @@
      */
     _artifactIdChanged: function (artifactId) {
       this.set('currentComponentMetadata.artifactId', artifactId);
-      // let artifact = this._currentComponentMetadata.manifest.artifacts.compoundComponents.find(comp => comp.artifactId === artifactId);
-      // this.set('_artifact', artifact);
     },
 
     /**
@@ -629,70 +627,63 @@
     // /////////////////////////////////////////////
     // /////////// Utgard implementation /////////////
     // /////////////////////////////////////////////
-    _initUtgard: function () {
-      try {
-        this.utgard = window.utgard;
-        this.utgard.config.websockifyURL = 'ws://asgard';                  // Websocket Adresse Asgard
-        this.utgard.config.websockifyPort = 4444;                          // Websocket Port    Asgard
-        this.utgard.config.websockifyURL_KB = window.utgard.config.websockifyURL; // Websocket Adresse Hel
-        this.utgard.config.websockifyPort_KB = 3333;                       // Websocket Port    Hel
-        this.utgard.connectToServer(this._onUtgardReady.bind(this), function () {
-          console.error('could not load utgard');
-        });
-        this.utgard.setCallback(this._onUtgardResponse.bind(this));
-      } catch (e) {
-        console.error('could not find utgard source');
-      }
+    /* *********************************************** */
+    /* ************* public ************************** */
+    /* *********************************************** */
+    onCoordinatesChanged: function (coordinates, changes) {
+      console.log('coordinates', coordinates, 'changed', changes);
+      // coordinates changed
+      Object.keys(changes.artifacts.changed).forEach(key => {
+        let fullQualifiedArtifactId = this._getFullQualifiedArtifactId(key);
+        let bdeId = fullQualifiedArtifactId + '#' + key;
+        let coordinates = changes.artifacts.changed[key];
+        console.log('UTGARD  utgard.moveBoundingA(' + coordinates.x + ', ' + coordinates.y + ', ' + this._utgardIdMappingTable[ bdeId ] + ')', 'bdeId', bdeId);
+        window.utgard.moveBoundingA(coordinates.x, coordinates.y, this._utgardIdMappingTable[ bdeId ]);
+      });
+      // new object added
+      let index = this._utgardMaxMapping;
+      Object.keys(changes.artifacts.created).forEach(key => {
+        let artifact = coordinates.artifacts[ key ];
+        index = this._addObjectToUtgard(key, artifact, index);
+      });
+      this.set('_utgardMaxMapping', index);
+      // object removed
+      Object.keys(changes.artifacts.removed).forEach(key => {
+        let fullQualifiedArtifactId = this._getFullQualifiedArtifactIdByArtifactId(changes.artifacts.removed[key].artifactId);
+        if (fullQualifiedArtifactId && Object.keys(this._utgardIdMappingTable).length > 0) { // if found in manifest
+          let bdeId = fullQualifiedArtifactId + '#' + key;
+          console.log('UTGARD utgard.removeObjects([' + this._utgardIdMappingTable[ bdeId ] + '])', 'bdeId', bdeId);
+          window.utgard.removeObjects([ this._utgardIdMappingTable[ bdeId ] ]);
+        }
+      });
+    },
+    /* *********************************************** */
+    /* ************* private ************************* */
+    /* *********************************************** */
+    _addObjectToUtgard: function (key, artifact, index) {
+      let fullQualifiedArtifactId = this._getFullQualifiedArtifactId(key);
+      let bdeId = fullQualifiedArtifactId + '#' + key;
+      // let utgardId = bdeId.hashCode();
+
+      let utgardId = index++;
+
+      this._utgardIdMappingTable[ bdeId ] = utgardId;
+      console.log(bdeId, utgardId);
+      var obj = {
+        id: utgardId,
+        posX: artifact.x,
+        posY: artifact.y,
+        dimX: artifact.width,
+        dimY: artifact.height,
+        content: fullQualifiedArtifactId
+      };
+      console.log('UTGARD utgard.addObject(' + JSON.stringify(obj) + ')');
+      window.utgard.addObject(obj);
+      return index;
     },
 
-    _onUtgardReady: function () {
-      console.log('utgard ready');
-      if (websocketReadyCount++ > 0) {
-        this.set('utgardReady', true);
-        let bdeGraph = this.$.bdeGraph;
-        let coordinates = bdeGraph.getCoordinates();
-        console.log('#########initial', coordinates);
-        let index = this._utgardMaxMapping;
-        Object.keys(coordinates.artifacts).forEach(key => {
-          let artifact = coordinates.artifacts[ key ];
-          index = this._addObjectToUtgard(key, artifact, index);
-          // let manifest = this.currentComponentMetadata.manifest;
-          // let member = this._artifact.members.find(member => member.memberId === key);
-          // if (!member) {
-          //   // TODO log??
-          //   return;
-          // }
-          // let artifactId = member.artifactId;
-          // let dependency = this._artifact.dependencies.find(dep => dep.artifactId === artifactId);
-          //
-          // let fullQualifiedArtifactId;
-          // if (!dependency ) {
-          //   // TODO logs?
-          //   return;
-          // }
-          // if (dependency.webpackageId) {
-          //   fullQualifiedArtifactId = dependency.webpackageId + '/' + artifactId;
-          // } else {
-          //   fullQualifiedArtifactId = buildWebpackageId(manifest.groupId, manifest.name, manifest.version) + '/' + artifactId;
-          // }
-          // let bdeId = fullQualifiedArtifactId + '#' + key;
-          // // let utgardId = bdeId.hashCode();
-          //
-          // let utgardId = index++;
-          //
-          // this._utgardIdMappingTable[ bdeId ] = utgardId;
-          // console.log(bdeId, utgardId);
-          // window.utgard.addObject({
-          //   id: utgardId,
-          //   posX: artifact.x,
-          //   posY: artifact.y,
-          //   dimX: artifact.width,
-          //   dimY: artifact.height,
-          //   content: fullQualifiedArtifactId
-          // });
-        });
-        this.set('_utgardMaxMapping', index);
-      }
+    _getBdeId: function () {
+
     },
 
     _getFullQualifiedArtifactId: function (memberId) {
@@ -721,59 +712,51 @@
       }
       return fullQualifiedArtifactId;
     },
-    _addObjectToUtgard: function (key, artifact, index) {
-      let fullQualifiedArtifactId = this._getFullQualifiedArtifactId(key);
-      let bdeId = fullQualifiedArtifactId + '#' + key;
-      // let utgardId = bdeId.hashCode();
 
-      let utgardId = index++;
+    _initUtgard: function () {
+      try {
+        this.utgard = window.utgard;
+        this.utgard.config.websockifyURL = 'ws://asgard';                  // Websocket Adresse Asgard
+        this.utgard.config.websockifyPort = 4444;                          // Websocket Port    Asgard
+        this.utgard.config.websockifyURL_KB = window.utgard.config.websockifyURL; // Websocket Adresse Hel
+        this.utgard.config.websockifyPort_KB = 3333;                       // Websocket Port    Hel
+        this.utgard.connectToServer(this._onUtgardReady.bind(this), function () {
+          console.error('could not load utgard');
+        });
+        this.utgard.setCallback(this._onUtgardResponse.bind(this));
+      } catch (e) {
+        console.error('could not find utgard source');
+      }
+    },
 
-      this._utgardIdMappingTable[ bdeId ] = utgardId;
-      console.log(bdeId, utgardId);
-
-      window.utgard.addObject({
-        id: utgardId,
-        posX: artifact.x,
-        posY: artifact.y,
-        dimX: artifact.width,
-        dimY: artifact.height,
-        content: fullQualifiedArtifactId
-      });
-      return index;
+    _onUtgardReady: function () {
+      console.log('UTGARD ready');
+      if (websocketReadyCount++ > 0) {
+        this.set('utgardReady', true);
+        let bdeGraph = this.$.bdeGraph;
+        let coordinates = bdeGraph.getCoordinates();
+        console.log('UTGARD initial coordinates', coordinates);
+        let index = this._utgardMaxMapping;
+        Object.keys(coordinates.artifacts).forEach(key => {
+          let artifact = coordinates.artifacts[ key ];
+          index = this._addObjectToUtgard(key, artifact, index);
+        });
+        this.set('_utgardMaxMapping', index);
+      }
     },
 
     _onUtgardResponse: function (response) {
-      console.log('##########################', response);
+      console.log('UTGARD Response', response);
     },
 
-    _getBdeId: function () {
-
-    },
-
-    onCoordinatesChanged: function (coordinates, changes) {
-      console.log('coordinates', coordinates, 'changed', changes);
-      // coordinates changed
-      Object.keys(changes.artifacts.changed).forEach(key => {
-        let fullQualifiedArtifactId = this._getFullQualifiedArtifactId(key);
-        let bdeId = fullQualifiedArtifactId + '#' + key;
-        let coordinates = changes.artifacts.changed[key];
-        console.log('moveBoundingA(' + coordinates.x + ', ' + coordinates.y + ', ' + this._utgardIdMappingTable[ bdeId ] + ')', 'bdeId', bdeId);
-        window.utgard.moveBoundingA(coordinates.x, coordinates.y, this._utgardIdMappingTable[ bdeId ]);
-      });
-      // new object added
-      let index = this._utgardMaxMapping;
-      Object.keys(changes.artifacts.created).forEach(key => {
-        let artifact = coordinates.artifacts[ key ];
-        index = this._addObjectToUtgard(key, artifact, index);
-      });
-      this.set('_utgardMaxMapping', index);
-      // object removed
-      Object.keys(changes.artifacts.removed).forEach(key => {
-        let fullQualifiedArtifactId = this._getFullQualifiedArtifactIdByArtifactId(changes.artifacts.removed[key].artifactId);
-        let bdeId = fullQualifiedArtifactId + '#' + key;
-        console.log('utgard.removeObjects([' + this._utgardIdMappingTable[ bdeId ] + '])', 'bdeId', bdeId);
-        window.utgard.removeObjects([this._utgardIdMappingTable[ bdeId ]]);
-      });
+    _removeAllUtgardObjects: function (artifactId) {
+      if (!this._utgardIdMappingTable || Object.keys(this._utgardIdMappingTable).length === 0) {
+        return;
+      }
+      console.log('UTGARD utgard.removeObjects(' + Object.values(this._utgardIdMappingTable) + ')');
+      window.utgard.removeObjects(Object.values(this._utgardIdMappingTable));
+      this.set('_utgardIdMappingTable', []);
     }
+
   });
 })(this);
