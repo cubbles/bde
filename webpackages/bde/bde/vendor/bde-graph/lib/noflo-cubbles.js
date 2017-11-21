@@ -355,6 +355,7 @@
       var nodeTmp = {};
       // for squares
       if (!this.coordinates.artifacts[this.nodes[i].id]) {
+        nodeTmp.artifactId = this.nodes[i].artifactId;
         nodeTmp.x = this.nodes[i].metadata.x + (this.nodes[i].metadata.width / 2);
         nodeTmp.y = this.nodes[i].metadata.y + (this.nodes[i].metadata.height / 2);
         nodeTmp.width = this.nodes[i].metadata.width;
@@ -384,7 +385,13 @@
         if (nodeTmp.height !== (tmp = this.nodes[i].metadata.height)) {
           nodeTmp.height = changeTmp.height = tmp;
         }
-        if (Object.keys(changeTmp).length) {
+        if (changeTmp.x || changeTmp.y || changeTmp.width || changeTmp.height) {
+          changeTmp.x = changeTmp.x || nodeTmp.x;
+          changeTmp.y = changeTmp.y || nodeTmp.y;
+          changeTmp.width = changeTmp.width || nodeTmp.width;
+          changeTmp.height = changeTmp.width || nodeTmp.width;
+        }
+        if (Object.keys(changeTmp).length && !isNaN(changeTmp.x) && !isNaN(changeTmp.y) && !isNaN(changeTmp.width) && !isNaN(changeTmp.height)) {
           if (!changes.artifacts) {
             changes.artifacts = {
               changed: {},
@@ -395,21 +402,21 @@
           changes.artifacts.changed[this.nodes[i].id] = changeTmp;
         }
       }
-      for (var id in this.coordinates.artifacts) {
-        if (this.coordinates.artifacts.hasOwnProperty(id)) {
-          if (!this.nodes.find(function (d) {
+    }
+    for (var id in this.coordinates.artifacts) {
+      if (this.coordinates.artifacts.hasOwnProperty(id)) {
+        if (!this.nodes.find(function (d) {
             return d.id === id;
           })) {
-            if (!changes.artifacts) {
-              changes.artifacts = {
-                changed: {},
-                removed: {},
-                created: {}
-              };
-            }
-            changes.artifacts.removed[id] = this.coordinates.artifacts[id];
-            delete this.coordinates.artifacts[id];
+          if (!changes.artifacts) {
+            changes.artifacts = {
+              changed: {},
+              removed: {},
+              created: {}
+            };
           }
+          changes.artifacts.removed[id] = this.coordinates.artifacts[id];
+          delete this.coordinates.artifacts[id];
         }
       }
     }
@@ -435,6 +442,7 @@
         this.coordinates.outports[this.outports[i].metadata.slotId] = nodeTmp;
       }
     }
+
     return {snapshot: this.coordinates, change: changes};
   };
 
@@ -581,8 +589,8 @@
     // Remove associated edges
     this.edges
       .filter(function (edge) {
-        return edge.to.node === undefined && edge.to.port === publicPort ||
-          edge.from.node === undefined && edge.from.port === publicPort;
+        return (edge.to.node === undefined && edge.to.port === publicPort) ||
+          (edge.from.node === undefined && edge.from.port === publicPort);
       })
       .forEach(function (edge) {
         this.removeEdge(edge.from.node, edge.from.port, edge.to.node, edge.to.port);
@@ -668,8 +676,8 @@
     // Remove associated edges (jtrs)
     this.edges
       .filter(function (edge) {
-        return edge.to.node === undefined && edge.to.port === publicPort ||
-          edge.from.node === undefined && edge.from.port === publicPort;
+        return (edge.to.node === undefined && edge.to.port === publicPort) ||
+          (edge.from.node === undefined && edge.from.port === publicPort);
       })
       .forEach(function (edge) {
         this.removeEdge(edge.from.node, edge.from.port, edge.to.node, edge.to.port);

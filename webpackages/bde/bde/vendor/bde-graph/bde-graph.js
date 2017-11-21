@@ -381,6 +381,13 @@
     /* **************** Public Methods *******************/
     /* ***************************************************/
     /**
+     * get the coordinates object.
+     */
+    getCoordinates: function () {
+      return this._graph.getCoordinates().snapshot;
+    },
+
+    /**
      * This is called by the graph, when a context menu is shown.
      */
     getMenuDef: function (options) {
@@ -423,7 +430,9 @@
     coordinatesChanged: function () {
       var coordinates = this._graph.getCoordinates();
       if (this.onCoordinatesChanged && typeof this.onCoordinatesChanged === 'function') {
-        this.onCoordinatesChanged(coordinates.snapshot, coordinates.change);
+        if (Object.keys(coordinates.change).length) {
+          this.onCoordinatesChanged(coordinates.snapshot, coordinates.change);
+        }
       }
     },
 
@@ -570,8 +579,8 @@
     onAddEdge: function (edge) {
       var connection = this._getConnectionForEdge(edge);
       if (!connection) {
-        let fromSlot = edge.from.port.indexOf('__SLOT__') === 0 ? edge.from.port.replace('__SLOT__','') : edge.from.port;
-        let toSlot = edge.to.port.indexOf('__SLOT__') === 0 ? edge.to.port.replace('__SLOT__','') : edge.to.port;
+        let fromSlot = edge.from.port.indexOf('__SLOT__') === 0 ? edge.from.port.replace('__SLOT__', '') : edge.from.port;
+        let toSlot = edge.to.port.indexOf('__SLOT__') === 0 ? edge.to.port.replace('__SLOT__', '') : edge.to.port;
         var newConnection = {
           connectionId: edge.metadata.connectionId,
 

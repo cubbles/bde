@@ -48,6 +48,9 @@ function runOnce () {
       dimX: 10,
       dimY: 10,
       content: 'com.incowia.cubx-webpackage-viewer-package@1.1.0/cubx-component-info-viewer' //z.B. de.iisys.va.allmightywebpackage@13.37/solveMyProblem
+      // content: 'com.incowia.cubx-webpackage-viewer-package@1.5.1/cubx-component-info-viewer' //z.B. de.iisys.va.allmightywebpackage@13.37/solveMyProblem
+      // content: 'dep-tree-viewer@1.1.1/cubx-dep-tree-viewer'
+      // content: 'com.incowia.cubx-marked-element@1.0/cubx-marked-element'
     });
   }
   runOnceDone++;

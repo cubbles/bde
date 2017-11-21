@@ -1,10 +1,11 @@
+/* global buildWebpackageId */
 (function (context) {
   'use strict';
 
   if (!context.fetch) {
     throw new Error('Browser must support Fetch API or have polyfill loaded.');
   }
-
+  var websocketReadyCount = 0;
   Polymer({
     is: 'bde-dataflow-view',
 
@@ -189,6 +190,21 @@
        */
       _selectedEdges: {
         type: Array
+      },
+
+      _utgardIdMappingTable: {
+        type: Object,
+        value: function () {
+          return {};
+        }
+      },
+      _utgardMaxMapping: {
+        type: Number,
+        value: 1
+      },
+      _utgardReady: {
+        type: Boolean,
+        value: false
       }
 
     },
@@ -199,7 +215,8 @@
       '_selectedEdgesChanged(_selectedEdges.splices)',
       '_artifactIdChanged(_artifact.artifactId)',
       '_artifactConnectionsChanged(_artifact.connections.splices)',
-      '_artifactSlotsChanged(_artifact.slots.splices)'
+      '_artifactSlotsChanged(_artifact.slots.splices)',
+      '_artifactMembersChanged(_artifact.members.splices)'
     ],
 
     listeners: {
@@ -381,6 +398,9 @@
         }
       });
     },
+    _artifactMembersChanged: function (changeRecord) {
+      console.log('!!!!!!!!!!!', changeRecord);
+    },
     _artifactSlotsChanged: function (changeRecord) {
       if (!changeRecord) { return; }
       console.log(changeRecord);
@@ -499,7 +519,8 @@
      */
     _artifactIdChanged: function (artifactId) {
       this.set('currentComponentMetadata.artifactId', artifactId);
-      this.set('manifest.artifactId', artifactId);
+      // let artifact = this._currentComponentMetadata.manifest.artifacts.compoundComponents.find(comp => comp.artifactId === artifactId);
+      // this.set('_artifact', artifact);
     },
 
     /**
@@ -629,36 +650,133 @@
 
     _onUtgardReady: function () {
       console.log('utgard ready');
+      if (websocketReadyCount++ > 0) {
+        this.set('utgardReady', true);
+        let bdeGraph = this.$.bdeGraph;
+        let coordinates = bdeGraph.getCoordinates();
+        console.log('#########initial', coordinates);
+        let index = this._utgardMaxMapping;
+        Object.keys(coordinates.artifacts).forEach(key => {
+          let artifact = coordinates.artifacts[ key ];
+          index = this._addObjectToUtgard(key, artifact, index);
+          // let manifest = this.currentComponentMetadata.manifest;
+          // let member = this._artifact.members.find(member => member.memberId === key);
+          // if (!member) {
+          //   // TODO log??
+          //   return;
+          // }
+          // let artifactId = member.artifactId;
+          // let dependency = this._artifact.dependencies.find(dep => dep.artifactId === artifactId);
+          //
+          // let fullQualifiedArtifactId;
+          // if (!dependency ) {
+          //   // TODO logs?
+          //   return;
+          // }
+          // if (dependency.webpackageId) {
+          //   fullQualifiedArtifactId = dependency.webpackageId + '/' + artifactId;
+          // } else {
+          //   fullQualifiedArtifactId = buildWebpackageId(manifest.groupId, manifest.name, manifest.version) + '/' + artifactId;
+          // }
+          // let bdeId = fullQualifiedArtifactId + '#' + key;
+          // // let utgardId = bdeId.hashCode();
+          //
+          // let utgardId = index++;
+          //
+          // this._utgardIdMappingTable[ bdeId ] = utgardId;
+          // console.log(bdeId, utgardId);
+          // window.utgard.addObject({
+          //   id: utgardId,
+          //   posX: artifact.x,
+          //   posY: artifact.y,
+          //   dimX: artifact.width,
+          //   dimY: artifact.height,
+          //   content: fullQualifiedArtifactId
+          // });
+        });
+        this.set('_utgardMaxMapping', index);
+      }
+    },
+
+    _getFullQualifiedArtifactId: function (memberId) {
+      let member = this._artifact.members.find(member => member.memberId === memberId);
+      if (!member) {
+        // TODO log??
+        return;
+      }
+      let artifactId = member.artifactId;
+      return this._getFullQualifiedArtifactIdByArtifactId(artifactId);
+    },
+
+    _getFullQualifiedArtifactIdByArtifactId: function (artifactId) {
+      let manifest = this.currentComponentMetadata.manifest;
+      let dependency = this._artifact.dependencies.find(dep => dep.artifactId === artifactId);
+
+      let fullQualifiedArtifactId;
+      if (!dependency) {
+        // TODO logs?
+        return;
+      }
+      if (dependency.webpackageId) {
+        fullQualifiedArtifactId = dependency.webpackageId + '/' + artifactId;
+      } else {
+        fullQualifiedArtifactId = buildWebpackageId(manifest.groupId, manifest.name, manifest.version) + '/' + artifactId;
+      }
+      return fullQualifiedArtifactId;
+    },
+    _addObjectToUtgard: function (key, artifact, index) {
+      let fullQualifiedArtifactId = this._getFullQualifiedArtifactId(key);
+      let bdeId = fullQualifiedArtifactId + '#' + key;
+      // let utgardId = bdeId.hashCode();
+
+      let utgardId = index++;
+
+      this._utgardIdMappingTable[ bdeId ] = utgardId;
+      console.log(bdeId, utgardId);
+
+      window.utgard.addObject({
+        id: utgardId,
+        posX: artifact.x,
+        posY: artifact.y,
+        dimX: artifact.width,
+        dimY: artifact.height,
+        content: fullQualifiedArtifactId
+      });
+      return index;
     },
 
     _onUtgardResponse: function (response) {
-      console.log(response);
+      console.log('##########################', response);
     },
 
-    onCoordinatesChanged: function (coordinates, change) {
-      console.log('coordinates, change', coordinates, change);
-      // TODO add functionality to send real meta data
-      // TODO create local mapping list holding(webpackage+artifact name <-> utgard_id)
-      // case new node:
-      if (!this.utgard_id) {
-        this.utgard_id = 1;
-      } else {
-        this.utgard_id++;
-      }
-      if (this.utgard) {
-        window.utgard.addObject({
-          id: this.utgard_id,
-          posX: 70,
-          posY: 40,
-          dimX: 10,
-          dimY: 10,
-          content: 'com.incowia.cubx-webpackage-viewer-package@1.1.0/cubx-component-info-viewer'
-        });
-        // case node moved:
-        // utgard.moveBoundingA(30 /*posX */, 50 /* posY */, 1 /* utgard_id */);
-        // case node removed
-        // utgard.removeObjects([1] /* list of utagrd_ids s */);
-      }
+    _getBdeId: function () {
+
+    },
+
+    onCoordinatesChanged: function (coordinates, changes) {
+      console.log('coordinates', coordinates, 'changed', changes);
+      // coordinates changed
+      Object.keys(changes.artifacts.changed).forEach(key => {
+        let fullQualifiedArtifactId = this._getFullQualifiedArtifactId(key);
+        let bdeId = fullQualifiedArtifactId + '#' + key;
+        let coordinates = changes.artifacts.changed[key];
+        console.log('moveBoundingA(' + coordinates.x + ', ' + coordinates.y + ', ' + this._utgardIdMappingTable[ bdeId ] + ')', 'bdeId', bdeId);
+        window.utgard.moveBoundingA(coordinates.x, coordinates.y, this._utgardIdMappingTable[ bdeId ]);
+      });
+      // new object added
+      let index = this._utgardMaxMapping;
+      Object.keys(changes.artifacts.created).forEach(key => {
+        let artifact = coordinates.artifacts[ key ];
+        index = this._addObjectToUtgard(key, artifact, index);
+      });
+      this.set('_utgardMaxMapping', index);
+      // object removed
+      Object.keys(changes.artifacts.removed).forEach(key => {
+        let fullQualifiedArtifactId = this._getFullQualifiedArtifactIdByArtifactId(changes.artifacts.removed[key].artifactId);
+        let bdeId = fullQualifiedArtifactId + '#' + key;
+        console.log('utgard.removeObjects([' + this._utgardIdMappingTable[ bdeId ] + '])', 'bdeId', bdeId);
+        window.utgard.removeObjects([this._utgardIdMappingTable[ bdeId ]]);
+      });
     }
   });
 })(this);

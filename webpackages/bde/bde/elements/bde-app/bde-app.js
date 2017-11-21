@@ -623,6 +623,7 @@
           }
           this._setUrlParam(buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId));
           this.fire('bde-load-manifest', manifestObj);
+          this._currentArtifactReset();
         }).catch(error => {
           console.warn('Could not load the webpackage: "' + this.settings.webpackageId + '". Error:' + error.message);
           if (this.settings.artifactId) {
@@ -631,6 +632,7 @@
             this._createNewWebpackage(this.settings.webpackageId); // create webpackage defaults
           }
           this._setUrlParam(buildParamUrl(this.settings.baseUrl, this.settings.store, this.settings.webpackageId, this.settings.artifactId));
+          this._currentArtifactReset();
         });
       }
     },
