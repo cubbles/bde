@@ -856,15 +856,21 @@
         hookFunction: conn.hookFunction,
         description: conn.description
       };
+      let sourceSlot;
       if (!conn.source.memberIdRef) {
-        conn.source.slot = conn.source.slot.indexOf('__SLOT__') === 0 ? conn.source.slot : '__SLOT__' + conn.source.slot;
+        sourceSlot = conn.source.slot.indexOf('__SLOT__') === 0 ? conn.source.slot : '__SLOT__' + conn.source.slot;
+      } else {
+        sourceSlot = conn.source.slot;
       }
+      let destinationSlot;
       if (!conn.destination.memberIdRef) {
-        conn.destination.slot = conn.destination.slot.indexOf('__SLOT__') === 0 ? conn.destination.slot : '__SLOT__' + conn.destination.slot;
+        destinationSlot = conn.destination.slot.indexOf('__SLOT__') === 0 ? conn.destination.slot : '__SLOT__' + conn.destination.slot;
+      } else {
+        destinationSlot = conn.destination.slot;
       }
       this._graph.addEdge(
-        conn.source.memberIdRef, conn.source.slot,
-        conn.destination.memberIdRef, conn.destination.slot,
+        conn.source.memberIdRef, sourceSlot,
+        conn.destination.memberIdRef, destinationSlot,
         metadata
       );
     },

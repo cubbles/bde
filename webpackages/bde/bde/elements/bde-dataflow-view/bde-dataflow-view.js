@@ -215,8 +215,7 @@
       '_selectedEdgesChanged(_selectedEdges.splices)',
       '_artifactIdChanged(_artifact.artifactId)',
       '_artifactConnectionsChanged(_artifact.connections.splices)',
-      '_artifactSlotsChanged(_artifact.slots.splices)',
-      '_artifactMembersChanged(_artifact.members.splices)'
+      '_artifactSlotsChanged(_artifact.slots.splices)'
     ],
 
     listeners: {
@@ -398,9 +397,7 @@
         }
       });
     },
-    _artifactMembersChanged: function (changeRecord) {
-      console.log('!!!!!!!!!!!', changeRecord);
-    },
+
     _artifactSlotsChanged: function (changeRecord) {
       if (!changeRecord) { return; }
       console.log(changeRecord);
