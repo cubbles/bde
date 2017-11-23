@@ -446,6 +446,17 @@
     _defaultSettingsChanged: function (changeRecord) {
       this.set('settings.baseUrl', this.defaultSettings.baseUrl);
       this.set('settings.store', this.defaultSettings.store);
+      let asgard = this.get('settings.asgard');
+      if (!asgard) {
+        asgard = {};
+        this.set('settings.asgard', asgard);
+      }
+
+      this.set('settings.asgard.asgardUrl', this.defaultSettings.asgard.asgardUrl);
+      this.set('settings.asgard.asgardPort', this.defaultSettings.asgard.asgardPort);
+      this.set('settings.asgard.knowledgeBaseUrl', this.defaultSettings.asgard.knowledgeBaseUrl);
+      this.set('settings.asgard.knowledgeBasePort', this.defaultSettings.asgard.knowledgeBasePort);
+      this.set('settings.asgard.active', this.defaultSettings.asgard.active);
     },
 
     /**
@@ -555,7 +566,15 @@
     _initializeDefaultSettings: function () {
       this.set('defaultSettings', {
         baseUrl: 'https://cubbles.world',
-        store: 'sandbox'
+        store: 'sandbox',
+        asgard: {
+          asgardUrl: 'ws://asgard',
+          asgardPort: '4444',
+          knowledgeBaseUrl: 'ws://asgard',
+          knowledgeBasePort: '3333',
+          active: true
+        }
+
       });
     },
 
@@ -775,11 +794,11 @@
     /**
      * Handler for the open property of the settings dialog.
      *
-     * @method _storeSettingsBtnHandler
+     * @method _settingsBtnHandler
      * @private
      */
-    _storeSettingsBtnHandler: function () {
-      this.$.storeSettings.opened = !this.$.storeSettings.opened;
+    _settingsBtnHandler: function () {
+      this.$.settings.opened = !this.$.settings.opened;
     },
 
     /**

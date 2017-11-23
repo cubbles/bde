@@ -215,7 +215,8 @@
       '_selectedEdgesChanged(_selectedEdges.splices)',
       '_artifactIdChanged(_artifact.artifactId)',
       '_artifactConnectionsChanged(_artifact.connections.splices)',
-      '_artifactSlotsChanged(_artifact.slots.splices)'
+      '_artifactSlotsChanged(_artifact.slots.splices)',
+      '_settingsChanged(settings.*)'
     ],
 
     listeners: {
@@ -313,13 +314,12 @@
             this.set('autolayoutAfterRerender', false);
           }, 200);
         }
-        // set listener for changed coordinates
-        bdeGraph.onCoordinatesChanged = this.onCoordinatesChanged.bind(this);
-        // trigger utgard init
-        if (!this.utgard) {
-          this.utgard = true;
-          setTimeout(this._initUtgard.bind(this), 200);
-        }
+        // bdeGraph.onCoordinatesChanged = this.onCoordinatesChanged.bind(this);
+        // // trigger utgard init
+        // if (!this.utgard) {
+        //   this.utgard = true;
+        //   this.async(this._initUtgard, 200);
+        // }
         // requestAnimationFrame(() => bdeGraph.triggerAutolayout());
       });
     },
@@ -344,30 +344,6 @@
 
     /* ********************************************************************/
     /* ********************** property event listener**********************/
-    /* ********************************************************************/
-    /**
-     * Load a new artifact results  areload of the graph.
-     *
-     * @param  {Object} manifest   [description]
-     * @param  {String} artifactId [description]
-     * @param  {String} endpointId [description]
-     */
-    _currentComponentMetadataChanged: function (changeRecord) {
-      var manifest = this.currentComponentMetadata.manifest;
-      var artifactId = this.currentComponentMetadata.artifactId;
-      if (!manifest || !manifest.artifacts || !manifest.artifacts.compoundComponents) {
-        return;
-      }
-      if (!manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId)) {
-        return;
-      }
-      this.debounce('reload_graph', function () {
-        this.reload();
-      }, 100);
-    },
-
-    /* ********************************************************************/
-    /* *********************** Graph event listener ***********************/
     /* ********************************************************************/
 
     _artifactConnectionsChanged: function (changeRecord) {
@@ -418,9 +394,27 @@
         }
       });
     },
-    // _artifactMembersChanged: function (members) {
-    //   console.log(members);
-    // },
+
+    /**
+     * Load a new artifact results  areload of the graph.
+     *
+     * @param  {Object} manifest   [description]
+     * @param  {String} artifactId [description]
+     * @param  {String} endpointId [description]
+     */
+    _currentComponentMetadataChanged: function (changeRecord) {
+      var manifest = this.currentComponentMetadata.manifest;
+      var artifactId = this.currentComponentMetadata.artifactId;
+      if (!manifest || !manifest.artifacts || !manifest.artifacts.compoundComponents) {
+        return;
+      }
+      if (!manifest.artifacts.compoundComponents.find((comp) => comp.artifactId === artifactId)) {
+        return;
+      }
+      this.debounce('reload_graph', function () {
+        this.reload();
+      }, 100);
+    },
 
     /**
      * This handler method is called, if the selected edges changed.
@@ -463,6 +457,35 @@
       }.bind(this));
 
       this.set('lastSelectedMember', this.selectedMembersForProperties[ members.length - 1 ]);
+    },
+
+    /**
+     * This handler method is called by changes on settings property.
+     * @private
+     * @method _settingsChanged
+     */
+    _settingsChanged: function (changeRecord) {
+      if (changeRecord.path.indexOf('asgard') > 0) {
+        let bdeGraph = this.$.bdeGraph;
+        // first: disconnect asgard
+        if (this.utgard) {
+          window.utgard.disconnect();
+          if (bdeGraph.onCoordinatesChanged) {
+            delete bdeGraph.onCoordinatesChanged;
+          }
+          this.utgard = false;
+        }
+        if (this.settings.asgard.active) {
+          // set listener for changed coordinates
+          this.async(function () {
+            // trigger utgard init
+            if (!this.utgard) {
+              this.utgard = true;
+              this.async(this._initUtgard, 200);
+            }
+          }, 100);
+        }
+      }
     },
 
     /* ********************************************************************/
@@ -715,11 +738,14 @@
 
     _initUtgard: function () {
       try {
+        console.log('UTGARD init utgard');
         this.utgard = window.utgard;
-        this.utgard.config.websockifyURL = 'ws://asgard';                  // Websocket Adresse Asgard
-        this.utgard.config.websockifyPort = 4444;                          // Websocket Port    Asgard
-        this.utgard.config.websockifyURL_KB = window.utgard.config.websockifyURL; // Websocket Adresse Hel
-        this.utgard.config.websockifyPort_KB = 3333;                       // Websocket Port    Hel
+        let bdeGraph = this.$.bdeGraph;
+        this.utgard.config.websockifyURL = this.settings.asgard.asgardUrl;           // Websocket Adresse Asgard
+        this.utgard.config.websockifyPort = this.settings.asgard.asgardPort;         // Websocket Port    Asgard (4444)
+        this.utgard.config.websockifyURL_KB = this.settings.asgard.knowledgeBaseUrl; // Websocket Adresse Hel
+        this.utgard.config.websockifyPort_KB = this.settings.asgard.knowledgeBasePort; // Websocket Port    Hel (3333)
+        bdeGraph.onCoordinatesChanged = this.onCoordinatesChanged.bind(this);
         this.utgard.connectToServer(this._onUtgardReady.bind(this), function () {
           console.error('could not load utgard');
         });

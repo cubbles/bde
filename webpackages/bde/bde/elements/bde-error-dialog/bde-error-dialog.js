@@ -1,4 +1,4 @@
-// @importedBy bde-store-settings.html
+// @importedBy bde-settings.html
 'use strict';
 
 Polymer({

@@ -1,0 +1,247 @@
+<link rel="import" href="../../vendor/polymer/polymer.html">
+<link rel="import" href="../../vendor/iron-form/iron-form.html">
+<link rel="import" href="../../vendor/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../../vendor/iron-pages/iron-pages.html">
+<link rel="import" href="../../vendor/paper-toast/paper-toast.html">
+<link rel="import" href="../../vendor/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../vendor/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../vendor/paper-input/paper-input.html">
+<link rel="import" href="../../vendor/paper-button/paper-button.html">
+<link rel="import" href="../../vendor/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../vendor/neon-animation/animations/fade-out-animation.html">
+
+<!--
+A BDE custom element, a dialog form, in which the data of the current Cubbles webbase can be modified.
+
+It contains fields for the base-URL and the name of the store.
+
+On submission of the form the whole BDE app is reloaded.
+
+Example:
+
+      <bde-settings id="settings"
+                          default-settings="{{defaultSettings}}"
+                          opened="{{settingsOpened}}">
+      </bde-settings>
+
+@group BDE Custom Elements
+@element bde-settings
+@author Edwin Gamboa
+-->
+
+<dom-module id="bde-settings">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            #dialog {
+                min-width: 500px;
+            }
+
+            .content {
+                padding-bottom: 20px;
+            }
+
+            fieldset {
+                border: 0;
+                margin: 0;
+                padding: 0;
+            }
+
+            paper-tabs {
+                background-color: var(--light-theme-background-color);
+                --paper-tabs-selection-bar-color: var(--accent-color);
+            }
+
+            .errorMessage {
+                background: #EEEEEE;
+                color: #DD2C00;
+                padding: 20px;
+            }
+
+            .edit-content {
+                display: -webkit-box;
+                display: -moz-box;
+                display: -ms-flexbox;
+                display: flex;
+            }
+
+            .inputSeparator {
+                flex-grow:1;
+                text-align: center;
+                vertical-align: baseline;
+                align-self: flex-end;
+                padding-bottom: 8px;
+            }
+
+            .inputUrl {
+                flex-grow: 14;
+            }
+
+            .inputStore {
+                height: 100%;
+                flex-grow:4
+            }
+
+            .settings {
+                min-width: 50vw;
+            }
+            paper-toggle-button {
+                --paper-toggle-button-checked-button-color: var(--paper-cyan-600);
+                --paper-toggle-button-checked-ink-color: var(--paper-cyan-600);
+                        --paper-toggle-button-checked-bar-color: var(--paper-cyan-600);
+            }
+        </style>
+
+        <paper-toast id="toast" no-auto-focus></paper-toast>
+
+        <paper-dialog id="formDialog" opened="{{opened}}" exit-animation="fade-out-animation" with-backdrop>
+
+            <paper-tabs selected="{{_tabSelected}}" autoselect="true">
+                <paper-tab>Store settings</paper-tab>
+                <paper-tab>Intelligent proposal system settings</paper-tab>
+            </paper-tabs>
+
+            <iron-pages selected="{{_tabSelected}}">
+                <div class="settings">
+                    <h2>Change Store</h2>
+
+                    <div class="errorMessage" id="storeSettingsErrorMessageDiv" hidden="[[validSettings]]"></div>
+
+                    <p class="description">
+                        Provide the data of the store you want to use to retrieve and upload the components.
+                    </p>
+
+                    <form is="iron-form" id="storeSettingsForm">
+                        <div class="edit-content">
+                            <div class="inputUrl">
+                                <paper-input id="baseUrl"
+                                             type="text"
+                                             name="baseUrl"
+                                             label="Base URL"
+                                             pattern="^(https?)://[^\s\/$.?#].[^\s]*$"
+                                             value="[[_intermediate.baseUrl]]"
+                                             error-message="Please provide a valid store url, e.g. 'https://cubbles.world'"
+                                             autofocus
+                                             required
+                                             auto-validate
+                                             on-keyDown="_confirmBaseURL">
+                                </paper-input>
+                            </div>
+                            <div class="inputSeparator"><span>/</span></div>
+                            <div class="inputStore">
+                                <paper-input id="storeName"
+                                             type="text"
+                                             name="store"
+                                             label="Store Name"
+                                             pattern="[a-zA-Z0-9-._~]+"
+                                             value="[[_intermediate.store]]"
+                                             error-message="Please provide a valid store name, e.g. 'bde'"
+                                             required
+                                             auto-validate
+                                             on-keyDown="_saveStoreSettingsChanges">
+                                </paper-input>
+                            </div>
+                        </div>
+                        <p>
+                            <strong>Note: </strong> Changing the store will re-initialize the application. Any changes on the
+                            current active webpackage will be lost.
+                        </p>
+                    </form>
+                    <div class="buttons">
+                        <paper-button dialog-dismiss>Cancel</paper-button>
+                        <paper-button on-tap="_validateStoreSettings">Save</paper-button>
+                        <paper-button on-tap="_validateStoreSettingsAndUse">Save & Use</paper-button>
+                        <paper-button on-tap="_changeStoreUrlInLocation">Use</paper-button>
+                    </div>
+                </div>
+                <div class="settings">
+                    <h2>Intelligent proposal system</h2>
+                    <p class="description">
+                        Switch on/oof the intelligent proposals and provide the data of the proposal system you want to use.
+                    </p>
+                    <form is="iron-form" id="utgardSettingsForm">
+                        <!--this.utgard.config.websockifyURL = 'ws://asgard';                  // Websocket Adresse Asgard-->
+                        <!--this.utgard.config.websockifyPort = 4444;                          // Websocket Port    Asgard-->
+                        <!--this.utgard.config.websockifyURL_KB = window.utgard.config.websockifyURL; // Websocket Adresse Hel-->
+                        <!--this.utgard.config.websockifyPort_KB = 3333;-->
+                        <div class="edit-content">
+                            <paper-toggle-button
+                                    name="utgardActive"
+                                    id="utgardActive"
+                                    checked="[[_intermediate.asgard.active]]"
+                                    on-change="_changeUseUtgard"
+                                    >Inteligent proposals</paper-toggle-button>
+                        </div>
+                        <div class="edit-content">
+                            <div class="inputUrl">
+                                <paper-input id="asgardUrl"
+                                             type="text"
+                                             name="asgardUrl"
+                                             label="Asgard URL"
+                                             pattern="^(wss?)://[^\s\/$.?#].[^\s]*$"
+                                             value="[[_intermediate.asgard.asgardUrl]]"
+                                             error-message="Please provide a valid websocket url, e.g. 'ws://asgard'"
+                                             autofocus
+                                             required
+                                             auto-validate>
+                                </paper-input>
+                            </div>
+                            <div class="inputSeparator"><span>:</span></div>
+                            <div class="inputStore">
+                                <paper-input id="asgardPort"
+                                             type="text"
+                                             name="asgardPort"
+                                             label="Asgard port"
+                                             pattern="\d{4}"
+                                             value="[[_intermediate.asgard.asgardPort]]"
+                                             error-message="Please provide a valid port, e.g. 4444"
+                                             required
+                                             auto-validate>
+                                </paper-input>
+                            </div>
+                        </div>
+                        <div class="edit-content">
+                            <div class="inputUrl">
+                                <paper-input id="knowledgeBaseUrl"
+                                             type="text"
+                                             name="knowledgeBaseUrl"
+                                             label="Asgard URL"
+                                             pattern="^(wss?)://[^\s\/$.?#].[^\s]*$"
+                                             value="[[_intermediate.asgard.knowledgeBaseUrl]]"
+                                             error-message="Please provide a valid websocket url, e.g. 'ws://asgard'"
+                                             autofocus
+                                             required
+                                             auto-validate>
+                                </paper-input>
+                            </div>
+                            <div class="inputSeparator"><span>:</span></div>
+                            <div class="inputStore">
+                                <paper-input id="knowledgeBasePort"
+                                             type="text"
+                                             name="knowledgeBasePort"
+                                             label="Asgard port"
+                                             pattern="\d{4}"
+                                             value="[[_intermediate.asgard.knowledgeBasePort]]"
+                                             error-message="Please provide a valid port, e.g. 3333"
+                                             required
+                                             auto-validate>
+                                </paper-input>
+                            </div>
+                        </div>
+
+
+                    </form>
+                    <div class="buttons">
+                        <paper-button dialog-dismiss>Cancel</paper-button>
+                        <paper-button on-tap="_validatAndSaveUtgardSettings">Save & Use</paper-button>
+                    </div>
+                </div>
+            </iron-pages>
+        </paper-dialog>
+    </template>
+</dom-module>
+
+<script src="bde-settings.js"></script>

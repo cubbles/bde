@@ -12,7 +12,7 @@
 <link rel="import" href="../../vendor/iron-location/iron-location.html" />
 <link rel="import" href="../../vendor/iron-location/iron-query-params.html" />
 <link rel="import" href="../bde-manifest/bde-manifest.html">
-<link rel="import" href="../bde-store-settings/bde-store-settings.html">
+<link rel="import" href="../bde-settings/bde-settings.html">
 <link rel="import" href="../page-select-menu/page-select-menu.html">
 <link rel="import" href="../bde-styles/bde-custom-icons.html">
 <link rel="import" href="../bde-help-page/bde-help-page.html">
@@ -237,12 +237,12 @@ Example:
                        on-keydown="_stopEventPropagation"></bde-help-page>
 
         <!-- Dialog for setting up the Cubble base connection -->
-        <bde-store-settings id="storeSettings"
+        <bde-settings id="settings"
                             default-settings="{{defaultSettings}}"
                             settings="{{settings}}"
                             opened="{{settingsOpened}}"
                             on-keydown="_stopEventPropagation">
-        </bde-store-settings>
+        </bde-settings>
 
         <bde-error-dialog id="bdeErrorDialog"
                           opened="{{errorDialogOpened}}"
@@ -332,7 +332,7 @@ Example:
                                    title="Change default store..."
                                    aria-label="settings"
                                    icon="icons:settings"
-                                   on-tap="_storeSettingsBtnHandler"
+                                   on-tap="_settingsBtnHandler"
                 ></paper-icon-button>
 
                 <paper-icon-button id="aboutBtn"
