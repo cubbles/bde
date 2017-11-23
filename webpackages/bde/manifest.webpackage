@@ -1,5 +1,5 @@
 {
-  "name": "bde",
+  "name": "bde-odin",
   "groupId": "",
   "version": "2.1.0-SNAPSHOT",
   "modelVersion": "8.3.1",
@@ -24,6 +24,10 @@
     {
       "name": "Judit Ross",
       "email": "Judit.ross@incowia.com"
+    },
+    {
+      "name": "Maximilian Hamm",
+      "email": "Maximilian.Hamm@incowia.com"
     }
   ],
   "license": "MIT",
