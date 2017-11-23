@@ -469,10 +469,11 @@
         let bdeGraph = this.$.bdeGraph;
         // first: disconnect asgard
         if (this.utgard) {
-          window.utgard.disconnect();
           if (bdeGraph.onCoordinatesChanged) {
             delete bdeGraph.onCoordinatesChanged;
           }
+          console.log('UTGARD utgard.disconnect()');
+          window.utgard.disconnect();
           this.utgard = false;
         }
         if (this.settings.asgard.active) {
@@ -740,12 +741,11 @@
       try {
         console.log('UTGARD init utgard');
         this.utgard = window.utgard;
-        let bdeGraph = this.$.bdeGraph;
+
         this.utgard.config.websockifyURL = this.settings.asgard.asgardUrl;           // Websocket Adresse Asgard
         this.utgard.config.websockifyPort = this.settings.asgard.asgardPort;         // Websocket Port    Asgard (4444)
         this.utgard.config.websockifyURL_KB = this.settings.asgard.knowledgeBaseUrl; // Websocket Adresse Hel
         this.utgard.config.websockifyPort_KB = this.settings.asgard.knowledgeBasePort; // Websocket Port    Hel (3333)
-        bdeGraph.onCoordinatesChanged = this.onCoordinatesChanged.bind(this);
         this.utgard.connectToServer(this._onUtgardReady.bind(this), function () {
           console.error('could not load utgard');
         });
@@ -756,18 +756,20 @@
     },
 
     _onUtgardReady: function () {
-      console.log('UTGARD ready');
+      // utgard is just for second time calling ready
       if (websocketReadyCount++ > 0) {
+        console.log('UTGARD ready');
         this.set('utgardReady', true);
         let bdeGraph = this.$.bdeGraph;
+        bdeGraph.onCoordinatesChanged = this.onCoordinatesChanged.bind(this);
         let coordinates = bdeGraph.getCoordinates();
-        console.log('UTGARD initial coordinates', coordinates);
         let index = this._utgardMaxMapping;
         Object.keys(coordinates.artifacts).forEach(key => {
           let artifact = coordinates.artifacts[ key ];
           index = this._addObjectToUtgard(key, artifact, index);
         });
         this.set('_utgardMaxMapping', index);
+        websocketReadyCount = 0;
       }
     },
 
