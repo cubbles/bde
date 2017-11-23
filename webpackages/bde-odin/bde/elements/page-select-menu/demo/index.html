@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+  <title>page-select-menu Demo</title>
+
+  <script src="../../../vendor/webcomponentsjs/webcomponents-lite.js"></script>
+
+  <link rel="import" href="../page-select-menu.html">
+
+  <link rel="import" href="../../../vendor/iron-pages/iron-pages.html">
+  <link rel="import" href="../../../vendor/iron-icons/image-icons.html">
+  <link rel="import" href="../../../vendor/paper-icon-button/paper-icon-button.html">
+
+  <style is="custom-style">
+  iron-pages {
+    width: 100%;
+  }
+  </style>
+</head>
+<body unresolved>
+
+  <p>An example of <code>&lt;page-select-menu&gt;</code>:</p>
+
+  <template is="dom-bind" id="app">
+
+    <page-select-menu selected="{{selected}}">
+      <paper-icon-button id="firstIcon"  title="First page" icon="image:looks-one" page="first"></paper-icon-button>
+      <paper-icon-button id="secondIcon" title="Second page" icon="image:looks-two" page="second" selected></paper-icon-button>
+      <paper-icon-button id="thirdIcon" title="Third page" icon="image:looks-3" page="third"></paper-icon-button>
+    </page-select-menu>
+
+    <iron-pages id="pages" attr-for-selected="id" selected="{{selected}}">
+
+      <div id="first" >
+        First
+      </div>
+      <div id="second">
+        Second
+      </div>
+      <div id="third">
+        Third
+      </div>
+
+    </iron-pages>
+
+  </template>
+
+</body>
+</html>
