@@ -713,17 +713,18 @@
       let proposals = [];
       asgardResponse.forEach(cluster => {
         let proposal = {};
-        let causerMembers = [];
+        let clusterMembers = [];
         cluster.clusterEntities.forEach(entity => {
-          causerMembers.push(this._getBdeId(entity.id));
+          let member = this._getBdeId(entity.id).split('#')[1];
+          clusterMembers.push(member);
         });
-        proposal.causerMembers = causerMembers;
+        proposal.clusterMembers = clusterMembers;
         let suggestions = [];
         cluster.clusterSuggestions.forEach(asgardSuggestion => {
           let suggestion = {};
           let idSplit = asgardSuggestion.uri.split('/');
           suggestion.webpackageId = idSplit[0];
-          suggestion.artifactIdId = idSplit[1];
+          suggestion.artifactId = idSplit[1];
           let roundedWeight = Math.round(asgardSuggestion.weight * 100) / 100;
           suggestion.weight = roundedWeight;
           suggestions.push(suggestion);
