@@ -706,8 +706,41 @@
       return index;
     },
 
-    _getBdeId: function () {
+    _createProposals: function (asgardResponse) {
+      if (!asgardResponse || !Array.isArray(asgardResponse)) {
+        return [];
+      }
+      let proposals = [];
+      asgardResponse.forEach(cluster => {
+        let proposal = {};
+        let causerMembers = [];
+        cluster.clusterEntities.forEach(entity => {
+          causerMembers.push(this._getBdeId(entity.id));
+        });
+        proposal.causerMembers = causerMembers;
+        let suggestions = [];
+        cluster.clusterSuggestions.forEach(asgardSuggestion => {
+          let suggestion = {};
+          let idSplit = asgardSuggestion.uri.split('/');
+          suggestion.webpackageId = idSplit[0];
+          suggestion.artifactIdId = idSplit[1];
+          let roundedWeight = Math.round(asgardSuggestion.weight * 100) / 100;
+          suggestion.weight = roundedWeight;
+          suggestions.push(suggestion);
+        });
+        proposal.suggestions = suggestions;
+        proposals.push(proposal);
+      });
+      return proposals;
+    },
 
+    _getBdeId: function (asgardId) {
+      let mapping = Object.entries(this._utgardIdMappingTable).find(entry => entry[1] === asgardId);
+      if (!mapping) {
+        console.error('No mapping found to asgrad id: ' + asgardId);
+        return asgardId;
+      }
+      return mapping[0];
     },
 
     _getFullQualifiedArtifactId: function (memberId) {
@@ -775,6 +808,8 @@
 
     _onUtgardResponse: function (response) {
       console.log('UTGARD Response', response);
+      let proposals = this._createProposals(response);
+      console.log('UTGARD proposals', proposals);
     },
 
     _removeAllUtgardObjects: function (artifactId) {
