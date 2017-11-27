@@ -205,6 +205,7 @@ Polymer({
       this.$.bdeFlexboxLayouter.templateChanged('override extern template');
     } else {
       this.set('designViewDisabled', true);
+      this.set('isVisible', false);
     }
   },
 
