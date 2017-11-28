@@ -32,6 +32,10 @@ Polymer({
       }
     },
 
+    proposals: {
+      type: Object
+    },
+
     /**
      * Selected application artifact
      * @type Object
@@ -117,6 +121,11 @@ Polymer({
       type: Boolean,
       value: false
     },
+
+    _proposalsOpen: {
+      type: Boolean,
+      value: false
+    },
     /**
      * Save the state of the menu "Utilities". (It's opened or not openend.)
      * @type Boolean
@@ -132,7 +141,9 @@ Polymer({
 
   observers: [
     '_selectedCompoundChanged(selectedCompound.*)',
-    '_artifactIdChanged(currentComponentMetadata.artifactId)'
+    '_artifactIdChanged(currentComponentMetadata.artifactId)',
+    '_proposalsChanged(proposals.*)',
+    '_asgardActiveChanged(settings.asgard.active)'
   ],
 
   listeners: {
@@ -177,6 +188,14 @@ Polymer({
     }
   },
 
+  _asgardActiveChanged: function (active) {
+    if (active && this.$.proposalsPanel.classList.contains('hide')) {
+      this.$.proposalsPanel.classList.remove('hide');
+    }
+    if (!active && !this.$.proposalsPanel.classList.contains('hide')) {
+      this.$.proposalsPanel.classList.add('hide');
+    }
+  },
   /**
    * Calculate the toggle icon, depend on state.
    * @param {Boolean} state represents, if the dialog openened or not.
@@ -188,6 +207,9 @@ Polymer({
     return state ? 'icons:expand-less' : 'icons:expand-more';
   },
 
+  _calculateProposalToggleIcon: function (state) {
+    return state ? 'icons:expand-more' : 'icons:expand-less';
+  },
   /**
    * Handler after the list of compounds is changed, and the dom-repeat template of the compound list is updated.
    * @param {Event} e dom-change event on compoundList
@@ -335,6 +357,10 @@ Polymer({
     this.$.webpackageMetaInfo.open();
   },
 
+  _proposalsChanged: function (changeRecord) {
+    this.set('_proposalsOpen', true);
+  },
+
   /**
    * Select an app in "Applications" menu
    * @param {Event} e tap event on "Applications"
@@ -416,6 +442,9 @@ Polymer({
     this._compoundsOpen = !this._compoundsOpen;
   },
 
+  _toggleProposals: function () {
+    this._proposalsOpen = !this._proposalsOpen;
+  },
   /**
    * Toggle the "Elementaries" menu
    * @method _toggleElementaries

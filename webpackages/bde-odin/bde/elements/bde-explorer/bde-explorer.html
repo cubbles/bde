@@ -146,154 +146,192 @@ Example:
                 margin-right: 24px;
             }
 
+            .alignLeft {
+                float: left;
+                margin: 0 10px 5px 20px;
+            }
+
             [collapse-opened] {
                 margin-top: 15px;
                 padding-bottom: 15px;
                 border-top: 1px solid #e5e5e5;
                 border-bottom: 1px solid #e5e5e5;
             }
+
+            .lower-panel {
+                position:absolute;
+                bottom:0;
+                width: 100%;
+
+            }
+
+            .proposalsContent {
+                margin-left: 20px;
+            }
+
+            .hide {
+                display: none;
+            }
         </style>
-
-        <div id="webpackageExplorerHeader">
-            <div class="title">
-                <div>
-                    <span hidden="[[!_groupIdDefined(currentComponentMetadata.manifest.groupId)]]">[[currentComponentMetadata.manifest.groupId]].</span>
-                    <span>[[currentComponentMetadata.manifest.name]]@[[currentComponentMetadata.manifest.version]]</span>
-                </div>
-                <paper-icon-button icon="icons:settings"
-                                   class="menuIconButton"
-                                   alt="Webpackage Meta Information"
-                                   on-tap="_openWebpackageMetaInfo">
-                </paper-icon-button>
-            </div>
-            <div class="content">
-                <div class="long-text-block">[[manifest.description]]</div>
-            </div>
-            <paper-tooltip for$="webpackageExplorerHeader">
-                <div class="tooltip tooltip_title">
-                    <span hidden="[[!_groupIdDefined(currentComponentMetadata.manifest.groupId)]]">[[currentComponentMetadata.manifest.groupId]].</span><span>[[currentComponentMetadata.manifest.name]]@[[currentComponentMetadata.manifest.version]]</span>
-                </div>
-                <div class="tooltip tooltip_details">[[currentComponentMetadata.manifest.description]]</div>
-            </paper-tooltip>
-        </div>
-
-        <bde-compound-creator id="compoundCreator"
-                              on-last-artifact-changed="_handleNewCompound"
-                              manifest="{{currentComponentMetadata.manifest}}"
-                              settings="{{settings}}">
-        </bde-compound-creator>
-        <bde-compound-settings id="compoundDetails"
-                              manifest="{{currentComponentMetadata.manifest}}"
-                              resolutions="{{resolutions}}">
-        </bde-compound-settings>
-        <bde-webpackage-meta-info id="webpackageMetaInfo"
-                                  manifest="{{currentComponentMetadata.manifest}}"></bde-webpackage-meta-info>
-
-        <div collapse-opened$="[[_appsOpen]]">
-            <div class="container" tabindex="0" on-tap="_toggleApps">
-                <span>Applications</span>
-                <span class="count">([[currentComponentMetadata.manifest.artifacts.apps.length]])</span>
-                <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
-            </div>
-            <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
-                <template is="dom-repeat" id="appList"
-                          items="{{currentComponentMetadata.manifest.artifacts.apps}}" as="app">
-                    <div class="explorerItem artifact" id$="[[app.artifactId]]">
-                        <div>[[app.artifactId]]</div>
-                        <paper-tooltip for$="[[app.artifactId]]">
-                            <div class="tooltip tooltip_title">[[app.artifactId]]</div>
-                            <div class="tooltip tooltip_details">[[app.description]]</div>
-                        </paper-tooltip>
+        <div>
+            <div id="webpackageExplorerHeader">
+                <div class="title">
+                    <div>
+                        <span hidden="[[!_groupIdDefined(currentComponentMetadata.manifest.groupId)]]">[[currentComponentMetadata.manifest.groupId]].</span>
+                        <span>[[currentComponentMetadata.manifest.name]]@[[currentComponentMetadata.manifest.version]]</span>
                     </div>
-                </template>
-            </iron-collapse>
-        </div>
-
-        <div collapse-opened$="[[_compoundsOpen]]">
-            <div class="container" tabindex="0" on-tap="_toggleCompounds">
-                <span>Compounds</span>
-                <span class="count">([[currentComponentMetadata.manifest.artifacts.compoundComponents.length]])</span>
-                <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_compoundsOpen)]]"></iron-icon>
+                    <paper-icon-button icon="icons:settings"
+                                       class="menuIconButton"
+                                       alt="Webpackage Meta Information"
+                                       on-tap="_openWebpackageMetaInfo">
+                    </paper-icon-button>
+                </div>
+                <div class="content">
+                    <div class="long-text-block">[[manifest.description]]</div>
+                </div>
+                <paper-tooltip for$="webpackageExplorerHeader">
+                    <div class="tooltip tooltip_title">
+                        <span hidden="[[!_groupIdDefined(currentComponentMetadata.manifest.groupId)]]">[[currentComponentMetadata.manifest.groupId]].</span><span>[[currentComponentMetadata.manifest.name]]@[[currentComponentMetadata.manifest.version]]</span>
+                    </div>
+                    <div class="tooltip tooltip_details">[[currentComponentMetadata.manifest.description]]</div>
+                </paper-tooltip>
             </div>
-            <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
-                <paper-menu attr-for-selected="data-artifact-id"
-                            on-iron-select="_explorerCompoundSelected"
-                            id="compoundSelector">
-                    <template is="dom-repeat" id="compoundList" on-dom-change="_compoundListDomChange"
-                              items="{{currentComponentMetadata.manifest.artifacts.compoundComponents}}" as="compound">
-                        <paper-item class="menu-trigger artifact explorerItem" id$="[[compound.artifactId]]"
-                                    data-artifact-id$="[[compound.artifactId]]">
-                            <!--<iron-icon icon="icons:donut-small" item-icon></iron-icon>-->
-                            <paper-item-body>
-                                <div>[[compound.artifactId]]</div>
-                            </paper-item-body>
-                            <paper-tooltip for$="[[compound.artifactId]]">
-                                <div class="tooltip tooltip_title">[[compound.artifactId]]</div>
-                                <div class="tooltip tooltip_details">[[compound.description]]</div>
-                                <div class="tooltip tooltip_details">[[compound.members.length]] Members</div>
+
+            <bde-compound-creator id="compoundCreator"
+                                  on-last-artifact-changed="_handleNewCompound"
+                                  manifest="{{currentComponentMetadata.manifest}}"
+                                  settings="{{settings}}">
+            </bde-compound-creator>
+            <bde-compound-settings id="compoundDetails"
+                                  manifest="{{currentComponentMetadata.manifest}}"
+                                  resolutions="{{resolutions}}">
+            </bde-compound-settings>
+            <bde-webpackage-meta-info id="webpackageMetaInfo"
+                                      manifest="{{currentComponentMetadata.manifest}}"></bde-webpackage-meta-info>
+
+            <div collapse-opened$="[[_appsOpen]]">
+                <div class="container" tabindex="0" on-tap="_toggleApps">
+                    <span>Applications</span>
+                    <span class="count">([[currentComponentMetadata.manifest.artifacts.apps.length]])</span>
+                    <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_appsOpen)]]"></iron-icon>
+                </div>
+                <iron-collapse id="collapseApps" opened="[[_appsOpen]]">
+                    <template is="dom-repeat" id="appList"
+                              items="{{currentComponentMetadata.manifest.artifacts.apps}}" as="app">
+                        <div class="explorerItem artifact" id$="[[app.artifactId]]">
+                            <div>[[app.artifactId]]</div>
+                            <paper-tooltip for$="[[app.artifactId]]">
+                                <div class="tooltip tooltip_title">[[app.artifactId]]</div>
+                                <div class="tooltip tooltip_details">[[app.description]]</div>
                             </paper-tooltip>
-                            <br>
-                            <paper-icon-button icon="icons:settings" alt="Settings"
-                                               on-tap="_openCompoundDetails"
-                                               disabled$="[[!_equals(currentComponentMetadata.artifactId, compound.artifactId)]]"
-                                               data-index$="[[index]]"
-                                               class="menuIconButton">
-                            </paper-icon-button>
-                        </paper-item>
+                        </div>
                     </template>
-                </paper-menu>
-
-                <paper-icon-item class="addItem" on-tap="_addCompound">
-                    <iron-icon icon="icons:add" item-icon></iron-icon>
-                    <paper-item-body>
-                        <div>Add new compound</div>
-                    </paper-item-body>
-                </paper-icon-item>
-            </iron-collapse>
-        </div>
-
-
-        <div collapse-opened$="[[_elementariesOpen]]">
-            <div class="container" tabindex="0" on-tap="_toggleElementaries">
-                <span>Elementaries</span>
-                <span class="count">([[currentComponentMetadata.manifest.artifacts.elementaryComponents.length]])</span>
-                <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_elementariesOpen)]]"></iron-icon>
+                </iron-collapse>
             </div>
-            <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
-                <template is="dom-repeat" id="elementaryList"
-                          items="{{currentComponentMetadata.manifest.artifacts.elementaryComponents}}" as="elementary">
-                    <div class="explorerItem artifact" id$="[[elementary.artifactId]]">
-                        <div>[[elementary.artifactId]]</div>
-                        <paper-tooltip for$="[[elementary.artifactId]]">
-                            <div class="tooltip tooltip_title">[[elementary.artifactId]]</div>
-                            <div class="tooltip tooltip_details">[[elementary.description]]</div>
-                        </paper-tooltip>
-                    </div>
-                </template>
-            </iron-collapse>
 
-        </div>
+            <div collapse-opened$="[[_compoundsOpen]]">
+                <div class="container" tabindex="0" on-tap="_toggleCompounds">
+                    <span>Compounds</span>
+                    <span class="count">([[currentComponentMetadata.manifest.artifacts.compoundComponents.length]])</span>
+                    <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_compoundsOpen)]]"></iron-icon>
+                </div>
+                <iron-collapse id="collapseCompounds" opened="[[_compoundsOpen]]">
+                    <paper-menu attr-for-selected="data-artifact-id"
+                                on-iron-select="_explorerCompoundSelected"
+                                id="compoundSelector">
+                        <template is="dom-repeat" id="compoundList" on-dom-change="_compoundListDomChange"
+                                  items="{{currentComponentMetadata.manifest.artifacts.compoundComponents}}" as="compound">
+                            <paper-item class="menu-trigger artifact explorerItem" id$="[[compound.artifactId]]"
+                                        data-artifact-id$="[[compound.artifactId]]">
+                                <!--<iron-icon icon="icons:donut-small" item-icon></iron-icon>-->
+                                <paper-item-body>
+                                    <div>[[compound.artifactId]]</div>
+                                </paper-item-body>
+                                <paper-tooltip for$="[[compound.artifactId]]">
+                                    <div class="tooltip tooltip_title">[[compound.artifactId]]</div>
+                                    <div class="tooltip tooltip_details">[[compound.description]]</div>
+                                    <div class="tooltip tooltip_details">[[compound.members.length]] Members</div>
+                                </paper-tooltip>
+                                <br>
+                                <paper-icon-button icon="icons:settings" alt="Settings"
+                                                   on-tap="_openCompoundDetails"
+                                                   disabled$="[[!_equals(currentComponentMetadata.artifactId, compound.artifactId)]]"
+                                                   data-index$="[[index]]"
+                                                   class="menuIconButton">
+                                </paper-icon-button>
+                            </paper-item>
+                        </template>
+                    </paper-menu>
 
-        <div collapse-opened$="[[_utilitiesOpen]]">
-            <div class="container" tabindex="0" on-tap="_toggleUtilities">
-                <span>Utilities</span>
-                <span class="count">([[currentComponentMetadata.manifest.artifacts.utilities.length]])</span>
-                <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_utilitiesOpen)]]"></iron-icon>
+                    <paper-icon-item class="addItem" on-tap="_addCompound">
+                        <iron-icon icon="icons:add" item-icon></iron-icon>
+                        <paper-item-body>
+                            <div>Add new compound</div>
+                        </paper-item-body>
+                    </paper-icon-item>
+                </iron-collapse>
             </div>
-            <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
-                <template is="dom-repeat" id="utilityList"
-                          items="{{currentComponentMetadata.manifest.artifacts.utilities}}" as="utility">
-                    <div class="explorerItem artifact" id$="[[utility.artifactId]]">
-                        <div>[[utility.artifactId]]</div>
-                        <paper-tooltip for$="[[utility.artifactId]]">
-                            <div class="tooltip tooltip_title">[[utility.artifactId]]</div>
-                            <div class="tooltip tooltip_details">[[utility.description]]</div>
-                        </paper-tooltip>
-                        <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
-                    </div>
-                </template>
 
-            </iron-collapse>
+            <div collapse-opened$="[[_elementariesOpen]]">
+                <div class="container" tabindex="0" on-tap="_toggleElementaries">
+                    <span>Elementaries</span>
+                    <span class="count">([[currentComponentMetadata.manifest.artifacts.elementaryComponents.length]])</span>
+                    <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_elementariesOpen)]]"></iron-icon>
+                </div>
+                <iron-collapse id="collapseElementaries" opened="[[_elementariesOpen]]">
+                    <template is="dom-repeat" id="elementaryList"
+                              items="{{currentComponentMetadata.manifest.artifacts.elementaryComponents}}" as="elementary">
+                        <div class="explorerItem artifact" id$="[[elementary.artifactId]]">
+                            <div>[[elementary.artifactId]]</div>
+                            <paper-tooltip for$="[[elementary.artifactId]]">
+                                <div class="tooltip tooltip_title">[[elementary.artifactId]]</div>
+                                <div class="tooltip tooltip_details">[[elementary.description]]</div>
+                            </paper-tooltip>
+                        </div>
+                    </template>
+                </iron-collapse>
+
+            </div>
+
+            <div collapse-opened$="[[_utilitiesOpen]]">
+                <div class="container" tabindex="0" on-tap="_toggleUtilities">
+                    <span>Utilities</span>
+                    <span class="count">([[currentComponentMetadata.manifest.artifacts.utilities.length]])</span>
+                    <iron-icon class="alignRight" icon="[[_calculateToggleIcon(_utilitiesOpen)]]"></iron-icon>
+                </div>
+                <iron-collapse id="collapseUtilities" opened="[[_utilitiesOpen]]">
+                    <template is="dom-repeat" id="utilityList"
+                              items="{{currentComponentMetadata.manifest.artifacts.utilities}}" as="utility">
+                        <div class="explorerItem artifact" id$="[[utility.artifactId]]">
+                            <div>[[utility.artifactId]]</div>
+                            <paper-tooltip for$="[[utility.artifactId]]">
+                                <div class="tooltip tooltip_title">[[utility.artifactId]]</div>
+                                <div class="tooltip tooltip_details">[[utility.description]]</div>
+                            </paper-tooltip>
+                            <!--<paper-icon-button icon="icons:settings" alt="Settings" on-tap="openSettings"></paper-icon-button>-->
+                        </div>
+                    </template>
+
+                </iron-collapse>
+            </div>
+
+            <div id="proposalsPanel" class="lower-panel" collapse-opened$="[[_proposalsOpen]]">
+                <div class="container" tabindex="0" on-tap="_toggleProposals">
+                    <span>Proposals</span>
+                    <span class="count">([[proposals.length]])</span>
+                    <iron-icon class="alignRight" icon="[[_calculateProposalToggleIcon(_proposalsOpen)]]"></iron-icon>
+                </div>
+                <iron-collapse id="proposals" opened="[[_proposalsOpen]]">
+
+                    <div class="proposalsContent">
+                        <template is="dom-repeat" id="proposalList" items="{{proposals}}" as="proposal">
+                            <div>[[proposal.clusterMembers]]</div>
+                            <div>[[proposal.suggestions]]</div>
+                        </template>
+                    </div>
+
+                </iron-collapse>
+            </div>
         </div>
     </template>
 </dom-module>

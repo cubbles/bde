@@ -74,6 +74,10 @@
         }
       },
 
+      proposals: {
+        type: Object,
+        notify: true
+      },
       /**
        * A map to cache the already resolved components. The key is the artifactId, the value has the property artifact with the artifact object, and the property componentId.
        * @type Object
@@ -811,6 +815,17 @@
       console.log('UTGARD Response', response);
       let proposals = this._createProposals(response);
       console.log('UTGARD proposals', proposals);
+      let oldPropLength = this.proposals.length;
+      if (oldPropLength > 0) {
+        this.splice('proposals', 0, oldPropLength);
+      }
+      if (!this.proposals) {
+        this.set('proposals', {});
+      }
+      proposals.forEach(prop => {
+        this.push('proposals', prop);
+      });
+      // this.set('proposals', proposals);
     },
 
     _removeAllUtgardObjects: function (artifactId) {
