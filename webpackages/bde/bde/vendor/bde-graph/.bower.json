@@ -21,22 +21,22 @@
     "Felix Dürrwald <mplabs@mplabs.de>",
     "Judit Ross <judit.ross@incowia.com>",
     "Philipp Waqgner <philipp.wagner@incowia.com>",
-    "Maximilian Hamm <Maximilian.Hamm@incowia.com>"
+    "Maximilian Hamm <Maximilian.Hamm@incowia.com>",
+    "Edwin Gamboa <edwingamboa355@gmail.com>"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/cubbles/bde-graph.git"
   },
   "homepage": "https://github.com/cubbles/bde-graph",
-  "version": "2.0.18",
-  "_release": "2.0.18",
+  "version": "2.0.19",
+  "_release": "2.0.19",
   "_resolution": {
     "type": "version",
-    "tag": "2.0.18",
-    "commit": "f714787a9ce5e5d2db6934816321a35234c041b5"
+    "tag": "2.0.19",
+    "commit": "5746e4229ac02848d02a0b180639b6d88b8984ae"
   },
   "_source": "https://github.com/cubbles/bde-graph.git",
-  "_target": "2.0.18",
-  "_originalSource": "bde-graph",
-  "_direct": true
+  "_target": "^2.0.8",
+  "_originalSource": "bde-graph"
 }

@@ -532,14 +532,14 @@
             target.id + '.' +
             edge.to.port.replace('__SLOT__', '') +
             (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '');
-          key = 'inport.edge.' + edge.from.port;
+          key = 'inport.edge.' + edge.from.port + '.' + edge.to.node + '.' + edge.to.port;
         } else if (outport) {
           label = source.id + '.' +
             edge.from.port.replace('__SLOT__', '') +
             (edge.from.hasOwnProperty('index') ? '[' + edge.from.index + ']' : '') + ' -> ' +
             edge.to.port.replace('__SLOT__', '') +
             (edge.to.hasOwnProperty('index') ? '[' + edge.to.index + ']' : '');
-          key = 'outport.edge.' + edge.to.port;
+          key = 'outport.edge.' + edge.from.node + '.' + edge.from.port + '.' + edge.to.port;
         } else {
           label = (source.metadata.label ? source.metadata.label + '.' : '') +
             edge.from.port +
