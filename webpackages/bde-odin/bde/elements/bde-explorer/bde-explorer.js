@@ -1,3 +1,4 @@
+/* global buildWebpackageId */
 // @importedBy bde-explorer.html
 
 Polymer({
@@ -210,6 +211,15 @@ Polymer({
   _calculateProposalToggleIcon: function (state) {
     return state ? 'icons:expand-more' : 'icons:expand-less';
   },
+
+  _clusterNumber: function (index) {
+    return index + 1;
+  },
+
+  _clusterString: function (clusters) {
+    return clusters.join(', ');
+  },
+
   /**
    * Handler after the list of compounds is changed, and the dom-repeat template of the compound list is updated.
    * @param {Event} e dom-change event on compoundList
@@ -330,6 +340,9 @@ Polymer({
     this.$.compoundSelector.select(e.detail.value.artifactId);
   },
 
+  _clusterId: function (index) {
+    return 'cluster' + index;
+  },
   /**
    * Open the compound details editor dialog.
    * @param {Event} e tap event on gear by side of a compound
@@ -471,6 +484,18 @@ Polymer({
       this._elementariesOpen = false;
     }
     this._utilitiesOpen = !this._utilitiesOpen;
-  }
+  },
 
+  _showSuggestionWebpackageId: function (webpackageId) {
+    let manifest = this.currentComponentMetadata.manifest;
+    if (buildWebpackageId(manifest) === webpackageId) {
+      return 'hide';
+    } else {
+      return '';
+    }
+  },
+
+  _suggestionId: function (clusterId, suggestionId) {
+    return 'cluster' + clusterId + 'suggestion' + suggestionId;
+  }
 });

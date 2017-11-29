@@ -16,6 +16,7 @@
 <link rel="import" href="bde-webpackage-meta-info.html"/>
 <link rel="import" href="../../vendor/paper-menu/paper-menu.html"/>
 <link rel="import" href="../../vendor/paper-tooltip/paper-tooltip.html"/>
+<link rel="import" href="../lib/webpackageUtils.js" />
 
 <!--
 `bde-explorer` is the management component for handling cubble packages
@@ -49,6 +50,7 @@ Example:
             .container:focus {
                 outline: 0;
             }
+
 
             .container > span {
                 margin-left: 20px;
@@ -165,12 +167,25 @@ Example:
 
             }
 
-            .proposalsContent {
-                margin-left: 20px;
-            }
 
             .hide {
                 display: none;
+            }
+
+
+            .suggestions-item {
+                --paper-item-min-height: 24px;
+                padding-left: 54px;
+            }
+            .cluster-item {
+                padding-left: 30px;
+            }
+            .proposal-panel {
+                border-top: #404040 solid thin;
+            }
+            .proposal-panel .title span{
+                font-size: 16px;
+                font-weight: bold;
             }
         </style>
         <div>
@@ -315,8 +330,8 @@ Example:
                 </iron-collapse>
             </div>
 
-            <div id="proposalsPanel" class="lower-panel" collapse-opened$="[[_proposalsOpen]]">
-                <div class="container" tabindex="0" on-tap="_toggleProposals">
+            <div id="proposalsPanel" class="proposal-panel" collapse-opened$="[[_proposalsOpen]]">
+                <div class="container title" tabindex="0" on-tap="_toggleProposals">
                     <span>Proposals</span>
                     <span class="count">([[proposals.length]])</span>
                     <iron-icon class="alignRight" icon="[[_calculateProposalToggleIcon(_proposalsOpen)]]"></iron-icon>
@@ -324,9 +339,36 @@ Example:
                 <iron-collapse id="proposals" opened="[[_proposalsOpen]]">
 
                     <div class="proposalsContent">
-                        <template is="dom-repeat" id="proposalList" items="{{proposals}}" as="proposal">
-                            <div>[[proposal.clusterMembers]]</div>
-                            <div>[[proposal.suggestions]]</div>
+                        <template is="dom-repeat" id="proposalList" items="{{proposals}}" as="proposal" index-as="clusterIndex">
+                            <div class="cluster">
+                                <paper-item id$="[[_clusterId(clusterIndex)]]" class="cluster-item">
+                                    <paper-item-body>
+                                        <div><b>cluster [[_clusterNumber(clusterIndex)]]</b></div>
+                                        <div><small><b>[[_clusterString(proposal.clusterMembers)]]</b></small></div>
+                                    </paper-item-body>
+                                </paper-item>
+                                <paper-tooltip for$="[[_clusterId(clusterIndex)]]" position="top">
+                                    <div class="tooltip tooltip_title">cluster [[_clusterNumber(clusterIndex)]]</div>
+                                    <div class="tooltip tooltip_details">Members on which the proposals were based:</div>
+                                    <div class="tooltip tooltip_details"><b>[[_clusterString(proposal.clusterMembers)]]</b></div>
+                                </paper-tooltip>
+                                <div class="suggestions">
+                                    <template is="dom-repeat" id="proposalSuggestions" items="{{proposal.suggestions}}" as="suggestion" index-as="suggestionIndex">
+                                        <paper-item id$="[[_suggestionId(clusterIndex,suggestionIndex)]]" class="suggestions-item">
+                                            <paper-item-body>
+                                                <div class="suggestion">[[suggestion.artifactId]]</div>
+                                                <div class$="[[_showSuggestionWebpackageId(suggestion.webpackageId)]]"><small>[[suggestion.webpackageId]]</small></div>
+                                            </paper-item-body>
+                                        </paper-item>
+                                        <paper-tooltip for$="[[_suggestionId(clusterIndex,suggestionIndex)]]" position="top">
+                                            <div class="tooltip tooltip_title">Suggestion</div>
+                                            <div class="tooltip tooltip_details">artifactId: <small>[[suggestion.artifactId]]</small></div>
+                                            <div class="tooltip tooltip_details">webpackageId: <small>[[suggestion.webpackageId]]</small></div>
+                                            <div class="tooltip tooltip_details">weight: <small>[[suggestion.weight]]<small></div>
+                                        </paper-tooltip>
+                                    </template>
+                                </div>
+                            </div>
                         </template>
                     </div>
 
