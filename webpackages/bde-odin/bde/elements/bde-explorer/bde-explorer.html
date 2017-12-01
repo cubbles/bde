@@ -359,6 +359,16 @@ Example:
                                                 <div class="suggestion">[[suggestion.artifactId]]</div>
                                                 <div class$="[[_showSuggestionWebpackageId(suggestion.webpackageId)]]"><small>[[suggestion.webpackageId]]</small></div>
                                             </paper-item-body>
+                                            <paper-icon-button
+                                                    icon="icons:add"
+                                                    alt="add member"
+                                                    on-tap="_addMember"
+                                                    data-cluster-index$="[[clusterIndex]]"
+                                                    data-suggestion-index$="[[suggestionIndex]]"
+                                                    data-artifact-id$="[[suggestion.artifactId]]"
+                                                    data-webpackage-id$=[[suggestion.webpackageId]]"
+                                            >
+                                            </paper-icon-button>
                                         </paper-item>
                                         <paper-tooltip for$="[[_suggestionId(clusterIndex,suggestionIndex)]]" position="top">
                                             <div class="tooltip tooltip_title">Suggestion</div>
@@ -371,7 +381,6 @@ Example:
                             </div>
                         </template>
                     </div>
-
                 </iron-collapse>
             </div>
         </div>
