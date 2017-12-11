@@ -183,7 +183,8 @@
       'bde-current-artifact-id-edited': '_setIsCurrentArtifactIdEdited',
       'bde-reset-webpackage-change': '_handleResetWebpackage',
       'bde-load-manifest': '_loadManifest',
-      'bde-add-proposal-as-member': '_addProposalAsMember'
+      'bde-add-proposal-as-member': '_addProposalAsMember',
+      'bde-set-selected-members': '_setSelectedMembers'
     },
 
     observers: [
@@ -773,6 +774,9 @@
       }
     },
 
+    _setSelectedMembers: function (evt) {
+      this.$.dataflowView.setSelectedMembers(evt.detail);
+    },
     /**
      * Set the url param in the browser location field without reload the page.
      * @param {string} param the value of the url parameter

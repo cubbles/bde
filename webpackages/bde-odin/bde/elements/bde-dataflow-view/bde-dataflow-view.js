@@ -235,6 +235,18 @@
     // _handleAddNode: function () {
     //   console.log(arguments);
     // },
+
+    attached: function () {
+      // Set initial graph size
+      this.async(this.handleResize);
+
+      // Resize cannot be bound using `listeners`
+      window.addEventListener('resize', this.handleResize.bind(this));
+    },
+
+    /* ********************************************************************/
+    /* ************************** public methods **************************/
+    /* ********************************************************************/
     /**
      * Called if a new member selected in base browser.
      * @param {Event} event iron-selected event
@@ -276,16 +288,6 @@
       });
     },
 
-    attached: function () {
-      // Set initial graph size
-      this.async(this.handleResize);
-
-      // Resize cannot be bound using `listeners`
-      window.addEventListener('resize', this.handleResize.bind(this));
-    },
-    /* ********************************************************************/
-    /* ************************** public methods **************************/
-    /* ********************************************************************/
     /**
      * Handle the resize event
      */
@@ -372,6 +374,11 @@
       this.$.bdeGraph.reset();
       this._removeAllUtgardObjects();
     },
+
+    setSelectedMembers: function (members) {
+      this.set('_selectedMembers', members);
+    },
+
     /**
      * Trigger the aotulayout.
      */

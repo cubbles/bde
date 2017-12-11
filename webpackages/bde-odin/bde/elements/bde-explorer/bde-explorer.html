@@ -341,7 +341,7 @@ Example:
                     <div class="proposalsContent">
                         <template is="dom-repeat" id="proposalList" items="{{proposals}}" as="proposal" index-as="clusterIndex">
                             <div class="cluster">
-                                <paper-item id$="[[_clusterId(clusterIndex)]]" class="cluster-item">
+                                <paper-item id$="[[_clusterId(clusterIndex)]]" class="cluster-item"  on-tap="_selectMembersOnGraph" data-cluster-members$="[[proposal.clusterMembers]]">
                                     <paper-item-body>
                                         <div><b>cluster [[_clusterNumber(clusterIndex)]]</b></div>
                                         <div><small><b>[[_clusterString(proposal.clusterMembers)]]</b></small></div>

@@ -445,6 +445,21 @@ Polymer({
     this.fire('iron-select', { is: 'elementary', item: item });
   },
 
+  _selectMembersOnGraph: function (evt) {
+    let manifest = this.currentComponentMetadata.manifest;
+    let artifact = manifest.artifacts.compoundComponents.find(comp => comp.artifactId === this.currentComponentMetadata.artifactId);
+    if (!artifact) {
+      return;
+    }
+    let clusterMembers = JSON.parse(evt.currentTarget.dataset.clusterMembers);
+    let members = [];
+    clusterMembers.forEach(m => {
+      let member = artifact.members.find(member => m === member.memberId);
+      members.push(member);
+    });
+
+    this.fire('bde-set-selected-members', members);
+  },
   /**
    * Select an app in "Utilities" menu
    * @param {Event} e tap event on "Utilities"
