@@ -186,8 +186,6 @@ Polymer({
       return;
     }
     let element = e.currentTarget;
-    console.log('####################', element);
-    console.log('####################', element.dataset);
     let artifactId = element.dataset.artifactId;
     let webpackageId = element.dataset.webpackageId;
     if (webpackageId === buildWebpackageId(manifest)) {
