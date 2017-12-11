@@ -182,7 +182,8 @@
       'bde-current-artifact-edited': '_currentArtifactReload',
       'bde-current-artifact-id-edited': '_setIsCurrentArtifactIdEdited',
       'bde-reset-webpackage-change': '_handleResetWebpackage',
-      'bde-load-manifest': '_loadManifest'
+      'bde-load-manifest': '_loadManifest',
+      'bde-add-proposal-as-member': '_addProposalAsMember'
     },
 
     observers: [
@@ -295,6 +296,10 @@
       this.$.flowIcon.setAttribute('ariaActiveAttribute', 'aria-pressed');
       this.$.designIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
       this.$.appIcon.setAttribute('ariaActiveAttribute', 'aria-not-pressed');
+    },
+
+    _addProposalAsMember: function (evt) {
+      this.$.dataflowView.addMember(evt);
     },
 
     /**

@@ -1,4 +1,4 @@
-/* global buildWebpackageId */
+/* global buildWebpackageId, generateDisplayName */
 // @importedBy bde-explorer.html
 
 Polymer({
@@ -190,49 +190,27 @@ Polymer({
     console.log('####################', element.dataset);
     let artifactId = element.dataset.artifactId;
     let webpackageId = element.dataset.webpackageId;
-    let dependency = this._findDependencyToArtifactId(artifactId, hostArtifact);
-    if (!dependency) {
-      this._addDependency(hostArtifact, artifactId, webpackageId);
+    if (webpackageId === buildWebpackageId(manifest)) {
+      webpackageId = 'this';
     }
     let memberId = artifactId + '-' + Math.random().toString(36).substring(7);
-    let member = {
+    this.fire('bde-member-loading');
+    /**
+     * Setting the cubble metadata.
+     * @type {Object}
+     */
+    let cubble = {
       memberId: memberId,
-      artifactId: artifactId
+      displayName: generateDisplayName(artifactId, hostArtifact.members),
+      metadata: {
+        webpackageId: webpackageId,
+        artifactId: artifactId
+      }
     };
-    hostArtifact.members.push(member);
-    // let key = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(hostArtifact);
-    // if (!key) {
-    //   console.error('Could not add member to manifest, becouse the key of artifact with artifactId "' + this.currentComponentMetadata.artifactId + '" + not avaible');
-    //   return;
-    // }
-    // let path = 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + key + '.members';
-    // console.log('add member path: ' + path);
-    // this.push(path, member);
-    this.set('currentComponentMetadata.manifest', manifest);
-    this.fire('bde-current-artifact-edited');
-  },
-  _addDependency: function (hostArtifact, artifactId, webpackageId) {
-    // let key = new Polymer.Collection(this.currentComponentMetadata.manifest.artifacts.compoundComponents).getKey(hostArtifact);
-    // if (!key) {
-    //   console.error('Could not add dependency to manifest, becouse the key of artifact with artifactId "' + this.currentComponentMetadata.artifactId + '" + not avaible');
-    //   return;
-    // }
 
-    let dependency = {
-      artifactId: artifactId
-    };
-    if (webpackageId === buildWebpackageId(this.currentComponentMetadata.manifest)) {
-      dependency.webpackagId = webpackageId;
-    }
-    // console.log('dependency', dependency);
-    // let path = 'currentComponentMetadata.manifest.artifacts.compoundComponents.' + key + '.dependencies';
-    // console.log('add dependency path: ' + path);
-    // this.push(path, dependency);
-    hostArtifact.dependencies.push(dependency);
+    this.fire('bde-add-proposal-as-member', { item: cubble });
   },
-  _findDependencyToArtifactId: function (artifactId, artifact) {
-    return artifact.dependencies.find(dep => dep.artifactId === artifactId);
-  },
+
   /**
    * Handler method: called if the artifactId in currentComponentMetadata changed.
    * @param artifactId

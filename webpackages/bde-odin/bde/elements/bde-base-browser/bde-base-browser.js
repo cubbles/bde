@@ -1,5 +1,5 @@
 // @importedBy bde-base-browser.html
-/* globals _ */
+/* globals _, generateDisplayName */
 'use strict';
 
 Polymer({
@@ -258,32 +258,7 @@ Polymer({
 
     this.async(() => this.$.list.fire('iron-resize'));
   },
-  /**
-   * Generate a unique display name for the choosen component.
-   * (Search in all members displayname with patterns  {artifactId}-{number}, find the largest number,
-   * and added as a new displayname {artifactId}-{bigestNumber + 1}, or if no displayname with the pattern exist added {artifactId}-1
-   *
-   * @param  {[String]} artifactId [current cubble's artifactId]
-   * @return {[String]}            [modified artifactId]
-   * @method _generateDisplayName
-   */
-  _generateDisplayName: function (artifactId) {
-    var members = this.currentComponent.members;
-    var filteredMembers = members.filter(function (member) {
-      return member && member.displayName && member.displayName.startsWith(artifactId);
-    });
-    if (filteredMembers.length === 0) {
-      return artifactId;
-    }
-    var max = 0;
-    filteredMembers.forEach(function (member) {
-      var ext = member.displayName.substr(artifactId.length);
-      if (ext.startsWith('-') && !isNaN(ext.substr(1))) {
-        max = Math.max(max, ext.substr(1));
-      }
-    });
-    return artifactId + '-' + (++max);
-  },
+
   /**
    * The handler method for dialog open. Set the focus to the search field.
    *
@@ -389,7 +364,7 @@ Polymer({
      */
     var cubble = {
       memberId: artifact.artifactId + '-' + Math.random().toString(36).substring(7),
-      displayName: this._generateDisplayName(artifact.artifactId),
+      displayName: generateDisplayName(artifact.artifactId, this.currentComponent.members),
       metadata: {
         webpackageId: artifact.webpackageId,
         artifactId: artifact.artifactId

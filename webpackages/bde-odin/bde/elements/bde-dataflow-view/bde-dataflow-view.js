@@ -235,6 +235,46 @@
     // _handleAddNode: function () {
     //   console.log(arguments);
     // },
+    /**
+     * Called if a new member selected in base browser.
+     * @param {Event} event iron-selected event
+     * @method addMember
+     */
+    addMember: function (event) {
+      var cubble = event.detail.item;
+
+      // Close the search dialog
+      this.$.browser.close();
+
+      var member = {
+        memberId: cubble.memberId,
+        artifactId: cubble.metadata.artifactId,
+        displayName: cubble.displayName
+      };
+
+      var dependency = {
+        artifactId: member.artifactId
+      };
+      if (cubble.metadata.webpackageId !== 'this') {
+        dependency.webpackageId = cubble.metadata.webpackageId;
+      }
+      if (cubble.metadata.endpointId) {
+        dependency.endpointId = cubble.metadata.endpointId;
+      }
+      if (!this._artifact.dependencies) {
+        this.set('_artifact.dependencies', []);
+      }
+      this.push('_artifact.dependencies', dependency);
+
+      var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, cubble.metadata.webpackageId, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
+      promise.then((data) => {
+        this.$.bdeGraph.registerComponent(data.component);
+        this.push('_artifact.members', data.member);
+        this.$.browser.refreshBrowserList();
+        // End of loading animation - animation started with this.fire('bde-member-loading');
+        this.fire('bde-member-loaded');
+      });
+    },
 
     attached: function () {
       // Set initial graph size
@@ -497,46 +537,6 @@
     /* *********************** private methods ****************************/
     /* ********************************************************************/
 
-    /**
-     * Called if a new member selected in base browser.
-     * @param {Event} event iron-selected event
-     * @method _addMember
-     */
-    _addMember: function (event) {
-      var cubble = event.detail.item;
-
-      // Close the search dialog
-      this.$.browser.close();
-
-      var member = {
-        memberId: cubble.memberId,
-        artifactId: cubble.metadata.artifactId,
-        displayName: cubble.displayName
-      };
-
-      var dependency = {
-        artifactId: member.artifactId
-      };
-      if (cubble.metadata.webpackageId !== 'this') {
-        dependency.webpackageId = cubble.metadata.webpackageId;
-      }
-      if (cubble.metadata.endpointId) {
-        dependency.endpointId = cubble.metadata.endpointId;
-      }
-      if (!this._artifact.dependencies) {
-        this.set('_artifact.dependencies', []);
-      }
-      this.push('_artifact.dependencies', dependency);
-
-      var promise = window.cubx.bde.bdeDataConverter.resolveMember(member, cubble.metadata.webpackageId, this.currentComponentMetadata.manifest, this._baseUrl(), this.resolutions);
-      promise.then((data) => {
-        this.$.bdeGraph.registerComponent(data.component);
-        this.push('_artifact.members', data.member);
-        this.$.browser.refreshBrowserList();
-        // End of loading animation - animation started with this.fire('bde-member-loading');
-        this.fire('bde-member-loaded');
-      });
-    },
     /**
      * Called if the property _artifactId changed.
      * @param { object}changeRecord
