@@ -538,7 +538,7 @@ Polymer({
     if (buildWebpackageId(manifest) === webpackageId) {
       return 'hide';
     } else {
-      return '';
+      return 'proposal-webpackage';
     }
   },
 
