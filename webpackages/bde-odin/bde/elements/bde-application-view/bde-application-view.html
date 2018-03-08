@@ -25,50 +25,48 @@ Example:
 -->
 
 <dom-module id="bde-application-view">
+    <template>
+        <style>
 
-    <style is="custom-style">
+            :host {
+                display: block;
+                height: 100%;
+            }
 
-        :host {
-            display: block;
-            height: 100%;
-        }
-
-        iframe {
-            display: block;
-            width: 100%;
-            height: 100vh;
-        }
+            iframe {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
 
             iframe.hidden {
                 visibility: hidden;
                 display: none;
             }
 
-        .spinner-wrapper {
-            @apply(--layout-fit);
-            @apply(--layout-vertical);
-            @apply(--layout-center-center);
-        }
+            .spinner-wrapper {
+                @apply(--layout-fit);
+                @apply(--layout-vertical);
+                @apply(--layout-center-center);
+            }
 
-        paper-button{
-          color: #1DB1CC;
-        }
+            paper-button{
+                color: #1DB1CC;
+            }
 
-        .hint {
-            padding: .5em 0;
-            color: var(--secondary-text-color);
+            .hint {
+                padding: .5em 0;
+                color: var(--secondary-text-color);
 
-            @apply(--paper-font-subhead);
-        }
+                @apply(--paper-font-subhead);
+            }
 
             .hint a {
                 text-decoration: none;
                 color: var(--accent-color);
             }
 
-    </style>
-
-    <template>
+        </style>
 
         <div class="spinner-wrapper" hidden="[[loaded]]">
             <paper-spinner id="spinner" active></paper-spinner>
